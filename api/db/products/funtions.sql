@@ -1,3 +1,7 @@
+/************************************/
+/*Función para Insertar Productos*/
+/************************************/
+
 CREATE OR REPLACE PROCEDURE insertProduct(p_name TEXT, p_description TEXT, p_price NUMERIC, p_stock INT, p_weight NUMERIC,
                                                                                 p_sizes TEXT, p_isActive BOOLEAN, p_categoryId INT, p_brandId INT, p_createdBy INT, p_updatedBy INT)
 

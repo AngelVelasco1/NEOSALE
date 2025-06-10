@@ -1,11 +1,7 @@
-CREATE OR REPLACE FUNCTION create_order_initial(
-    p_total INT,
-    p_paymentMethod orders_paymentmethod_enum,
-    p_userId INT,
-    p_couponId INT DEFAULT NULL,
-    p_updatedBy INT
-)
-RETURNS INT AS $$
+CREATE OR REPLACE PROCEDURE create_order_initial(p_total INT, p_paymentMethod orders_paymentmethod_enum, p_userId INT, p_couponId INT DEFAULT NULL, p_updatedBy INT)
+    LANGUAGE plpgsql
+    AS $$
+    RETURNS INT AS $$
 DECLARE
     new_order_id INT;
 BEGIN
@@ -48,4 +44,4 @@ EXCEPTION
         RAISE NOTICE 'Error al crear la orden: %', SQLERRM;
         RETURN NULL;
 END;
-$$ LANGUAGE plpgsql;
+$$ ;

@@ -1,3 +1,7 @@
+/********************************/
+/*Función para Crear Usuarios*/
+/*******************************/
+
 CREATE OR REPLACE PROCEDURE createUser(p_name TEXT, p_email TEXT, p_emailverified BOOLEAN, p_password TEXT, p_phonenumber TEXT, p_roleid INT)
     LANGUAGE plpgsql
     AS $$
@@ -8,9 +12,9 @@ CREATE OR REPLACE PROCEDURE createUser(p_name TEXT, p_email TEXT, p_emailverifie
     $$;
 
 
-/*************************************/
+/***********************************/
 /*Función para Eliminar Usuarios*/
-/************************************/
+/**********************************/
 CREATE OR REPLACE PROCEDURE deleteUser(p_id INT)
     LANGUAGE plpgsql
     AS $$
