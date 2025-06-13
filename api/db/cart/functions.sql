@@ -1,19 +1,29 @@
-CREATE PROCEDURE addProductToCart(p_userId INT, p_productId INT, p_quantity INT) 
+
+CREATE OR REPLACE sp_createCart(p_userId INT)
+    LANGUAGE plpgsql
+        AS $$
+        BEGIN
+          INSERT INTO cart (userId, createdAt, totalPrice) VALUES (p_userId, CURRENT_TIMESTAMP, 0);
+        END;
+    $$;
+
+
+CREATE OR REPLACE PROCEDURE sp_addProductToCart(p_userId INT, p_productId INT, p_quantity INT) 
    LANGUAGE plpgsql
-    AS $$
-    BEGIN
+      AS $$
+      BEGIN
         INSERT INTO cart_items (cartId, productId, quantity, unitPrice, expiresAt) 
         VALUES (
         (SELECT id FROM cart WHERE userId = p_userId),
         p_productId,
         p_quantity,
         (SELECT price FROM products WHERE id = p_productId),
-        NOW() + INTERVAL '30 days');
-    END;
+        NOW() + INTERVAL '60 days');
+      END;
     $$;
 
 
-CREATE OR REPLACE PROCEDURE deleteProductToCart(p_userId INT, p_productId INT)
+CREATE OR REPLACE PROCEDURE sp_deleteProductToCart(p_userId INT, p_productId INT)
 
     LANGUAGE plpgsql
     AS $$
@@ -25,7 +35,7 @@ CREATE OR REPLACE PROCEDURE deleteProductToCart(p_userId INT, p_productId INT)
     $$;
 
 
-CREATE PROCEDURE updateProductToCart(p_userId INT, p_productId INT, p_quantity INT) 
+CREATE PROCEDURE sp_updateProductToCart(p_userId INT, p_productId INT, p_quantity INT) 
    LANGUAGE plpgsql
     AS $$
     BEGIN
