@@ -1,6 +1,8 @@
+import React from 'react';
+
 export const RegisterForm = () => {
     return(
-            <div className="max-w-lg max-sm:max-w-lg mx-auto p-6 mt-6">
+    <div className="max-w-lg max-sm:max-w-lg mx-auto p-6 mt-6">
       <div className="text-center mb-12 sm:mb-16">
     
         <h4 className="text-slate-900 text-center text-3xl font-semibold">Regístrate</h4>

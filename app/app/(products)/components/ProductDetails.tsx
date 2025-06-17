@@ -58,7 +58,8 @@ export const ProductDetails = ({ data }: ProductDetailsProps) => {
     <div className="grid gap-10 md:grid-cols-2 space-y-4 p-4">
       <div className="flex flex-row-reverse">
         <div className="flex-1 relative aspect-square  rounded-lg bg-gray-100">
-          {data.images[selectedImage]?.imageurl ?   <Image
+          {data.images[selectedImage]?.imageurl ?   
+          <Image
             src={data.images[selectedImage]?.imageurl}
             alt={data.images[selectedImage]?.color}
             width={460}
