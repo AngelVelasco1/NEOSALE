@@ -3,11 +3,11 @@
   "version": "1.0.0",
   "private": true,
   "scripts": {
-    "dev": "concurrently \"npm run dev --prefix app\" \"npm run dev --prefix api\"",
-    "front": "npm run dev --prefix app",
-    "back": "npm run dev --prefix api",
-    "build": "npm run build --prefix app",
-    "start": "npm run start --prefix app"
+    "dev": "concurrently \"npm run dev --prefix frontend\" \"npm run dev --prefix backend\"",
+    "front": "npm run dev --prefix frontend",
+    "back": "npm run dev --prefix backend",
+    "build": "npm run build --prefix frontend",
+    "start": "npm run start --prefix frontend"
   },
   "dependencies": {
     "@auth/core": "^0.38.0",
