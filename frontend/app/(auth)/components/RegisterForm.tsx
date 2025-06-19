@@ -1,6 +1,6 @@
 import React from 'react';
 
-export const RegisterForm = () => {
+export const RegisterForm: React.FC = () => {
     return(
     <div className="max-w-lg max-sm:max-w-lg mx-auto p-6 mt-6">
       <div className="text-center mb-12 sm:mb-16">

@@ -1,31 +1,42 @@
+"use client"
+
 import React from 'react';
+import Link from "next/link"
 import { useState } from 'react';
 import { loginSchema } from '@/lib/zod';
 import * as z from "zod"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { useForm } from "react-hook-form"
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form"
-import Link from "next/link"
 import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
 import { Eye, EyeOff, User } from "lucide-react"
+import { signIn } from "next-auth/react"
 
 type loginFormValues = z.infer<typeof loginSchema>
 
-export const LoginForm = ()  => {
-  const [showPassword, setShowPassword] = useState(false)
-  const [isLoading, setIsLoading] = useState(false)
+export const LoginForm: React.FC = ()  => {
+  const [showPassword, setShowPassword] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+
   const form = useForm<loginFormValues>({
     resolver: zodResolver(loginSchema),
     defaultValues: {
       email: "",
-      password: "",
+      password: ""
     },
   })
 
-  const onSubmit = () => {
-    setIsLoading(true)
-  }
+    const onSubmit = async (formData: FormData) => {
+      setIsLoading(true);
+       const data = {
+        email: formData.get("email") as string,
+        password: formData.get("password") as string,
+      };
+      await signIn("credentials", data);
+      setIsLoading(false);
+
+    }
 
 
     return(
@@ -37,14 +48,13 @@ export const LoginForm = ()  => {
           <div className="p-8 rounded-2xl bg-white shadow">
             <h2 className="text-slate-900 text-center text-3xl font-semibold">Iniciar sesión</h2>
             <Form {...form}>
-              <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-                {/* Campo Email */}
+              <form className="space-y-6" action={onSubmit}>
                 <FormField
                   control={form.control}
                   name="email"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel className="text-slate-800 text-sm font-medium">Email</FormLabel>
+                      <FormLabel htmlFor='credentials-email' className="text-slate-800 text-sm font-medium">Email</FormLabel>
                       <FormControl>
                         <div className="relative">
                           <Input type="email" placeholder="Escribe tu email" className="pr-10" {...field} />
@@ -56,17 +66,16 @@ export const LoginForm = ()  => {
                   )}
                 />
 
-                {/* Campo Contraseña */}
                 <FormField
                   control={form.control}
                   name="password"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel className="text-slate-800 text-sm font-medium">Contraseña</FormLabel>
+                      <FormLabel htmlFor='credentials-password' className="text-slate-800 text-sm font-medium">Contraseña</FormLabel>
                       <FormControl>
                         <div className="relative">
                           <Input
-                            type={showPassword ? "text" : "password"}
+                            type={showPassword ? "text" : "password" }
                             placeholder="Escribe tu contraseña"
                             className="pr-10"
                             {...field}
@@ -89,7 +98,6 @@ export const LoginForm = ()  => {
                   )}
                 />
 
-                {/* Recordar usuario y Olvidaste contraseña */}
                 <div className="flex flex-wrap items-center justify-between gap-4">
                   <div className="text-sm">
                     <Link href="/forgot-password" className="text-blue-600 hover:underline font-semibold">
@@ -98,14 +106,12 @@ export const LoginForm = ()  => {
                   </div>
                 </div>
 
-                {/* Botón de envío */}
                 <div className="pt-6">
-                  <Button type="submit" className="w-full" disabled={isLoading}>
+                  <Button type='submit' className="w-full" value="Sign In" disabled={isLoading}>
                     {isLoading ? "Iniciando sesión..." : "Iniciar sesión"}
                   </Button>
                 </div>
 
-                {/* Link de registro */}
                 <p className="text-slate-800 text-sm text-center">
                   ¿No tienes una cuenta?{" "}
                   <Link href="/register" className="text-blue-600 hover:underline ml-1 whitespace-nowrap font-semibold">

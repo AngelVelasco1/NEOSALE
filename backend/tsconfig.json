@@ -16,7 +16,7 @@
     "./**/*.ts",
     "prisma/schema.prisma",
     "prisma/**/*"
-  ],
+, "../frontend/lib/prisma.ts"  ],
   "exclude": [
     "node_modules",
     "dist"

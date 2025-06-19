@@ -12,7 +12,7 @@ export const loginSchema = z.object({
 export const registerSchema = z.object({
   name: z.string().min(1, 'Email es requerido').email('Email formato invalido'),
   email: z.string().min(1, 'Email es requerido').email('Email formato invalido'),
-   phoneNumber: z.string()
+  phoneNumber: z.string()
     .min(7, 'El número de teléfono debe tener al menos 7 dígitos')
     .or(z.literal('')) // Permite que el campo sea un string vacío ''
     .optional(),       // Permite que el campo no exista (undefined)
