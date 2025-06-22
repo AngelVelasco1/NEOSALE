@@ -3,13 +3,13 @@
 import React from 'react';
 import Link from "next/link"
 import { useState } from 'react';
-import { loginSchema } from '@/lib/zod';
+import { loginSchema } from '@/lib/zod.ts';
 import * as z from "zod"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { useForm } from "react-hook-form"
-import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form"
-import { Input } from "@/components/ui/input"
-import { Button } from "@/components/ui/button"
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form.tsx"
+import { Input } from "@/components/ui/input.tsx"
+import { Button } from "@/components/ui/button.tsx"
 import { Eye, EyeOff, User } from "lucide-react"
 import { signIn } from "next-auth/react"
 
@@ -26,17 +26,16 @@ export const LoginForm: React.FC = ()  => {
       password: ""
     },
   })
+  const onSubmit = async (values: loginFormValues) => {
+    setIsLoading(true);
+    await signIn("credentials", {
+      email: values.email,
+      password: values.password,
+      redirect: false, 
+    });
+    setIsLoading(false);
+  };
 
-    const onSubmit = async (formData: FormData) => {
-      setIsLoading(true);
-       const data = {
-        email: formData.get("email") as string,
-        password: formData.get("password") as string,
-      };
-      await signIn("credentials", data);
-      setIsLoading(false);
-
-    }
 
 
     return(
@@ -48,7 +47,7 @@ export const LoginForm: React.FC = ()  => {
           <div className="p-8 rounded-2xl bg-white shadow">
             <h2 className="text-slate-900 text-center text-3xl font-semibold">Iniciar sesión</h2>
             <Form {...form}>
-              <form className="space-y-6" action={onSubmit}>
+              <form className="space-y-6" onSubmit={form.handleSubmit(onSubmit)}>
                 <FormField
                   control={form.control}
                   name="email"

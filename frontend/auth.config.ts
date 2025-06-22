@@ -7,7 +7,6 @@ export default {
      Credentials({ 
       authorize: async (credentials) => {
         console.log({credentials});
-      
         if (credentials.email !== "emailprueba@gmail.com") {
           throw new Error("Invalid credentials.")
         }
