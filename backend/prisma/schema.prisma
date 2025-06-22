@@ -1,4 +1,3 @@
-
 generator client {
   provider = "prisma-client-js"
 }
@@ -8,6 +7,7 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+/// output   = "../generated/prisma"
 model addresses {
   id         Int      @id @default(autoincrement())
   address    String   @db.VarChar(255)
@@ -50,9 +50,7 @@ model cart_items {
 
 model categories {
   id                   Int                    @id @default(autoincrement())
-  name                 String                 @db.VarChar(255)
-  idsubcategory        Int
-  subcategory          subcategory            @relation(fields: [idsubcategory], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  name                 String                 @unique @db.VarChar(255)
   category_subcategory category_subcategory[]
   products             products[]
 }
@@ -60,8 +58,8 @@ model categories {
 model category_subcategory {
   categoryid    Int
   subcategoryid Int
-  categories    categories  @relation(fields: [categoryid], references: [id], onDelete: NoAction, onUpdate: NoAction)
-  subcategory   subcategory @relation(fields: [subcategoryid], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  categories    categories    @relation(fields: [categoryid], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  subcategories subcategories @relation(fields: [subcategoryid], references: [id], onDelete: NoAction, onUpdate: NoAction)
 
   @@id([categoryid, subcategoryid])
 }
@@ -184,39 +182,27 @@ model roles {
   users            users[]
 }
 
-model subcategory {
+model subcategories {
   id                   Int                    @id @default(autoincrement())
   name                 String                 @db.VarChar(255)
-  categories           categories[]
   category_subcategory category_subcategory[]
 }
 
 model users {
-  id            Int         @id @default(autoincrement())
-  name          String      @db.VarChar(255)
-  email         String      @unique @db.VarChar(255)
-  emailverified Boolean?
-  password      String      @db.VarChar(255)
-  phonenumber   String      @unique @db.VarChar(255)
-  roleid        Int
-  createdat     DateTime    @default(now()) @db.Timestamp(6)
-  addresses     addresses[]
-  cart          cart[]
-  orders        orders[]
-  reviews       reviews[]
-  roles         roles       @relation(fields: [roleid], references: [id], onDelete: NoAction, onUpdate: NoAction)
-}
-
-enum ORDERS_paymentMethod_enum {
-  ASDASDAS
-}
-
-enum ORDERS_status_enum {
-  faddsdf
-}
-
-enum ORDER_LOGS_previousStatus_enum {
-  HSDJSAHJDAS
+  id             Int         @id @default(autoincrement())
+  name           String      @db.VarChar(255)
+  email          String      @unique @db.VarChar(255)
+  emailverified  Boolean?
+  password       String      @db.VarChar(255)
+  phonenumber    String?     @unique @db.VarChar(255)
+  identification String?     @unique @db.VarChar(255)
+  roleid         Int
+  createdat      DateTime    @default(now()) @db.Timestamp(6)
+  addresses      addresses[]
+  cart           cart[]
+  orders         orders[]
+  reviews        reviews[]
+  roles          roles       @relation(fields: [roleid], references: [id], onDelete: NoAction, onUpdate: NoAction)
 }
 
 enum orders_paymentmethod_enum {
