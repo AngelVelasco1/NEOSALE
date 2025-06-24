@@ -62,7 +62,7 @@ CREATE TABLE IF NOT EXISTS USERS (
   name VARCHAR(255) NOT NULL,
   email VARCHAR(255) UNIQUE NOT NULL,
   emailVerified BOOLEAN,
-  password VARCHAR(255) NOT NULL,
+  password VARCHAR(255),
   phoneNumber VARCHAR(255) UNIQUE,
   identification VARCHAR(255) UNIQUE,
   roleId INT NOT NULL,

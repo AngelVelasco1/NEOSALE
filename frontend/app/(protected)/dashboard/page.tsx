@@ -1,5 +1,6 @@
+import { SignOut } from "@/app/(auth)/components/SingOut"
 import { auth } from "@/auth"
- 
+
 export default async function Dashboard() {
   const session = await auth()
  
@@ -10,6 +11,7 @@ export default async function Dashboard() {
   return (
     <div className="container">
       <pre>{JSON.stringify(session, null, 2)}</pre>
+      <SignOut />
     </div>
   )
 }

@@ -1,8 +1,4 @@
-import pkg from '@prisma/client';
-const { PrismaClient } = pkg;
-
-const prisma = new PrismaClient();
-
+import { prisma } from '../lib/prisma'
 
 export const addProductToCart  = async (userid?: number, productId?: number, quantity?: number) => {
     if (!userid || !productId || !quantity) throw new Error('Parámetros inválidos');
