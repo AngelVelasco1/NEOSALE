@@ -8,9 +8,12 @@
     "back": "npm run dev --prefix backend",
     "build": "npm run build --prefix frontend",
     "start": "npm run start --prefix frontend"
-
-},
+  },
   "devDependencies": {
-    "concurrently": "^9.2.0"
+    "concurrently": "^9.2.0",
+    "prisma": "^6.10.1"
+  },
+  "dependencies": {
+    "@prisma/client": "^6.10.1"
   }
 }
