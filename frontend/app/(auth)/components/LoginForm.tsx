@@ -1,4 +1,4 @@
-"use client"
+"use client";
 
 import React from "react";
 import Link from "next/link";
@@ -7,26 +7,22 @@ import { loginSchema } from "@/lib/zod.ts";
 import * as z from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
-import {
-  Form,
-  FormControl,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage,
-} from "@/components/ui/form.tsx";
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage} from "@/components/ui/form.tsx";
 import { Input } from "@/components/ui/input.tsx";
 import { Button } from "@/components/ui/button.tsx";
-import { Eye, EyeOff, User } from "lucide-react";
+import { Eye, EyeOff, User, Lock } from "lucide-react"
 import { signIn } from "next-auth/react";
-import { AuthError } from "next-auth";
+import { useRouter } from "next/navigation";
+
 
 type loginFormValues = z.infer<typeof loginSchema>;
 
 export const LoginForm: React.FC = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState<string>("");
+  const [error, setError] = useState<string | null>(null);
+
+  const router = useRouter();
 
   const form = useForm<loginFormValues>({
     resolver: zodResolver(loginSchema),
@@ -35,64 +31,77 @@ export const LoginForm: React.FC = () => {
       password: "",
     },
   });
-  
+
   const onSubmit = async (values: loginFormValues) => {
     setIsLoading(true);
-    setError("");
+    setError(null);
+    
     try {
       const result = await signIn("credentials", {
         email: values.email,
         password: values.password,
-        redirectTo: "/dashboard",
-        redirect: false, // Importante: evita redirección automática para manejar errores
+        redirect: false,
       });
-
+      
+      console.log(result);
+      
       if (result?.error) {
-        setError("Por favor, verifica tu email y contraseña. Estan Incorrectas");
-      } else if (result?.ok) {
-        window.location.href = "/dashboard";
+        let errorMessage;
+
+        switch (result.error) {
+          case "CredentialsSignin":
+            errorMessage = "Email o contraseña incorrectos";
+            break;
+          case "AccessDenied":
+            errorMessage = "Acceso denegado";
+            break;
+          default:
+            errorMessage = "Error de autenticación. Inténtalo de nuevo.";
+        }
+        setError(errorMessage);
+        setIsLoading(false);
+        return;
       }
-    } catch (err) {
-      console.error("Error durante el login:", err);
-      setError("Error interno del servidor. Por favor, intenta de nuevo.");
-    } finally {
-      setIsLoading(false);
-    }
+      
+      if (result?.ok) {
+        setIsLoading(false);
+        router.push("/dashboard");
+      } 
+    } catch (error: any) {      
+        setError("Error del servidor");
+        console.error( `Internal server error: ${error.message}`)
+        setIsLoading(false);
+      }
+
   };
 
-  return (
-    <div className="bg-gray-50">
-      <div className="min-h-screen flex flex-col items-center justify-center py-6 px-4">
+ return (
+    <div className="min-h-screen">
+      <div className="min-h-screen flex flex-col items-center  px-4">
         <div className="max-w-md w-full">
-          <div className="p-8 rounded-2xl bg-white shadow">
-            <h2 className="text-slate-900 text-center text-3xl font-semibold">
-              Iniciar sesión
-            </h2>
+          <div className="p-8 rounded-2xl bg-white shadow-xl border border-gray-100">
+            <div className="text-center mb-8">
+              <h2 className="text-slate-900 text-3xl font-bold mb-2">Iniciar sesión</h2>
+              <p className="text-slate-600">Ingresa tus credenciales para continuar</p>
+            </div>
+
             <Form {...form}>
-              <form
-                className="space-y-6"
-                onSubmit={form.handleSubmit(onSubmit)}
-              >
+              <form className="space-y-5" onSubmit={form.handleSubmit(onSubmit)}>
                 <FormField
                   control={form.control}
                   name="email"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel
-                        htmlFor="credentials-email"
-                        className="text-slate-800 text-sm font-medium"
-                      >
-                        Email
-                      </FormLabel>
+                      <FormLabel className="text-slate-800 text-sm font-medium">Email</FormLabel>
                       <FormControl>
                         <div className="relative">
                           <Input
                             type="email"
-                            placeholder="Escribe tu email"
-                            className="pr-10"
+                            placeholder="ejemplo@correo.com"
+                            className="pl-10 h-12 border-gray-200 focus:border-blue-500 focus:ring-blue-500"
                             {...field}
                           />
-                          <User className="absolute right-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
+                          <User className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
                         </div>
                       </FormControl>
                       <FormMessage />
@@ -105,30 +114,22 @@ export const LoginForm: React.FC = () => {
                   name="password"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel
-                        htmlFor="credentials-password"
-                        className="text-slate-800 text-sm font-medium"
-                      >
-                        Contraseña
-                      </FormLabel>
+                      <FormLabel className="text-slate-800 text-sm font-medium">Contraseña</FormLabel>
                       <FormControl>
                         <div className="relative">
                           <Input
                             type={showPassword ? "text" : "password"}
                             placeholder="Escribe tu contraseña"
-                            className="pr-10"
+                            className="pl-10 pr-10 h-12 border-gray-200 focus:border-blue-500 focus:ring-blue-500"
                             {...field}
                           />
+                          <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
                           <button
                             type="button"
                             onClick={() => setShowPassword(!showPassword)}
-                            className="absolute right-3 top-1/2 transform -translate-y-1/2"
+                            className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600"
                           >
-                            {showPassword ? (
-                              <EyeOff className="h-4 w-4 text-gray-400" />
-                            ) : (
-                              <Eye className="h-4 w-4 text-gray-400" />
-                            )}
+                            {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
                           </button>
                         </div>
                       </FormControl>
@@ -137,47 +138,55 @@ export const LoginForm: React.FC = () => {
                   )}
                 />
 
-                <div className="flex flex-wrap items-center justify-between gap-4">
-                  <div className="text-sm">
-                    <Link
-                      href="/forgot-password"
-                      className="text-blue-600 hover:underline font-semibold"
-                    >
-                      ¿Olvidaste contraseña?
-                    </Link>
-                  </div>                </div>
+                <div className="flex justify-end">
+                  <Link
+                    href="/forgot-password"
+                    className="text-sm text-blue-600 hover:text-blue-700 font-medium hover:underline transition-colors"
+                  >
+                    ¿Olvidaste tu contraseña?
+                  </Link>
+                </div>
 
                 {error && (
-                  <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-md text-sm">
+                  <div className="bg-red-50 border border-red-200 text-red-600 px-4 py-3 rounded-lg text-sm flex items-center gap-2">
+                    <div className="w-2 h-2 bg-red-500 rounded-full flex-shrink-0"></div>
                     {error}
                   </div>
                 )}
 
-                <div className="pt-6">
+                <div className="pt-4">
                   <Button
                     type="submit"
-                    className="w-full"
-                    value="Sign In"
+                    className="w-full h-12 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white font-medium rounded-lg transition-all duration-200 shadow-lg hover:shadow-xl"
                     disabled={isLoading}
                   >
-                    {isLoading ? "Iniciando sesión..." : "Iniciar sesión"}
+                    {isLoading ? (
+                      <div className="flex items-center gap-2">
+                        <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                        Iniciando sesión...
+                      </div>
+                    ) : (
+                      "Iniciar sesión"
+                    )}
                   </Button>
                 </div>
 
-                <p className="text-slate-800 text-sm text-center">
-                  ¿No tienes una cuenta?{" "}
-                  <Link
-                    href="/register"
-                    className="text-blue-600 hover:underline ml-1 whitespace-nowrap font-semibold"
-                  >
-                    Regístrate aquí
-                  </Link>
-                </p>
+                <div className="text-center pt-4">
+                  <p className="text-slate-600 text-sm">
+                    ¿No tienes una cuenta?{" "}
+                    <Link
+                      href="/register"
+                      className="text-blue-600 hover:text-blue-700 font-semibold hover:underline transition-colors"
+                    >
+                      Regístrate aquí
+                    </Link>
+                  </p>
+                </div>
               </form>
             </Form>
           </div>
         </div>
       </div>
     </div>
-  );
+  )
 };

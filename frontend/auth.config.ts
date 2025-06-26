@@ -2,23 +2,35 @@ import type { NextAuthConfig } from "next-auth"
 import Credentials from "next-auth/providers/credentials"
 import { prisma } from "../backend/lib/prisma"
 import { loginSchema } from "./lib/zod"
-
+import bcrypt from "bcryptjs"
 // Notice this is only an object, not a full Auth.js instance
 export default {
   providers: [
      Credentials({ 
       authorize: async (credentials) => {
-          const {data, success} =  loginSchema.safeParse(credentials)
+          const {data, success} =   loginSchema.safeParse(credentials)
           if(!success) {
-            throw new Error('Invalid')
+            return null
           }
 
-          const user = prisma.users.findUnique({
+          const user = await prisma.users.findUnique({
             where: {
               email: data.email,
-              password: data.password
             }
           })
+
+          if (!user || !user.password) {
+              return null
+          }
+
+          const isPasswordValid = await bcrypt.compare(data.password, user.password);
+    
+           if (!isPasswordValid) {
+              return null
+          }
+
+          return user;
+
       },
     }),
   ],

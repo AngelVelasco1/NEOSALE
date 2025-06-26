@@ -51,9 +51,7 @@ model cart_items {
 
 model categories {
   id                   Int                    @id @default(autoincrement())
-  name                 String                 @db.VarChar(255)
-  idsubcategory        Int
-  subcategory          subcategory            @relation(fields: [idsubcategory], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  name                 String                 @unique @db.VarChar(255)
   category_subcategory category_subcategory[]
   products             products[]
 }
@@ -61,8 +59,8 @@ model categories {
 model category_subcategory {
   categoryid    Int
   subcategoryid Int
-  categories    categories  @relation(fields: [categoryid], references: [id], onDelete: NoAction, onUpdate: NoAction)
-  subcategories subcategory @relation(fields: [subcategoryid], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  categories    categories    @relation(fields: [categoryid], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  subcategories subcategories @relation(fields: [subcategoryid], references: [id], onDelete: NoAction, onUpdate: NoAction)
 
   @@id([categoryid, subcategoryid])
 }
@@ -163,44 +161,48 @@ model reviews {
 }
 
 model users {
-  id            Int         @id @default(autoincrement())
-  name          String      @db.VarChar(255)
-  email         String      @unique @db.VarChar(255)
-  emailverified Boolean?
-  password      String?     @db.VarChar(255)
-  phonenumber   String      @unique @db.VarChar(255)
-  createdAt     DateTime    @default(now())
-  role          roles_enum  @default(user)
-  accounts      Account[]
-  addresses     addresses[]
-  cart          cart[]
-  orders        orders[]
-  reviews       reviews[]
+  id             Int         @id @default(autoincrement())
+  name           String      @db.VarChar(255)
+  email          String      @unique @db.VarChar(255)
+  emailverified  Boolean?
+  password       String      @db.VarChar(255)
+  phonenumber    String?     @unique @db.VarChar(255)
+  identification String?     @unique @db.VarChar(255)
+  roleid         Int
+  createdat      DateTime    @default(now()) @db.Timestamp(6)
+  addresses      addresses[]
+  cart           cart[]
+  orders         orders[]
+  reviews        reviews[]
+  roles          roles       @relation(fields: [roleid], references: [id], onDelete: NoAction, onUpdate: NoAction)
 }
 
-model Account {
-  userId            Int
-  type              String
-  provider          String
-  providerAccountId String
-  refresh_token     String?
-  access_token      String?
-  expires_at        Int?
-  token_type        String?
-  scope             String?
-  id_token          String?
-  session_state     String?
-  createdAt         DateTime @default(now())
-  updatedAt         DateTime @updatedAt
-  user              users    @relation(fields: [userId], references: [id], onDelete: Cascade)
-
-  @@id([provider, providerAccountId])
+model permissions {
+  id               Int                @id @default(autoincrement())
+  name             String             @unique @db.VarChar(255)
+  description      String?            @db.VarChar(255)
+  role_permissions role_permissions[]
 }
 
-model subcategory {
+model role_permissions {
+  roleid       Int
+  permissionid Int
+  permissions  permissions @relation(fields: [permissionid], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  roles        roles       @relation(fields: [roleid], references: [id], onDelete: NoAction, onUpdate: NoAction)
+
+  @@id([roleid, permissionid])
+}
+
+model roles {
+  id               Int                @id @default(autoincrement())
+  name             String             @unique @db.VarChar(255)
+  role_permissions role_permissions[]
+  users            users[]
+}
+
+model subcategories {
   id                   Int                    @id @default(autoincrement())
   name                 String                 @db.VarChar(255)
-  categories           categories[]
   category_subcategory category_subcategory[]
 }
 
@@ -211,14 +213,9 @@ enum orders_paymentmethod_enum {
 }
 
 enum orders_status_enum {
-  pending
-  paid
-  processing
-  shipped
-  delivered
-}
-
-enum roles_enum {
-  user
-  admin
+  Pending
+  Paid
+  Processing
+  Shipped
+  Delivered
 }

@@ -20,3 +20,14 @@ export const getLatestProducts = async () => {
   return data;
 };
 
+export const registerUser = async (userData: {
+  name: string;
+  email: string;
+  password: string;
+  phoneNumber: string;
+  emailVerified?: boolean;
+  identification?: string;
+}) => {
+  const { data } = await api.post("/api/use/register", userData);
+  return data; 
+}

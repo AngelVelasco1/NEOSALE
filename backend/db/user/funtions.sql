@@ -2,12 +2,12 @@
 /*Función para Crear Usuarios*/
 /*******************************/
 
-CREATE OR REPLACE PROCEDURE createUser(p_name TEXT, p_email TEXT, p_emailverified BOOLEAN, p_password TEXT, p_phonenumber TEXT, p_roleid INT)
+CREATE OR REPLACE PROCEDURE sp_createUser(p_name TEXT, p_email TEXT, p_emailverified BOOLEAN, p_password TEXT, p_phonenumber TEXT, p_identification TEXT, p_roleid INT)
     LANGUAGE plpgsql
     AS $$
     BEGIN
-        INSERT INTO users (name, email, emailverified, password, phonenumber, roleid) 
-        VALUES (p_name, p_email, p_emailverified, p_password, p_phonenumber, p_roleid);
+        INSERT INTO users (name, email, emailverified, password, phonenumber, identification) 
+        VALUES (p_name, p_email, p_emailverified, p_password, p_phonenumber, p_identification);
     END;
     $$;
 
@@ -15,7 +15,7 @@ CREATE OR REPLACE PROCEDURE createUser(p_name TEXT, p_email TEXT, p_emailverifie
 /***********************************/
 /*Función para Eliminar Usuarios*/
 /**********************************/
-CREATE OR REPLACE PROCEDURE deleteUser(p_id INT)
+CREATE OR REPLACE PROCEDURE sp_deleteUser(p_id INT)
     LANGUAGE plpgsql
     AS $$
     BEGIN
@@ -27,7 +27,7 @@ $$;
 /*************************************/
 /*Función para Actualizar Usuarios*/
 /************************************/
-CREATE OR REPLACE PROCEDURE updateUser(p_name TEXT, p_email TEXT, p_emailverified BOOLEAN, p_password TEXT, p_phonenumber TEXT, p_roleid INT, p_createdat INT)
+CREATE OR REPLACE PROCEDURE sp_updateUser(p_name TEXT, p_email TEXT, p_emailverified BOOLEAN, p_password TEXT, p_phonenumber TEXT, p_roleid INT, p_createdat INT)
     LANGUAGE plpgsql
     AS $$
     BEGIN
