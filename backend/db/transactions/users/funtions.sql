@@ -1,21 +1,30 @@
 CREATE OR REPLACE PROCEDURE sp_createuser(
-    p_name VARCHAR(255),
-    p_email VARCHAR(255),
+    p_name TEXT,
+    p_email TEXT,
     p_emailverified BOOLEAN,
-    p_password VARCHAR(255),
-    p_phonenumber VARCHAR(255),
-    p_identification VARCHAR(255) ,
-    p_role roles_enum DEFAULT 'user'::roles_enum
+    p_password TEXT,
+    p_phonenumber TEXT,
+    p_identification TEXT,
+    p_role TEXT DEFAULT 'user'
 )
 LANGUAGE plpgsql
 AS $$
 BEGIN
     INSERT INTO users (name, email, emailverified, password, phonenumber, identification, role) 
-    VALUES (p_name, p_email, p_emailverified, p_password, p_phonenumber, p_identification, p_role);
+    VALUES (
+        p_name, 
+        p_email, 
+        p_emailverified, 
+        p_password, 
+        p_phonenumber, 
+        p_identification, 
+        p_role::roles_enum 
+    );
 END;
 $$;
 
-DROP PROCEDURE sp_createuser(character varying,character varying,boolean,character varying,character varying,character varying,roles_enum) 
+
+select * from users;
 CREATE OR REPLACE PROCEDURE sp_deleteUser(p_id users.id%TYPE)
 LANGUAGE plpgsql
 AS $$

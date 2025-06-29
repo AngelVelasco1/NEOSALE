@@ -13,6 +13,7 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form"
 import { signIn } from "next-auth/react";
+import { registerUser } from "../services/api";
 
 
 type RegisterFormValues = z.infer<typeof registerSchema>
@@ -31,12 +32,10 @@ export const RegisterForm: React.FC = () => {
     defaultValues: {
       name: "",
       email: "",
-      phoneNumber: "",
-      password: "",
-      confirmPassword: "",
       emailVerified: false,
-      identification: "",
-
+      password: "",
+      phoneNumber: "",
+      confirmPassword: ""
     },
   })
 
@@ -45,35 +44,21 @@ export const RegisterForm: React.FC = () => {
     setError(null)
 
     try {
-      const response = await fetch("/api/use/register", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          name: values.name,
-          email: values.email,
-          phoneNumber: values.phoneNumber,
-          password: values.password,
-          emailVerified: values.emailVerified,
-          identification: values.identification, 
-        }),
+      await registerUser({
+        name: values.name,
+        email: values.email,
+        emailVerified: values.emailVerified,
+        password: values.password,
+        phoneNumber: values.phoneNumber
       })
 
-      const data = await response.json()
-
-      if (!response.ok) {
-        throw new Error(data.message || "Error al crear la cuenta")
-      }
-
     setSuccess(true)
-
      await signIn("credentials", {
              email: values.email,
              password: values.password,
              redirect: false,
            });
-     router.push("/dashboard");
+    router.push("/dashboard");
       
     } catch (error: any) {
       setError(error.message || "Error del servidor")
@@ -92,10 +77,7 @@ export const RegisterForm: React.FC = () => {
               <div className="text-center">
                 <CheckCircle className="mx-auto h-16 w-16 text-green-500 mb-4" />
                 <h2 className="text-slate-900 text-2xl font-semibold mb-2">¡Cuenta creada exitosamente!</h2>
-                <p className="text-slate-600 mb-4">Te redirigiremos al inicio de sesión en unos segundos...</p>
-                <Button onClick={() => router.push("/login")} className="w-full">
-                  Ir a iniciar sesión
-                </Button>
+                <p className="text-slate-600 mb-4">Te redirigiremos a la aplicacion en unos segundos...</p>
               </div>
             </div>
           </div>

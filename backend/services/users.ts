@@ -1,11 +1,12 @@
 import { prisma } from "../lib/prisma";
 import bcrypt from "bcryptjs";
 import { createUserParams } from "../types/users";
+import { roles_enum } from "@prisma/client";
 
 export const registerUserService = async ({
   name,
   email,
-  emailVerified = false,
+  emailVerified,
   password,
   phoneNumber,
   identification,
@@ -29,11 +30,11 @@ export const registerUserService = async ({
       CALL sp_createuser(
         ${name}, 
         ${email}, 
-        ${emailVerified}, 
+        ${emailVerified ?? false}, 
         ${hashedPassword}, 
         ${phoneNumber}, 
-        ${identification}, 
-        ${role})`;
+        ${identification ?? null}, 
+        ${role as roles_enum ?? "user"})`;
 
     const newUser = await prisma.users.findUnique({
       where: { email },

@@ -1,5 +1,5 @@
 CREATE DATABASE neosale;
-
+select * from users;
 -- Tipos ENUM
 DO $$ BEGIN
     IF NOT EXISTS (SELECT 1 FROM pg_type WHERE typname = 'orders_paymentmethod_enum') THEN
