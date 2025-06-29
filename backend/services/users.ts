@@ -1,30 +1,52 @@
 import { prisma } from "../lib/prisma";
+import bcrypt from "bcryptjs";
+import { createUserParams } from "../types/users";
 
-export const registerUserService = async (
-  name: string,
-  email: string,
-  password: string,
-  phoneNumber: string,
-  emailVerified?: boolean,
-  identification?: string
-) => {
-  if (!name || !email)
-    throw new Error("Parámetros inválidos");
+export const registerUserService = async ({
+  name,
+  email,
+  emailVerified = false,
+  password,
+  phoneNumber,
+  identification,
+  role 
+}: createUserParams) => {
+  if (!name || !email || !phoneNumber || !password) {
+    throw new Error("Campos requeridos faltantes");
+  }
 
-  let user = await prisma.users.findUnique({
-    where: { 
-        email,
-     },
+  const existingUser = await prisma.users.findUnique({
+    where: { email }
   });
 
-  if (user) {
-    return {
-        error: "El usuario ya existe",
-    };
+  if (existingUser) {
+    throw new Error("El usuario ya existe");
   }
-    let newUser = await prisma.$executeRawUnsafe(`CALL sp_createUser(${name}, ${email}, ${emailVerified}, ${password}, ${phoneNumber}, ${identification})`);
-    return {
-        message: "Usuario registrado exitosamente",
-        user: newUser,
-    }
+
+  const hashedPassword = await bcrypt.hash(password, 12);
+
+    await prisma.$executeRaw`
+      CALL sp_createuser(
+        ${name}, 
+        ${email}, 
+        ${emailVerified}, 
+        ${hashedPassword}, 
+        ${phoneNumber}, 
+        ${identification}, 
+        ${role})`;
+
+    const newUser = await prisma.users.findUnique({
+      where: { email },
+      select: {
+        id: true,
+        name: true,
+        email: true,
+        emailverified: true,
+        phonenumber: true,
+        identification: true,
+        role: true
+      },
+    });
+  
+    return newUser;
 };

@@ -36,6 +36,8 @@ model cart {
   expiresat    DateTime?    @db.Timestamp(6)
   users        users?       @relation(fields: [userid], references: [id], onDelete: NoAction, onUpdate: NoAction)
   cart_items   cart_items[]
+
+  @@index([userid], map: "idx_cart_userid")
 }
 
 model cart_items {
@@ -51,7 +53,9 @@ model cart_items {
 
 model categories {
   id                   Int                    @id @default(autoincrement())
-  name                 String                 @unique @db.VarChar(255)
+  name                 String                 @db.VarChar(255)
+  idsubcategory        Int
+  subcategory          subcategory            @relation(fields: [idsubcategory], references: [id], onDelete: NoAction, onUpdate: NoAction)
   category_subcategory category_subcategory[]
   products             products[]
 }
@@ -59,8 +63,8 @@ model categories {
 model category_subcategory {
   categoryid    Int
   subcategoryid Int
-  categories    categories    @relation(fields: [categoryid], references: [id], onDelete: NoAction, onUpdate: NoAction)
-  subcategories subcategories @relation(fields: [subcategoryid], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  categories    categories  @relation(fields: [categoryid], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  subcategories subcategory @relation(fields: [subcategoryid], references: [id], onDelete: NoAction, onUpdate: NoAction)
 
   @@id([categoryid, subcategoryid])
 }
@@ -81,6 +85,8 @@ model images {
   color     String   @db.VarChar(255)
   productid Int
   products  products @relation(fields: [productid], references: [id], onDelete: NoAction, onUpdate: NoAction)
+
+  @@index([productid], map: "idx_images_productid")
 }
 
 model order_items {
@@ -124,6 +130,8 @@ model orders {
   order_logs    order_logs[]
   coupons       coupons?                  @relation(fields: [couponid], references: [id], onDelete: NoAction, onUpdate: NoAction)
   users         users                     @relation(fields: [userid], references: [id], onDelete: NoAction, onUpdate: NoAction)
+
+  @@index([userid], map: "idx_orders_userid")
 }
 
 model products {
@@ -147,6 +155,9 @@ model products {
   brands      brands        @relation(fields: [brandid], references: [id], onDelete: NoAction, onUpdate: NoAction)
   categories  categories    @relation(fields: [categoryid], references: [id], onDelete: NoAction, onUpdate: NoAction)
   reviews     reviews[]
+
+  @@index([brandid], map: "idx_products_brandid")
+  @@index([categoryid], map: "idx_products_categoryid")
 }
 
 model reviews {
@@ -158,6 +169,8 @@ model reviews {
   createdat DateTime @default(now()) @db.Timestamp(6)
   products  products @relation(fields: [productid], references: [id], onDelete: NoAction, onUpdate: NoAction)
   users     users    @relation(fields: [userid], references: [id], onDelete: NoAction, onUpdate: NoAction)
+
+  @@index([productid], map: "idx_reviews_productid")
 }
 
 model users {
@@ -165,44 +178,43 @@ model users {
   name           String      @db.VarChar(255)
   email          String      @unique @db.VarChar(255)
   emailverified  Boolean?
-  password       String      @db.VarChar(255)
-  phonenumber    String?     @unique @db.VarChar(255)
+  password       String?     @db.VarChar(255)
+  phonenumber    String      @unique @db.VarChar(255)
   identification String?     @unique @db.VarChar(255)
-  roleid         Int
-  createdat      DateTime    @default(now()) @db.Timestamp(6)
+  createdAt      DateTime    @default(now()) @db.Timestamp(6)
+  role           roles_enum  @default(user)
+  Account        Account[]
   addresses      addresses[]
   cart           cart[]
   orders         orders[]
   reviews        reviews[]
-  roles          roles       @relation(fields: [roleid], references: [id], onDelete: NoAction, onUpdate: NoAction)
+
+  @@index([email], map: "idx_users_email")
 }
 
-model permissions {
-  id               Int                @id @default(autoincrement())
-  name             String             @unique @db.VarChar(255)
-  description      String?            @db.VarChar(255)
-  role_permissions role_permissions[]
+model Account {
+  userId            Int
+  type              String   @db.VarChar(255)
+  provider          String   @db.VarChar(255)
+  providerAccountId String   @db.VarChar(255)
+  refresh_token     String?
+  access_token      String?
+  expires_at        Int?
+  token_type        String?  @db.VarChar(255)
+  scope             String?  @db.VarChar(255)
+  id_token          String?
+  session_state     String?  @db.VarChar(255)
+  createdAt         DateTime @default(now()) @db.Timestamp(6)
+  updatedAt         DateTime @default(now()) @db.Timestamp(6)
+  users             users    @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: NoAction)
+
+  @@id([provider, providerAccountId])
 }
 
-model role_permissions {
-  roleid       Int
-  permissionid Int
-  permissions  permissions @relation(fields: [permissionid], references: [id], onDelete: NoAction, onUpdate: NoAction)
-  roles        roles       @relation(fields: [roleid], references: [id], onDelete: NoAction, onUpdate: NoAction)
-
-  @@id([roleid, permissionid])
-}
-
-model roles {
-  id               Int                @id @default(autoincrement())
-  name             String             @unique @db.VarChar(255)
-  role_permissions role_permissions[]
-  users            users[]
-}
-
-model subcategories {
+model subcategory {
   id                   Int                    @id @default(autoincrement())
   name                 String                 @db.VarChar(255)
+  categories           categories[]
   category_subcategory category_subcategory[]
 }
 
@@ -213,9 +225,14 @@ enum orders_paymentmethod_enum {
 }
 
 enum orders_status_enum {
-  Pending
-  Paid
-  Processing
-  Shipped
-  Delivered
+  pending
+  paid
+  processing
+  shipped
+  delivered
+}
+
+enum roles_enum {
+  user
+  admin
 }

@@ -66,11 +66,15 @@ export const RegisterForm: React.FC = () => {
         throw new Error(data.message || "Error al crear la cuenta")
       }
 
-      setSuccess(true)
+    setSuccess(true)
 
-      setTimeout(() => {
-        router.push("/login")
-      }, 2000)
+     await signIn("credentials", {
+             email: values.email,
+             password: values.password,
+             redirect: false,
+           });
+     router.push("/dashboard");
+      
     } catch (error: any) {
       setError(error.message || "Error del servidor")
       console.error(`Registration error: ${error.message}`)
