@@ -24,8 +24,8 @@ export const Navbar = () => {
   ];
 
   return (
-    <nav className="container sticky top-0 w-100 z-40 mx-auto px-6 py-7 flex items-center justify-between bg-white ">
-      <div className="flex items-center space-x-4">
+    <nav className="container sticky top-0 w-full z-40 mx-auto px-6 flex items-center justify-around bg-white ">
+      <div className="flex items-center space-x-6">
  
     <div>
              <Image
@@ -37,13 +37,6 @@ export const Navbar = () => {
 
                   />
     </div>
-
-        <div
-          style={{ color: colors.primary }}
-          className="text-xl font-bold uppercase"
-        >
-          A NEW WAY TO SALE
-        </div>
       </div>
       <div className="text-lg hidden md:flex space-x-10">
         {pages.map((page, index) => {

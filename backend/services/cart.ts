@@ -1,19 +1,15 @@
-import pkg from '@prisma/client';
-const { PrismaClient } = pkg;
+import { prisma } from '../lib/prisma'
 
-const prisma = new PrismaClient();
-
-
-export const addProductToCart  = async (userId?: number, productId?: number, quantity?: number) => {
-    if (!userId || !productId || !quantity) throw new Error('Parámetros inválidos');
+export const addProductToCart  = async (userid?: number, productId?: number, quantity?: number) => {
+    if (!userid || !productId || !quantity) throw new Error('Parámetros inválidos');
 
     let cart = await prisma.cart.findFirst({
-        where: { userId }
+        where: { userid }
     })
 
     if (!cart) {
-        await prisma.$executeRawUnsafe(`CALL sp_createCart(${userId})`);    
-        cart = await prisma.cart.findFirst({where: { userId }})
+        await prisma.$executeRawUnsafe(`CALL sp_createCart(${userid})`);    
+        cart = await prisma.cart.findFirst({where: { userid }})
     }
     
 
@@ -36,7 +32,7 @@ export const addProductToCart  = async (userId?: number, productId?: number, qua
         });
     }
      else {
-        await prisma.$executeRawUnsafe(`CALL sp_addProductToCart(${userId}, ${productId}, ${quantity})`); 
+        await prisma.$executeRawUnsafe(`CALL sp_addProductToCart(${userid}, ${productId}, ${quantity})`); 
     }
 
 };
