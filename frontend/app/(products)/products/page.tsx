@@ -4,11 +4,25 @@ import React, { useEffect, useState } from "react";
 import { IProduct } from "../types";
 import { getProducts } from "../services/api";
 import { ProductCard } from "../components/ProductCard";
-import { Filter } from "../components/filter";
+import { Filter } from "../components/Filter";
+import { Button } from "@/components/ui/button";
+import { MobileFilter } from "../components/MobileFilter";
+import { Grid, List } from "lucide-react"
+
 
 export const ProductsPage = () => {
   const [products, setProducts] = useState<IProduct[]>([]);
   const [filteredProducts, setFilteredProducts] = useState<IProduct[]>([]);
+  const [viewMode, setViewMode] = useState<"grid" | "list">("grid")
+
+    const colors = [
+    { name: "Azul", value: "blue", color: "bg-blue-500" },
+    { name: "Rosa", value: "pink", color: "bg-pink-500" },
+    { name: "Púrpura", value: "purple", color: "bg-purple-500" },
+    { name: "Negro", value: "black", color: "bg-black" },
+    { name: "Blanco", value: "white", color: "bg-white border" },
+    { name: "Rojo", value: "red", color: "bg-red-500" },
+  ]
   
   useEffect(() => {
     const fetchProducts = async () => {
@@ -20,20 +34,15 @@ export const ProductsPage = () => {
   }, []);
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-gradient-to-br from-blue-100 via-indigo-100 to-purple-100">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <div className="flex flex-col lg:flex-row gap-8">
           {/* Sidebar Filters */}
           <div className="w-full lg:w-80 lg:flex-shrink-0">
-            <div className="bg-white rounded-lg shadow-sm border p-6 sticky top-8">
-              <h2 className="text-lg font-semibold text-gray-900 mb-4">
-                Filtros
-              </h2>
               <Filter 
                 products={products} 
                 setFilteredProducts={setFilteredProducts} 
-              />
-            </div>
+              />  
           </div>
 
           {/* Products Grid */}
@@ -52,6 +61,39 @@ export const ProductsPage = () => {
                 <option>Más Populares</option>
               </select>
             </div>
+
+              <div className="flex items-center gap-4 flex-wrap">
+                {/* Mobile Filter Button */}
+                <MobileFilter products={products} setFilteredProducts={setFilteredProducts} />
+
+                {/* View Mode Toggle */}
+                <div className="flex items-center bg-white/70 backdrop-blur-sm rounded-lg border border-blue-200 p-1">
+                  <Button
+                    variant={viewMode === "grid" ? "default" : "ghost"}
+                    size="sm"
+                    onClick={() => setViewMode("grid")}
+                    className={
+                      viewMode === "grid"
+                        ? "bg-gradient-to-r from-blue-500 to-indigo-600 text-white"
+                        : "text-gray-600 hover:text-blue-600"
+                    }
+                  >
+                    <Grid className="h-4 w-4" />
+                  </Button>
+                  <Button
+                    variant={viewMode === "list" ? "default" : "ghost"}
+                    size="sm"
+                    onClick={() => setViewMode("list")}
+                    className={
+                      viewMode === "list"
+                        ? "bg-gradient-to-r from-blue-500 to-indigo-600 text-white"
+                        : "text-gray-600 hover:text-blue-600"
+                    }
+                  >
+                    <List className="h-4 w-4" />
+                  </Button>
+                </div>
+              </div>
 
             {/* Products Grid */}
             {filteredProducts.length > 0 ? (

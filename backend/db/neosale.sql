@@ -40,8 +40,8 @@ CREATE TABLE users (
     password VARCHAR(255),
     phonenumber VARCHAR(255) UNIQUE NOT NULL,
     identification VARCHAR(255) UNIQUE,
-    role roles_enum DEFAULT 'user' NOT NULL
-    "createdAt" TIMESTAMP(6) DEFAULT CURRENT_TIMESTAMP NOT NULL,
+    role roles_enum DEFAULT 'user' NOT NULL,
+    "createdAt" TIMESTAMP(6) DEFAULT CURRENT_TIMESTAMP NOT NULL
 );
 
 -- Tabla brands

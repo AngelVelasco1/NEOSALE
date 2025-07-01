@@ -44,7 +44,6 @@ export const registerUserService = async ({
         email: true,
         emailverified: true,
         phonenumber: true,
-        identification: true,
         role: true
       },
     });

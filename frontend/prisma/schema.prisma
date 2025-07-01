@@ -36,8 +36,6 @@ model cart {
   expiresat    DateTime?    @db.Timestamp(6)
   users        users?       @relation(fields: [userid], references: [id], onDelete: NoAction, onUpdate: NoAction)
   cart_items   cart_items[]
-
-  @@index([userid], map: "idx_cart_userid")
 }
 
 model cart_items {
@@ -85,8 +83,6 @@ model images {
   color     String   @db.VarChar(255)
   productid Int
   products  products @relation(fields: [productid], references: [id], onDelete: NoAction, onUpdate: NoAction)
-
-  @@index([productid], map: "idx_images_productid")
 }
 
 model order_items {
@@ -130,8 +126,6 @@ model orders {
   order_logs    order_logs[]
   coupons       coupons?                  @relation(fields: [couponid], references: [id], onDelete: NoAction, onUpdate: NoAction)
   users         users                     @relation(fields: [userid], references: [id], onDelete: NoAction, onUpdate: NoAction)
-
-  @@index([userid], map: "idx_orders_userid")
 }
 
 model products {
@@ -155,9 +149,6 @@ model products {
   brands      brands        @relation(fields: [brandid], references: [id], onDelete: NoAction, onUpdate: NoAction)
   categories  categories    @relation(fields: [categoryid], references: [id], onDelete: NoAction, onUpdate: NoAction)
   reviews     reviews[]
-
-  @@index([brandid], map: "idx_products_brandid")
-  @@index([categoryid], map: "idx_products_categoryid")
 }
 
 model reviews {
@@ -169,44 +160,39 @@ model reviews {
   createdat DateTime @default(now()) @db.Timestamp(6)
   products  products @relation(fields: [productid], references: [id], onDelete: NoAction, onUpdate: NoAction)
   users     users    @relation(fields: [userid], references: [id], onDelete: NoAction, onUpdate: NoAction)
-
-  @@index([productid], map: "idx_reviews_productid")
 }
 
 model users {
-  id             Int         @id @default(autoincrement())
-  name           String      @db.VarChar(255)
-  email          String      @unique @db.VarChar(255)
-  emailverified  Boolean?
-  password       String?     @db.VarChar(255)
-  phonenumber    String      @unique @db.VarChar(255)
-  identification String?     @unique @db.VarChar(255)
-  createdAt      DateTime    @default(now()) @db.Timestamp(6)
-  role           roles_enum  @default(user)
-  Account        Account[]
-  addresses      addresses[]
-  cart           cart[]
-  orders         orders[]
-  reviews        reviews[]
-
-  @@index([email], map: "idx_users_email")
+  id            Int         @id @default(autoincrement())
+  name          String      @db.VarChar(255)
+  email         String      @unique @db.VarChar(255)
+  emailverified Boolean?
+  password      String?     @db.VarChar(255)
+  phonenumber   String      @unique @db.VarChar(255)
+  createdAt     DateTime    @default(now())
+  role          roles_enum  @default(user)
+  Account       Account[]
+  addresses     addresses[]
+  cart          cart[]
+  orders        orders[]
+  reviews       reviews[]
 }
 
 model Account {
   userId            Int
-  type              String   @db.VarChar(255)
-  provider          String   @db.VarChar(255)
-  providerAccountId String   @db.VarChar(255)
+  type              String
+  provider          String
+  providerAccountId String
   refresh_token     String?
   access_token      String?
   expires_at        Int?
-  token_type        String?  @db.VarChar(255)
-  scope             String?  @db.VarChar(255)
+  token_type        String?
+  scope             String?
   id_token          String?
-  session_state     String?  @db.VarChar(255)
-  createdAt         DateTime @default(now()) @db.Timestamp(6)
-  updatedAt         DateTime @default(now()) @db.Timestamp(6)
-  users             users    @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: NoAction)
+  session_state     String?
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime
+  users             users    @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@id([provider, providerAccountId])
 }
