@@ -22,14 +22,19 @@ const nextConfig = {
       },
     ],
   },
+   experimental: {
+    serverActions: true
+  },
   async rewrites() {
     return [
       {
         source: '/backend/:path*',
         destination:  `http://localhost:8000/backend/:path*`,
       },
+    
     ];
   },
+
 };
 export default nextConfig;
 
