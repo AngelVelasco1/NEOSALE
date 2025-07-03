@@ -1,12 +1,12 @@
 import type { Metadata } from "next";
 import "./styles/globals.css";
-import { Poppins, Volkhov } from "next/font/google";
+import { Poppins, Volkhov, PT_Sans_Caption } from "next/font/google";
 import { Navbar } from "./components/Navbar";
 import { Footer } from "./components/Footer";
 import { CartProvider } from "./(cart)/hooks/useCart";
 import React from 'react';
-
-const volkov = Volkhov({
+import { SessionProvider } from "next-auth/react";
+const sourceSans = PT_Sans_Caption({
   weight: ["400", "700"],
   subsets: ["latin"],
 });
@@ -35,7 +35,8 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body className={`${volkov.className} `}>
+      <body className={`${sourceSans.className} `}>
+        <SessionProvider>
         <CartProvider>
           <div className="flex flex-col min-h-screen">
             <Navbar />
@@ -43,7 +44,7 @@ export default function RootLayout({
             <Footer />
           </div>
         </CartProvider>
-
+        </SessionProvider>
       </body>
     </html>
   );

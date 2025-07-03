@@ -5,7 +5,10 @@ export default async function Dashboard() {
   const session = await auth()
  
   if (!session) {
-    return <div>Not authenticated</div>
+    return <div>You must be authenticated</div>
+  }
+  if (session?.user?.role !== 'admin') {
+    return <div>You must be admin</div>
   }
  
   return (

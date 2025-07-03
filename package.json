@@ -10,10 +10,8 @@
     "start": "npm run start --prefix frontend"
   },
   "devDependencies": {
-    "concurrently": "^9.2.0",
-    "prisma": "^6.10.1"
+    "concurrently": "^9.2.0"
   },
   "dependencies": {
-    "@prisma/client": "^6.10.1"
   }
 }

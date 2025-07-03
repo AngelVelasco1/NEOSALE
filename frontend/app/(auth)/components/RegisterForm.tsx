@@ -55,7 +55,7 @@ export const RegisterForm: React.FC = () => {
     setSuccess(true)
      await signIn("credentials", {
              email: values.email,
-             password: values.password,
+             password: values.password,        
              redirect: false,
            });
     router.push("/dashboard");

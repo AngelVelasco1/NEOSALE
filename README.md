@@ -16,7 +16,6 @@ Este documento te guía paso a paso para levantar y trabajar con el proyecto **N
 
 ```
 NEOCOMMERCE/
-├── prisma/               # Schema de base de datos y migraciones
 ├── backend/             # Servidor Express + Prisma
 ├── frontend/            # Aplicación Next.js + Auth.js
 ├── package.json         # Scripts globales

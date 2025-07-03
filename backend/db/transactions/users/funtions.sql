@@ -23,8 +23,6 @@ BEGIN
 END;
 $$;
 
-
-select * from users;
 CREATE OR REPLACE PROCEDURE sp_deleteUser(p_id users.id%TYPE)
 LANGUAGE plpgsql
 AS $$
