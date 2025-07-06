@@ -5,38 +5,47 @@ import authConfig from "./auth.config"
 
 export const { handlers, signIn, signOut, auth } = NextAuth({
   adapter: PrismaAdapter(prisma),
-  session: {
-    strategy: "jwt",
-    maxAge: 21600, 
-  },
-  jwt: {
-    maxAge: 21600, 
-  },
-  callbacks: {
+ callbacks: {
     async jwt({ token, user }) {
-      if (user) {
-        token.id = user.id
-        token.role = user.role
-        token.email = user.email
-        token.phoneNumber = user.phonenumber 
-      }      
-      console.log(user);
-      
-      return token
-      
-    },
-    async session({ session, token }) {
-      if (token) {
-        session.user.id = token.id
-        session.user.role = token.role
-        session.user.email = token.email
-        session.user.phonenumber = token.phonenumber 
-      }
-            console.log(session);
+  if (user) {
+    const u = user as {
+      id: string;
+      role: string;
+      phonenumber?: string;
+      identification?: string;
+    };
 
+    token.id = u.id;
+    token.role = u.role;
+    token.phonenumber = u.phonenumber;
+    token.identification = u.identification;
+  }
+  console.log("JWT Callback:", token);
+    console.log("JWT Callback:", user);
+
+  return token;
+},
+
+    async session({ session, token }) {
+      if (session.user) {
+        session.user.id = token.id
+        session.user.phonenumber = token.phonenumber as string
+        session.user.role = token.role as string
+        session.user.identification = token.identification as string
+      }
+          console.log("JWT Callback:", session.user);
+          console.log("JWT Callback:", session);
 
       return session
     }
+  },
+  session: {
+    strategy: "jwt",
+        maxAge: 21600, 
+
+  },
+  jwt: {
+    maxAge: 21600, 
   },
   ...authConfig
 })

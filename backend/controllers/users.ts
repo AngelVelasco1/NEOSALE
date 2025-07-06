@@ -1,5 +1,5 @@
 import { Request, Response } from 'express';
-import { registerUserService } from '../services/users';
+import { registerUserService, getUserByIdService } from '../services/users';
 
 export const registerUser = async (req: Request, res: Response) => {
   try {
@@ -36,6 +36,26 @@ export const registerUser = async (req: Request, res: Response) => {
 
   } catch (error: any) {
     console.error('Error in registerUser:', error);
+    res.status(500).json({ 
+      success: false,
+      message: error.message || "Error interno del servidor" 
+    });
+  }
+};
+
+export const getUserById = async (req: Request, res: Response) => {
+  try {
+    const userId = req.query.id ? Number(req.query.id) : undefined;
+
+
+    const user = await getUserByIdService(userId);
+    console.log('User fetched:', user);
+    
+  
+
+    res.json(user);
+  } catch (error: any) {
+    console.error('Error in getUserById:', error);
     res.status(500).json({ 
       success: false,
       message: error.message || "Error interno del servidor" 

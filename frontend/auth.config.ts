@@ -1,6 +1,6 @@
 import type { NextAuthConfig } from "next-auth"
 import Credentials from "next-auth/providers/credentials"
-import { prisma } from "../backend/lib/prisma"
+import { prisma } from "@/lib/prisma"
 import { loginSchema } from "./lib/zod"
 import bcrypt from "bcryptjs"
 // Notice this is only an object, not a full Auth.js instance
@@ -28,9 +28,16 @@ export default {
            if (!isPasswordValid) {
               return null
           }
-console.log(user?.name);
           
-          return user;
+          return {
+             id: user?.id,
+  name: user?.name,
+  email: user?.email,
+  emailVerified: user?.emailverified,
+  phoneNumber: user?.phonenumber,
+  identification: user?.identification,
+  role: user?.role,
+          };
       },
     }),
   ]
