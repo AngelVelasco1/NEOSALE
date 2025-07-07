@@ -10,3 +10,9 @@ export const registerUser = async (userData: {
   const { data } = await api.post("/api/use/register", userData);
   return data; 
 }
+
+
+export const getUserById = async (userId: number) => {
+  const { data } = await api.get(`/api/use/getUser?id=${userId}`);
+  return data;
+}

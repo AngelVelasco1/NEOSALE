@@ -9,6 +9,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { SignOut } from "@/app/(auth)/components/SingOut"
 import { User, Camera, Save, Edit3, Mail, Phone, MapPin, FileText } from "lucide-react"
 import { auth } from "@/auth"
+import {UserPhone} from "../components/UserPhone"
 
 interface ProfilePageProps {
   session: Session
@@ -148,10 +149,7 @@ const session = await auth()
                     <span className="font-medium text-gray-700">Email:</span>
                     <p className="text-gray-600 inline ms-2">{session.user?.email || "No especificado"}</p>
                   </div>
-                     <div>
-                    <span className="font-medium text-gray-700">Email:</span>
-                    <p className="text-gray-600 inline ms-2">{session.user?.phonenumber}</p>
-                  </div>
+                    <UserPhone />
                   {session.user?.image && (
                     <div className="md:col-span-2">
                       <span className="font-medium text-gray-700">URL de imagen:</span>
@@ -159,10 +157,7 @@ const session = await auth()
                     </div>
                   )}
                 </div>
-              </div>
-
-              {/* Action Buttons */}
-             
+              </div>             
 
               {/* Sign Out */}
               <div className="pt-6 border-t border-gray-200">

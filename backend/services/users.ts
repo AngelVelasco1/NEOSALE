@@ -1,7 +1,7 @@
 import { prisma } from "../lib/prisma";
 import bcrypt from "bcryptjs";
 import { createUserParams } from "../types/users";
-import { roles_enum } from "@prisma/client";
+import { roles_enum, Prisma } from  "@prisma/client"
 
 export const registerUserService = async ({
   name,
@@ -21,11 +21,11 @@ export const registerUserService = async ({
   });
 
   if (existingUser) {
-    throw new Error("El usuario ya existe");
+    throw new Error("Este email ya está registrado.");
   }
 
   const hashedPassword = await bcrypt.hash(password, 12);
-
+  try {
     await prisma.$executeRaw`
       CALL sp_createuser(
         ${name}, 
@@ -39,14 +39,54 @@ export const registerUserService = async ({
     const newUser = await prisma.users.findUnique({
       where: { email },
       select: {
-        id: true,
-        name: true,
-        email: true,
-        emailverified: true,
-        phonenumber: true,
-        role: true
-      },
+    id: true,
+    name: true,
+    email: true,
+    emailverified: true,
+    password: true,
+    phonenumber: true,
+    identification: true,
+    role: true,
+  }
     });
   
     return newUser;
+  } catch (error: any) {
+    // ✅ Manejo de error robusto para $executeRaw
+    if (error instanceof Prisma.PrismaClientKnownRequestError) {
+      // El código 'P2010' es para fallos en raw queries
+      if (error.code === 'P2010' || error.message.includes('23505')) {
+        if (error.message.toLowerCase().includes('Key (phonenumber)')) {
+          throw new Error('Este número de teléfono ya está registrado.');
+        }
+        if (error.message.toLowerCase().includes('Key (email)')) {
+          throw new Error('Este email ya está registrado.');
+        }
+      }
+    }
+    // Re-lanzar otros errores o el original si no se identifica
+    throw error;
+  }
+}
+
+export const getUserByIdService = async (id: number|undefined) => {
+  if (!id) {
+    throw new Error("ID de usuario requerido");
+  }
+
+  const user = await prisma.users.findUnique({
+    where: { id },
+    select: {
+      id: true,
+      name: true,
+      email: true,
+      emailverified: true,
+      phonenumber: true,
+      identification: true,
+      role: true,
+    }
+  });
+
+
+  return user;
 };

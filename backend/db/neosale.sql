@@ -13,7 +13,7 @@ DO $$ BEGIN
         CREATE TYPE roles_enum AS ENUM ('user', 'admin');
     END IF;
 END $$;
-
+select * from users;
 DROP TABLE IF EXISTS cart_items;
 DROP TABLE IF EXISTS order_items;
 DROP TABLE IF EXISTS order_logs;
