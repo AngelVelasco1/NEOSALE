@@ -67,7 +67,7 @@ export const ProductsPage = () => {
                 <MobileFilter products={products} setFilteredProducts={setFilteredProducts} />
 
                 {/* View Mode Toggle */}
-                <div className="flex items-center bg-white/70 backdrop-blur-sm rounded-lg border border-blue-200 p-1">
+                <div className="flex items-center bg-white/70 backdrop-blur-sm rounded-lg border border-blue-200 p-1 mb-4">
                   <Button
                     variant={viewMode === "grid" ? "default" : "ghost"}
                     size="sm"
@@ -97,7 +97,7 @@ export const ProductsPage = () => {
 
             {/* Products Grid */}
             {filteredProducts.length > 0 ? (
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4 gap-6">
+              <div className={`grid gap-6 ${viewMode === "grid" ? "grid-cols-1 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-3" : "flex flex-col w-11/12 mx-auto"}`}>
                 {filteredProducts.map((product) => (
                   <div key={product.id} className="group">
                     <ProductCard data={product} />

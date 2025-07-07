@@ -35,7 +35,6 @@ export const Filter = ({ products, setFilteredProducts }: FilterProps) => {
     sortBy: "name",
   })
 
-  // Get unique values for filters
   const uniqueData = useMemo(() => {
     const colors = Array.from(
       new Set(

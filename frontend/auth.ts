@@ -5,37 +5,22 @@ import authConfig from "./auth.config"
 
 export const { handlers, signIn, signOut, auth } = NextAuth({
   adapter: PrismaAdapter(prisma),
- callbacks: {
+callbacks: {
     async jwt({ token, user }) {
-  if (user) {
-    const u = user as {
-      id: string;
-      role: string;
-      phonenumber?: string;
-      identification?: string;
-    };
-
-    token.id = u.id;
-    token.role = u.role;
-    token.phonenumber = u.phonenumber;
-    token.identification = u.identification;
-  }
-  console.log("JWT Callback:", token);
-    console.log("JWT Callback:", user);
-
-  return token;
-},
-
+      if (user) {
+        token.id = user.id
+        token.role = user.role
+        token.email = user.email
+      }            
+      return token
+      
+    },
     async session({ session, token }) {
-      if (session.user) {
+      if (token) {
         session.user.id = token.id
-        session.user.phonenumber = token.phonenumber as string
-        session.user.role = token.role as string
-        session.user.identification = token.identification as string
+        session.user.role = token.role
+        session.user.email = token.email
       }
-          console.log("JWT Callback:", session.user);
-          console.log("JWT Callback:", session);
-
       return session
     }
   },

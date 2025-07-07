@@ -5,7 +5,6 @@ import { Input } from "../../components/ui/input";
 import React from 'react';
 import { Button } from "@/components/ui/button";
 import { Search, ShoppingCart, User, Heart } from "lucide-react"
-import { Badge } from "@/components/ui/badge"
 import { useRouter } from "next/navigation";
 import { useSession } from "next-auth/react";
 
@@ -68,7 +67,7 @@ export const Navbar = () => {
             </div>
             {session ? (
               <>
-                <span className="text-md text-blue-600 font-bold">Hola, {session.user.name}</span>
+                <span className="text-md text-blue-600 font-bold">Hola, {session?.user?.name}</span>
                 <Button onClick={() => router.push('/profile')} variant="ghost" size="icon">
                   <User width={20} height={20} />
                 </Button>

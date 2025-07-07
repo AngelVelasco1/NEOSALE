@@ -1,11 +1,13 @@
 import type { Metadata } from "next";
 import "./styles/globals.css";
-import { Poppins, Volkhov, PT_Sans_Caption } from "next/font/google";
+import { Poppins, PT_Sans_Caption } from "next/font/google";
 import { Navbar } from "./components/Navbar";
 import { Footer } from "./components/Footer";
 import { CartProvider } from "./(cart)/hooks/useCart";
 import React from 'react';
 import { SessionProvider } from "next-auth/react";
+import { UserProvider } from "./(auth)/context/UserContext";
+
 const sourceSans = PT_Sans_Caption({
   weight: ["400", "700"],
   subsets: ["latin"],
@@ -17,9 +19,9 @@ export const poppins = Poppins({
 });
 
 export const metadata: Metadata = {
-  title: "Sensual Candles",
+  title: "NeoSale",
   description:
-    "Descubre nuestra colección de velas aromáticas y sensuales diseñadas para crear ambientes románticos e íntimos. En Sensual Candles, ofrecemos velas de alta calidad con fragancias irresistibles y diseños elegantes. Perfectas para cenas especiales, noches relajantes o decoración de interiores.",
+    "Ecommerce para empresas de ventas, con un enfoque en la experiencia del usuario y la facilidad de uso.",
 };
 
 export const colors = {
@@ -29,14 +31,16 @@ export const colors = {
 };
 
 export default function RootLayout({
-  children,
+  children
 }: Readonly<{
   children: React.ReactNode;
 }>) {
   return (
     <html lang="en">
       <body className={`${sourceSans.className} `}>
+
         <SessionProvider>
+        <UserProvider>
         <CartProvider>
           <div className="flex flex-col min-h-screen">
             <Navbar />
@@ -44,6 +48,7 @@ export default function RootLayout({
             <Footer />
           </div>
         </CartProvider>
+        </UserProvider>
         </SessionProvider>
       </body>
     </html>

@@ -24,7 +24,7 @@ export const UserPhone = () => {
     }
   }, [session]);
 
-  return <div>{phone ? `Teléfono: ${phone}` : "Cargando teléfono..."}</div>;
+  return <div className="text-gray-700">{`Teléfono: ${phone}`}</div>;
 };
 
 export default UserPhone;

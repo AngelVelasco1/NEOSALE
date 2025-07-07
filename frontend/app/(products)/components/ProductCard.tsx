@@ -55,7 +55,7 @@ export const ProductCard = ({ data }: ProductCardProps) => {
             {/* Price and stock info */}
             <div className="flex justify-between items-center">
               <div className="space-y-1">
-                <p className="text-xl font-bold bg-gradient-to-r from-blue-600 via-purple-600 to-fuchsia-600 bg-clip-text text-transparent">
+                <p className="text-xl font-bold bg-gradient-to-r from-blue-600 via-purple-600 to-indigo-600 bg-clip-text text-transparent">
                   ${data.price.toLocaleString()}
                 </p>
                 <p className="text-xs text-gray-500">{data.stock > 0 ? `${data.stock} en stock` : "Sin stock"}</p>
@@ -74,12 +74,12 @@ export const ProductCard = ({ data }: ProductCardProps) => {
           </div>
 
           {/* Hover effect gradient line */}
-          <div className="absolute bottom-0 left-0 right-0 h-1 bg-gradient-to-r from-blue-500 via-purple-500 to-fuchsia-500 transform scale-x-0 group-hover:scale-x-100 transition-transform duration-500 origin-left" />
+          <div className="absolute bottom-0 left-0 right-0 h-1 bg-gradient-to-r from-blue-500 via-purple-500 to-indigo-600 transform scale-x-0 group-hover:scale-x-100 transition-transform duration-500 origin-left" />
         </div>
 
         {/* Floating action button */}
         <div className="absolute top-4 left-4 opacity-0 group-hover:opacity-100 transition-all duration-300 transform -translate-y-2 group-hover:translate-y-0">
-          <div className="w-8 h-8 rounded-full bg-gradient-to-r from-blue-500 via-purple-500 to-fuchsia-500 flex items-center justify-center shadow-lg backdrop-blur-sm">
+          <div className="w-8 h-8 rounded-full bg-gradient-to-r from-blue-500 via-indigo-500 to-blue-600 flex items-center justify-center shadow-lg backdrop-blur-sm">
             <svg className="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
               <path
