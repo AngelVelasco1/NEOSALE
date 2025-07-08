@@ -153,5 +153,6 @@ VALUES (
   2   -- ID del usuario que actualiza
 );
 
-
-SELECT * FROM products;
+INSERT INTO Addresses (address, country, city, department, userId) 
+VALUES ('Calle Falsa 123', 'Colombia', 'Bucaramanga', 'Santander', 1),
+('Avenida Siempre Viva 456', 'Colombia', 'Medellin', 'Antioquia', 1);

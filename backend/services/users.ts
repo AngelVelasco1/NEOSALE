@@ -1,7 +1,7 @@
 import { prisma } from "../lib/prisma";
 import bcrypt from "bcryptjs";
 import { createUserParams } from "../types/users";
-import { roles_enum, Prisma } from  "@prisma/client"
+import { roles_enum, Prisma } from "@prisma/client"
 
 export const registerUserService = async ({
   name,
@@ -10,7 +10,7 @@ export const registerUserService = async ({
   password,
   phoneNumber,
   identification,
-  role 
+  role
 }: createUserParams) => {
   if (!name || !email || !phoneNumber || !password) {
     throw new Error("Campos requeridos faltantes");
@@ -39,17 +39,17 @@ export const registerUserService = async ({
     const newUser = await prisma.users.findUnique({
       where: { email },
       select: {
-    id: true,
-    name: true,
-    email: true,
-    emailverified: true,
-    password: true,
-    phonenumber: true,
-    identification: true,
-    role: true,
-  }
+        id: true,
+        name: true,
+        email: true,
+        emailverified: true,
+        password: true,
+        phonenumber: true,
+        identification: true,
+        role: true,
+      }
     });
-  
+
     return newUser;
   } catch (error: any) {
     // ✅ Manejo de error robusto para $executeRaw
@@ -69,7 +69,7 @@ export const registerUserService = async ({
   }
 }
 
-export const getUserByIdService = async (id: number|undefined) => {
+export const getUserByIdService = async (id: number | undefined) => {
   if (!id) {
     throw new Error("ID de usuario requerido");
   }
@@ -84,8 +84,17 @@ export const getUserByIdService = async (id: number|undefined) => {
       phonenumber: true,
       identification: true,
       role: true,
+      addresses: {
+        select: {
+          id: true,
+          address: true,
+          city: true,
+          country: true
+        }
+      }
     }
-  });
+    },
+   );
 
 
   return user;

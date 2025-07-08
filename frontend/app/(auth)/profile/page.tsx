@@ -1,5 +1,4 @@
 "use client"
-import type { Session } from "next-auth"
 import { Card, CardContent } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -9,8 +8,9 @@ import { SignOut } from "@/app/(auth)/components/SingOut"
 import { User, Camera, Mail, Phone, MapPin } from "lucide-react"
 import { useUser } from "../context/UserContext"
 import { useSession } from "next-auth/react"
-import { useRouter } from "next/navigation"
-import { useEffect } from "react"
+import { Select, SelectValue, SelectItem, SelectContent, SelectTrigger } from "@/components/ui/select"
+
+
 
 // Un componente de esqueleto para una mejor experiencia de carga
 const ProfileSkeleton = () => (
@@ -43,9 +43,9 @@ const ProfileSkeleton = () => (
 
 export const Profile = () => {
   const { data: session, status } = useSession();
-  const { userProfile, isLoading } = useUser();
+  const { userProfile, isLoading, setSelectedAddress, selectedAddress } = useUser();
 
-  
+
 
   // Muestra el esqueleto de carga mientras se obtiene la sesión o los datos del usuario
   if (status === 'loading' || isLoading) {
@@ -56,10 +56,10 @@ export const Profile = () => {
     );
   }
 
- 
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-purple-50 to-fuchsia-50 py-8">
-      <div className="container mx-auto px-10 max-w-4xl">        
+      <div className="container mx-auto px-10 max-w-4xl">
         <Card className="bg-white/80 backdrop-blur-sm border-0 shadow-2xl shadow-purple-500/10 overflow-hidden">
           <div className="relative h-32 ">
             <div className="absolute inset-0 bg-gradient-to-r from-blue-500 to-indigo-600 " />
@@ -84,39 +84,40 @@ export const Profile = () => {
           <CardContent className="pt-20 pb-8">
             {/* User Info Header */}
             <div className="text-center mb-8 ">
-              <h2 className="text-2xl font-bold text-gray-900 mb-1">Perfil de {session.user?.name || "Usuario"}</h2>
-              <p className="text-gray-600">{session.user?.email}</p>
+              <h2 className="text-2xl font-bold text-gray-900 mb-1">Perfil de {session?.user?.name || "Usuario"}</h2>
+              <p className="text-gray-600">{session?.user?.email}</p>
             </div>
             <div className="bg-gradient-to-r from-blue-50 to-purple-50 p-4 rounded-lg border border-blue-100 pb-8 pt-6">
-                <h3 className="font-semibold text-gray-900 mb-3 flex items-center text-lg gap-2">
-                  
-                  Información 
-                </h3>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
-                  <div className="flex items-center">
-                    <span className="font-medium text-gray-700"><User className="h-4 w-4 text-blue-600 inline me-2" />Nombre:</span>
-                    <p className="text-gray-600 inline ms-2">{session.user?.name || "No especificado"}</p>
-                  </div>
-                  <div className="flex items-center">
-                    <span className="font-medium text-gray-700"> <Mail className="h-4 w-4 text-purple-600 inline me-2" />Email:</span>
-                    <p className="text-gray-600 inline ms-2">{session.user?.email || "No especificado"}</p>
-                  </div>
-                    <div className="flex items-center">
-                    <span className="font-medium text-gray-700"> <Phone className="h-4 w-4 text-emerald-600 inline me-2" />Teléfono:</span>
-                    <p className="text-gray-600 inline ms-2">{userProfile?.phonenumber || "No especificado"}</p>
-                  </div>
-                  <div className="flex items-center">
-                    <span className="font-medium text-gray-700"> <MapPin className="h-4 w-4 text-red-600 inline me-2"/>Dirección:</span>
-                    <p className="text-gray-600 inline ms-2">{"No especificado"}</p>
-                  </div>
-                  {session.user?.image && (
-                    <div className="md:col-span-2">
-                      <span className="font-medium text-gray-700">URL de imagen:</span>
-                      <p className="text-gray-600 break-all">{session.user.image}</p>
-                    </div>
-                  )}
+              <h3 className="font-semibold text-gray-900 mb-3 flex items-center text-lg gap-2">
+
+                Información
+              </h3>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
+                <div className="flex items-center">
+                  <span className="font-medium text-gray-700"><User className="h-4 w-4 text-blue-600 inline me-2" />Nombre:</span>
+                  <p className="text-gray-600 inline ms-2">{session?.user?.name || "No especificado"}</p>
                 </div>
+                <div className="flex items-center">
+                  <span className="font-medium text-gray-700"> <Mail className="h-4 w-4 text-purple-600 inline me-2" />Email:</span>
+                  <p className="text-gray-600 inline ms-2">{session?.user?.email || "No especificado"}</p>
                 </div>
+                <div className="flex items-center">
+                  <span className="font-medium text-gray-700"> <Phone className="h-4 w-4 text-emerald-600 inline me-2" />Teléfono:</span>
+                  <p className="text-gray-600 inline ms-2">{userProfile?.phonenumber || "No especificado"}</p>
+                </div>
+                <div className="flex items-center gap-2">
+                  <span className="font-medium text-gray-700"> <MapPin className="h-4 w-4 text-red-600 inline me-2" />Dirección:</span>
+                  <p>{selectedAddress}</p>
+            
+                </div>
+                {session?.user?.image && (
+                  <div className="md:col-span-2">
+                    <span className="font-medium text-gray-700">URL de imagen:</span>
+                    <p className="text-gray-600 break-all">{session?.user.image}</p>
+                  </div>
+                )}
+              </div>
+            </div>
             {/* Form */}
             <div className="space-y-6">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -127,7 +128,7 @@ export const Profile = () => {
                   </Label>
                   <Input
                     id="name"
-                    defaultValue={session.user?.name || ""}
+                    defaultValue={session?.user?.name || ""}
                     placeholder="Ingresa tu nombre completo"
                   />
                 </div>
@@ -140,7 +141,7 @@ export const Profile = () => {
                   <Input
                     id="email"
                     type="email"
-                    defaultValue={session.user?.email || ""}
+                    defaultValue={session?.user?.email || ""}
                     placeholder="tu@email.com"
                     readOnly
                   />
@@ -163,26 +164,41 @@ export const Profile = () => {
                     <MapPin className="h-4 w-4 text-blue-600" />
                     Dirección
                   </Label>
-                  <Input
-                    id="address"
-                    placeholder="Calle 123 #45-67, Ciudad"
-                  />
-                </div>
-              </div>
-              
-              {/* Sign Out */}
-             
-            </div>
-  
-         <div className="pt-6  border-gray-200 mt-6">
-                <div className="flex justify-center">
-                  <SignOut />
+                       <Select onValueChange={setSelectedAddress}
+>
+                    <SelectTrigger className="w-[180px] border-none bg-white shadow-sm hover:shadow-md focus:shadow-md focus:ring-2 focus:ring-blue-500">
+                      <SelectValue placeholder="Selecciona" />
+                    </SelectTrigger>
+                    <SelectContent className="p-0 border-none">
+                      {
+                        userProfile?.addresses?.map((address, index) => (
+                          <SelectItem
+                          className="bg-white shadow-sm hover:shadow-md focus:shadow-md border-none"
+                            key={index}
+                            value={address.address}
+                          >
+                            {address.address}
+                          </SelectItem>
+                        ))
+                      }
+                    </SelectContent>
+                  </Select>
                 </div>
               </div>
 
+              {/* Sign Out */}
+
+            </div>
+
+            <div className="pt-6  border-gray-200 mt-6">
+              <div className="flex justify-center">
+                <SignOut />
+              </div>
+            </div>
+
           </CardContent>
         </Card>
-        
+
       </div>
     </div>
   )

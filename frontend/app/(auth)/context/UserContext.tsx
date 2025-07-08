@@ -4,24 +4,21 @@ import { createContext, useContext, useState, useEffect, ReactNode } from 'react
 import { useSession } from 'next-auth/react';
 import { getUserById } from '../services/api'; // Ajusta la ruta si es necesario
 
-// 1. Definimos la forma de los datos del usuario que queremos compartir
 interface UserProfile {
   phonenumber: string | null;
-  // Puedes añadir más datos del usuario aquí si los necesitas en el futuro
-  // email: string | null;
-  // name: string | null;
+  addresses: string[] | null;
+
 }
 
-// 2. Definimos la forma del contexto
 interface UserContextType {
   userProfile: UserProfile | null;
   isLoading: boolean;
+  setSelectedAddress: (addressIndex: string) => void;
+  selectedAddress: string | undefined;
 }
 
-// 3. Creamos el contexto con un valor por defecto
 const UserContext = createContext<UserContextType | undefined>(undefined);
 
-// 4. Creamos el componente Proveedor (Provider)
 interface UserProviderProps {
   children: ReactNode;
 }
@@ -29,6 +26,7 @@ interface UserProviderProps {
 export const UserProvider = ({ children }: UserProviderProps) => {
   const { data: session, status } = useSession();
   const [userProfile, setUserProfile] = useState<UserProfile | null>(null);
+  const [selectedAddress, setSelectedAddress] = useState<string>();
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
@@ -37,7 +35,7 @@ export const UserProvider = ({ children }: UserProviderProps) => {
       getUserById(Number(session.user.id))
         .then(user => {
           if (user) {
-            setUserProfile({ phonenumber: user.phonenumber || 'No especificado' });
+            setUserProfile({ phonenumber: user.phonenumber, addresses: user.addresses});
           }
         })
         .catch(error => {
@@ -48,12 +46,11 @@ export const UserProvider = ({ children }: UserProviderProps) => {
           setIsLoading(false);
         });
     } else if (status !== 'loading') {
-      // Si no hay sesión o la sesión está cargando, terminamos la carga
       setIsLoading(false);
     }
   }, [session, status]);
 
-  const value = { userProfile, isLoading };
+  const value = { userProfile, isLoading, setSelectedAddress, selectedAddress };
 
   return <UserContext.Provider value={value}>{children}</UserContext.Provider>;
 };

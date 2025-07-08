@@ -13,7 +13,7 @@ DO $$ BEGIN
         CREATE TYPE roles_enum AS ENUM ('user', 'admin');
     END IF;
 END $$;
-select * from users;
+
 DROP TABLE IF EXISTS cart_items;
 DROP TABLE IF EXISTS order_items;
 DROP TABLE IF EXISTS order_logs;
@@ -101,7 +101,7 @@ CREATE TABLE products (
     FOREIGN KEY (categoryid) REFERENCES categories(id) ON DELETE NO ACTION ON UPDATE NO ACTION,
     FOREIGN KEY (brandid) REFERENCES brands(id) ON DELETE NO ACTION ON UPDATE NO ACTION
 );
-
+select * from users;
 -- Tabla cart
 CREATE TABLE cart (
     id SERIAL PRIMARY KEY,
