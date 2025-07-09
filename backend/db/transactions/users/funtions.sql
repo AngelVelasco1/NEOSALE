@@ -32,25 +32,15 @@ END;
 $$;
 
 
-CREATE OR REPLACE PROCEDURE sp_deleteUser(p_id users.id%TYPE)
-LANGUAGE plpgsql
-AS $$
-BEGIN
-    DELETE FROM users WHERE id = p_id;
-END;
-$$;
-
-
-
 CREATE OR REPLACE PROCEDURE sp_updateUser(
-    p_id users.id%TYPE,
-    p_name users.name%TYPE DEFAULT NULL,
-    p_email users.email%TYPE DEFAULT NULL,
-    p_emailverified users.emailverified%TYPE DEFAULT NULL,
-    p_password users.password%TYPE DEFAULT NULL,
-    p_phonenumber users.phonenumber%TYPE DEFAULT NULL,
-    p_identification users.identification%TYPE DEFAULT NULL,
-    p_role users.role%TYPE DEFAULT NULL
+    p_id INT,
+    p_name TEXT,
+    p_email TEXT,
+    p_emailverified BOOLEAN,
+    p_password TEXT,
+    p_phonenumber TEXT,
+    p_identification TEXT,
+    p_role TEXT DEFAULT 'user'
 )
 LANGUAGE plpgsql
 AS $$
@@ -62,10 +52,11 @@ BEGIN
         password = COALESCE(p_password, password),
         phonenumber = COALESCE(p_phonenumber, phonenumber),
         identification = COALESCE(p_identification, identification),
-        role = COALESCE(p_role, role)
+        role = COALESCE(p_role::roles_enum, role)
     WHERE id = p_id;
 END;
 $$;
+select * from users;
 
 /*************************************/
 /*Función para Obtener Usuario por ID*/

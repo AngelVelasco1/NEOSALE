@@ -26,11 +26,11 @@ callbacks: {
   },
   session: {
     strategy: "jwt",
-        maxAge: 21600, 
+        maxAge: 14400, 
 
   },
   jwt: {
-    maxAge: 21600, 
+    maxAge: 14400, 
   },
   ...authConfig
 })

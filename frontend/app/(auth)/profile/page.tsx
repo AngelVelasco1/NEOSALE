@@ -5,12 +5,21 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { SignOut } from "@/app/(auth)/components/SingOut"
-import { User, Camera, Mail, Phone, MapPin } from "lucide-react"
+import { User, Camera, Mail, Phone, MapPin, Edit2Icon, Shield, Lock, CreditCard } from "lucide-react"
 import { useUser } from "../context/UserContext"
 import { useSession } from "next-auth/react"
 import { Select, SelectValue, SelectItem, SelectContent, SelectTrigger } from "@/components/ui/select"
+import { Form, FormField, FormControl, FormItem, FormLabel, FormMessage } from "@/components/ui/form"
+import { updateUserSchema } from "@/lib/zod"
+import { useForm } from "react-hook-form"
+import { z } from "zod"
+import { zodResolver } from "@hookform/resolvers/zod"
+import { useState } from "react"
+import { updateUser } from "../services/api"
 
 
+
+type UpdateUserValues = z.infer<typeof updateUserSchema>
 
 // Un componente de esqueleto para una mejor experiencia de carga
 const ProfileSkeleton = () => (
@@ -44,9 +53,85 @@ const ProfileSkeleton = () => (
 export const Profile = () => {
   const { data: session, status } = useSession();
   const { userProfile, isLoading, setSelectedAddress, selectedAddress } = useUser();
+  const [showEditUser, setShowEditUser] = useState(false);
+  const [showInfo, setShowInfo] = useState(true);
 
+  const form = useForm<UpdateUserValues>({
+    resolver: zodResolver(updateUserSchema),
+    defaultValues: {
+      name: session?.user?.name || "",
+      email: session?.user?.email || "",
+      phoneNumber: userProfile?.phonenumber || "",
+      address: selectedAddress || "",
+      identification: userProfile?.identification || "",
+      password: "",
+      role: userProfile?.role || "user",
+    },
+    values: {
+      id: Number(session?.user?.id),
+      name: session?.user?.name || "",
+      email: session?.user?.email || "",
+      phoneNumber: userProfile?.phonenumber || "",
+      address: selectedAddress || "",
+      identification: userProfile?.identification || "",
+      password: "",
+      role: userProfile?.role || "user",
+    }
+  });
 
+  const onSubmitForm = async(values: UpdateUserValues) => {
+    try {
+      console.log("Valores del formulario:", values); // Para debugging
+      
+      // Preparar los datos, omitiendo valores vacíos o undefined
+      const updateData: any = {
+        id: Number(session?.user?.id),
+      };
 
+      // Solo agregar campos que tienen valores
+      if (values.name && values.name.trim() !== "") {
+        updateData.name = values.name.trim();
+      }
+      
+      if (values.email && values.email.trim() !== "") {
+        updateData.email = values.email.trim();
+      }
+      
+      if (values.phoneNumber && values.phoneNumber.trim() !== "") {
+        updateData.phoneNumber = values.phoneNumber.trim();
+      }
+      
+      if (values.identification && values.identification.trim() !== "") {
+        updateData.identification = values.identification.trim();
+      }
+      
+      if (values.password && values.password.trim() !== "") {
+        updateData.password = values.password;
+      }
+      
+      if (values.role) {
+        updateData.role = values.role;
+      }
+
+      // Siempre incluir emailVerified si está disponible
+      updateData.emailVerified = session?.user?.emailVerified || false;
+      
+      
+      await updateUser(updateData);
+      
+      setShowEditUser(false);
+      setShowInfo(true);
+      
+      
+    } catch(err) {
+      console.error("Error al actualizar el usuario:", err);
+    }
+  }
+
+  const handleShowEditForm = () => {
+    setShowEditUser(!showEditUser);
+    setShowInfo(!showInfo);
+  }
   // Muestra el esqueleto de carga mientras se obtiene la sesión o los datos del usuario
   if (status === 'loading' || isLoading) {
     return (
@@ -85,9 +170,8 @@ export const Profile = () => {
             {/* User Info Header */}
             <div className="text-center mb-8 ">
               <h2 className="text-2xl font-bold text-gray-900 mb-1">Perfil de {session?.user?.name || "Usuario"}</h2>
-              <p className="text-gray-600">{session?.user?.email}</p>
             </div>
-            <div className="bg-gradient-to-r from-blue-50 to-purple-50 p-4 rounded-lg border border-blue-100 pb-8 pt-6">
+            <div className={`bg-gradient-to-r from-blue-50 to-purple-50 p-4 rounded-lg border border-blue-100 pb-8 pt-6 ${showInfo ? "block" : "hidden"}`}>
               <h3 className="font-semibold text-gray-900 mb-3 flex items-center text-lg gap-2">
 
                 Información
@@ -108,8 +192,16 @@ export const Profile = () => {
                 <div className="flex items-center gap-2">
                   <span className="font-medium text-gray-700"> <MapPin className="h-4 w-4 text-red-600 inline me-2" />Dirección:</span>
                   <p>{selectedAddress}</p>
-            
                 </div>
+                <div className="flex items-center gap-2">
+                  <span className="font-medium text-gray-700"> <CreditCard className="h-4 w-4 text-green-600 inline me-2" />Identificación:</span>
+                  <p className="text-gray-600 inline ms-2">{userProfile?.identification || "No especificado"}</p>
+                </div>
+                <div className="flex items-center gap-2">
+                  <span className="font-medium text-gray-700"> <Shield className="h-4 w-4 text-orange-600 inline me-2" />Rol:</span>
+                  <p className="text-gray-600 inline ms-2">{userProfile?.role || "user"}</p>
+                </div>
+
                 {session?.user?.image && (
                   <div className="md:col-span-2">
                     <span className="font-medium text-gray-700">URL de imagen:</span>
@@ -117,78 +209,193 @@ export const Profile = () => {
                   </div>
                 )}
               </div>
-            </div>
-            {/* Form */}
-            <div className="space-y-6">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div className="space-y-2">
-                  <Label htmlFor="name" className="flex items-center gap-2 text-gray-700 font-medium">
-                    <User className="h-4 w-4 text-blue-600" />
-                    Nombre completo
-                  </Label>
-                  <Input
-                    id="name"
-                    defaultValue={session?.user?.name || ""}
-                    placeholder="Ingresa tu nombre completo"
-                  />
-                </div>
-
-                <div className="space-y-2">
-                  <Label htmlFor="email" className="flex items-center gap-2 text-gray-700 font-medium">
-                    <Mail className="h-5 w-5 text-purple-600 inline me-2" />
-                    Correo electrónico
-                  </Label>
-                  <Input
-                    id="email"
-                    type="email"
-                    defaultValue={session?.user?.email || ""}
-                    placeholder="tu@email.com"
-                    readOnly
-                  />
-                </div>
-
-                <div className="space-y-2">
-                  <Label htmlFor="phone" className="flex items-center gap-2 text-gray-700 font-medium">
-                    <Phone className="h-4 w-4 text-fuchsia-600" />
-                    Teléfono
-                  </Label>
-                  <Input
-                    id="phone"
-                    defaultValue={userProfile?.phonenumber || ""}
-                    placeholder="+57 300 123 4567"
-                  />
-                </div>
-
-                <div className="space-y-2">
-                  <Label htmlFor="address" className="flex items-center gap-2 text-gray-700 font-medium">
-                    <MapPin className="h-4 w-4 text-blue-600" />
-                    Dirección
-                  </Label>
-                       <Select onValueChange={setSelectedAddress}
->
-                    <SelectTrigger className="w-[180px] border-none bg-white shadow-sm hover:shadow-md focus:shadow-md focus:ring-2 focus:ring-blue-500">
-                      <SelectValue placeholder="Selecciona" />
-                    </SelectTrigger>
-                    <SelectContent className="p-0 border-none">
-                      {
-                        userProfile?.addresses?.map((address, index) => (
-                          <SelectItem
-                          className="bg-white shadow-sm hover:shadow-md focus:shadow-md border-none"
-                            key={index}
-                            value={address.address}
-                          >
-                            {address.address}
-                          </SelectItem>
-                        ))
-                      }
-                    </SelectContent>
-                  </Select>
-                </div>
+              <div className="mt-4 flex justify-end">
+                <button onClick={handleShowEditForm} className="relative inline-flex items-center justify-center p-0.5 mb-2 me-2 overflow-hidden text-sm font-medium text-gray-900 rounded-lg group bg-gradient-to-br from-purple-600 to-blue-500 group-hover:from-purple-600 group-hover:to-blue-500 hover:text-white dark:text-white focus:outline-none cursor-pointer">
+                  <span className="relative px-5 py-2.5 transition-all ease-in duration-75 bg-white dark:bg-white rounded-md group-hover:bg-transparent text-gray-900  group-hover:text-white">
+                    <Edit2Icon className="inline h-4 w-4 me-2" />
+                    Editar Perfil
+                  </span>
+                </button>
               </div>
 
-              {/* Sign Out */}
-
             </div>
+            {/* Form */}
+            <Form {...form}>
+              <form onSubmit={form.handleSubmit(onSubmitForm)} className={`space-y-6 ${showEditUser ? "block" : "hidden"}`}>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  {/* Campo Nombre */}
+                  <FormField
+                    control={form.control}
+                    name="name"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel className="flex items-center gap-2 text-gray-700 font-medium">
+                          <User className="h-4 w-4 text-blue-600" />
+                          Nombre completo
+                        </FormLabel>
+                        <FormControl>
+                          <Input  placeholder="Ingresa tu nombre completo" {...field} />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+
+                  {/* Campo Email */}
+                  <FormField
+                    control={form.control}
+                    name="email"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel className="flex items-center gap-2 text-gray-700 font-medium">
+                          <Mail className="h-5 w-5 text-purple-600" />
+                          Correo electrónico
+                        </FormLabel>
+                        <FormControl>
+                          <Input placeholder="tu@email.com" {...field} />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+
+                  {/* Campo Teléfono */}
+                  <FormField
+                    control={form.control}
+                    name="phoneNumber"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel className="flex items-center gap-2 text-gray-700 font-medium">
+                          <Phone className="h-4 w-4 text-fuchsia-600" />
+                          Teléfono
+                        </FormLabel>
+                        <FormControl>
+                          <Input placeholder="+57 300 123 4567" {...field}  />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+
+                  {/* Campo Dirección */}
+                  <FormField
+                    control={form.control}
+                    name="address"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel className="flex items-center gap-2 text-gray-700 font-medium">
+                          <MapPin className="h-4 w-4 text-blue-600" />
+                          Dirección
+                        </FormLabel>
+                        <Select 
+                          onValueChange={(value) => {
+                            setSelectedAddress(value);
+                            field.onChange(value);
+                          }} 
+                          defaultValue={field.value}
+                        >
+                          <FormControl>
+                            <SelectTrigger className="w-full border-gray-300 bg-white shadow-sm hover:shadow-md focus:shadow-md focus:ring-2 focus:ring-blue-500">
+                              <SelectValue placeholder="Selecciona una dirección" />
+                            </SelectTrigger>
+                          </FormControl>
+                          <SelectContent>
+                            {userProfile?.addresses?.map((address, index) => (
+                              <SelectItem
+                                key={index}
+                                value={address.address}
+                              >
+                                {address.address}
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+
+                  {/* Campo Identificación */}
+                  <FormField
+                    control={form.control}
+                    name="identification"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel className="flex items-center gap-2 text-gray-700 font-medium">
+                          <CreditCard className="h-4 w-4 text-green-600" />
+                          Identificación
+                        </FormLabel>
+                        <FormControl>
+                          <Input placeholder="Número de identificación" {...field} />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+
+                  {/* Campo Contraseña */}
+                  <FormField
+                    control={form.control}
+                    name="password"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel className="flex items-center gap-2 text-gray-700 font-medium">
+                          <Lock className="h-4 w-4 text-red-600" />
+                          Nueva Contraseña (opcional)
+                        </FormLabel>
+                        <FormControl>
+                          <Input type="password" placeholder="Dejar vacío para no cambiar" {...field} />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+
+                  {/* Campo Rol */}
+                  <FormField
+                    control={form.control}
+                    name="role"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel className="flex items-center gap-2 text-gray-700 font-medium">
+                          <Shield className="h-4 w-4 text-orange-600" />
+                          Rol
+                        </FormLabel>
+                        <Select onValueChange={field.onChange} defaultValue={field.value}>
+                          <FormControl>
+                            <SelectTrigger className="w-full border-gray-300 bg-white shadow-sm hover:shadow-md focus:shadow-md focus:ring-2 focus:ring-blue-500">
+                              <SelectValue placeholder="Selecciona un rol" />
+                            </SelectTrigger>
+                          </FormControl>
+                          <SelectContent>
+                            <SelectItem value="user">Usuario</SelectItem>
+                            <SelectItem value="admin">Administrador</SelectItem>
+                          </SelectContent>
+                        </Select>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                </div>
+
+                <div className="flex justify-end gap-3">
+                  <Button 
+                    type="button" 
+                    variant="outline" 
+                    onClick={handleShowEditForm}
+                    className="border-gray-300 text-gray-700 hover:bg-gray-50"
+                  >
+                    Cancelar
+                  </Button>
+                  <Button 
+                    type="submit" 
+                    className="bg-gradient-to-r from-blue-500 to-purple-600 text-white"
+                  >
+                    Guardar Cambios
+                  </Button>
+                </div>
+              </form>
+            </Form>
 
             <div className="pt-6  border-gray-200 mt-6">
               <div className="flex justify-center">

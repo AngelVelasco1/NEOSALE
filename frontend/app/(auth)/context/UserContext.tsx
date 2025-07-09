@@ -48,7 +48,7 @@ export const UserProvider = ({ children }: UserProviderProps) => {
     } else if (status !== 'loading') {
       setIsLoading(false);
     }
-  }, [session, status]);
+  }, [status]);
 
   const value = { userProfile, isLoading, setSelectedAddress, selectedAddress };
 

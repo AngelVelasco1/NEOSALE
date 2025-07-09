@@ -9,3 +9,14 @@ export interface createUserParams {
   identification?: string | null;
   role?: roles_enum;
 }
+
+export interface updateUserParams {
+  id: number;
+  name?: string;
+  email?: string;
+  emailVerified?: boolean | null;
+  password?: string;
+  phoneNumber?: string;
+  identification?: string | null;
+  role?: roles_enum;
+}

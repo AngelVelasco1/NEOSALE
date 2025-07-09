@@ -1,5 +1,5 @@
 import { Request, Response } from 'express';
-import { registerUserService, getUserByIdService } from '../services/users';
+import { registerUserService, getUserByIdService, updateUserService } from '../services/users';
 
 export const registerUser = async (req: Request, res: Response) => {
   try {
@@ -12,9 +12,8 @@ export const registerUser = async (req: Request, res: Response) => {
       identification,
       role
     } = req.body;
-    console.log(req.body);
 
-    // Validación básica
+    //  básica
     if (!name || !email || !phoneNumber || !password) {
       return res.status(400).json({ 
         success: false,
@@ -62,3 +61,44 @@ export const getUserById = async (req: Request, res: Response) => {
     });
   }
 };
+
+export const updateUser = async (req: Request, res: Response) => {
+  try {
+    const {
+      id,
+      name,
+      email,
+      emailVerified,
+      password,
+      phoneNumber,
+      identification,
+      role
+    } = req.body;
+
+    if (!id) {
+      return res.status(400).json({ 
+        success: false, 
+        message: "ID de usuario requerido" 
+      });
+    }
+
+    const updatedUser = await updateUserService({
+      id,
+      name,
+      email,
+      emailVerified,
+      password,
+      phoneNumber,
+      identification,
+      role
+    });
+
+    res.json(updatedUser);
+  } catch (error: any) {
+    console.error('Error in updateUser:', error);
+    res.status(500).json({ 
+      success: false, 
+      message: error.message || "Error interno del servidor" 
+    });
+  }
+}

@@ -1,6 +1,6 @@
 import { prisma } from "../lib/prisma";
 import bcrypt from "bcryptjs";
-import { createUserParams } from "../types/users";
+import { createUserParams, updateUserParams } from "../types/users";
 import { roles_enum, Prisma } from "@prisma/client"
 
 export const registerUserService = async ({
@@ -93,9 +93,53 @@ export const getUserByIdService = async (id: number | undefined) => {
         }
       }
     }
-    },
-   );
+  },
+  );
 
 
   return user;
+};
+
+
+export const updateUserService = async ({ id, name, email, emailVerified, password, phoneNumber, identification, role }: updateUserParams) => {
+  if (!id) {
+    throw new Error("ID de usuario requerido");
+  }
+  
+  const safeRole = role && role.trim() !== "" ? role : "user";
+  const idAsInt = Number(id);
+  const hashedPassword = await bcrypt.hash(password, 12);
+
+  try {
+      await prisma.$executeRaw` CALL sp_updateUser(
+    ${idAsInt}::int, 
+    ${name ?? null}::text, 
+    ${email ?? null}::text, 
+    ${emailVerified ?? null}::boolean, 
+    ${hashedPassword ?? null}::text, 
+    ${phoneNumber ?? null}::text, 
+    ${identification ?? null}::text, 
+    ${safeRole}::text
+)`;
+      const user = await prisma.users.findUnique({
+      where: { id: idAsInt },
+      select: {
+        id: true,
+        name: true,
+        email: true,
+        emailverified: true,
+        password: true,
+        phonenumber: true,
+        identification: true,
+        role: true,
+      }
+    });
+  if (!user) {
+      throw new Error("Usuario no encontrado");
+    }
+    return user
+  } catch(err) {
+    throw new Error("Error al actualizar el usuario: " + err);
+  }
+
 };

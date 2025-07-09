@@ -150,7 +150,7 @@ export const ProductDetails = ({ data }: ProductDetailsProps) => {
             onValueChange={setSelectedSize}
             className="flex flex-wrap gap-3"
           >
-            {data.sizes.split(",").map((size) => (
+            {data?.sizes?.split(",").map((size) => (
               <label
                 key={size}
                 className={`flex cursor-pointer items-center justify-center rounded-md border px-3 py-2 text-sm

@@ -40,6 +40,7 @@ CREATE TABLE users (
     phonenumber VARCHAR(255) UNIQUE NOT NULL,
     identification VARCHAR(255) UNIQUE,
     role roles_enum DEFAULT 'user' NOT NULL,
+    active BOOLEAN DEFAULT TRUE NOT NULL,
     "createdAt" TIMESTAMP(6) DEFAULT CURRENT_TIMESTAMP NOT NULL
 );
 
@@ -47,13 +48,16 @@ CREATE TABLE users (
 CREATE TABLE brands (
     id INTEGER PRIMARY KEY NOT NULL,
     name VARCHAR(255) NOT NULL,
+    active BOOLEAN DEFAULT TRUE NOT NULL,
     imageurl VARCHAR(255)
 );
 
 -- Tabla subcategory
 CREATE TABLE subcategory (
     id SERIAL PRIMARY KEY,
-    name VARCHAR(255) NOT NULL
+    name VARCHAR(255) NOT NULL,
+    active BOOLEAN DEFAULT TRUE NOT NULL,
+
 );
 
 -- Tabla categories (actualizada)
@@ -61,6 +65,8 @@ CREATE TABLE categories (
     id SERIAL PRIMARY KEY,
     name VARCHAR(255) NOT NULL,
     idsubcategory INTEGER NOT NULL,
+    active BOOLEAN DEFAULT TRUE NOT NULL,
+
     FOREIGN KEY (idsubcategory) REFERENCES subcategory(id) ON DELETE NO ACTION ON UPDATE NO ACTION
 );
 
@@ -69,6 +75,7 @@ CREATE TABLE category_subcategory (
     categoryid INTEGER NOT NULL,
     subcategoryid INTEGER NOT NULL,
     PRIMARY KEY (categoryid, subcategoryid),
+    active BOOLEAN DEFAULT TRUE NOT NULL,
     FOREIGN KEY (categoryid) REFERENCES categories(id) ON DELETE NO ACTION ON UPDATE NO ACTION,
     FOREIGN KEY (subcategoryid) REFERENCES subcategory(id) ON DELETE NO ACTION ON UPDATE NO ACTION
 );
@@ -78,6 +85,7 @@ CREATE TABLE coupons (
     id SERIAL PRIMARY KEY,
     code VARCHAR(255) NOT NULL,
     discount DECIMAL(8,2) NOT NULL,
+    active BOOLEAN DEFAULT TRUE NOT NULL,
     createdat TIMESTAMP(6) DEFAULT CURRENT_TIMESTAMP NOT NULL,
     expiresat TIMESTAMP(6) NOT NULL
 );
@@ -94,6 +102,7 @@ CREATE TABLE products (
     isactive BOOLEAN NOT NULL,
     categoryid INTEGER NOT NULL,
     brandid INTEGER NOT NULL,
+    active BOOLEAN DEFAULT TRUE NOT NULL,
     createdat TIMESTAMP(6) DEFAULT CURRENT_TIMESTAMP NOT NULL,
     createdby INTEGER NOT NULL,
     updatedat TIMESTAMP(6),
@@ -101,7 +110,6 @@ CREATE TABLE products (
     FOREIGN KEY (categoryid) REFERENCES categories(id) ON DELETE NO ACTION ON UPDATE NO ACTION,
     FOREIGN KEY (brandid) REFERENCES brands(id) ON DELETE NO ACTION ON UPDATE NO ACTION
 );
-select * from users;
 -- Tabla cart
 CREATE TABLE cart (
     id SERIAL PRIMARY KEY,

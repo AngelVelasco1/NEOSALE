@@ -27,3 +27,23 @@ export const registerSchema = z.object({
     path: ["confirmPassword"],
   })
 ;
+
+export const updateUserSchema = z.object({
+  id: z.number({
+    required_error: "ID de usuario requerido",
+  }),
+  name: z.string().min(2, {
+    message: "El nombre debe tener al menos 2 caracteres.",
+  }),
+  email: z.string().email(),
+  emailVerified: z.boolean().optional(),
+  password: z.string()
+    .optional()
+,   
+  phoneNumber: z.string().optional(),
+  identification: z.string().optional(),
+  role: z.enum(['user', 'admin']).optional(),
+  address: z.string({
+    required_error: "Por favor, selecciona una dirección.",
+  }),
+})
