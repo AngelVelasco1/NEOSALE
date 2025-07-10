@@ -72,7 +72,6 @@ export const updateUser = async (req: Request, res: Response) => {
       password,
       phoneNumber,
       identification,
-      role
     } = req.body;
 
     if (!id) {
@@ -90,7 +89,6 @@ export const updateUser = async (req: Request, res: Response) => {
       password,
       phoneNumber,
       identification,
-      role
     });
 
     res.json(updatedUser);

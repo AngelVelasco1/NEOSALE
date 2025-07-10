@@ -1,11 +1,15 @@
 "use client";
 
-import { createContext, useContext, useState, useEffect, ReactNode } from 'react';
+import { createContext, useContext, useState, useEffect, ReactNode, useCallback } from 'react';
 import { useSession } from 'next-auth/react';
 import { getUserById } from '../services/api'; // Ajusta la ruta si es necesario
 
 interface UserProfile {
+  name: string | null;
+  email: string | null;
   phonenumber: string | null;
+  identification?: string | null;
+  password: string | null
   addresses: string[] | null;
 
 }
@@ -15,6 +19,7 @@ interface UserContextType {
   isLoading: boolean;
   setSelectedAddress: (addressIndex: string) => void;
   selectedAddress: string | undefined;
+  reFetchUserProfile: () => UserProfile
 }
 
 const UserContext = createContext<UserContextType | undefined>(undefined);
@@ -29,28 +34,31 @@ export const UserProvider = ({ children }: UserProviderProps) => {
   const [selectedAddress, setSelectedAddress] = useState<string>();
   const [isLoading, setIsLoading] = useState(true);
 
-  useEffect(() => {
-    if (session?.user?.id) {
+  const fetchUserProfile = useCallback(async() => {
+    try {
       setIsLoading(true);
-      getUserById(Number(session.user.id))
-        .then(user => {
-          if (user) {
-            setUserProfile({ phonenumber: user.phonenumber, addresses: user.addresses});
-          }
-        })
-        .catch(error => {
-          console.error("Error fetching user data:", error);
-          setUserProfile({ phonenumber: 'Error al cargar' });
-        })
-        .finally(() => {
-          setIsLoading(false);
-        });
-    } else if (status !== 'loading') {
-      setIsLoading(false);
-    }
-  }, [status]);
+      if (session?.user?.id) {
+        const data = await getUserById(Number(session.user.id));
+    
+        setUserProfile(data);
 
-  const value = { userProfile, isLoading, setSelectedAddress, selectedAddress };
+
+      } else if (status !== 'loading') {
+        setIsLoading(false);
+      }
+
+    } catch (err) {
+      console.error(err)
+    }
+    finally {
+      setIsLoading(false)
+    }
+  }, [session?.user?.id, status])
+
+  useEffect(() => {
+    fetchUserProfile();
+  }, [fetchUserProfile, session?.user?.id])
+  const value = { userProfile, isLoading, setSelectedAddress, selectedAddress, reFetchUserProfile: fetchUserProfile};
 
   return <UserContext.Provider value={value}>{children}</UserContext.Provider>;
 };

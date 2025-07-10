@@ -18,7 +18,8 @@ export const registerSchema = z.object({
   .min(8, 'La Contraseña debe ser minimo de 8 caracteres')
   .max(32, 'La contraseña no debe tener mas de 32 caracteres'),
   phoneNumber: z.string()
-    .min(7, 'El número de teléfono debe tener al menos 7 dígitos')
+    .min(10, 'El número de teléfono debe tener al menos 10 dígitos')
+    .max(10, 'El número de teléfono no debe pasar de 10 dígitos')
     .or(z.literal('')) 
     .optional(),
   confirmPassword: z.string()
@@ -38,11 +39,24 @@ export const updateUserSchema = z.object({
   email: z.string().email(),
   emailVerified: z.boolean().optional(),
   password: z.string()
+  .min(1, 'Contraseña es requerida')
+  .min(8, 'La Contraseña debe ser minimo de 8 caracteres')
+  .max(32, 'La contraseña no debe tener mas de 32 caracteres'),   
+  phoneNumber: z
+    .string()
     .optional()
-,   
-  phoneNumber: z.string().optional(),
-  identification: z.string().optional(),
-  role: z.enum(['user', 'admin']).optional(),
+    .refine((val) => {
+      if (!val || val.trim() === '') return true; 
+      return val.length >= 10; 
+    }, 'El número de teléfono debe tener al menos 10 dígitos')
+    .refine((val) => {
+      if (!val || val.trim() === '') return true; 
+      return val.length <= 10; 
+    }, 'El número de teléfono no debe pasar de 10 dígitos'),
+   identification: z
+    .string()
+    .optional()
+    .transform((val) => val && val.trim() !== "" ? val.trim() : undefined),
   address: z.string({
     required_error: "Por favor, selecciona una dirección.",
   }),

@@ -4,14 +4,15 @@ import Image from "next/image"
 import { Input } from "../../components/ui/input";
 import React from 'react';
 import { Button } from "@/components/ui/button";
-import { Search, ShoppingCart, User, Heart } from "lucide-react"
+import { Search, ShoppingCart, User2, Heart } from "lucide-react"
 import { useRouter } from "next/navigation";
-import { useSession } from "next-auth/react";
-
+import { useUser } from "../(auth)/context/UserContext";
+import Link from "next/link";
 
 export const Navbar = () => {
   const router = useRouter();
-  const { data: session } = useSession();
+  const { userProfile} = useUser();
+
   const pages = [
     {
       name: "Inicio",
@@ -65,17 +66,19 @@ export const Navbar = () => {
                 <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
               </div>
             </div>
-            {session ? (
+            {userProfile ? (
               <>
-                <span className="text-md text-blue-600 font-bold">Hola, {session?.user?.name}</span>
-                <Button onClick={() => router.push('/profile')} variant="ghost" size="icon">
-                  <User width={20} height={20} />
-                </Button>
+                <span className="text-md text-blue-700 ">Hola, {userProfile?.name}</span>
+                <Link href={'/profile'}>
+                  <User2 size={22} className="text-blue-700 " />
+                </Link>
+
+  
               </>
             ) : (
-              <Button onClick={() => router.push('/login')} variant="ghost" size="icon">
-                <User width={20} height={20} />
-              </Button>
+                <Link href={'/login'}>
+                <User2  size={22} />
+              </Link>
             )}
           </div>
         </div>

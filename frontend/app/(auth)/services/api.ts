@@ -19,13 +19,12 @@ export const getUserById = async (userId: number) => {
 
 export const updateUser = async (userData: {
   id: number;
-  name?: string;
-  email?: string;
+  name: string;
+  email: string;
   emailVerified?: boolean;
   password?: string;
   phoneNumber?: string;
   identification?: string;
-  role?: "user" | "admin";
 }) => {
   const { data } = await api.put("/api/use/updateUser", userData);
   return data; 

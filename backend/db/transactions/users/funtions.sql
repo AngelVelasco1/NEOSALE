@@ -31,7 +31,6 @@ BEGIN
 END;
 $$;
 
-
 CREATE OR REPLACE PROCEDURE sp_updateUser(
     p_id INT,
     p_name TEXT,
@@ -39,8 +38,7 @@ CREATE OR REPLACE PROCEDURE sp_updateUser(
     p_emailverified BOOLEAN,
     p_password TEXT,
     p_phonenumber TEXT,
-    p_identification TEXT,
-    p_role TEXT DEFAULT 'user'
+    p_identification TEXT
 )
 LANGUAGE plpgsql
 AS $$
@@ -51,12 +49,10 @@ BEGIN
         emailverified = COALESCE(p_emailverified, emailverified),
         password = COALESCE(p_password, password),
         phonenumber = COALESCE(p_phonenumber, phonenumber),
-        identification = COALESCE(p_identification, identification),
-        role = COALESCE(p_role::roles_enum, role)
+        identification = COALESCE(p_identification, identification)
     WHERE id = p_id;
 END;
 $$;
-select * from users;
 
 /*************************************/
 /*Función para Obtener Usuario por ID*/

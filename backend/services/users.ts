@@ -64,7 +64,6 @@ export const registerUserService = async ({
         }
       }
     }
-    // Re-lanzar otros errores o el original si no se identifica
     throw error;
   }
 }
@@ -82,6 +81,7 @@ export const getUserByIdService = async (id: number | undefined) => {
       email: true,
       emailverified: true,
       phonenumber: true,
+      password: true,
       identification: true,
       role: true,
       addresses: {
@@ -101,25 +101,24 @@ export const getUserByIdService = async (id: number | undefined) => {
 };
 
 
-export const updateUserService = async ({ id, name, email, emailVerified, password, phoneNumber, identification, role }: updateUserParams) => {
-  if (!id) {
-    throw new Error("ID de usuario requerido");
+export const updateUserService = async ({ id, name, email, emailVerified, password, phoneNumber, identification }: updateUserParams) => {
+  if (!id || !name || !email || !password) {
+    throw new Error("Campos Obligatorios requeridos");
   }
   
-  const safeRole = role && role.trim() !== "" ? role : "user";
   const idAsInt = Number(id);
   const hashedPassword = await bcrypt.hash(password, 12);
+  const nullIdentification = identification && identification.trim() !== "" ? identification.trim() : null;
 
   try {
-      await prisma.$executeRaw` CALL sp_updateUser(
+    await prisma.$executeRaw` CALL sp_updateUser(
     ${idAsInt}::int, 
-    ${name ?? null}::text, 
-    ${email ?? null}::text, 
+    ${name}::text, 
+    ${email}::text, 
     ${emailVerified ?? null}::boolean, 
-    ${hashedPassword ?? null}::text, 
+    ${hashedPassword}::text, 
     ${phoneNumber ?? null}::text, 
-    ${identification ?? null}::text, 
-    ${safeRole}::text
+    ${nullIdentification}::text
 )`;
       const user = await prisma.users.findUnique({
       where: { id: idAsInt },
@@ -130,8 +129,7 @@ export const updateUserService = async ({ id, name, email, emailVerified, passwo
         emailverified: true,
         password: true,
         phonenumber: true,
-        identification: true,
-        role: true,
+        identification: true
       }
     });
   if (!user) {
