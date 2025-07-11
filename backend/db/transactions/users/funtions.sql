@@ -36,7 +36,6 @@ CREATE OR REPLACE PROCEDURE sp_updateUser(
     p_name TEXT,
     p_email TEXT,
     p_emailverified BOOLEAN,
-    p_password TEXT,
     p_phonenumber TEXT,
     p_identification TEXT
 )
@@ -47,16 +46,21 @@ BEGIN
         name = COALESCE(p_name, name),
         email = COALESCE(p_email, email),
         emailverified = COALESCE(p_emailverified, emailverified),
-        password = COALESCE(p_password, password),
         phonenumber = COALESCE(p_phonenumber, phonenumber),
         identification = COALESCE(p_identification, identification)
     WHERE id = p_id;
 END;
 $$;
 
-/*************************************/
-/*Función para Obtener Usuario por ID*/
-/************************************/
+
+CREATE OR REPLACE PROCEDURE sp_updatePassword(p_id INT, p_newPassword TEXT) 
+LANGUAGE plpgsql
+AS $$
+BEGIN
+    UPDATE users SET password = p_newPassword WHERE id = p_id;
+END;
+$$;
+
 CREATE OR REPLACE FUNCTION fn_getUserById(p_id users.id%TYPE)
 RETURNS TABLE(
     id users.id%TYPE,
@@ -78,9 +82,8 @@ BEGIN
 END;
 $$;
 
-/*************************************/
-/*Función para Obtener Usuario por Email*/
-/************************************/
+select * from users;
+
 CREATE OR REPLACE FUNCTION fn_getUserByEmail(p_email users.email%TYPE)
 RETURNS TABLE(
     id users.id%TYPE,
@@ -102,4 +105,3 @@ BEGIN
     WHERE u.email = p_email;
 END;
 $$;
-

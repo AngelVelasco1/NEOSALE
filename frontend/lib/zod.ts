@@ -1,11 +1,11 @@
-import { z }  from "zod";
+import { z } from "zod";
 
 export const loginSchema = z.object({
   email: z.string().min(1, 'Email es requerido').email('Email formato invalido'),
   password: z.string()
-  .min(1, 'Contraseña es requerida')
-  .min(8, 'La Contraseña debe ser minimo de 8 caracteres')
-  .max(32, 'La contraseña no debe tener mas de 32 caracteres')
+    .min(1, 'Contraseña es requerida')
+    .min(8, 'La Contraseña debe ser minimo de 8 caracteres')
+    .max(32, 'La contraseña no debe tener mas de 32 caracteres')
 });
 
 
@@ -14,20 +14,20 @@ export const registerSchema = z.object({
   email: z.string().min(1, 'El Email es requerido').email('Email con un formato invalido'),
   emailVerified: z.boolean().optional(),
   password: z.string()
-  .min(1, 'Contraseña es requerida')
-  .min(8, 'La Contraseña debe ser minimo de 8 caracteres')
-  .max(32, 'La contraseña no debe tener mas de 32 caracteres'),
+    .min(1, 'Contraseña es requerida')
+    .min(8, 'La Contraseña debe ser minimo de 8 caracteres')
+    .max(32, 'La contraseña no debe tener mas de 32 caracteres'),
   phoneNumber: z.string()
     .min(10, 'El número de teléfono debe tener al menos 10 dígitos')
     .max(10, 'El número de teléfono no debe pasar de 10 dígitos')
-    .or(z.literal('')) 
+    .or(z.literal(''))
     .optional(),
   confirmPassword: z.string()
 }).refine((data) => data.password === data.confirmPassword, {
-    message: "Las contraseñas no coinciden",
-    path: ["confirmPassword"],
-  })
-;
+  message: "Las contraseñas no coinciden",
+  path: ["confirmPassword"],
+})
+  ;
 
 export const updateUserSchema = z.object({
   id: z.number({
@@ -38,22 +38,18 @@ export const updateUserSchema = z.object({
   }),
   email: z.string().email(),
   emailVerified: z.boolean().optional(),
-  password: z.string()
-  .min(1, 'Contraseña es requerida')
-  .min(8, 'La Contraseña debe ser minimo de 8 caracteres')
-  .max(32, 'La contraseña no debe tener mas de 32 caracteres'),   
   phoneNumber: z
     .string()
     .optional()
     .refine((val) => {
-      if (!val || val.trim() === '') return true; 
-      return val.length >= 10; 
+      if (!val || val.trim() === '') return true;
+      return val.length >= 10;
     }, 'El número de teléfono debe tener al menos 10 dígitos')
     .refine((val) => {
-      if (!val || val.trim() === '') return true; 
-      return val.length <= 10; 
+      if (!val || val.trim() === '') return true;
+      return val.length <= 10;
     }, 'El número de teléfono no debe pasar de 10 dígitos'),
-   identification: z
+  identification: z
     .string()
     .optional()
     .transform((val) => val && val.trim() !== "" ? val.trim() : undefined),
@@ -61,3 +57,29 @@ export const updateUserSchema = z.object({
     required_error: "Por favor, selecciona una dirección.",
   }),
 })
+
+export const updateUserPasswordSchema = z.object({
+  id: z.number({
+    required_error: "ID de usuario requerido",
+  }),
+  currentPassword: z.string()
+    .min(1, 'Contraseña actual es requerida')
+    .min(8, 'La contraseña debe tener al menos 8 caracteres')
+    .max(32, 'La contraseña no debe tener más de 32 caracteres')
+    .regex(
+      /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]+$/,
+      'La contraseña debe contener al menos: 1 mayúscula, 1 minúscula, 1 número y 1 carácter especial (@$!%*?&)'
+    ),
+  newPassword: z.string()
+    .min(8, 'La contraseña debe tener al menos 8 caracteres')
+    .max(32, 'La contraseña no debe tener más de 32 caracteres')
+    .regex(
+      /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]+$/,
+      'La contraseña debe contener al menos: 1 mayúscula, 1 minúscula, 1 número y 1 carácter especial (@$!%*?&)'
+    ),
+  confirmPassword: z.string()
+    .min(1, 'Confirmación de contraseña es requerida')
+}).refine((data) => data.newPassword === data.confirmPassword, {
+  message: "Las contraseñas no coinciden",
+  path: ["confirmPassword"],
+});

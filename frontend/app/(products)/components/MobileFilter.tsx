@@ -162,7 +162,7 @@ export const MobileFilter = ({ products, setFilteredProducts }: MobileFilterProp
 
   return (
     <div className="space-y-6 bg-white/80 backdrop-blur-sm rounded-xl shadow-lg border border-blue-100 p-6">
-       <Button
+      <Button
         variant="outline"
         onClick={() => setIsOpen(true)}
         className="lg:hidden border-blue-200 text-blue-600 hover:bg-blue-50 bg-white/70 backdrop-blur-sm"
@@ -196,230 +196,229 @@ export const MobileFilter = ({ products, setFilteredProducts }: MobileFilterProp
               </div>
 
               {/* Filter Component */}
-    <div className="space-y-3">
-        <div className="flex items-center space-x-2">
-          <Search className="h-4 w-4 text-blue-600" />
-          <h4 className="font-medium text-gray-900">Buscar</h4>
-        </div>
-        <div className="relative">
-          <Input
-            type="text"
-            placeholder="Buscar productos..."
-            value={filters.searchTerm}
-            onChange={(e) => updateFilter("searchTerm", e.target.value)}
-            className="pl-10 border-blue-200 focus:border-blue-400 focus:ring-blue-400 bg-gradient-to-r from-blue-50/30 to-indigo-50/30"
-          />
-          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-blue-400 h-4 w-4" />
-          {filters.searchTerm && (
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={() => updateFilter("searchTerm", "")}
-              className="absolute right-2 top-1/2 transform -translate-y-1/2 h-6 w-6 p-0 text-gray-400 hover:text-gray-600"
-            >
-              <X className="h-3 w-3" />
-            </Button>
-          )}
-        </div>
-      </div>
-
-      <Separator className="bg-gradient-to-r from-blue-100 to-indigo-100" />
-
-      {/* Colors Filter */}
-      <div className="space-y-3">
-        <div className="flex items-center space-x-2">
-          <Palette className="h-4 w-4 text-blue-600" />
-          <h4 className="font-medium text-gray-900">Colores</h4>
-          {filters.selectedColors.length > 0 && (
-            <Badge variant="secondary" className="bg-blue-100 text-blue-700">
-              {filters.selectedColors.length}
-            </Badge>
-          )}
-        </div>
-        <div className="grid grid-cols-4 gap-3">
-          {uniqueData.colors.map(({ code, name }) => {
-            const isSelected = filters.selectedColors.includes(code)
-            const count = getColorCount(code)
-
-            return (
-              <div key={code} className="flex flex-col items-center space-y-1">
-                <button
-                  onClick={() => handleColorToggle(code)}
-                  className={`w-10 h-10 rounded-lg transition-all duration-200 border-2 ${
-                    isSelected
-                      ? "border-blue-500 ring-2 ring-blue-200 scale-110"
-                      : "border-gray-200 hover:border-blue-300 hover:scale-105"
-                  } shadow-sm`}
-                  style={{ backgroundColor: code }}
-                  title={name}
-                />
-                <div className="text-center">
-                  <span className="text-xs text-gray-600 block truncate w-12" title={name}>
-                    {name}
-                  </span>
-                  <span className="text-xs text-gray-400">({count})</span>
+              <div className="space-y-6">
+                {/* Search Filter */}
+                <div className="space-y-3">
+                  <div className="flex items-center space-x-2">
+                    <Search className="h-4 w-4 text-blue-600" />
+                    <h4 className="font-medium text-gray-900">Buscar</h4>
+                  </div>
+                  <div className="relative">
+                    <Input
+                      type="text"
+                      placeholder="Buscar productos..."
+                      value={filters.searchTerm}
+                      onChange={(e) => updateFilter("searchTerm", e.target.value)}
+                      className="pl-10 border-blue-200 focus:border-blue-400 focus:ring-blue-400 bg-gradient-to-r from-blue-50/30 to-indigo-50/30"
+                    />
+                    <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-blue-400 h-4 w-4" />
+                    {filters.searchTerm && (
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => updateFilter("searchTerm", "")}
+                        className="absolute right-2 top-1/2 transform -translate-y-1/2 h-6 w-6 p-0 text-gray-400 hover:text-gray-600"
+                      >
+                        <X className="h-3 w-3" />
+                      </Button>
+                    )}
+                  </div>
                 </div>
-              </div>
-            )
-          })}
-        </div>
-      </div>
 
-      <Separator className="bg-gradient-to-r from-blue-100 to-indigo-100" />
+                <Separator className="bg-gradient-to-r from-blue-100 to-indigo-100" />
 
-      {/* Categories Filter */}
-      <div className="space-y-3">
-        <div className="flex items-center space-x-2">
-          <Tag className="h-4 w-4 text-blue-600" />
-          <h4 className="font-medium text-gray-900">Categorías</h4>
-          {filters.selectedCategories.length > 0 && (
-            <Badge variant="secondary" className="bg-blue-100 text-blue-700">
-              {filters.selectedCategories.length}
-            </Badge>
-          )}
-        </div>
-        <div className="space-y-2">
-          {uniqueData.categories.map((category) => {
-            const isSelected = filters.selectedCategories.includes(category)
-            const count = getCategoryCount(category)
+                {/* Colors Filter */}
+                <div className="space-y-3">
+                  <div className="flex items-center space-x-2">
+                    <Palette className="h-4 w-4 text-blue-600" />
+                    <h4 className="font-medium text-gray-900">Colores</h4>
+                    {filters.selectedColors.length > 0 && (
+                      <Badge variant="secondary" className="bg-blue-100 text-blue-700">
+                        {filters.selectedColors.length}
+                      </Badge>
+                    )}
+                  </div>
+                  <div className="grid grid-cols-4 gap-3">
+                    {uniqueData.colors.map(({ code, name }) => {
+                      const isSelected = filters.selectedColors.includes(code)
+                      const count = getColorCount(code)
 
-            return (
-              <div key={category} className="flex items-center justify-between">
-                <div className="flex items-center space-x-2">
-                  <Checkbox
-                    id={category}
-                    checked={isSelected}
-                    onCheckedChange={() => handleCategoryToggle(category)}
-                    className="data-[state=checked]:bg-gradient-to-r data-[state=checked]:from-blue-500 data-[state=checked]:to-indigo-600 border-blue-300"
-                  />
-                  <label
-                    htmlFor={category}
-                    className="text-sm text-gray-700 cursor-pointer hover:text-blue-600 transition-colors"
+                      return (
+                        <div key={code} className="flex flex-col items-center space-y-1">
+                          <button
+                            onClick={() => handleColorToggle(code)}
+                            className={`w-10 h-10 rounded-lg transition-all duration-200 border-2 ${
+                              isSelected
+                                ? "border-blue-500 ring-2 ring-blue-200 scale-110"
+                                : "border-gray-200 hover:border-blue-300 hover:scale-105"
+                            } shadow-sm`}
+                            style={{ backgroundColor: code }}
+                            title={name}
+                          />
+                          <div className="text-center">
+                            <span className="text-xs text-gray-600 block truncate w-12" title={name}>
+                              {name}
+                            </span>
+                            <span className="text-xs text-gray-400">({count})</span>
+                          </div>
+                        </div>
+                      )
+                    })}
+                  </div>
+                </div>
+
+                <Separator className="bg-gradient-to-r from-blue-100 to-indigo-100" />
+
+                {/* Categories Filter */}
+                <div className="space-y-3">
+                  <div className="flex items-center space-x-2">
+                    <Tag className="h-4 w-4 text-blue-600" />
+                    <h4 className="font-medium text-gray-900">Categorías</h4>
+                    {filters.selectedCategories.length > 0 && (
+                      <Badge variant="secondary" className="bg-blue-100 text-blue-700">
+                        {filters.selectedCategories.length}
+                      </Badge>
+                    )}
+                  </div>
+                  <div className="space-y-2">
+                    {uniqueData.categories.map((category) => {
+                      const isSelected = filters.selectedCategories.includes(category)
+                      const count = getCategoryCount(category)
+
+                      return (
+                        <div key={category} className="flex items-center justify-between">
+                          <div className="flex items-center space-x-2">
+                            <Checkbox
+                              id={category}
+                              checked={isSelected}
+                              onCheckedChange={() => handleCategoryToggle(category)}
+                              className="data-[state=checked]:bg-gradient-to-r data-[state=checked]:from-blue-500 data-[state=checked]:to-indigo-600 border-blue-300"
+                            />
+                            <label
+                              htmlFor={category}
+                              className="text-sm text-gray-700 cursor-pointer hover:text-blue-600 transition-colors"
+                            >
+                              {category}
+                            </label>
+                          </div>
+                          <Badge variant="outline" className="text-xs text-gray-500 border-gray-300">
+                            {count}
+                          </Badge>
+                        </div>
+                      )
+                    })}
+                  </div>
+                </div>
+
+                <Separator className="bg-gradient-to-r from-blue-100 to-indigo-100" />
+
+                {/* Stock Filter */}
+                <div className="space-y-3">
+                  <div className="flex items-center space-x-2">
+                    <Package className="h-4 w-4 text-blue-600" />
+                    <h4 className="font-medium text-gray-900">Disponibilidad</h4>
+                  </div>
+                  <div className="flex items-center space-x-2">
+                    <Checkbox
+                      id="in-stock"
+                      checked={filters.inStockOnly}
+                      onCheckedChange={(checked) => updateFilter("inStockOnly", checked)}
+                      className="data-[state=checked]:bg-gradient-to-r data-[state=checked]:from-blue-500 data-[state=checked]:to-indigo-600 border-blue-300"
+                    />
+                    <label htmlFor="in-stock" className="text-sm text-gray-700 cursor-pointer">
+                      Solo productos en stock
+                    </label>
+                    <Badge variant="outline" className="text-xs text-gray-500 border-gray-300">
+                      {products.filter((p) => p.stock > 0).length}
+                    </Badge>
+                  </div>
+                </div>
+
+                <Separator className="bg-gradient-to-r from-blue-100 to-indigo-100" />
+
+                {/* Sort Options */}
+                <div className="space-y-3">
+                  <h4 className="font-medium text-gray-900 flex items-center">
+                    <div className="w-2 h-2 bg-gradient-to-r from-blue-500 to-indigo-600 rounded-full mr-2"></div>
+                    Ordenar por
+                  </h4>
+                  <div className="grid grid-cols-1 gap-2">
+                    {[
+                      { value: "name", label: "Nombre A-Z" },
+                      { value: "price-asc", label: "Precio: Menor a Mayor" },
+                      { value: "price-desc", label: "Precio: Mayor a Menor" },
+                      { value: "newest", label: "Más Recientes" },
+                    ].map((option) => (
+                      <Button
+                        key={option.value}
+                        variant={filters.sortBy === option.value ? "default" : "outline"}
+                        size="sm"
+                        onClick={() => updateFilter("sortBy", option.value)}
+                        className={
+                          filters.sortBy === option.value
+                            ? "bg-gradient-to-r from-blue-500 to-indigo-600 text-white border-0"
+                            : "border-blue-200 text-gray-700 hover:bg-blue-50 hover:text-blue-600 hover:border-blue-300"
+                        }
+                      >
+                        {option.label}
+                      </Button>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Active Filters */}
+                {activeFiltersCount > 0 && (
+                  <>
+                    <Separator className="bg-gradient-to-r from-blue-100 to-indigo-100" />
+                    <div className="space-y-3">
+                      <h4 className="font-medium text-gray-900">Filtros Activos</h4>
+                      <div className="flex flex-wrap gap-2">
+                        {filters.searchTerm && (
+                          <Badge variant="secondary" className="bg-blue-100 text-blue-700">
+                            Búsqueda: &quot{filters.searchTerm}&quot
+                            <X className="h-3 w-3 ml-1 cursor-pointer" onClick={() => updateFilter("searchTerm", "")} />
+                          </Badge>
+                        )}
+                        {filters.selectedColors.map((colorCode) => {
+                          const colorName = uniqueData.colors.find((c) => c.code === colorCode)?.name
+                          return (
+                            <Badge key={colorCode} variant="secondary" className="bg-blue-100 text-blue-700">
+                              {colorName}
+                              <X className="h-3 w-3 ml-1 cursor-pointer" onClick={() => handleColorToggle(colorCode)} />
+                            </Badge>
+                          )
+                        })}
+                        {filters.selectedCategories.map((category) => (
+                          <Badge key={category} variant="secondary" className="bg-blue-100 text-blue-700">
+                            {category}
+                            <X className="h-3 w-3 ml-1 cursor-pointer" onClick={() => handleCategoryToggle(category)} />
+                          </Badge>
+                        ))}
+                        {filters.inStockOnly && (
+                          <Badge variant="secondary" className="bg-blue-100 text-blue-700">
+                            En Stock
+                            <X className="h-3 w-3 ml-1 cursor-pointer" onClick={() => updateFilter("inStockOnly", false)} />
+                          </Badge>
+                        )}
+                      </div>
+                    </div>
+                  </>
+                )}
+
+                {/* Apply Button */}
+                <div className="mt-6 pt-6 border-t border-blue-200">
+                  <Button
+                    onClick={() => setIsOpen(false)}
+                    className="w-full bg-gradient-to-r from-blue-600 to-indigo-700 hover:from-blue-700 hover:to-indigo-800 text-white"
                   >
-                    {category}
-                  </label>
+                    Aplicar Filtros
+                  </Button>
                 </div>
-                <Badge variant="outline" className="text-xs text-gray-500 border-gray-300">
-                  {count}
-                </Badge>
-              </div>
-            )
-          })}
-        </div>
-      </div>
-
-      <Separator className="bg-gradient-to-r from-blue-100 to-indigo-100" />
- 
-
-      <Separator className="bg-gradient-to-r from-blue-100 to-indigo-100" />
-
-      {/* Stock Filter */}
-      <div className="space-y-3">
-        <div className="flex items-center space-x-2">
-          <Package className="h-4 w-4 text-blue-600" />
-          <h4 className="font-medium text-gray-900">Disponibilidad</h4>
-        </div>
-        <div className="flex items-center space-x-2">
-          <Checkbox
-            id="in-stock"
-            checked={filters.inStockOnly}
-            onCheckedChange={(checked) => updateFilter("inStockOnly", checked)}
-            className="data-[state=checked]:bg-gradient-to-r data-[state=checked]:from-blue-500 data-[state=checked]:to-indigo-600 border-blue-300"
-          />
-          <label htmlFor="in-stock" className="text-sm text-gray-700 cursor-pointer">
-            Solo productos en stock
-          </label>
-          <Badge variant="outline" className="text-xs text-gray-500 border-gray-300">
-            {products.filter((p) => p.stock > 0).length}
-          </Badge>
-        </div>
-      </div>
-
-      <Separator className="bg-gradient-to-r from-blue-100 to-indigo-100" />
-
-      {/* Sort Options */}
-      <div className="space-y-3">
-        <h4 className="font-medium text-gray-900 flex items-center">
-          <div className="w-2 h-2 bg-gradient-to-r from-blue-500 to-indigo-600 rounded-full mr-2"></div>
-          Ordenar por
-        </h4>
-        <div className="grid grid-cols-1 gap-2">
-          {[
-            { value: "name", label: "Nombre A-Z" },
-            { value: "price-asc", label: "Precio: Menor a Mayor" },
-            { value: "price-desc", label: "Precio: Mayor a Menor" },
-            { value: "newest", label: "Más Recientes" },
-          ].map((option) => (
-            <Button
-              key={option.value}
-              variant={filters.sortBy === option.value ? "default" : "outline"}
-              size="sm"
-              onClick={() => updateFilter("sortBy", option.value)}
-              className={
-                filters.sortBy === option.value
-                  ? "bg-gradient-to-r from-blue-500 to-indigo-600 text-white border-0"
-                  : "border-blue-200 text-gray-700 hover:bg-blue-50 hover:text-blue-600 hover:border-blue-300"
-              }
-            >
-              {option.label}
-            </Button>
-          ))}
-        </div>
-      </div>
-
-      {/* Active Filters Summary */}
-      {activeFiltersCount > 0 && (
-        <>
-          <Separator className="bg-gradient-to-r from-blue-100 to-indigo-100" />
-          <div className="space-y-3">
-            <h4 className="font-medium text-gray-900">Filtros Activos</h4>
-            <div className="flex flex-wrap gap-2">
-              {filters.searchTerm && (
-                <Badge variant="secondary" className="bg-blue-100 text-blue-700">
-                  Búsqueda: &quot{filters.searchTerm}&quot
-                  <X className="h-3 w-3 ml-1 cursor-pointer" onClick={() => updateFilter("searchTerm", "")} />
-                </Badge>
-              )}
-              {filters.selectedColors.map((colorCode) => {
-                const colorName = uniqueData.colors.find((c) => c.code === colorCode)?.name
-                return (
-                  <Badge key={colorCode} variant="secondary" className="bg-blue-100 text-blue-700">
-                    {colorName}
-                    <X className="h-3 w-3 ml-1 cursor-pointer" onClick={() => handleColorToggle(colorCode)} />
-                  </Badge>
-                )
-              })}
-              {filters.selectedCategories.map((category) => (
-                <Badge key={category} variant="secondary" className="bg-blue-100 text-blue-700">
-                  {category}
-                  <X className="h-3 w-3 ml-1 cursor-pointer" onClick={() => handleCategoryToggle(category)} />
-                </Badge>
-              ))}
-              {filters.inStockOnly && (
-                <Badge variant="secondary" className="bg-blue-100 text-blue-700">
-                  En Stock
-                  <X className="h-3 w-3 ml-1 cursor-pointer" onClick={() => updateFilter("inStockOnly", false)} />
-                </Badge>
-              )}
-            </div>
-          </div>
-              <div className="mt-6 pt-6 border-t border-blue-200">
-                <Button
-                  onClick={() => setIsOpen(false)}
-                  className="w-full bg-gradient-to-r from-blue-600 to-indigo-700 hover:from-blue-700 hover:to-indigo-800 text-white"
-                >
-                  Aplicar Filtros
-                </Button>
               </div>
             </div>
           </div>
-        </div>
         </div>
       )}
-    
-
     </div>
   )
-
-
 }

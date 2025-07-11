@@ -22,10 +22,19 @@ export const updateUser = async (userData: {
   name: string;
   email: string;
   emailVerified?: boolean;
-  password?: string;
   phoneNumber?: string;
   identification?: string;
 }) => {
   const { data } = await api.put("/api/use/updateUser", userData);
   return data; 
+}
+
+
+export const updatePassword = async (userData: {
+  id: number;
+  newPassword: string;
+}
+) => {
+  const { data } = await api.put("/api/use/updatePassword", userData);
+  return data;
 }

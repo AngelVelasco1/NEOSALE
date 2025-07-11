@@ -12,7 +12,6 @@ export const SignOut  = () => {
      })
 
     }
-  return <Button onClick={() => handleSignOut()} variant="destructive" 
-  className="w-fit h-10 text-red-600 hover:text-red-700 
-  hover:bg-red-100 font-medium  rounded-lg transition-colors group text-md"> <LogOut className="w-4 h-4 mr-2 "/>Cerrar Sesion</Button>
+  return <Button onClick={() => handleSignOut()} 
+  className=" absolute top-4 right-4 w-fit h-10 bg-white/20 hover:bg-white/30 backdrop-blur-sm border-0 text-white shadow-lg transition-all duration-200"> <LogOut className="h-5 w-5"/>Cerrar Sesion</Button>
 } 

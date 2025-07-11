@@ -1,6 +1,6 @@
 import { prisma } from "../lib/prisma";
 import bcrypt from "bcryptjs";
-import { createUserParams, updateUserParams } from "../types/users";
+import { createUserParams, updateUserParams, updatePasswordParams } from "../types/users";
 import { roles_enum, Prisma } from "@prisma/client"
 
 export const registerUserService = async ({
@@ -101,13 +101,12 @@ export const getUserByIdService = async (id: number | undefined) => {
 };
 
 
-export const updateUserService = async ({ id, name, email, emailVerified, password, phoneNumber, identification }: updateUserParams) => {
-  if (!id || !name || !email || !password) {
+export const updateUserService = async ({ id, name, email, emailVerified, phoneNumber, identification }: updateUserParams) => {
+  if (!id || !name || !email) {
     throw new Error("Campos Obligatorios requeridos");
   }
   
   const idAsInt = Number(id);
-  const hashedPassword = await bcrypt.hash(password, 12);
   const nullIdentification = identification && identification.trim() !== "" ? identification.trim() : null;
 
   try {
@@ -116,7 +115,6 @@ export const updateUserService = async ({ id, name, email, emailVerified, passwo
     ${name}::text, 
     ${email}::text, 
     ${emailVerified ?? null}::boolean, 
-    ${hashedPassword}::text, 
     ${phoneNumber ?? null}::text, 
     ${nullIdentification}::text
 )`;
@@ -127,7 +125,6 @@ export const updateUserService = async ({ id, name, email, emailVerified, passwo
         name: true,
         email: true,
         emailverified: true,
-        password: true,
         phonenumber: true,
         identification: true
       }
@@ -140,4 +137,21 @@ export const updateUserService = async ({ id, name, email, emailVerified, passwo
     throw new Error("Error al actualizar el usuario: " + err);
   }
 
+};
+
+
+export const updatePasswordService = async ({id, newPassword}: updatePasswordParams) => {
+  if (!id || !newPassword) {
+    throw new Error("ID de usuario y nueva contraseña son requeridos");
+  }
+
+  const hashedPassword = await bcrypt.hash(newPassword, 12);
+
+  try {
+    await prisma.$executeRaw`CALL sp_updatePassword(${id}::int, ${hashedPassword}::text)`;
+    return { success: true, message: "Contraseña actualizada exitosamente" };
+  } catch (error) {
+    console.error(error)
+    throw new Error("Error al actualizar la contraseña: " + error);
+  }
 };

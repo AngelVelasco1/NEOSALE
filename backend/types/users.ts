@@ -15,7 +15,11 @@ export interface updateUserParams {
   name: string;
   email: string;
   emailVerified?: boolean | null;
-  password?: string;
   phoneNumber?: string;
   identification?: string | null;
+}
+
+export interface updatePasswordParams {
+  id: number;
+  newPassword: string;
 }
