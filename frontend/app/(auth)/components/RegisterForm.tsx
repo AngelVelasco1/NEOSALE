@@ -49,7 +49,7 @@ export const RegisterForm: React.FC = () => {
         email: values.email,
         emailVerified: values.emailVerified,
         password: values.password,
-        phoneNumber: values.phoneNumber
+        phoneNumber: values.phoneNumber || undefined,
       })
 
     setSuccess(true)
@@ -103,12 +103,12 @@ export const RegisterForm: React.FC = () => {
                   name="name"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel className="text-slate-800 text-sm font-medium">Nombre completo</FormLabel>
+                      <FormLabel className="text-slate-800 text-sm font-medium">Nombre completo <span className="text-red-700/90 text-lg">*</span></FormLabel>
                       <FormControl>
                         <div className="relative">
                           <Input
                             type="text"
-                            placeholder="Escribe tu nombre completo"
+                            placeholder="Pepito Perez de los Palotes"
                             className="pl-10 h-12 border-gray-200 focus:border-blue-500 focus:ring-blue-500"
                             {...field}
                           />
@@ -125,7 +125,7 @@ export const RegisterForm: React.FC = () => {
                   name="email"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel className="text-slate-800 text-sm font-medium">Email</FormLabel>
+                      <FormLabel className="text-slate-800 text-sm font-medium">Email <span className="text-red-700/90 text-lg">*</span></FormLabel>
                       <FormControl>
                         <div className="relative">
                           <Input
@@ -152,7 +152,7 @@ export const RegisterForm: React.FC = () => {
                         <div className="relative">
                           <Input
                             type="tel"
-                            placeholder="+1 (555) 123-4567"
+                            placeholder="3168457124"
                             className="pl-10 h-12 border-gray-200 focus:border-blue-500 focus:ring-blue-500"
                             {...field}
                           />
@@ -169,7 +169,7 @@ export const RegisterForm: React.FC = () => {
                   name="password"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel className="text-slate-800 text-sm font-medium">Contraseña</FormLabel>
+                      <FormLabel className="text-slate-800 text-sm font-medium">Contraseña <span className="text-red-700/90 text-lg">*</span></FormLabel>
                       <FormControl>
                         <div className="relative">
                           <Input

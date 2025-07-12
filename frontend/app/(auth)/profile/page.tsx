@@ -183,14 +183,12 @@ export const Profile = () => {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-purple-50 to-fuchsia-50 py-8">
-      <div className="max-w-4xl mx-auto px-4">
+      <div className="max-w-3xl mx-auto ">
         {/* Header with gradient background */}
         <div className="relative">
           <div className="h-32 bg-gradient-to-r from-blue-500 via-purple-500 to-purple-600 rounded-t-2xl" />
 
-               
-                  <SignOut />
-             
+                           
         
           {/* Avatar section */}
           <div className="absolute -bottom-12 left-1/2 transform -translate-x-1/2 z-20">

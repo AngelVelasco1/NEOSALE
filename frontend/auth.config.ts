@@ -1,44 +1,70 @@
-import type { NextAuthConfig } from "next-auth"
-import Credentials from "next-auth/providers/credentials"
-import { prisma } from "@/lib/prisma"
-import { loginSchema } from "./lib/zod"
-import bcrypt from "bcryptjs"
+import type { NextAuthConfig } from "next-auth";
+import Credentials from "next-auth/providers/credentials";
+import { prisma } from "@/lib/prisma";
+import { loginSchema } from "./lib/zod";
+import bcrypt from "bcryptjs";
+import Google from "next-auth/providers/google";
+import { nanoid } from "nanoid";
+
 // Notice this is only an object, not a full Auth.js instance
 export default {
   providers: [
+    Google,
     Credentials({
       authorize: async (credentials) => {
-        const { data, success } = loginSchema.safeParse(credentials)
+        const { data, success } = loginSchema.safeParse(credentials);
         if (!success) {
-          return null
+          return null;
         }
-
+        /* Verify User Credentials */
         const user = await prisma.users.findUnique({
           where: {
             email: data.email,
-          }
-        })
+          },
+        });
 
-        if (!user.name || !user.password) {
-          return null
+        if (!user?.name || !user.password) {
+          return null;
         }
 
-        const isPasswordValid = await bcrypt.compare(data.password, user.password);
+        const isPasswordValid = await bcrypt.compare(
+          data.password,
+          user.password
+        );
 
         if (!isPasswordValid) {
-          return null
+          return null;
         }
 
-        return {
-          id: user?.id,
-          name: user?.name,
-          email: user?.email,
-          emailVerified: user?.emailverified,
-          phoneNumber: user?.phonenumber,
-          identification: user?.identification,
-          role: user?.role,
-        };
+        /* Verify Email */
+        if (!user.emailverified) {
+          const tokenExists = await prisma.verificationToken.findFirst({
+            where: {
+              identifier: user.email,
+            },
+          });
+          if(tokenExists?.identifier) {
+            await prisma.verificationToken.delete({
+              where: {
+                identifier: user.email
+              }
+            })
+          }
+
+          const emailToken = nanoid();
+
+          await prisma.verificationToken.create({
+            data: {
+              identifier: user.email,
+              token: emailToken,
+              expires: new Date(Date.now() + 1140),
+            },
+          })
+          throw new Error('Revisa el email de verificacion')
+        }
+
+        return user;
       },
     }),
-  ]
-} satisfies NextAuthConfig
+  ],
+} satisfies NextAuthConfig;

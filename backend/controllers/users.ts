@@ -14,10 +14,10 @@ export const registerUser = async (req: Request, res: Response) => {
     } = req.body;
 
     //  básica
-    if (!name || !email || !phoneNumber || !password) {
+    if (!name || !email || !password) {
       return res.status(400).json({
         success: false,
-        message: "Campos requeridos: name, email, phoneNumber, password"
+        message: "Campos requeridos: name, email, password"
       });
     }
 

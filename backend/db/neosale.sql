@@ -14,6 +14,7 @@ DO $$ BEGIN
     END IF;
 END $$;
 
+
 DROP TABLE IF EXISTS cart_items;
 DROP TABLE IF EXISTS order_items;
 DROP TABLE IF EXISTS order_logs;
@@ -37,14 +38,13 @@ CREATE TABLE users (
     email VARCHAR(255) UNIQUE NOT NULL,
     emailverified BOOLEAN,
     password VARCHAR(255),
-    phonenumber VARCHAR(255) UNIQUE NOT NULL,
+    phonenumber VARCHAR(255) UNIQUE,
     identification VARCHAR(255) UNIQUE,
     role roles_enum DEFAULT 'user' NOT NULL,
     active BOOLEAN DEFAULT TRUE NOT NULL,
     "createdAt" TIMESTAMP(6) DEFAULT CURRENT_TIMESTAMP NOT NULL
 );
 
--- Tabla brands
 CREATE TABLE brands (
     id INTEGER PRIMARY KEY NOT NULL,
     name VARCHAR(255) NOT NULL,
@@ -52,25 +52,22 @@ CREATE TABLE brands (
     imageurl VARCHAR(255)
 );
 
--- Tabla subcategory
 CREATE TABLE subcategory (
     id SERIAL PRIMARY KEY,
     name VARCHAR(255) NOT NULL,
-    active BOOLEAN DEFAULT TRUE NOT NULL,
+    active BOOLEAN DEFAULT TRUE NOT NULL
 
 );
 
--- Tabla categories (actualizada)
 CREATE TABLE categories (
     id SERIAL PRIMARY KEY,
     name VARCHAR(255) NOT NULL,
     idsubcategory INTEGER NOT NULL,
     active BOOLEAN DEFAULT TRUE NOT NULL,
-
     FOREIGN KEY (idsubcategory) REFERENCES subcategory(id) ON DELETE NO ACTION ON UPDATE NO ACTION
 );
 
--- Tabla category_subcategory
+
 CREATE TABLE category_subcategory (
     categoryid INTEGER NOT NULL,
     subcategoryid INTEGER NOT NULL,
@@ -80,7 +77,6 @@ CREATE TABLE category_subcategory (
     FOREIGN KEY (subcategoryid) REFERENCES subcategory(id) ON DELETE NO ACTION ON UPDATE NO ACTION
 );
 
--- Tabla coupons
 CREATE TABLE coupons (
     id SERIAL PRIMARY KEY,
     code VARCHAR(255) NOT NULL,
@@ -90,7 +86,6 @@ CREATE TABLE coupons (
     expiresat TIMESTAMP(6) NOT NULL
 );
 
--- Tabla products
 CREATE TABLE products (
     id SERIAL PRIMARY KEY,
     name VARCHAR(255) NOT NULL,
@@ -110,7 +105,7 @@ CREATE TABLE products (
     FOREIGN KEY (categoryid) REFERENCES categories(id) ON DELETE NO ACTION ON UPDATE NO ACTION,
     FOREIGN KEY (brandid) REFERENCES brands(id) ON DELETE NO ACTION ON UPDATE NO ACTION
 );
--- Tabla cart
+
 CREATE TABLE cart (
     id SERIAL PRIMARY KEY,
     userid INTEGER,
@@ -121,7 +116,6 @@ CREATE TABLE cart (
     FOREIGN KEY (userid) REFERENCES users(id) ON DELETE NO ACTION ON UPDATE NO ACTION
 );
 
--- Tabla orders
 CREATE TABLE orders (
     id SERIAL PRIMARY KEY,
     status orders_status_enum NOT NULL,
@@ -138,7 +132,6 @@ CREATE TABLE orders (
     FOREIGN KEY (couponid) REFERENCES coupons(id) ON DELETE NO ACTION ON UPDATE NO ACTION
 );
 
--- Tabla Account (para Auth js)
 CREATE TABLE "Account" (
     "userId" INTEGER NOT NULL,
     type VARCHAR(255) NOT NULL,
@@ -157,7 +150,6 @@ CREATE TABLE "Account" (
     FOREIGN KEY ("userId") REFERENCES users(id) ON DELETE CASCADE
 );
 
--- Tabla addresses
 CREATE TABLE addresses (
     id SERIAL PRIMARY KEY,
     address VARCHAR(255) NOT NULL,
@@ -169,7 +161,6 @@ CREATE TABLE addresses (
     FOREIGN KEY (userid) REFERENCES users(id) ON DELETE NO ACTION ON UPDATE NO ACTION
 );
 
--- Tabla cart_items
 CREATE TABLE cart_items (
     id SERIAL PRIMARY KEY,
     cartid INTEGER NOT NULL,
@@ -181,7 +172,6 @@ CREATE TABLE cart_items (
     FOREIGN KEY (productid) REFERENCES products(id) ON DELETE NO ACTION ON UPDATE NO ACTION
 );
 
--- Tabla images
 CREATE TABLE images (
     id SERIAL PRIMARY KEY,
     imageurl VARCHAR(255) NOT NULL,
@@ -191,7 +181,6 @@ CREATE TABLE images (
     FOREIGN KEY (productid) REFERENCES products(id) ON DELETE NO ACTION ON UPDATE NO ACTION
 );
 
--- Tabla order_items
 CREATE TABLE order_items (
     id SERIAL PRIMARY KEY,
     price INTEGER NOT NULL,
@@ -205,7 +194,6 @@ CREATE TABLE order_items (
     FOREIGN KEY (orderid) REFERENCES orders(id) ON DELETE NO ACTION ON UPDATE NO ACTION
 );
 
--- Tabla order_logs
 CREATE TABLE order_logs (
     id SERIAL PRIMARY KEY,
     previousstatus orders_status_enum NOT NULL,
@@ -218,7 +206,6 @@ CREATE TABLE order_logs (
     FOREIGN KEY (orderid) REFERENCES orders(id) ON DELETE NO ACTION ON UPDATE NO ACTION
 );
 
--- Tabla reviews
 CREATE TABLE reviews (
     id SERIAL PRIMARY KEY,
     rating INTEGER NOT NULL,

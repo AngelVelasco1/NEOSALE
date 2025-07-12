@@ -12,7 +12,7 @@ export const registerUserService = async ({
   identification,
   role
 }: createUserParams) => {
-  if (!name || !email || !phoneNumber || !password) {
+  if (!name || !email || !password) {
     throw new Error("Campos requeridos faltantes");
   }
 
@@ -32,7 +32,7 @@ export const registerUserService = async ({
         ${email}, 
         ${emailVerified ?? false}, 
         ${hashedPassword}, 
-        ${phoneNumber}, 
+        ${phoneNumber ?? null}, 
         ${identification ?? null}, 
         ${role as roles_enum ?? "user"})`;
 
@@ -52,9 +52,7 @@ export const registerUserService = async ({
 
     return newUser;
   } catch (error: any) {
-    // ✅ Manejo de error robusto para $executeRaw
     if (error instanceof Prisma.PrismaClientKnownRequestError) {
-      // El código 'P2010' es para fallos en raw queries
       if (error.code === 'P2010' || error.message.includes('23505')) {
         if (error.message.toLowerCase().includes('Key (phonenumber)')) {
           throw new Error('Este número de teléfono ya está registrado.');

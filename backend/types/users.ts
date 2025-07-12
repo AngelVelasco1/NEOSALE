@@ -3,7 +3,7 @@ import { roles_enum } from "@prisma/client";
 export interface createUserParams {
   name: string;
   email: string;
-  phoneNumber: string;
+  phoneNumber?: string | null;
   password: string;
   emailVerified?: boolean | null;
   identification?: string | null;
