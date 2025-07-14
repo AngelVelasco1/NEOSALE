@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import "./styles/globals.css";
 import { Poppins, PT_Sans_Caption } from "next/font/google";
-import { Navbar } from "./components/Navbar";
+import { Navbar }  from "./components/Navbar";
 import { Footer } from "./components/Footer";
 import { CartProvider } from "./(cart)/hooks/useCart";
 import React from 'react';

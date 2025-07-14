@@ -12,7 +12,7 @@ INSERT INTO subcategory (name) VALUES ('pantalones deportivos');
 INSERT INTO categories (name, idsubcategory)
 VALUES ('Ropa deportiva', 1);
 
-select * from categories;
+select * from users;
 
 INSERT INTO brands (id, name, imageurl)
 VALUES (1, 'Nike', 'https://example.com/nike-logo.png');

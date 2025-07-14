@@ -4,9 +4,3 @@
   --radius: 0.5rem;
 }
 
-.custom-search-input::-webkit-search-cancel-button {
-  -webkit-appearance: none;
-  height: 1rem;
-  width: 1rem;
-  cursor: pointer;
-}
