@@ -30,7 +30,7 @@ export const registerUserService = async ({
       CALL sp_createuser(
         ${name}, 
         ${email}, 
-        ${emailVerified ?? false}, 
+        ${emailVerified ?? null}, 
         ${hashedPassword}, 
         ${phoneNumber ?? null}, 
         ${identification ?? null}, 

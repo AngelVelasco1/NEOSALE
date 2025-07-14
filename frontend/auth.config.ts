@@ -37,7 +37,7 @@ export default {
         }
 
         /* Verify Email */
-        if (!user.emailVerified) {
+      /*   if (!user.emailVerified) {
           const tokenExists = await prisma.verificationToken.findFirst({
             where: {
               identifier: user.email,
@@ -61,7 +61,7 @@ export default {
             },
           })
           throw new Error('Revisa el email de verificacion')
-        } */
+        }  */
 
         return {
           id: user.id.toString(),

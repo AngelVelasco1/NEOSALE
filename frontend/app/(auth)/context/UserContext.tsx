@@ -11,7 +11,6 @@ interface UserProfile {
   identification?: string | null;
   password: string | null
   addresses: string[] | null;
-
 }
 
 interface UserContextType {
