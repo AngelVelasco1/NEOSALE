@@ -5,7 +5,7 @@ import authConfig from "./auth.config"
 
 export const { handlers, signIn, signOut, auth } = NextAuth({
   adapter: PrismaAdapter(prisma),
-callbacks: {
+  callbacks: {
     async jwt({ token, user }) {
       if (user) {
         token.id = user.id
@@ -28,9 +28,6 @@ callbacks: {
     strategy: "jwt",
         maxAge: 14400, 
 
-  },
-  jwt: {
-    maxAge: 14400, 
   },
   ...authConfig
 })

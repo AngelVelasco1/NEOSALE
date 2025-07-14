@@ -7,7 +7,7 @@ import { loginSchema } from "@/lib/zod.ts";
 import * as z from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
-import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage} from "@/components/ui/form.tsx";
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form.tsx";
 import { Input } from "@/components/ui/input.tsx";
 import { Button } from "@/components/ui/button.tsx";
 import { Eye, EyeOff, User, Lock } from "lucide-react"
@@ -36,15 +36,15 @@ export const LoginForm: React.FC = () => {
   const onSubmit = async (values: loginFormValues) => {
     setIsLoading(true);
     setError(null);
-    
+
     try {
       const result = await signIn("credentials", {
         email: values.email,
         password: values.password,
         redirect: false,
       });
-      
-      
+
+
       if (result?.error) {
         let errorMessage;
 
@@ -62,20 +62,20 @@ export const LoginForm: React.FC = () => {
         setIsLoading(false);
         return;
       }
-      
+
       if (result?.ok) {
         setIsLoading(false);
         router.push("/dashboard");
-      } 
-    } catch (error: any) {      
-        setError("Error del servidor");
-        console.error( `Internal server error: ${error.message}`)
-        setIsLoading(false);
       }
+    } catch (error: any) {
+      setError("Error del servidor");
+      console.error(`Internal server error: ${error.message}`)
+      setIsLoading(false);
+    }
 
   };
 
- return (
+  return (
     <div className="min-h-screen">
       <div className="min-h-screen flex flex-col items-center py-32  px-4">
         <div className="max-w-md w-full">
@@ -170,58 +170,58 @@ export const LoginForm: React.FC = () => {
                     )}
                   </Button>
                 </div>
-              <div className="flex flex-wrap gap-2">
-      <Button
-        className="flex-1"
-        aria-label="Login with Google"
-        size="icon"
-        variant={"default"}
-        onClick={() => signIn("google")}
-      >
-        <RiGoogleFill
-          className="dark:text-primary text-[#DB4437]"
-          size={16}
-          aria-hidden="true"
-        />
-      </Button>
-      <Button
-        className="flex-1"
-        variant={"default"}
-        aria-label="Login with Facebook"
-        size="icon"
-      >
-        <RiFacebookFill
-          className="dark:text-primary text-[#1877f2]"
-          size={16}
-          aria-hidden="true"
-        />
-      </Button>
-      <Button
-        className="flex-1"
-        variant={"default"}
-        aria-label="Login with X"
-        size="icon"
-      >
-        <RiTwitterXFill
-          className="dark:text-primary text-[#14171a]"
-          size={16}
-          aria-hidden="true"
-        />
-      </Button>
-      <Button
-        className="flex-1"
-        variant={"default"}
-        aria-label="Login with GitHub"
-        size="icon"
-      >
-        <RiGithubFill
-          className="dark:text-primary text-black"
-          size={16}
-          aria-hidden="true"
-        />
-      </Button>
-    </div>
-               
+                <div className="flex flex-wrap gap-2">
+                  <Button
+                    className="flex-1"
+                    aria-label="Login with Google"
+                    size="icon"
+                    variant={"default"}
+                    onClick={() => signIn("google")}
+                  >
+                    <RiGoogleFill
+                      className="dark:text-primary text-[#DB4437]"
+                      size={16}
+                      aria-hidden="true"
+                    />
+                  </Button>
+                  <Button
+                    className="flex-1"
+                    variant={"default"}
+                    aria-label="Login with Facebook"
+                    size="icon"
+                  >
+                    <RiFacebookFill
+                      className="dark:text-primary text-[#1877f2]"
+                      size={16}
+                      aria-hidden="true"
+                    />
+                  </Button>
+                  <Button
+                    className="flex-1"
+                    variant={"default"}
+                    aria-label="Login with X"
+                    size="icon"
+                  >
+                    <RiTwitterXFill
+                      className="dark:text-primary text-[#14171a]"
+                      size={16}
+                      aria-hidden="true"
+                    />
+                  </Button>
+                  <Button
+                    className="flex-1"
+                    variant={"default"}
+                    aria-label="Login with GitHub"
+                    size="icon"
+                  >
+                    <RiGithubFill
+                      className="dark:text-primary text-black"
+                      size={16}
+                      aria-hidden="true"
+                    />
+                  </Button>
+                </div>
+
 
                 <div className="text-center pt-4">
                   <p className="text-slate-600 text-sm">

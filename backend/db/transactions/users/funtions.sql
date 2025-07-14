@@ -10,11 +10,11 @@ CREATE OR REPLACE PROCEDURE sp_createuser(
 LANGUAGE plpgsql
 AS $$
 BEGIN
-    INSERT INTO users (name, email, emailverified, password, phonenumber, identification, role) 
+    INSERT INTO User (name, email, emailVerified, password, phonenumber, identification, role) 
     VALUES (
         p_name, 
         p_email, 
-        p_emailverified, 
+        p_emailVerified, 
         p_password, 
         p_phonenumber, 
         p_identification, 
@@ -27,7 +27,7 @@ CREATE OR REPLACE PROCEDURE sp_deleteUser(p_id users.id%TYPE)
 LANGUAGE plpgsql
 AS $$
 BEGIN
-    DELETE FROM users WHERE id = p_id;
+    DELETE FROM User WHERE id = p_id;
 END;
 $$;
 
@@ -42,7 +42,7 @@ CREATE OR REPLACE PROCEDURE sp_updateUser(
 LANGUAGE plpgsql
 AS $$
 BEGIN
-    UPDATE users SET 
+    UPDATE User SET 
         name = COALESCE(p_name, name),
         email = COALESCE(p_email, email),
         emailverified = COALESCE(p_emailverified, emailverified),
@@ -57,7 +57,7 @@ CREATE OR REPLACE PROCEDURE sp_updatePassword(p_id INT, p_newPassword TEXT)
 LANGUAGE plpgsql
 AS $$
 BEGIN
-    UPDATE users SET password = p_newPassword WHERE id = p_id;
+    UPDATE User SET password = p_newPassword WHERE id = p_id;
 END;
 $$;
 
@@ -77,7 +77,7 @@ AS $$
 BEGIN
     RETURN QUERY
     SELECT u.id, u.name, u.email, u.emailverified, u.phonenumber, u.identification, u.role, u."createdAt"
-    FROM users u
+    FROM User u
     WHERE u.id = p_id;
 END;
 $$;
@@ -101,7 +101,7 @@ AS $$
 BEGIN
     RETURN QUERY
     SELECT u.id, u.name, u.email, u.emailverified, u.password, u.phonenumber, u.identification, u.role, u."createdAt"
-    FROM users u
+    FROM User u
     WHERE u.email = p_email;
 END;
 $$;

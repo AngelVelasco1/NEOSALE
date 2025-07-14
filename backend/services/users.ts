@@ -16,7 +16,7 @@ export const registerUserService = async ({
     throw new Error("Campos requeridos faltantes");
   }
 
-  const existingUser = await prisma.users.findUnique({
+  const existingUser = await prisma.user.findUnique({
     where: { email }
   });
 
@@ -36,13 +36,13 @@ export const registerUserService = async ({
         ${identification ?? null}, 
         ${role as roles_enum ?? "user"})`;
 
-    const newUser = await prisma.users.findUnique({
+    const newUser = await prisma.user.findUnique({
       where: { email },
       select: {
         id: true,
         name: true,
         email: true,
-        emailverified: true,
+        emailVerified: true,
         password: true,
         phonenumber: true,
         identification: true,
@@ -71,13 +71,13 @@ export const getUserByIdService = async (id: number | undefined) => {
     throw new Error("ID de usuario requerido");
   }
 
-  const user = await prisma.users.findUnique({
+  const user = await prisma.user.findUnique({
     where: { id },
     select: {
       id: true,
       name: true,
       email: true,
-      emailverified: true,
+      emailVerified: true,
       phonenumber: true,
       password: true,
       identification: true,
@@ -116,13 +116,13 @@ export const updateUserService = async ({ id, name, email, emailVerified, phoneN
     ${phoneNumber ?? null}::text, 
     ${nullIdentification}::text
 )`;
-      const user = await prisma.users.findUnique({
+      const user = await prisma.user.findUnique({
       where: { id: idAsInt },
       select: {
         id: true,
         name: true,
         email: true,
-        emailverified: true,
+        emailVerified: true,
         phonenumber: true,
         identification: true
       }

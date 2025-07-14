@@ -1,143 +1,183 @@
 # 🛠️ NEOSALE – Setup y Desarrollo
 
-Este documento te guía paso a paso para levantar y trabajar con el proyecto **NEOSALE**, que utiliza **Next.js (frontend)**, **Express (backend)**, **Prisma ORM** y **PostgreSQL**, entre otros.
+Este documento te guía paso a paso para levantar y trabajar con el proyecto **NEOSALE**, una solución completa de ecommerce construida con:
 
----
+- **Next.js (frontend)**
+- **Express.js (backend)**
+- **Prisma ORM**
+- **PostgreSQL**
+- **Arquitectura MVC Extendida por Servicios**
+
+
 
 ## 📦 Requisitos previos
 
-* Node.js >= 18
-* PostgreSQL (local o remoto)
-* Git
+Antes de comenzar, asegúrate de tener instalados:
 
----
+- ✅ Node.js `>= 18`
+- ✅ PostgreSQL instalado y corriendo (local o remoto)
+- ✅ Git
+
+
 
 ## 📁 Estructura del proyecto
 
 ```
+
 NEOCOMMERCE/
-├── backend/             # Servidor Express + Prisma
-├── frontend/            # Aplicación Next.js + Auth.js
+├── backend/             # Servidor Express con Prisma y lógica de negocio
+├── frontend/            # Aplicación Next.js + Tailwind + Auth.js
+├── prisma/              # Archivo schema.prisma centralizado
+├── .env                 # Variables backend (producción o desarrollo)
 ├── package.json         # Scripts globales
 
-```
+````
 
----
 
-## 🚀 1. Clonar el repositorio y preparar entorno
+
+## 🚀 1. Clonar el repositorio
 
 ```bash
-git clone <repo-url>
+git clone <REPO-URL>
 cd NEOCOMMERCE
-```
+````
 
-Instala las dependencias raíz:
+
+
+## 📥 2. Instalar dependencias
+
+Desde la raíz:
 
 ```bash
 npm install
 ```
 
----
+Luego:
 
-## 📦 2. Instalar dependencias en cada subproyecto
-
-### Backend:
+### Backend
 
 ```bash
 cd backend
 npm install
 ```
 
-### Frontend:
+### Frontend
 
 ```bash
 cd ../frontend
 npm install
 ```
 
----
 
-## 🔐 3. Variables de entorno
 
-### Backend `.env` (ubicado en `/backend/.env`)
+## 🔐 3. Configuración de variables de entorno
+
+### 📄 `/backend/.env` (para **desarrollo local**)
+
+```env
+DATABASE_URL="postgresql://postgres:PgSena2024@localhost:5432/neosale?schema=public"
+JWT_SECRET="clave_segura_local"
+HOST="localhost"
+PORT=8000
+FRONT_PORT=3000
+PRISMA_QUERY_ENGINE_BINARY=./node_modules/.prisma/client/query_engine-windows.dll.node
 ```
-DATABASE_URL=postgresql://usuario:password@localhost:5432/neocommerce
-JWT_SECRET=alguna_clave_segura
-```
-### Frontend `.env.local` (ubicado en `/frontend/.env.local`)
-```
+
+### 📄 `/frontend/.env.local`
+
+```env
 NEXT_PUBLIC_HOST="localhost"
 NEXT_PUBLIC_PORT=8000
 NEXT_PUBLIC_FRONT_PORT=3000
-NEXT_PUBLIC_JWT_SECRET="angelvlk"
-AUTH_SECRET=""
+NEXT_PUBLIC_JWT_SECRET="clave_segura_local"
+AUTH_SECRET="clave_segura_local"
 ```
-## 🔧 4. Comandos Prisma (ejecutar desde `/backend`)
 
-### Inicializar cliente:
+
+
+### 📄 Variables de entorno para **producción**
+
+#### Backend `/backend/.env`
+
+```env
+DATABASE_URL="postgresql://gr_neosale:neo_sale@127.11.2.127:5432/db_neosale?schema=public"
+JWT_SECRET="clave_segura_produccion"
+HOST="127.11.2.127"
+PORT=8000
+FRONT_PORT=3000
+```
+
+#### Frontend `/frontend/.env.local`
+
+```env
+NEXT_PUBLIC_HOST="127.11.2.127"
+NEXT_PUBLIC_PORT=8000
+NEXT_PUBLIC_FRONT_PORT=3000
+NEXT_PUBLIC_JWT_SECRET="clave_segura_produccion"
+AUTH_SECRET="clave_segura_produccion"
+```
+
+
+## 🔧 4. Configurar Prisma
+
+Desde la raíz:
+
+### Generar cliente Prisma
 
 ```bash
-npm run prisma:generate
+npx prisma generate
 ```
 
-### Ejecutar migraciones:
+### Ejecutar migraciones (solo si hiciste cambios en schema.prisma)
 
 ```bash
-npm run prisma:migrate
+npx prisma migrate
 ```
 
-### Ver base de datos (modo visual):
 
-```bash
-npm run prisma:studio
-```
 
-Estos scripts ya están definidos en `backend/package.json`:
 
-```json
-"scripts": {
-  "prisma:generate": "prisma generate --schema=../prisma/schema.prisma --env-file=./.env",
-  "prisma:migrate": "prisma migrate dev --schema=../prisma/schema.prisma --env-file=./.env",
-  "prisma:studio": "prisma studio --schema=../prisma/schema.prisma --env-file=./.env"
-}
-```
+## 🧪 5. Ejecutar el proyecto en desarrollo
 
----
-
-## 🧪 5. Levantar el proyecto en desarrollo
-
-Desde la **raíz del proyecto**:
+Desde la raíz del proyecto:
 
 ```bash
 npm run dev
 ```
 
-Esto lanza simultáneamente:
+Esto lanzará:
 
-* Frontend (Next.js) en `http://localhost:3000`
-* Backend (Express) en `http://localhost:4000` (o el puerto que configures)
+* Frontend: `http://localhost:3000`
+* Backend: `http://localhost:8000`
 
 
-## 🔄 Otros comandos
 
-### Compilar proyecto (solo frontend):
+## 📦 6. Compilar para producción
+
+### Frontend
 
 ```bash
 npm run build --prefix frontend
-```
-
-### Iniciar en modo producción (solo frontend):
-
-```bash
 npm run start --prefix frontend
 ```
 
-## ✅ Checklist al iniciar el proyecto
+### Backend
 
-* [ ] Ejecutaste `npm install` en `raíz`, `frontend` y `backend`
-* [ ] Añadir `.env` en `/backend`
-* [ ] Añadir `.env.local` en `/frontend`
-* [ ] Ejecutaste `npm run prisma:generate`
-* [ ] Ejecutaste `npm run prisma:migrate`
-* [ ] Ejecutaste `npm run dev` en raíz
+```bash
+cd backend
+npm run build      # Compila TypeScript a JavaScript
+npm run start      # Inicia app Express (usa dist/app.js)
+```
+
+
+
+## ✅ Checklist para iniciar correctamente
+
+✔ `npm install` en raíz, frontend y backend
+✔ Archivos `.env` y `.env.local` creados y configurados
+✔ Prisma generado con `npm run prisma:generate`
+✔ Migraciones aplicadas con `npm run prisma:migrate`
+✔ Proyecto levantado con `npm run dev`
+
+
 

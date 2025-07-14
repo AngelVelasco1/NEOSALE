@@ -17,7 +17,7 @@ export default {
           return null;
         }
         /* Verify User Credentials */
-        const user = await prisma.users.findUnique({
+        const user = await prisma.user.findUnique({
           where: {
             email: data.email,
           },
@@ -37,7 +37,7 @@ export default {
         }
 
         /* Verify Email */
-        if (!user.emailverified) {
+        if (!user.emailVerified) {
           const tokenExists = await prisma.verificationToken.findFirst({
             where: {
               identifier: user.email,
@@ -61,9 +61,17 @@ export default {
             },
           })
           throw new Error('Revisa el email de verificacion')
-        }
+        } */
 
-        return user;
+        return {
+          id: user.id.toString(),
+          name: user?.name,
+          email: user?.email,
+          emailVerified: user?.emailVerified,
+          phoneNumber: user?.phonenumber,
+          identification: user?.identification,
+          role: user?.role,
+        };
       },
     }),
   ],
