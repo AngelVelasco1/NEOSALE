@@ -1,6 +1,5 @@
 generator client {
   provider      = "prisma-client-js"
-  binaryTargets = ["native", "windows"]
 }
 
 datasource db {
@@ -178,6 +177,27 @@ model reviews {
   @@index([productid], map: "idx_reviews_productid")
 }
 
+model User {
+  id             Int         @id @default(autoincrement())
+  name           String      @db.VarChar(255)
+  email          String      @unique @db.VarChar(255)
+  emailVerified  DateTime?   @db.Timestamp(6)
+  image          String?     @db.VarChar(255)
+  password       String?     @db.VarChar(255)
+  phonenumber    String?     @unique @db.VarChar(255)
+  identification String?     @unique @db.VarChar(255)
+  role           roles_enum  @default(user)
+  active         Boolean     @default(true)
+  createdAt      DateTime    @default(now()) @db.Timestamp(6)
+  accounts       Account[]
+  addresses      addresses[]
+  cart           cart[]
+  orders         orders[]
+  reviews        reviews[]
+  sessions       Session[]
+
+  @@index([email], map: "idx_users_email")
+}
 
 model Session {
   id           String   @id @default(cuid())
@@ -225,28 +245,6 @@ model subcategory {
   active               Boolean                @default(true)
   categories           categories[]
   category_subcategory category_subcategory[]
-}
-
-model User {
-  id             Int         @id @default(autoincrement())
-  name           String      @db.VarChar(255)
-  email          String      @unique @db.VarChar(255)
-  emailVerified  DateTime?   @db.Timestamp(6)
-  image          String?     @db.VarChar(255)
-  password       String?     @db.VarChar(255)
-  phonenumber    String?     @unique @db.VarChar(255)
-  identification String?     @unique @db.VarChar(255)
-  role           roles_enum  @default(user)
-  active         Boolean     @default(true)
-  createdAt      DateTime    @default(now()) @db.Timestamp(6)
-  accounts       Account[]
-  addresses      addresses[]
-  cart           cart[]
-  orders         orders[]
-  reviews        reviews[]
-  sessions       Session[]
-
-  @@index([email], map: "idx_users_email")
 }
 
 enum orders_paymentmethod_enum {

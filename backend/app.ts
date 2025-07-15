@@ -20,7 +20,7 @@ app.get('/', (req, res) => {
   res.send('API is running');
 });
 
-app.listen(BACK_CONFIG.port, () => {
+app.listen(Number(BACK_CONFIG.port), '0.0.0.0', () => {
   console.log(`Servidor corriendo en http://${BACK_CONFIG.host}:${BACK_CONFIG.port}`);
 });
 

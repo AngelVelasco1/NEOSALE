@@ -10,7 +10,7 @@ CREATE OR REPLACE PROCEDURE sp_createuser(
 LANGUAGE plpgsql
 AS $$
 BEGIN
-    INSERT INTO users (name, email, emailVerified, password, phonenumber, identification, role) 
+    INSERT INTO "User" (name, email, "emailVerified", password, phonenumber, identification, role) 
     VALUES (
         p_name, 
         p_email, 
@@ -23,9 +23,6 @@ BEGIN
 END;
 $$;
 
-select * from users;
-
-DROP PROCEDURE sp_createuser;
 
 CREATE OR REPLACE PROCEDURE sp_deleteUser(p_id users.id%TYPE)
 LANGUAGE plpgsql
@@ -39,23 +36,24 @@ CREATE OR REPLACE PROCEDURE sp_updateUser(
     p_id INT,
     p_name TEXT,
     p_email TEXT,
-    p_emailverified DateTime,
+    p_emailverified TIMESTAMP,
     p_phonenumber TEXT,
     p_identification TEXT
 )
 LANGUAGE plpgsql
 AS $$
 BEGIN
-    UPDATE users SET 
+    UPDATE "User"  SET 
         name = COALESCE(p_name, name),
         email = COALESCE(p_email, email),
-        "emailverified" = COALESCE(p_emailverified, "emailverified"),
+        "emailVerified" = COALESCE(p_emailverified, "emailVerified"),
         phonenumber = COALESCE(p_phonenumber, phonenumber),
         identification = COALESCE(p_identification, identification)
     WHERE id = p_id;
 END;
 $$;
 
+DROP PROCEDURE IF EXISTS sp_updateUser;
 
 CREATE OR REPLACE PROCEDURE sp_updatePassword(p_id INT, p_newPassword TEXT) 
 LANGUAGE plpgsql

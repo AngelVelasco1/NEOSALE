@@ -46,7 +46,6 @@ CREATE TABLE users (
     "createdAt" TIMESTAMP(6) DEFAULT CURRENT_TIMESTAMP NOT NULL
 );
 
-drop table if exists users;
 
 CREATE TABLE brands (
     id INTEGER PRIMARY KEY NOT NULL,
