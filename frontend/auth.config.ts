@@ -65,16 +65,7 @@ export default {
           throw new Error('Revisa el email de verificacion')
         }  */
 
-        return {
-          id: user.id.toString(),
-          name: user?.name,
-          email: user?.email,
-          image: user?.image,
-          emailverified: user?.emailVerified,
-          phoneNumber: user?.phonenumber,
-          identification: user?.identification,
-          role: user?.role,
-        };
+        return user;
       },
     }),
   ],

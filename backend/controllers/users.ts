@@ -48,10 +48,6 @@ export const getUserById = async (req: Request, res: Response) => {
 
 
     const user = await getUserByIdService(userId);
-    console.log('User fetched:', user);
-
-
-
     res.json(user);
   } catch (error: any) {
     console.error('Error in getUserById:', error);
