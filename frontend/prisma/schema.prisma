@@ -178,20 +178,6 @@ model reviews {
   @@index([productid], map: "idx_reviews_productid")
 }
 
-model User {
-  id             Int        @id @default(autoincrement())
-  name           String     @db.VarChar(255)
-  email          String     @unique @db.VarChar(255)
-  emailverified  Boolean?
-  password       String?    @db.VarChar(255)
-  phonenumber    String?    @unique @db.VarChar(255)
-  identification String?    @unique @db.VarChar(255)
-  role           roles_enum @default(user)
-  active         Boolean    @default(true)
-  createdAt      DateTime   @default(now()) @db.Timestamp(6)
-
-  @@map("users")
-}
 
 model Session {
   id           String   @id @default(cuid())

@@ -36,14 +36,17 @@ CREATE TABLE users (
     id SERIAL PRIMARY KEY,
     name VARCHAR(255) NOT NULL,
     email VARCHAR(255) UNIQUE NOT NULL,
-    emailverified BOOLEAN,
+    emailverified TIMESTAMP(6),
     password VARCHAR(255),
+    image  VARCHAR(255),
     phonenumber VARCHAR(255) UNIQUE,
     identification VARCHAR(255) UNIQUE,
     role roles_enum DEFAULT 'user' NOT NULL,
     active BOOLEAN DEFAULT TRUE NOT NULL,
     "createdAt" TIMESTAMP(6) DEFAULT CURRENT_TIMESTAMP NOT NULL
 );
+
+drop table if exists users;
 
 CREATE TABLE brands (
     id INTEGER PRIMARY KEY NOT NULL,
@@ -182,11 +185,13 @@ CREATE TABLE images (
     FOREIGN KEY (productid) REFERENCES products(id) ON DELETE NO ACTION ON UPDATE NO ACTION
 );
 
+
+
 CREATE TABLE order_items (
     id SERIAL PRIMARY KEY,
     price INTEGER NOT NULL,
     quantity INTEGER NOT NULL,
-    subtotal INTEGER GENERATED ALWAYS AS (price * quantity) STORED,
+    subtotal INTEGER NOT NULL,
     productid INTEGER NOT NULL,
     orderid INTEGER NOT NULL,
     createdat TIMESTAMP(6) DEFAULT CURRENT_TIMESTAMP NOT NULL,
