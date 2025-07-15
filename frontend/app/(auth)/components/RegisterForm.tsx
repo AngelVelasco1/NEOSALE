@@ -32,7 +32,7 @@ export const RegisterForm: React.FC = () => {
     defaultValues: {
       name: "",
       email: "",
-      emailVerified: false,
+      emailVerified: undefined,
       password: "",
       phoneNumber: "",
       confirmPassword: ""

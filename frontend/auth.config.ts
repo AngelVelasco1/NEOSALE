@@ -22,6 +22,8 @@ export default {
             email: data.email,
           },
         });
+        console.log(user );
+        
 
         if (!user?.name || !user.password) {
           return null;
@@ -67,7 +69,8 @@ export default {
           id: user.id.toString(),
           name: user?.name,
           email: user?.email,
-          emailVerified: user?.emailVerified,
+          image: user?.image,
+          emailverified: user?.emailVerified,
           phoneNumber: user?.phonenumber,
           identification: user?.identification,
           role: user?.role,

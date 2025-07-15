@@ -10,7 +10,7 @@ CREATE OR REPLACE PROCEDURE sp_createuser(
 LANGUAGE plpgsql
 AS $$
 BEGIN
-    INSERT INTO users (name, email, "emailVerified", password, phonenumber, identification, role) 
+    INSERT INTO users (name, email, emailVerified, password, phonenumber, identification, role) 
     VALUES (
         p_name, 
         p_email, 
@@ -22,6 +22,8 @@ BEGIN
     );
 END;
 $$;
+
+select * from users;
 
 DROP PROCEDURE sp_createuser;
 

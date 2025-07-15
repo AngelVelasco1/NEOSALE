@@ -182,7 +182,7 @@ model User {
   id             Int         @id @default(autoincrement())
   name           String      @db.VarChar(255)
   email          String      @unique @db.VarChar(255)
-  emailVerified  DateTime?   @db.Timestamp(6)
+  emailverified  DateTime?   @db.Timestamp(6)
   image          String?     @db.VarChar(255)
   password       String?     @db.VarChar(255)
   phonenumber    String?     @unique @db.VarChar(255)
@@ -197,6 +197,7 @@ model User {
   reviews        reviews[]
   sessions       Session[]
 
+  @@map("users")
   @@index([email], map: "idx_users_email")
 }
 
