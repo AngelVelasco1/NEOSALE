@@ -1,7 +1,7 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   // Permitir orígenes de desarrollo para solicitudes cross-origin
-  allowedDevOrigins: ['10.5.213.111:3001', '10.5.213.111', '10.5.213.111:8000'],
+  allowedDevOrigins: ['10.5.213.111:3000', '10.5.213.111', '10.5.213.111:8000'],
   
   images: {
     remotePatterns: [
