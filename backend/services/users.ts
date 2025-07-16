@@ -108,11 +108,14 @@ export const updateUserService = async ({ id, name, email, emailVerified, phoneN
   const nullIdentification = identification && identification.trim() !== "" ? identification.trim() : null;
 
   try {
+    // Convertir emailVerified a formato ISO string si existe
+    const emailVerifiedString = emailVerified ? emailVerified.toISOString() : null;
+    
     await prisma.$executeRaw` CALL sp_updateUser(
     ${idAsInt}::int, 
     ${name}::text, 
     ${email}::text, 
-    ${emailVerified ?? null}::boolean, 
+    ${emailVerifiedString}::timestamp, 
     ${phoneNumber ?? null}::text, 
     ${nullIdentification}::text
 )`;

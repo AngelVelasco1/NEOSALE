@@ -32,7 +32,7 @@ BEGIN
 END;
 $$;
 
-CREATE OR REPLACE PROCEDURE sp_updateUser(
+CREATE OR REPLACE PROCEDURE sp_updateuser(
     p_id INT,
     p_name TEXT,
     p_email TEXT,
@@ -53,7 +53,7 @@ BEGIN
 END;
 $$;
 
-DROP PROCEDURE IF EXISTS sp_updateUser;
+DROP PROCEDURE IF EXISTS sp_updateuser;
 
 CREATE OR REPLACE PROCEDURE sp_updatePassword(p_id INT, p_newPassword TEXT) 
 LANGUAGE plpgsql
