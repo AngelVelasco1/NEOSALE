@@ -2,19 +2,30 @@
 
 import React from "react";
 import Link from "next/link";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { loginSchema } from "@/lib/zod.ts";
 import * as z from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
-import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form.tsx";
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "@/components/ui/form.tsx";
 import { Input } from "@/components/ui/input.tsx";
 import { Button } from "@/components/ui/button.tsx";
-import { Eye, EyeOff, User, Lock } from "lucide-react"
-import { signIn } from "next-auth/react";
+import { Eye, EyeOff, User, Lock } from "lucide-react";
+import { signIn, useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
-import { RiGoogleFill, RiGithubFill, RiTwitterXFill, RiFacebookFill } from "react-icons/ri";
-
+import {
+  RiGoogleFill,
+  RiGithubFill,
+  RiTwitterXFill,
+  RiFacebookFill,
+} from "react-icons/ri";
 
 type loginFormValues = z.infer<typeof loginSchema>;
 
@@ -22,6 +33,7 @@ export const LoginForm: React.FC = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const { data: session } = useSession();
 
   const router = useRouter();
 
@@ -33,6 +45,14 @@ export const LoginForm: React.FC = () => {
     },
   });
 
+  useEffect(() => {
+    if (session?.user.role === "admin") {
+      router.push("/dashboard");
+    } else if(session?.user) {
+        router.push("/");
+    }
+  }, [session]);
+
   const onSubmit = async (values: loginFormValues) => {
     setIsLoading(true);
     setError(null);
@@ -43,7 +63,6 @@ export const LoginForm: React.FC = () => {
         password: values.password,
         redirect: false,
       });
-
 
       if (result?.error) {
         let errorMessage;
@@ -65,34 +84,41 @@ export const LoginForm: React.FC = () => {
 
       if (result?.ok) {
         setIsLoading(false);
-        router.push("/dashboard");
       }
     } catch (error: any) {
       setError("Error del servidor");
-      console.error(`Internal server error: ${error.message}`)
+      console.error(`Internal server error: ${error.message}`);
       setIsLoading(false);
     }
-
   };
 
   return (
-    <div className="min-h-screen">
-      <div className="min-h-screen flex flex-col items-center py-32  px-4">
+    <div className="min-h-screen ">
+      <div className="min-h-screen flex flex-col items-center py-8 px-4">
         <div className="max-w-md w-full">
-          <div className="p-8 rounded-2xl bg-white shadow-xl border border-gray-100">
+          <div className="px-8 py-6 rounded-2xl bg-white shadow-xl border border-gray-100">
             <div className="text-center mb-8">
-              <h2 className="text-slate-900 text-3xl font-bold mb-2">Iniciar sesión</h2>
-              <p className="text-slate-600">Ingresa tus credenciales para continuar</p>
+              <h2 className="text-slate-900 text-3xl font-bold mb-2">
+                Iniciar sesión
+              </h2>
+              <p className="text-slate-600">
+                Ingresa tus credenciales para continuar
+              </p>
             </div>
 
             <Form {...form}>
-              <form className="space-y-5" onSubmit={form.handleSubmit(onSubmit)}>
+              <form
+                className="space-y-5"
+                onSubmit={form.handleSubmit(onSubmit)}
+              >
                 <FormField
                   control={form.control}
                   name="email"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel className="text-slate-800 text-sm font-medium">Email</FormLabel>
+                      <FormLabel className="text-slate-800 text-sm font-medium">
+                        Email
+                      </FormLabel>
                       <FormControl>
                         <div className="relative">
                           <Input
@@ -114,7 +140,9 @@ export const LoginForm: React.FC = () => {
                   name="password"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel className="text-slate-800 text-sm font-medium">Contraseña</FormLabel>
+                      <FormLabel className="text-slate-800 text-sm font-medium">
+                        Contraseña
+                      </FormLabel>
                       <FormControl>
                         <div className="relative">
                           <Input
@@ -129,7 +157,11 @@ export const LoginForm: React.FC = () => {
                             onClick={() => setShowPassword(!showPassword)}
                             className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600"
                           >
-                            {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                            {showPassword ? (
+                              <EyeOff className="h-4 w-4" />
+                            ) : (
+                              <Eye className="h-4 w-4" />
+                            )}
                           </button>
                         </div>
                       </FormControl>
@@ -222,7 +254,6 @@ export const LoginForm: React.FC = () => {
                   </Button>
                 </div>
 
-
                 <div className="text-center pt-4">
                   <p className="text-slate-600 text-sm">
                     ¿No tienes una cuenta?{" "}
@@ -240,5 +271,5 @@ export const LoginForm: React.FC = () => {
         </div>
       </div>
     </div>
-  )
+  );
 };

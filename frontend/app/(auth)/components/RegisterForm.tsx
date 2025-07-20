@@ -1,7 +1,7 @@
 "use client"
 
 import type React from "react"
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { useForm } from "react-hook-form"
 import { registerSchema } from "@/lib/zod.ts";
 import { zodResolver } from "@hookform/resolvers/zod"
@@ -12,7 +12,7 @@ import { Eye, EyeOff, User, Mail, Phone, Lock, CheckCircle } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form"
-import { signIn } from "next-auth/react";
+import { signIn, useSession } from "next-auth/react";
 import { registerUser } from "../services/api";
 
 
@@ -26,6 +26,7 @@ export const RegisterForm: React.FC = () => {
   const [success, setSuccess] = useState(false)
 
   const router = useRouter()
+  const {data: session} = useSession();
 
   const form = useForm<RegisterFormValues>({
     resolver: zodResolver(registerSchema),
@@ -37,7 +38,14 @@ export const RegisterForm: React.FC = () => {
       phoneNumber: "",
       confirmPassword: ""
     },
-  })
+  })  
+  useEffect(() => {
+      if (session?.user.role === "admin") {
+        router.push("/dashboard");
+      } else if(session?.user) {
+          router.push("/");
+      }
+    }, [session]);
 
   const onSubmit = async (values: RegisterFormValues) => {
     setIsLoading(true)
@@ -52,13 +60,13 @@ export const RegisterForm: React.FC = () => {
         phoneNumber: values.phoneNumber || undefined,
       })
 
-    setSuccess(true)
+     setSuccess(true)
      await signIn("credentials", {
              email: values.email,
              password: values.password,        
              redirect: false,
            });
-    router.push("/dashboard");
+    
       
     } catch (error: any) {
       setError(error.message || "Error del servidor")
@@ -88,9 +96,9 @@ export const RegisterForm: React.FC = () => {
 
   return (
     <div className="min-h-screen">
-      <div className="min-h-screen flex flex-col items-center  py-16 px-4">
+      <div className="min-h-screen flex flex-col items-center py-8 px-4">
         <div className="max-w-md w-full">
-          <div className="p-8 rounded-2xl bg-white shadow-xl border border-gray-100">
+          <div className="px-8 py-6 rounded-2xl bg-white shadow-xl border border-gray-100">
             <div className="text-center mb-8">
               <h2 className="text-slate-900 text-3xl font-bold mb-2">Crear cuenta</h2>
               <p className="text-slate-600">Completa tus datos para registrarte</p>

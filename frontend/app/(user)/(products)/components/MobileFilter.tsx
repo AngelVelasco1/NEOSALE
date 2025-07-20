@@ -3,14 +3,14 @@
 import React, { useMemo } from 'react'
 import { useState } from "react"
 import { Filter as FilterComponent } from "./Filter"
-import { Button } from "../../../components/ui/button"
+import { Button } from "../../../../components/ui/button"
 import { Filter, X } from "lucide-react"
 import type { IProduct } from "../types"
-import { Badge } from "../../../components/ui/badge"
-import { Input } from "../../../components/ui/input"
-import { Checkbox } from "../../../components/ui/checkbox"
+import { Badge } from "../../../../components/ui/badge"
+import { Input } from "../../../../components/ui/input"
+import { Checkbox } from "../../../../components/ui/checkbox"
 import { useCallback, useEffect } from "react"
-import { Separator } from "../../../components/ui/separator"
+import { Separator } from "../../../../components/ui/separator"
 import { Search, Palette, Tag, Package } from "lucide-react"
 interface MobileFilterProps {
   products: IProduct[]

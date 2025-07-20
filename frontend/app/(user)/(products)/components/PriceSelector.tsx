@@ -1,7 +1,7 @@
 "use client"
 import React from 'react';
 import { useState, useCallback } from "react"
-import { Slider } from "../../../components/ui/slider"
+import { Slider } from "../../../../components/ui/slider"
 
 interface PriceSelectorProps {
   minLimit: number

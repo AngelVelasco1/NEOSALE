@@ -1,7 +1,7 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   // Permitir orígenes de desarrollo para solicitudes cross-origin
-  allowedDevOrigins: ['10.5.213.111:3000', '10.5.213.111', '10.5.213.111:8000'],
+  allowedDevOrigins: ['localhost:3000', 'localhost:8000'/* '10.5.213.111:3000' */ /*  '10.5.213.111' */, /* '10.5.213.111:8000' */],
   
   images: {
     remotePatterns: [
@@ -51,8 +51,10 @@ const nextConfig = {
     return [
       {
         source: '/backend/:path*',
-        destination:  `http://10.5.213.111:8000/backend/:path*`,
-      },
+                destination:  `http://localhost:8000/backend/:path*`,
+
+/*         destination:  `http://10.5.213.111:8000/backend/:path*`,
+ */      },
     
     ];
   },

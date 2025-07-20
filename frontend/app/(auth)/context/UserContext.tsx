@@ -2,14 +2,14 @@
 
 import { createContext, useContext, useState, useEffect, ReactNode, useCallback } from 'react';
 import { useSession } from 'next-auth/react';
-import { getUserById } from '../services/api'; // Ajusta la ruta si es necesario
+import { getUserById } from '../services/api';
 
 interface UserProfile {
   name: string | null;
   email: string | null;
   phonenumber: string | null;
   identification?: string | null;
-  password: string | null
+  password: string | null;
   addresses: string[] | null;
 }
 
@@ -18,7 +18,7 @@ interface UserContextType {
   isLoading: boolean;
   setSelectedAddress: (addressIndex: string) => void;
   selectedAddress: string | undefined;
-  reFetchUserProfile: () => UserProfile
+  reFetchUserProfile: () => Promise<UserProfile | null>; // ✅ Corregido el tipo de retorno
 }
 
 const UserContext = createContext<UserContextType | undefined>(undefined);
@@ -32,34 +32,79 @@ export const UserProvider = ({ children }: UserProviderProps) => {
   const [userProfile, setUserProfile] = useState<UserProfile | null>(null);
   const [selectedAddress, setSelectedAddress] = useState<string>();
   const [isLoading, setIsLoading] = useState(true);
+  const [mounted, setMounted] = useState(false); // ✅ Añadido para hidratación
 
-  const fetchUserProfile = useCallback(async() => {
+  // ✅ Manejar la hidratación
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  const fetchUserProfile = useCallback(async (): Promise<UserProfile | null> => {
     try {
       setIsLoading(true);
+      
       if (session?.user?.id) {
         const data = await getUserById(Number(session.user.id));
-    
         setUserProfile(data);
-
-
+        return data;
       } else if (status !== 'loading') {
-        setIsLoading(false);
+        setUserProfile(null);
+        return null;
       }
-
+      
+      return null;
     } catch (err) {
-      console.error(err)
+      console.error('Error fetching user profile:', err);
+      setUserProfile(null);
+      return null;
+    } finally {
+      setIsLoading(false);
     }
-    finally {
-      setIsLoading(false)
-    }
-  }, [session?.user?.id, status])
+  }, [session?.user?.id, status]);
 
+  // ✅ Solo ejecutar después de la hidratación
   useEffect(() => {
-    fetchUserProfile();
-  }, [fetchUserProfile, session?.user?.id])
-  const value = { userProfile, isLoading, setSelectedAddress, selectedAddress, reFetchUserProfile: fetchUserProfile};
+    if (!mounted) return;
+    
+    if (status === 'loading') {
+      setIsLoading(true);
+      return;
+    }
 
-  return <UserContext.Provider value={value}>{children}</UserContext.Provider>;
+    fetchUserProfile();
+  }, [mounted, fetchUserProfile, status]);
+
+  // ✅ Proporcionar valores por defecto durante la hidratación
+  const defaultValue: UserContextType = {
+    userProfile: null,
+    isLoading: true,
+    setSelectedAddress: () => {},
+    selectedAddress: undefined,
+    reFetchUserProfile: async () => null,
+  };
+
+  // ✅ Durante la hidratación, usar valores por defecto
+  if (!mounted) {
+    return (
+      <UserContext.Provider value={defaultValue}>
+        {children}
+      </UserContext.Provider>
+    );
+  }
+
+  const value: UserContextType = {
+    userProfile,
+    isLoading,
+    setSelectedAddress,
+    selectedAddress,
+    reFetchUserProfile: fetchUserProfile,
+  };
+
+  return (
+    <UserContext.Provider value={value}>
+      {children}
+    </UserContext.Provider>
+  );
 };
 
 export const useUser = () => {

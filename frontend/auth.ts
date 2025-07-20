@@ -5,6 +5,14 @@ import authConfig from "./auth.config"
 
 export const { handlers, signIn, signOut, auth } = NextAuth({
   adapter: PrismaAdapter(prisma),
+  ...authConfig,
+   session: {
+    strategy: "jwt",
+        maxAge: 14400,
+  },
+  jwt: {
+    maxAge: 14400
+  },
   callbacks: {
     async jwt({ token, user }) {
       if (user) {
@@ -13,7 +21,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
         token.email = user.email
       }            
       return token
-      
+   
     },
     async session({ session, token }) {
       if (token) {
@@ -24,10 +32,5 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
       return session
     }
   },
-  session: {
-    strategy: "jwt",
-        maxAge: 14400, 
-
-  },
-  ...authConfig
+ 
 })

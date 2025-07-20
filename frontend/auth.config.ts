@@ -6,10 +6,8 @@ import bcrypt from "bcryptjs";
 import Google from "next-auth/providers/google";
 import { nanoid } from "nanoid";
 
-// Notice this is only an object, not a full Auth.js instance
 export default {
   providers: [
-    Google,
     Credentials({
       authorize: async (credentials) => {
         const { data, success } = loginSchema.safeParse(credentials);
@@ -21,9 +19,7 @@ export default {
           where: {
             email: data.email,
           },
-        });
-        console.log(user );
-        
+        });        
 
         if (!user?.name || !user.password) {
           return null;
@@ -63,10 +59,10 @@ export default {
             },
           })
           throw new Error('Revisa el email de verificacion')
-        }  */
-
+        }  */        
         return user;
       },
     }),
+    Google,
   ],
 } satisfies NextAuthConfig;

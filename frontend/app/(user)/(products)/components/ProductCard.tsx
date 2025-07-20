@@ -1,6 +1,6 @@
 import Image from "next/image"
 import Link from "next/link"
-import { Skeleton } from "../../../components/ui/skeleton"
+import { Skeleton } from "../../../../components/ui/skeleton"
 import type { IProduct } from "../types"
 import React from 'react'
 export interface ProductCardProps {

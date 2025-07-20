@@ -2,8 +2,8 @@
 import React, { useEffect } from "react";
 import { useCart } from "../hooks/useCart";
 import Image from "next/image";
-import { SetQuantity } from "../../components/SetQuantity";
-import { Button } from "../../../components/ui/button";
+import { SetQuantity } from "../../../components/SetQuantity";
+import { Button } from "../../../../components/ui/button";
 import {
   Table,
   TableBody,
@@ -12,7 +12,7 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from "../../../components/ui/table";
+} from "../../../../components/ui/table";
 
 export default function CartProduct() {
   const { cartProducts, updateQuantity, removeProductCart } = useCart();

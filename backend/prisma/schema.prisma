@@ -1,5 +1,7 @@
 generator client {
   provider      = "prisma-client-js"
+      binaryTargets = ["native", "windows"] 
+
 }
 
 datasource db {
@@ -194,20 +196,9 @@ model User {
   cart           cart[]
   orders         orders[]
   reviews        reviews[]
-  sessions       Session[]
-
   @@index([email], map: "idx_users_email")
 }
 
-model Session {
-  id           String   @id @default(cuid())
-  sessionToken String   @unique @db.VarChar(255)
-  userId       Int
-  expires      DateTime @db.Timestamp(6)
-  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-
-  @@map("session")
-}
 
 model Account {
   id                String   @id @default(cuid())

@@ -1,3 +1,5 @@
+CREATE EXTENSION IF NOT EXISTS pgcrypto;
+
 INSERT INTO IMAGES (imageurl, colorCode, color, productId) VALUES('https://th.bing.com/th/id/OIP.NtbXEGx2PNplzcgQa44REAHaEo?rs=1&pid=ImgDetMain', '#000', 'black', 2);
 
 INSERT INTO subcategory (name) VALUES ('camisas deportivas');
@@ -7,7 +9,19 @@ VALUES ('Ropa deportiva', 1);
 
 INSERT INTO brands (id, name, imageurl)
 VALUES (2, 'Adidas', 'https://example.com/nike-logo.png');
+SELECT * from "User";
+INSERT INTO "User" (name, email, "emailVerified", password, phonenumber, identification, role)
+VALUES(
+  'Angel',
+  'angelgg@gmail.com',
+  '2023-10-01 12:00:00',
+  crypt('@Angel123', gen_salt('bf', 12)),  -- ✅ Hashea la contraseña con bcrypt
+  '3001234567',
+  '1098144574',
+  'admin'
+);
 
+DELETE FROM "User" WHERE email = 'angelgg@gmail.com';
 INSERT INTO PRODUCTS (
   name,
   description,

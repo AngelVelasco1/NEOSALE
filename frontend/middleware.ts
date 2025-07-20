@@ -1,33 +1,38 @@
-import NextAuth from "next-auth"
+import { auth } from "@/auth";
 import { NextResponse } from "next/server";
-import authConfig from "./auth.config"
+import type { NextRequest } from "next/server";
 
- 
-const { auth } = NextAuth(authConfig);
+export default async function middleware(request: NextRequest) {
+  const session = await auth();
+  const { pathname } = request.nextUrl;
 
-const publicRoutes = ["/", "/products", "/products/[productId]"];
-const authRoutes = ["/login", "/register"];
-const apiAuthPrefix = "/api/auth";
+  // Si es admin y trata de acceder a rutas públicas/auth
+  if (session?.user?.role === "admin") {
+    const publicRoutes = ["/", "/products", "/about", "/contact", "/login", "/register"];
+    const isPublicRoute = publicRoutes.some(route => 
+      pathname === route || pathname.startsWith(route + "/")
+    );
 
-export default auth((req) => {
-  const { nextUrl } = req;
-  const isLoggedIn = !!req.auth;
-
-
-  if (nextUrl.pathname.startsWith(apiAuthPrefix)) {
-    return NextResponse.next();
+    if (isPublicRoute) {
+      return NextResponse.redirect(new URL("/dashboard", request.url));
+    }
   }
 
-  if (publicRoutes.includes(nextUrl.pathname)) {
-    return NextResponse.next();
+  // Si no es admin y trata de acceder al dashboard
+  if (pathname.startsWith("/dashboard")) {
+    if (!session) {
+      return NextResponse.redirect(new URL("/login", request.url));
+    }
+    if (session.user?.role !== "admin") {
+      return NextResponse.redirect(new URL("/", request.url));
+    }
   }
 
-  if (isLoggedIn && authRoutes.includes(nextUrl.pathname)) {
-    return NextResponse.redirect(new URL("/", nextUrl));
-  }
   return NextResponse.next();
-});
+}
 
 export const config = {
-  matcher: ["/((?!.*\\..*|_next).*)", "/", "/(api|trpc)(.*)"],
+  matcher: [
+    "/((?!api|_next/static|_next/image|favicon.ico).*)",
+  ],
 };

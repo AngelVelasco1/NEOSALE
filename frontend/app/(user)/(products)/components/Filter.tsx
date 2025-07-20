@@ -3,11 +3,11 @@
 import React from 'react'
 import { useState, useCallback, useEffect, useMemo } from "react"
 import type { IProduct } from "../types"
-import { Button } from "../../../components/ui/button"
-import { Input } from "../../../components/ui/input"
-import { Checkbox } from "../../../components/ui/checkbox"
-import { Badge } from "../../../components/ui/badge"
-import { Separator } from "../../../components/ui/separator"
+import { Button } from "../../../../components/ui/button"
+import { Input } from "../../../../components/ui/input"
+import { Checkbox } from "../../../../components/ui/checkbox"
+import { Badge } from "../../../../components/ui/badge"
+import { Separator } from "../../../../components/ui/separator"
 import { Search, X, FilterIcon, Package, Palette, Tag, DollarSign, RotateCcw } from "lucide-react"
 
 interface FilterState {

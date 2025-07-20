@@ -22,7 +22,7 @@ BEGIN
     );
 END;
 $$;
-
+DROP procedure sp_createuser;
 
 CREATE OR REPLACE PROCEDURE sp_deleteUser(p_id users.id%TYPE)
 LANGUAGE plpgsql
@@ -53,7 +53,6 @@ BEGIN
 END;
 $$;
 
-DROP PROCEDURE IF EXISTS sp_updateuser;
 
 CREATE OR REPLACE PROCEDURE sp_updatePassword(p_id INT, p_newPassword TEXT) 
 LANGUAGE plpgsql

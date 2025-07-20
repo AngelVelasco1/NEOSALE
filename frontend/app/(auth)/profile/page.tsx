@@ -150,25 +150,25 @@ export const Profile = () => {
       icon: Mail,
       label: "Email",
       value: userProfile?.email || "No especificado",
-      color: "text-purple-600",
+      color: "text-indigo-600",
     },
     {
       icon: Phone,
       label: "Teléfono",
       value: userProfile?.phonenumber || "No especificado",
-      color: "text-fuchsia-600",
+      color: "text-sky-600",
     },
     {
       icon: MapPin,
       label: "Dirección",
       value: selectedAddress || "No especificada",
-      color: "text-blue-600",
+      color: "text-purple-600",
     },
     {
       icon: CreditCard,
       label: "Identificación",
       value: userProfile?.identification || "No especificado",
-      color: "text-green-600",
+      color: "text-emerald-600",
     },
   ]
 
@@ -182,11 +182,11 @@ export const Profile = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-purple-50 to-fuchsia-50 py-8">
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-purple-50 to-fuchsia-50 py-8 p-24">
       <div className="max-w-3xl mx-auto ">
         {/* Header with gradient background */}
         <div className="relative">
-          <div className="h-32 bg-gradient-to-r from-blue-500 via-purple-500 to-purple-600 rounded-t-2xl" />
+          <div className="h-32 bg-gradient-to-r from-blue-500 via-purple-500 to-purple-600 rounded-t-xl" />
 
                            
         
@@ -216,7 +216,7 @@ export const Profile = () => {
 
         {/* Main content card */}
         <Card className="border-0 shadow-xl bg-white/80 backdrop-blur-sm rounded-t-none z-10 relative">
-          <CardContent className="p-8 pt-16 "> {/* Agregado pt-16 para dar espacio al avatar */}
+          <CardContent className="p-10 pt-16 "> {/* Agregado pt-16 para dar espacio al avatar */}
             {/* Profile title */}
             <div className="text-center mb-8 ">
               <h1 className="text-3xl font-bold text-gray-900 mb-1">Perfil de {userProfile?.name || "Usuario"}</h1>
@@ -225,7 +225,7 @@ export const Profile = () => {
 
             {/* Information section */}
             <div className={`space-y-6 mb-8    ${showInfo ? "block" : "hidden"}`}>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6  rounded-2xl">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6  rounded-xl">
               {profileData.map((item, index) => (
                 <div
                   key={index}

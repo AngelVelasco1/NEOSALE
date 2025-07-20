@@ -2,12 +2,12 @@
 
 import React, { useCallback, useEffect } from "react";
 import Image from "next/image";
-import { Button } from "../../../components/ui/button";
-import { RadioGroup, RadioGroupItem } from "../../../components/ui/radio-group";
+import { Button } from "../../../../components/ui/button";
+import { RadioGroup, RadioGroupItem } from "../../../../components/ui/radio-group";
 import { useState } from "react";
 import { useCart } from "../../(cart)/hooks/useCart";
-import { PaymentIcon, paymentMethods } from "../../components/PaymentIcon";
-import { SetQuantity } from "../../components/SetQuantity";
+import { PaymentIcon, paymentMethods } from "../../../components/PaymentIcon";
+import { SetQuantity } from "../../../components/SetQuantity";
 import { IProductDetails } from "../types";
 import { Skeleton } from "@/components/ui/skeleton";
 
