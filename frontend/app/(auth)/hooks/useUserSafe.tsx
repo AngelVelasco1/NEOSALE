@@ -1,7 +1,7 @@
 "use client";
 
 import { useUser } from '@/app/(auth)/context/UserContext';
-import { useMounted } from '@/hooks/use-mounted';
+import { useMounted } from './useMounted';
 
 export function useUserSafe() {
   const mounted = useMounted();

@@ -32,9 +32,10 @@ import {
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { Badge } from "@/components/ui/badge";
 import Image from "next/image";
-import { useUser } from "../(auth)/context/UserContext";
 import { SignOut } from "../(auth)/components/SingOut";
 import { useRouter } from "next/navigation";
+import { useUserSafe } from "../(auth)/hooks/useUserSafe";
+import { useMounted } from "../(auth)/hooks/useMounted";
 
 const categories = [
   {
@@ -98,17 +99,35 @@ export const Navbar = () => {
   const [cartItemCount, setCartItemCount] = useState(3);
   const [isScrolled, setIsScrolled] = useState(false);
   const [showMegaMenu, setShowMegaMenu] = useState(false);
-  const { userProfile } = useUser();
+  const { userProfile, isLoading } = useUserSafe();
+  const mounted = useMounted();
   const router = useRouter();
 
   useEffect(() => {
+    if (!mounted) return;
+    const loadCartData = () => {
+      try {
+        const saved = localStorage.getItem("cart");
+        if (saved) {
+          const items = JSON.parse(saved);
+          setCartItemCount(items.length);
+        }
+      } catch (error) {
+        console.error("Error loading cart data:", error);
+      }
+    };
+    loadCartData();
+
     const handleScroll = () => {
       setIsScrolled(window.scrollY > 10);
     };
     window.addEventListener("scroll", handleScroll);
     return () => window.removeEventListener("scroll", handleScroll);
-  }, []);
+  }, [mounted]);
 
+  if (!mounted) {
+    return null
+  }
   return (
     <div className="bg-white/80 backdrop-blur-md  border-purple-100 sticky top-0 z-50">
       {/* Main Navbar with Glass Effect */}
@@ -398,7 +417,7 @@ export const Navbar = () => {
                   </DropdownMenuContent>
                 </DropdownMenu>
               ) : (
-                      <Button
+                <Button
                   onClick={() => router.push("/login")}
                   className="group h-10 pe-6 ms-4 gap-2 w-fit rounded-lg bg-gradient-to-r from-blue-500 to-indigo-600 text-white transition-all duration-300 ease-out "
                 >

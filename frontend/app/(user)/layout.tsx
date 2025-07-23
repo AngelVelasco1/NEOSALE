@@ -1,30 +1,48 @@
-import React from "react";
-import { Navbar } from "../components/Navbar";
-import { Footer } from "../components/Footer";
-import { Montserrat } from "next/font/google";
-import { UserProviders } from "../providers/UserProviders";
+// app/(user)/layout.tsx
+"use client";
 
-const userFont = Montserrat({
-  weight: ["400", "700"],
-  subsets: ["latin"],
-});
+import { Footer } from "../components/Footer";
+import { UserProviders } from "@/app/providers/UserProviders";
+import { Navbar } from "../components/Navbar";
+import { useMounted } from "@/app/(auth)/hooks/useMounted";
 
 export default function UserLayout({
   children,
-}: Readonly<{
+}: {
   children: React.ReactNode;
-}>) {
-  return (
-    <html lang="en" suppressHydrationWarning>
-      <body className={`${userFont.className} `}>
-        <UserProviders>
-          <div className="flex flex-col min-h-screen">
-            <Navbar />
-            <main className="flex-grow">{children}</main>
-            <Footer />
+}) {
+  const mounted = useMounted();
+
+  if (!mounted) {
+    return (
+      <div className="flex flex-col min-h-screen">
+        {/* Navbar placeholder */}
+        <nav className="sticky top-0 z-50 w-full b bg-white/95 backdrop-blur">
+          <div className="container mx-auto flex h-18 items-center justify-between px-4">
+            <div className="flex items-center space-x-2">
+              <div className="w-6 h-6 bg-blue-600 rounded"></div>
+              <span className="text-xl font-bold">NeoSale</span>
+            </div>
+            <div className="flex-1 max-w-xl mx-8">
+              <div className="w-full h-10 bg-gray-200 rounded animate-pulse"></div>
+            </div>
+            <div className="flex items-center space-x-4">
+              <div className="w-8 h-8 bg-gray-200 rounded animate-pulse"></div>
+              <div className="w-8 h-8 bg-gray-200 rounded animate-pulse"></div>
+            </div>
           </div>
-        </UserProviders>
-      </body>
-    </html>
+        </nav>
+      </div>
+    );
+  }
+
+  return (
+    <UserProviders>
+      <div className="flex flex-col min-h-screen">
+        <Navbar />
+        <main className="flex-grow">{children}</main>
+        <Footer />
+      </div>
+    </UserProviders>
   );
 }

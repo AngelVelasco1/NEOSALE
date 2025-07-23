@@ -4,9 +4,7 @@ export const getProductsService = async (id?: number) => {
     if (!id) {
         const products = await prisma.products.findMany({
             include: {
-                images: {
-                    take: 1 
-                },
+                images: true,
                 categories: true 
             }
         });
@@ -21,7 +19,8 @@ export const getProductsService = async (id?: number) => {
             imageUrl: p.images[0]?.imageurl,
             colorCode: p.images[0]?.colorcode,
             color: p.images[0]?.color,
-            category: p.categories?.name 
+            category: p.categories?.name,
+            images: p.images
         }));
     }
     

@@ -23,6 +23,56 @@ const nextConfig = {
         port: '',
         pathname: '/**',
       },
+      {
+        protocol: 'https',
+        hostname: 'via.placeholder.com',
+        port: '',
+        pathname: '/**',
+      },
+      {
+        protocol: 'https',
+        hostname: 'static.nike.com',
+        port: '',
+        pathname: '/**',
+      },
+      {
+        protocol: 'https',
+        hostname: 'www.lg.com',
+        port: '',
+        pathname: '/content/dam/channel/wcms/latin/images/tvs/**',
+      },
+      {
+        protocol: 'https',
+        hostname: 'via.placeholder.com',
+        port: '',
+        pathname: '/500x500/**',
+      },
+      {
+        protocol: 'https',
+        hostname: 'store.storeimages.cdn-apple.com',
+        port: '',
+        pathname: '/**',
+      },
+      {
+        protocol: 'https',
+        hostname: 'images.samsung.com',
+        port: '',
+        pathname: '/**',
+      },
+      {
+        protocol: 'https',
+        hostname: 'gmedia.playstation.com',
+        port: '',
+        pathname: '/**',
+      },
+      {
+        protocol: 'https',
+        hostname: 'logoeps.com',
+        port: '',
+        pathname: '/**',
+      },
+
+      
     ],
   },
   // Headers para mejorar CORS y seguridad

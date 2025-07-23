@@ -13,6 +13,7 @@ export interface IProduct {
   imageUrl: string;
   color: string;
   colorCode: string;
+  images: IProductImage[]
 }
 
 export interface IProductDetails {
@@ -29,3 +30,16 @@ export interface IProductDetails {
 }
 
 
+export interface FilterState {
+  searchTerm: string
+  selectedColors: string[]
+  selectedCategories: string[]
+  priceRange: { min: number; max: number }
+  inStockOnly: boolean
+  sortBy: "name" | "price-asc" | "price-desc" | "newest"
+}
+
+export interface FilterProps {
+  products: IProduct[]
+  setFilteredProducts: (products: IProduct[]) => void
+}
