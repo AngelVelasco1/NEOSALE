@@ -1,6 +1,6 @@
 import NextAuth from "next-auth"
 import { PrismaAdapter } from "@auth/prisma-adapter"
-import { prisma } from "./lib/prisma"
+import { prisma } from "../../lib/prisma"
 import authConfig from "./auth.config"
 
 export const { handlers, signIn, signOut, auth } = NextAuth({
@@ -16,21 +16,18 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
   callbacks: {
     async jwt({ token, user }) {
       if (user) {
-        token.id = user.id
-        token.role = user.role
-        token.email = user.email
-      }            
-      return token
-   
-    },
-    async session({ session, token }) {
-      if (token) {
-        session.user.id = token.id
-        session.user.role = token.role
-        session.user.email = token.email
+        token.role = user.role;
       }
-      return session
-    }
+      return token;
+    },
+    
+    async session({ session, token }) {
+      if (session.user) {
+        session.user.id = token.sub!;
+        session.user.role = token.role;
+      }
+      return session;
+    },
   },
  
 })

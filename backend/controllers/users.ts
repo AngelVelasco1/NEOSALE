@@ -1,7 +1,16 @@
-import { Request, Response } from 'express';
-import { registerUserService, getUserByIdService, updateUserService, updatePasswordService } from '../services/users';
+import { NextFunction, Request, Response } from "express";
+import {
+  registerUserService,
+  getUserByIdService,
+  updateUserService,
+  updatePasswordService,
+} from "../services/users";
 
-export const registerUser = async (req: Request, res: Response) => {
+export const registerUser = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
   try {
     const {
       name,
@@ -10,16 +19,8 @@ export const registerUser = async (req: Request, res: Response) => {
       password,
       phoneNumber,
       identification,
-      role
+      role,
     } = req.body;
-
-    //  básica
-    if (!name || !email || !password) {
-      return res.status(400).json({
-        success: false,
-        message: "Campos requeridos: name, email, password"
-      });
-    }
 
     const result = await registerUserService({
       name,
@@ -28,53 +29,37 @@ export const registerUser = async (req: Request, res: Response) => {
       password,
       phoneNumber,
       identification,
-      role
+      role,
     });
 
-    res.json(result);
-
+    res.status(201).json(result);
   } catch (error: any) {
-    console.error('Error in registerUser:', error);
-    res.status(500).json({
-      success: false,
-      message: error.message || "Error interno del servidor"
-    });
+    next(error);
   }
 };
 
-export const getUserById = async (req: Request, res: Response) => {
+export const getUserById = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
   try {
     const userId = req.query.id ? Number(req.query.id) : undefined;
 
-
     const user = await getUserByIdService(userId);
     res.json(user);
-  } catch (error: any) {
-    console.error('Error in getUserById:', error);
-    res.status(500).json({
-      success: false,
-      message: error.message || "Error interno del servidor"
-    });
+  } catch (error) {
+    next(error);
   }
 };
 
-export const updateUser = async (req: Request, res: Response) => {
+export const updateUser = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
   try {
-    const {
-      id,
-      name,
-      email,
-      emailVerified,
-      phoneNumber,
-      identification,
-    } = req.body;
-
-    if (!id) {
-      return res.status(400).json({
-        success: false,
-        message: "ID de usuario requerido"
-      });
-    }
+    const { id, name, email, emailVerified, phoneNumber, identification } = req.body;
 
     const updatedUser = await updateUserService({
       id,
@@ -86,32 +71,18 @@ export const updateUser = async (req: Request, res: Response) => {
     });
 
     res.json(updatedUser);
-  } catch (error: any) {
-    console.error('Error in updateUser:', error);
-    res.status(500).json({
-      success: false,
-      message: error.message || "Error interno del servidor"
-    });
+  } catch (error) {
+    next(error);
   }
-}
+};
 
-export const updatePassword = async(req: Request, res: Response) => {
+export const updatePassword = async (req: Request, res: Response, next: NextFunction) => {
   try {
-    const { id, newPassword } = req.body
-    if (!id || !newPassword) {
-      return res.status(400).json({
-        success: false,
-        message: "ID de usuario y nueva contraseña son requeridos"
-      });
-    }
-    const result = await updatePasswordService({id, newPassword})
-    res.json(result); 
-  } catch (err) {
-    console.error('Error in updatePassword:', err);
-    res.status(500).json({
-      success: false,
-      message: err || "Error interno del servidor"
-    });
-  }
+    const { id, newPassword } = req.body;
 
-}
+    const result = await updatePasswordService({ id, newPassword });
+    res.json(result);
+  } catch (error) {
+    next(error)
+  }
+};

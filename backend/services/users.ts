@@ -1,7 +1,12 @@
 import { prisma } from "../lib/prisma";
 import bcrypt from "bcryptjs";
-import { createUserParams, updateUserParams, updatePasswordParams } from "../types/users";
-import { roles_enum, Prisma } from "@prisma/client"
+import {
+  createUserParams,
+  updateUserParams,
+  updatePasswordParams,
+} from "../types/users";
+import { roles_enum } from "@prisma/client";
+import { ValidationError } from "../errors/errorsClass";
 
 export const registerUserService = async ({
   name,
@@ -10,23 +15,14 @@ export const registerUserService = async ({
   password,
   phoneNumber,
   identification,
-  role
+  role,
 }: createUserParams) => {
   if (!name || !email || !password) {
-    throw new Error("Campos requeridos faltantes");
-  }
-
-  const existingUser = await prisma.user.findUnique({
-    where: { email }
-  });
-
-  if (existingUser) {
-    throw new Error("Este email ya está registrado.");
+    throw new ValidationError("Nombre, email y contraseña son obligatorios");
   }
 
   const hashedPassword = await bcrypt.hash(password, 12);
-  try {
-    await prisma.$executeRaw`
+  await prisma.$executeRaw`
       CALL sp_createuser(
         ${name}, 
         ${email}, 
@@ -34,37 +30,28 @@ export const registerUserService = async ({
         ${hashedPassword}, 
         ${phoneNumber ?? null}, 
         ${identification ?? null}, 
-        ${role as roles_enum ?? "user"})`;
+        ${(role as roles_enum) ?? "user"})`;
 
-    const newUser = await prisma.user.findUnique({
-      where: { email },
-      select: {
-        id: true,
-        name: true,
-        email: true,
-        emailVerified: true,
-        password: true,
-        phonenumber: true,
-        identification: true,
-        role: true,
-      }
-    });
+  const newUser = await prisma.user.findUnique({
+    where: { email },
+    select: {
+      id: true,
+      name: true,
+      email: true,
+      emailVerified: true,
+      password: true,
+      phonenumber: true,
+      identification: true,
+      role: true,
+    },
+  });
 
-    return newUser;
-  } catch (error: any) {
-    if (error instanceof Prisma.PrismaClientKnownRequestError) {
-      if (error.code === 'P2010' || error.message.includes('23505')) {
-        if (error.message.toLowerCase().includes('Key (phonenumber)')) {
-          throw new Error('Este número de teléfono ya está registrado.');
-        }
-        if (error.message.toLowerCase().includes('Key (email)')) {
-          throw new Error('Este email ya está registrado.');
-        }
-      }
-    }
-    throw error;
-  }
-}
+  return {
+    success: true,
+    data: newUser,
+    message: "Usuario registrado exitosamente",
+  };
+};
 
 export const getUserByIdService = async (id: number | undefined) => {
   if (!id) {
@@ -87,30 +74,39 @@ export const getUserByIdService = async (id: number | undefined) => {
           id: true,
           address: true,
           city: true,
-          country: true
-        }
-      }
-    }
-  },
-  );
-
+          country: true,
+        },
+      },
+    },
+  });
 
   return user;
 };
 
-
-export const updateUserService = async ({ id, name, email, emailVerified, phoneNumber, identification }: updateUserParams) => {
+export const updateUserService = async ({
+  id,
+  name,
+  email,
+  emailVerified,
+  phoneNumber,
+  identification,
+}: updateUserParams) => {
   if (!id || !name || !email) {
     throw new Error("Campos Obligatorios requeridos");
   }
-  
+
   const idAsInt = Number(id);
-  const nullIdentification = identification && identification.trim() !== "" ? identification.trim() : null;
+  const nullIdentification =
+    identification && identification.trim() !== ""
+      ? identification.trim()
+      : null;
 
   try {
     // Convertir emailVerified a formato ISO string si existe
-    const emailVerifiedString = emailVerified ? emailVerified.toISOString() : null;
-    
+    const emailVerifiedString = emailVerified
+      ? emailVerified.toISOString()
+      : null;
+
     await prisma.$executeRaw` CALL sp_updateUser(
     ${idAsInt}::int, 
     ${name}::text, 
@@ -119,7 +115,7 @@ export const updateUserService = async ({ id, name, email, emailVerified, phoneN
     ${phoneNumber ?? null}::text, 
     ${nullIdentification}::text
 )`;
-      const user = await prisma.user.findUnique({
+    const user = await prisma.user.findUnique({
       where: { id: idAsInt },
       select: {
         id: true,
@@ -127,21 +123,22 @@ export const updateUserService = async ({ id, name, email, emailVerified, phoneN
         email: true,
         emailVerified: true,
         phonenumber: true,
-        identification: true
-      }
+        identification: true,
+      },
     });
-  if (!user) {
+    if (!user) {
       throw new Error("Usuario no encontrado");
     }
-    return user
-  } catch(err) {
+    return user;
+  } catch (err) {
     throw new Error("Error al actualizar el usuario: " + err);
   }
-
 };
 
-
-export const updatePasswordService = async ({id, newPassword}: updatePasswordParams) => {
+export const updatePasswordService = async ({
+  id,
+  newPassword,
+}: updatePasswordParams) => {
   if (!id || !newPassword) {
     throw new Error("ID de usuario y nueva contraseña son requeridos");
   }
@@ -152,7 +149,7 @@ export const updatePasswordService = async ({id, newPassword}: updatePasswordPar
     await prisma.$executeRaw`CALL sp_updatePassword(${id}::int, ${hashedPassword}::text)`;
     return { success: true, message: "Contraseña actualizada exitosamente" };
   } catch (error) {
-    console.error(error)
+    console.error(error);
     throw new Error("Error al actualizar la contraseña: " + error);
   }
 };

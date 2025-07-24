@@ -4,6 +4,8 @@ import { usersRoutes } from './users.js';
 
 export const initRoutes = () => {
     const app = Router();
-    app.use("/use", productsRoutes(), usersRoutes())
+    app.use("/users", usersRoutes())
+    app.use("/products", productsRoutes())
+
     return app;
 }

@@ -10,6 +10,16 @@ CREATE OR REPLACE PROCEDURE sp_createuser(
 LANGUAGE plpgsql
 AS $$
 BEGIN
+
+    IF EXISTS (SELECT 1 FROM "User" WHERE email = p_email) THEN
+        RAISE EXCEPTION 'Email ya registrado' USING ERRCODE = 'unique_violation';
+    END IF;
+
+    IF EXISTS (SELECT 1 FROM "User" WHERE phonenumber = p_phonenumber) THEN
+        RAISE EXCEPTION 'Numero de telefono ya registrado' USING ERRCODE = 'unique_violation';
+    END IF;
+
+
     INSERT INTO "User" (name, email, "emailVerified", password, phonenumber, identification, role) 
     VALUES (
         p_name, 
@@ -20,9 +30,13 @@ BEGIN
         p_identification, 
         p_role::roles_enum 
     );
+    EXCEPTION
+    WHEN OTHERS THEN
+        RAISE EXCEPTION 'Error en SP: %', SQLERRM;
 END;
 $$;
-DROP procedure sp_createuser;
+
+
 
 CREATE OR REPLACE PROCEDURE sp_deleteUser(p_id users.id%TYPE)
 LANGUAGE plpgsql
