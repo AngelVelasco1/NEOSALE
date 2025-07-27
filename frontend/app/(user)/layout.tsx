@@ -15,8 +15,7 @@ export default function UserLayout({
 
   if (!mounted) {
     return (
-      <div className="flex flex-col min-h-screen">
-        {/* Navbar placeholder */}
+      <div className="flex flex-col min-h-screen font-montserrat">
         <nav className="sticky top-0 z-50 w-full b bg-white/95 backdrop-blur">
           <div className="container mx-auto flex h-18 items-center justify-between px-4">
             <div className="flex items-center space-x-2">
@@ -38,7 +37,7 @@ export default function UserLayout({
 
   return (
     <UserProviders>
-      <div className="flex flex-col min-h-screen">
+      <div className="flex flex-col min-h-screen w-full font-montserrat">
         <Navbar />
         <main className="flex-grow">{children}</main>
         <Footer />

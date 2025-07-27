@@ -3,7 +3,7 @@ import { FRONT_CONFIG } from "./credentials";
 import { ErrorsHandler } from "@/app/errors/errorsHandler";
 
 export const api = axios.create({
-  baseURL: `http://${FRONT_CONFIG.host}:${FRONT_CONFIG.port}`,
+  baseURL: FRONT_CONFIG.api_origin,
   headers: {
     "Content-Type": "application/json",
   },
@@ -11,33 +11,22 @@ export const api = axios.create({
   withCredentials: true, 
 });
 
-// ✅ Interceptor de request para debugging
 api.interceptors.request.use(
   (config) => {
-    console.log(`🚀 Request: ${config.method?.toUpperCase()} ${config.url}`, {
-      data: config.data,
-      headers: config.headers
-    });
     return config;
   },
   (error) => {
-    console.error('❌ Request error:', error);
+    console.error('Error en la petición:', error);
     return Promise.reject(error);
   }
 );
 
-// Interceptor que captura todas las respuestas
 api.interceptors.response.use(
   // Función para respuestas exitosas (status 2xx)
   (response) => {
-    console.log(`✅ Response: ${response.status}`, {
-      url: response.config.url,
-      data: response.data
-    });
-
     // Verificar si el backend devolvió success: false con status 200
     if (response.data?.success === false) {
-      console.log('⚠️ Backend devolvió success: false con status 200');
+      console.log('El backend devolvió success false con status 200');
       const error = {
         ...response.data,
         isHandledError: true,
@@ -47,9 +36,9 @@ api.interceptors.response.use(
     return response;
   },
 
-  // ✅ Función mejorada para respuestas con error (status 4xx, 5xx)
+  // Función para respuestas con error (status 4xx, 5xx)
   async (error) => {
-    console.error("❌ Error interceptado por Axios:", {
+    console.error("Error interceptado por Axios:", {
       message: error.message,
       code: error.code,
       response: error.response ? {
@@ -57,8 +46,8 @@ api.interceptors.response.use(
         statusText: error.response.statusText,
         data: error.response.data,
         headers: error.response.headers
-      } : 'No response',
-      request: error.request ? 'Request made but no response' : 'No request',
+      } : 'Sin respuesta',
+      request: error.request ? 'Petición enviada pero sin respuesta' : 'Sin petición',
       config: {
         url: error.config?.url,
         method: error.config?.method,
@@ -66,9 +55,9 @@ api.interceptors.response.use(
       }
     });
 
-    // ✅ Error de red/conexión (sin response)
+    // Error de red/conexión (sin response)
     if (!error.response) {
-      console.error('🌐 Network/Connection error detected');
+      console.error('Error de red/conexión detectado');
       
       // Verificar tipos específicos de errores de red
       if (error.code === 'ECONNREFUSED') {
@@ -101,16 +90,17 @@ api.interceptors.response.use(
         isHandledError: true,
       };
 
+      ErrorsHandler.handle(networkError);
       throw networkError;
     }
 
-    // ✅ Error con respuesta del servidor
+    // Error con respuesta del servidor
     const { response } = error;
-    console.log(`🚨 Server responded with error: ${response.status}`);
+    console.log(`El servidor respondió con error: ${response.status}`);
     
     try {
       const errorData = response.data;
-      console.log('📝 Datos del error del servidor:', {
+      console.log('Datos del error del servidor:', {
         status: response.status,
         errorData: errorData,
         hasCorrectFormat: errorData?.success === false && errorData?.message && errorData?.code,
@@ -119,7 +109,7 @@ api.interceptors.response.use(
 
       // Verificar si el backend devolvió el formato correcto
       if (errorData?.success === false && errorData?.message && errorData?.code) {
-        console.log('✅ Error con formato correcto detectado:', {
+        console.log('Error con formato correcto detectado:', {
           message: errorData.message,
           code: errorData.code
         });
@@ -133,11 +123,11 @@ api.interceptors.response.use(
       }
       
     } catch (parseError) {
-      console.error('❌ Could not parse error response:', parseError);
+      console.error('No se pudo parsear la respuesta del error:', parseError);
     }
 
     // ✅ Error genérico si no se pudo parsear o no tiene formato correcto
-    console.log('⚠️ Error sin formato correcto, usando genérico para status:', response.status);
+    console.log('Error sin formato correcto', response.status);
     
     const genericError = {
       success: false,

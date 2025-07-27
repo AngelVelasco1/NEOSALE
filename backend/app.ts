@@ -9,7 +9,7 @@ const app = express();
 
 app.use(
   cors({
-    origin: `http://${BACK_CONFIG.host}:${BACK_CONFIG.front_port}`,
+    origin: BACK_CONFIG.cors_origin,
     methods: ["GET", "POST", "PUT", "DELETE", "PATCH"], 
     credentials: true,
     allowedHeaders: ['Content-Type', 'Authorization']
@@ -43,8 +43,8 @@ app.listen(Number(BACK_CONFIG.port), "0.0.0.0", () => {
 });
 
 process.on("SIGINT", async () => {
-  console.log("🔄 Cerrando servidor...");
+  console.log("Cerrando servidor...");
   await prisma.$disconnect();
-  console.log("✅ Servidor cerrado correctamente");
+  console.log("Servidor cerrado correctamente");
   process.exit();
 });

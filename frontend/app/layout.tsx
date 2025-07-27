@@ -1,12 +1,29 @@
 import React from "react";
 import type { Metadata } from "next";
 import "./styles/globals.css";
-import { Montserrat } from "next/font/google";
+import { Montserrat, Poppins, Oswald } from "next/font/google";
 import { RootProviders } from "./providers/RootProviders";
+import { Toaster } from "sonner";
 
-export const generalFont = Montserrat({
-  weight: ["400", "700"],
+export const userFont = Montserrat({
+  weight: ["300", "400", "500", "700", "800"],
   subsets: ["latin"],
+  variable: '--font-montserrat',
+  display: 'swap',
+});
+
+export const adminFont = Poppins({
+  weight: ["300", "400", "500", "700", "800"],
+  subsets: ["latin"],
+  variable: '--font-inter',
+  display: 'swap', 
+});
+
+export const boldFont = Oswald({
+  weight: ["300", "400", "500", "700"],
+  subsets: ["latin"],
+  variable: '--font-oswald',
+  display: 'swap', 
 });
 
 export const metadata: Metadata = {
@@ -27,11 +44,23 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" suppressHydrationWarning>
-      <body className={`${generalFont.className} `}>
+    <html lang="es" suppressHydrationWarning>
+      <body className={`${userFont.variable} ${adminFont.variable} font-montserrat antialiased`}>
         <RootProviders>
           {children}
         </RootProviders>
+        <Toaster
+              position="top-right"
+              toastOptions={{
+                style: {
+                  background: "white",
+                  border: "1px solid #e5e7eb",
+                  color: "#374151",
+                },
+              }}
+              closeButton
+              richColors
+            />
       </body>
     </html>
   );

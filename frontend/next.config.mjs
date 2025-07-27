@@ -71,11 +71,16 @@ const nextConfig = {
         port: '',
         pathname: '/**',
       },
+        {
+        protocol: 'https',
+        hostname: 'images.unsplash.com',
+        port: '',
+        pathname: '/**',
+      },
 
-      
     ],
   },
-  // Headers para mejorar CORS y seguridad
+  // Headers para mejorar CORS
   async headers() {
     return [
       {

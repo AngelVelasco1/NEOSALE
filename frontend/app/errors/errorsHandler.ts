@@ -14,11 +14,10 @@ export interface ApiSuccess<T> {
   message?: string;
 }
 
-export type ApiResponse<T = any> = ApiSuccess<T> | ApiError;
+export type ApiResponse<T = unknown> = ApiSuccess<T> | ApiError;
 
 export class ErrorsHandler {
   static async handle(error: unknown): Promise<void> {
-    console.error("Error capturado:", error);
 
     if (this.isHandledError(error)) {
       this.showError(error.message, error.code);

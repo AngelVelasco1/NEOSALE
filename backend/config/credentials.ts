@@ -1,10 +1,15 @@
-import dotenv from "dotenv"
+process.loadEnvFile();
 
-dotenv.config();
+const {
+    HOST,
+    PORT = '8000',
+    FRONT_PORT = '3000',
+    CORS_ORIGIN = `http://${HOST}:${FRONT_PORT}`
+} = process.env;
 
 export const BACK_CONFIG = {
-    host: process.env.HOST,
-    port: process.env.PORT,
-    front_port: process.env.FRONT_PORT,
-    key: process.env.JWT_SECRET
+    host: HOST,
+    port: PORT,
+    front_port: FRONT_PORT,
+    cors_origin: CORS_ORIGIN
 };

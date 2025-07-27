@@ -1,9 +1,7 @@
 "use client";
-
-import React from "react";
 import Link from "next/link";
-import { useState, useEffect } from "react";
-import { loginSchema } from "@/lib/zod.ts";
+import React, { useState, useEffect } from "react";
+import { loginSchema } from "@/lib/zod";
 import * as z from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
@@ -14,9 +12,9 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
-} from "@/components/ui/form.tsx";
-import { Input } from "@/components/ui/input.tsx";
-import { Button } from "@/components/ui/button.tsx";
+} from "@/components/ui/form";
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
 import { Eye, EyeOff, User, Lock } from "lucide-react";
 import { signIn, useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
@@ -26,16 +24,17 @@ import {
   RiTwitterXFill,
   RiFacebookFill,
 } from "react-icons/ri";
+import { ErrorsHandler } from "@/app/errors/errorsHandler";
+import { useMounted } from "../hooks/useMounted";
 
 type loginFormValues = z.infer<typeof loginSchema>;
 
 export const LoginForm: React.FC = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
   const { data: session } = useSession();
-
   const router = useRouter();
+  const mounted = useMounted();
 
   const form = useForm<loginFormValues>({
     resolver: zodResolver(loginSchema),
@@ -48,14 +47,13 @@ export const LoginForm: React.FC = () => {
   useEffect(() => {
     if (session?.user.role === "admin") {
       router.push("/dashboard");
-    } else if(session?.user) {
-        router.push("/");
+    } else if (session?.user) {
+      router.push("/");
     }
-  }, [session]);
+  }, [session, router]);
 
   const onSubmit = async (values: loginFormValues) => {
     setIsLoading(true);
-    setError(null);
 
     try {
       const result = await signIn("credentials", {
@@ -66,39 +64,49 @@ export const LoginForm: React.FC = () => {
 
       if (result?.error) {
         let errorMessage;
+        let errorCode;
 
         switch (result.error) {
           case "CredentialsSignin":
             errorMessage = "Email o contraseña incorrectos";
+            errorCode = "INVALID_CREDENTIALS";
             break;
           case "AccessDenied":
             errorMessage = "Acceso denegado";
+            errorCode = "ACCESS_DENIED";
             break;
           default:
             errorMessage = "Error de autenticación. Inténtalo de nuevo.";
+            errorCode = "AUTH_ERROR";
         }
-        setError(errorMessage);
-        setIsLoading(false);
+
+        ErrorsHandler.showError(errorMessage, errorCode);
         return;
       }
 
       if (result?.ok) {
-        setIsLoading(false);
+        ErrorsHandler.showSuccess(
+          "Sesión iniciada correctamente",
+          "Bienvenido de vuelta"
+        );
       }
     } catch (error: any) {
-      setError("Error del servidor");
-      console.error(`Internal server error: ${error.message}`);
+      ErrorsHandler.showError("Error del servidor", "SERVER_ERROR");
+      console.error(`Error interno del servidor: ${error.message}`);
+    } finally {
       setIsLoading(false);
     }
   };
-
+  if (!mounted) {
+    return null;
+  }
   return (
-    <div className="min-h-screen ">
+    <div className="min-h-screen">
       <div className="min-h-screen flex flex-col items-center py-8 px-4">
         <div className="max-w-md w-full">
           <div className="px-8 py-6 rounded-2xl bg-white shadow-xl border border-gray-100">
             <div className="text-center mb-8">
-              <h2 className="text-slate-900 text-3xl font-bold mb-2">
+              <h2 className="text-slate-900 text-3xl font-bold mb-2 font-montserrat">
                 Iniciar sesión
               </h2>
               <p className="text-slate-600">
@@ -179,13 +187,6 @@ export const LoginForm: React.FC = () => {
                   </Link>
                 </div>
 
-                {error && (
-                  <div className="bg-red-50 border border-red-200 text-red-600 px-4 py-3 rounded-lg text-sm flex items-center gap-2">
-                    <div className="w-2 h-2 bg-red-500 rounded-full flex-shrink-0"></div>
-                    {error}
-                  </div>
-                )}
-
                 <div className="pt-4">
                   <Button
                     type="submit"
@@ -202,52 +203,53 @@ export const LoginForm: React.FC = () => {
                     )}
                   </Button>
                 </div>
+
                 <div className="flex flex-wrap gap-2">
                   <Button
+                    type="button"
                     className="flex-1"
-                    aria-label="Login with Google"
+                    aria-label="Iniciar sesión con Google"
                     size="icon"
-                    variant={"default"}
                     onClick={() => signIn("google")}
                   >
                     <RiGoogleFill
-                      className="dark:text-primary text-[#DB4437]"
+                      className="text-[#DB4437]"
                       size={16}
                       aria-hidden="true"
                     />
                   </Button>
                   <Button
+                    type="button"
                     className="flex-1"
-                    variant={"default"}
-                    aria-label="Login with Facebook"
+                    aria-label="Iniciar sesión con Facebook"
                     size="icon"
                   >
                     <RiFacebookFill
-                      className="dark:text-primary text-[#1877f2]"
+                      className="text-[#1877f2]"
                       size={16}
                       aria-hidden="true"
                     />
                   </Button>
                   <Button
+                    type="button"
                     className="flex-1"
-                    variant={"default"}
-                    aria-label="Login with X"
+                    aria-label="Iniciar sesión con X"
                     size="icon"
                   >
                     <RiTwitterXFill
-                      className="dark:text-primary text-[#14171a]"
+                      className="text-[#14171a]"
                       size={16}
                       aria-hidden="true"
                     />
                   </Button>
                   <Button
+                    type="button"
                     className="flex-1"
-                    variant={"default"}
-                    aria-label="Login with GitHub"
+                    aria-label="Iniciar sesión con GitHub"
                     size="icon"
                   >
                     <RiGithubFill
-                      className="dark:text-primary text-black"
+                      className="text-black"
                       size={16}
                       aria-hidden="true"
                     />
