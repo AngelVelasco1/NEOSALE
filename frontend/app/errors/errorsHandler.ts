@@ -1,4 +1,3 @@
-import { RiErrorWarningFill } from "react-icons/ri";
 import { toast } from "sonner";
 
 export interface ApiError {

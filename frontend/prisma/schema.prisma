@@ -1,47 +1,41 @@
 generator client {
   provider      = "prisma-client-js"
-      binaryTargets = ["native", "windows"] 
+  binaryTargets = ["native", "windows"] 
 
 }
-
 datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
 }
-
-/// output   = "../generated/prisma"
 model addresses {
   id         Int      @id @default(autoincrement())
   address    String   @db.VarChar(255)
   country    String   @db.VarChar(255)
   city       String   @db.VarChar(255)
   department String   @db.VarChar(255)
-  userid     Int
-  createdat  DateTime @default(now()) @db.Timestamp(6)
-  users      User     @relation(fields: [userid], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  user_id    Int
+  created_at DateTime @default(now()) @db.Timestamp(6)
+  users      User     @relation(fields: [user_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
 }
-
 model brands {
-  id       Int        @id
-  name     String     @db.VarChar(255)
-  active   Boolean    @default(true)
-  imageurl String?    @db.VarChar(255)
-  products products[]
+  id        Int        @id
+  name      String     @db.VarChar(255)
+  active    Boolean    @default(true)
+  image_url String?    @db.VarChar(255)
+  products  products[]
 }
-
 model cart {
-  id           Int          @id @default(autoincrement())
-  userid       Int?
-  sessiontoken String?      @db.Uuid
-  totalprice   Int
-  createdat    DateTime     @default(now()) @db.Timestamp(6)
-  expiresat    DateTime?    @db.Timestamp(6)
-  users        User?        @relation(fields: [userid], references: [id], onDelete: NoAction, onUpdate: NoAction)
-  cart_items   cart_items[]
+  id            Int          @id @default(autoincrement())
+  user_id       Int?
+  session_token String?      @db.Uuid
+  total_price   Int
+  created_at    DateTime     @default(now()) @db.Timestamp(6)
+  expires_at    DateTime?    @db.Timestamp(6)
+  users         User?        @relation(fields: [user_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  cart_items    cart_items[]
 
-  @@index([userid], map: "idx_cart_userid")
+  @@index([user_id], map: "idx_cart_user_id")
 }
-
 model cart_items {
   id        Int      @id @default(autoincrement())
   cartid    Int
@@ -52,93 +46,85 @@ model cart_items {
   cart      cart     @relation(fields: [cartid], references: [id], onDelete: NoAction, onUpdate: NoAction)
   products  products @relation(fields: [productid], references: [id], onDelete: NoAction, onUpdate: NoAction)
 }
-
 model categories {
   id                   Int                    @id @default(autoincrement())
   name                 String                 @db.VarChar(255)
-  idsubcategory        Int
+  id_subcategory       Int
   active               Boolean                @default(true)
-  subcategory          subcategory            @relation(fields: [idsubcategory], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  subcategory          subcategory            @relation(fields: [id_subcategory], references: [id], onDelete: NoAction, onUpdate: NoAction)
   category_subcategory category_subcategory[]
   products             products[]
 }
-
 model category_subcategory {
-  categoryid    Int
-  subcategoryid Int
-  active        Boolean     @default(true)
-  categories    categories  @relation(fields: [categoryid], references: [id], onDelete: NoAction, onUpdate: NoAction)
-  subcategories subcategory @relation(fields: [subcategoryid], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  category_id    Int
+  subcategory_id Int
+  active         Boolean     @default(true)
+  categories     categories  @relation(fields: [category_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  subcategories  subcategory @relation(fields: [subcategory_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
 
-  @@id([categoryid, subcategoryid])
+  @@id([category_id, subcategory_id])
 }
-
 model coupons {
-  id        Int      @id @default(autoincrement())
-  code      String   @db.VarChar(255)
-  discount  Decimal  @db.Decimal(8, 2)
-  active    Boolean  @default(true)
-  createdat DateTime @default(now()) @db.Timestamp(6)
-  expiresat DateTime @db.Timestamp(6)
-  orders    orders[]
+  id         Int      @id @default(autoincrement())
+  code       String   @db.VarChar(255)
+  discount   Decimal  @db.Decimal(8, 2)
+  active     Boolean  @default(true)
+  created_at DateTime @default(now()) @db.Timestamp(6)
+  expires_at DateTime @db.Timestamp(6)
+  orders     orders[]
 }
-
 model images {
-  id        Int      @id @default(autoincrement())
-  imageurl  String   @db.VarChar(255)
-  colorcode String   @db.VarChar(7)
-  color     String   @db.VarChar(255)
-  productid Int
-  products  products @relation(fields: [productid], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  id         Int      @id @default(autoincrement())
+  image_url  String   @db.VarChar(255)
+  color_code String   @db.VarChar(7)
+  color      String   @db.VarChar(255)
+  product_id Int
+  products   products @relation(fields: [product_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
 
-  @@index([productid], map: "idx_images_productid")
+  @@index([product_id], map: "idx_images_product_id")
 }
-
 model order_items {
-  id        Int       @id @default(autoincrement())
-  price     Int
-  quantity  Int
-  subtotal  Int?
-  productid Int
-  orderid   Int
-  createdat DateTime  @default(now()) @db.Timestamp(6)
-  updatedat DateTime? @db.Timestamp(6)
-  orders    orders    @relation(fields: [orderid], references: [id], onDelete: NoAction, onUpdate: NoAction)
-  products  products  @relation(fields: [productid], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  id         Int       @id @default(autoincrement())
+  price      Int
+  quantity   Int
+  subtotal   Int?
+  product_id Int
+  order_id   Int
+  created_at DateTime  @default(now()) @db.Timestamp(6)
+  updated_at DateTime? @db.Timestamp(6)
+  orders     orders    @relation(fields: [order_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  products   products  @relation(fields: [product_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
 }
-
 model order_logs {
-  id             Int                @id @default(autoincrement())
-  previousstatus orders_status_enum
-  newstatus      orders_status_enum
-  note           String?            @db.VarChar(255)
-  ipaddress      String             @db.VarChar(45)
-  orderid        Int
-  updatedat      DateTime?          @db.Timestamp(6)
-  updatedby      Int
-  orders         orders             @relation(fields: [orderid], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  id              Int                @id @default(autoincrement())
+  previous_status orders_status_enum
+  new_status      orders_status_enum
+  note            String?            @db.VarChar(255)
+  ip_address      String             @db.VarChar(45)
+  order_id        Int
+  updated_at      DateTime?          @db.Timestamp(6)
+  updated_by      Int
+  orders          orders             @relation(fields: [order_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
 }
-
 model orders {
-  id            Int                       @id @default(autoincrement())
-  status        orders_status_enum
-  total         Int
-  paymentmethod orders_paymentmethod_enum
-  paymentstatus Boolean
-  transactionid String                    @db.VarChar(255)
-  userid        Int
-  couponid      Int?
-  createdat     DateTime                  @default(now()) @db.Timestamp(6)
-  updatedat     DateTime?                 @db.Timestamp(6)
-  updatedby     Int
-  order_items   order_items[]
-  order_logs    order_logs[]
-  coupons       coupons?                  @relation(fields: [couponid], references: [id], onDelete: NoAction, onUpdate: NoAction)
-  users         User                      @relation(fields: [userid], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  id             Int                       @id @default(autoincrement())
+  status         orders_status_enum
+  total          Int
+  payment_method orders_paymentmethod_enum
+  payment_status Boolean
+  transaction_id String                    @db.VarChar(255)
+  user_id        Int
+  coupon_id      Int?
+  created_at     DateTime                  @default(now()) @db.Timestamp(6)
+  updated_at     DateTime?                 @db.Timestamp(6)
+  updated_by     Int
+  order_items    order_items[]
+  order_logs     order_logs[]
+  coupons        coupons?                  @relation(fields: [coupon_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  users          User                      @relation(fields: [user_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
 
-  @@index([userid], map: "idx_orders_userid")
+  @@index([user_id], map: "idx_orders_user_id")
 }
-
 model products {
   id          Int           @id @default(autoincrement())
   name        String        @db.VarChar(255)
@@ -147,25 +133,24 @@ model products {
   stock       Int
   weight      Decimal       @db.Decimal(8, 2)
   sizes       String        @db.VarChar(255)
-  isactive    Boolean
-  categoryid  Int
-  brandid     Int
+  is_active   Boolean
+  category_id Int
+  brand_id    Int
   active      Boolean       @default(true)
-  createdat   DateTime      @default(now()) @db.Timestamp(6)
-  createdby   Int
-  updatedat   DateTime?     @db.Timestamp(6)
-  updatedby   Int
+  created_at  DateTime      @default(now()) @db.Timestamp(6)
+  created_by  Int
+  updated_at  DateTime?     @db.Timestamp(6)
+  updated_by  Int
   cart_items  cart_items[]
   images      images[]
   order_items order_items[]
-  brands      brands        @relation(fields: [brandid], references: [id], onDelete: NoAction, onUpdate: NoAction)
-  categories  categories    @relation(fields: [categoryid], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  brands      brands        @relation(fields: [brand_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  categories  categories    @relation(fields: [category_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
   reviews     reviews[]
 
-  @@index([brandid], map: "idx_products_brandid")
-  @@index([categoryid], map: "idx_products_categoryid")
+  @@index([brand_id], map: "idx_products_brand_id")
+  @@index([category_id], map: "idx_products_category_id")
 }
-
 model reviews {
   id        Int      @id @default(autoincrement())
   rating    Int
@@ -178,28 +163,26 @@ model reviews {
 
   @@index([productid], map: "idx_reviews_productid")
 }
-
 model User {
   id             Int         @id @default(autoincrement())
   name           String      @db.VarChar(255)
   email          String      @unique @db.VarChar(255)
-  emailVerified  DateTime?   @db.Timestamp(6)
+  email_verified  DateTime?   @db.Timestamp(6)
   image          String?     @db.VarChar(255)
   password       String?     @db.VarChar(255)
-  phonenumber    String?     @unique @db.VarChar(255)
+  phone_number   String?     @unique @db.VarChar(255)
   identification String?     @unique @db.VarChar(255)
   role           roles_enum  @default(user)
   active         Boolean     @default(true)
-  createdAt      DateTime    @default(now()) @db.Timestamp(6)
+  created_at     DateTime    @default(now()) @db.Timestamp(6)
   accounts       Account[]
   addresses      addresses[]
   cart           cart[]
   orders         orders[]
   reviews        reviews[]
+
   @@index([email], map: "idx_users_email")
 }
-
-
 model Account {
   id                String   @id @default(cuid())
   type              String   @db.VarChar(255)
@@ -220,7 +203,6 @@ model Account {
   @@unique([provider, providerAccountId])
   @@map("account")
 }
-
 model VerificationToken {
   identifier String
   token      String   @unique
@@ -229,7 +211,6 @@ model VerificationToken {
   @@id([identifier, token])
   @@map("verificationtoken")
 }
-
 model subcategory {
   id                   Int                    @id @default(autoincrement())
   name                 String                 @db.VarChar(255)

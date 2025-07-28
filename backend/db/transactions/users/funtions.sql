@@ -1,9 +1,9 @@
-CREATE OR REPLACE PROCEDURE sp_createUser(
+CREATE OR REPLACE PROCEDURE sp_create_user(
     p_name TEXT,
     p_email TEXT,
-    p_emailverified TIMESTAMP,
+    p_email_verified TIMESTAMP,
     p_password TEXT,
-    p_phonenumber TEXT,
+    p_phone_number TEXT,
     p_identification TEXT,
     p_role TEXT DEFAULT 'user'
 )
@@ -14,7 +14,7 @@ BEGIN
         RAISE EXCEPTION 'Email ya registrado' USING ERRCODE = 'unique_violation';
     END IF;
 
-    IF EXISTS (SELECT 1 FROM "User" WHERE phonenumber = p_phonenumber) THEN
+    IF EXISTS (SELECT 1 FROM "User" WHERE phone_number = p_phone_number) THEN
         RAISE EXCEPTION 'Numero de telefono ya registrado' USING ERRCODE = 'unique_violation';
     END IF;
 
@@ -22,14 +22,13 @@ BEGIN
         RAISE EXCEPTION 'Numero de identificacion ya registrado' USING ERRCODE = 'unique_violation';
     END IF;
 
-
-    INSERT INTO "User" (name, email, "emailVerified", password, phonenumber, identification, role) 
+    INSERT INTO "User" (name, email, email_verified, password, phone_number, identification, role) 
     VALUES (
         p_name, 
         p_email, 
-        p_emailVerified, 
+        p_email_verified, 
         p_password, 
-        p_phonenumber, 
+        p_phone_number, 
         p_identification, 
         p_role::roles_enum 
     );
@@ -45,35 +44,35 @@ BEGIN
 END;
 $$;
 
-CREATE OR REPLACE PROCEDURE sp_deleteUser(p_id users.id%TYPE)
+CREATE OR REPLACE PROCEDURE sp_delete_user(p_id INT)
 LANGUAGE plpgsql
 AS $$
 BEGIN
     IF NOT EXISTS (SELECT 1 FROM "User" WHERE id = p_id) THEN 
-        RAISE EXCEPTION 'Usuario no encontrado' USING ERRCODE = 'no_data_found'
+        RAISE EXCEPTION 'Usuario no encontrado' USING ERRCODE = 'no_data_found';
     END IF;
 
     DELETE FROM "User" WHERE id = p_id;
     EXCEPTION   
         WHEN unique_violation THEN
-            RAISE EXCEPTION 'Violación de unicidad al actualizar usuario: %', SQLERRM;
+            RAISE EXCEPTION 'Violación de unicidad al eliminar usuario: %', SQLERRM;
         WHEN not_null_violation THEN
-            RAISE EXCEPTION 'Campo obligatorio faltante al actualizar usuario: %', SQLERRM;
+            RAISE EXCEPTION 'Campo obligatorio faltante al eliminar usuario: %', SQLERRM;
         WHEN invalid_text_representation THEN
-            RAISE EXCEPTION 'Formato de texto inválido al actualizar usuario: %', SQLERRM;
+            RAISE EXCEPTION 'Formato de texto inválido al eliminar usuario: %', SQLERRM;
         WHEN no_data_found THEN
-            RAISE EXCEPTION 'No se puede actualizar: usuario no encontrado';
+            RAISE EXCEPTION 'No se puede eliminar: usuario no encontrado';
         WHEN OTHERS THEN
             RAISE EXCEPTION 'Error al eliminar usuario en SP: %', SQLERRM;
 END;
 $$;
 
-CREATE OR REPLACE PROCEDURE sp_updateUser(
+CREATE OR REPLACE PROCEDURE sp_update_user(
     p_id INT,
     p_name TEXT,
     p_email TEXT,
-    p_emailverified TIMESTAMP,
-    p_phonenumber TEXT,
+    p_email_verified TIMESTAMP,
+    p_phone_number TEXT,
     p_identification TEXT
 )
 LANGUAGE plpgsql
@@ -87,7 +86,7 @@ BEGIN
         RAISE EXCEPTION 'Email ya registrado' USING ERRCODE = 'unique_violation';
     END IF;
     
-    IF p_phonenumber IS NOT NULL AND EXISTS (SELECT 1 FROM "User" WHERE phonenumber = p_phonenumber AND id != p_id) THEN
+    IF p_phone_number IS NOT NULL AND EXISTS (SELECT 1 FROM "User" WHERE phone_number = p_phone_number AND id != p_id) THEN
         RAISE EXCEPTION 'Numero de telefono ya registrado' USING ERRCODE = 'unique_violation';
     END IF;
 
@@ -95,37 +94,37 @@ BEGIN
         RAISE EXCEPTION 'Numero de identificacion ya registrado' USING ERRCODE = 'unique_violation';
     END IF;
 
-    UPDATE "User"  SET 
+    UPDATE "User" SET 
         name = COALESCE(p_name, name),
         email = COALESCE(p_email, email),
-        "emailVerified" = COALESCE(p_emailverified, "emailVerified"),
-        phonenumber = COALESCE(p_phonenumber, phonenumber),
+        email_verified = COALESCE(p_email_verified, email_verified),
+        phone_number = COALESCE(p_phone_number, phone_number),
         identification = COALESCE(p_identification, identification)
     WHERE id = p_id;
 
     EXCEPTION
         WHEN not_null_violation THEN
-            RAISE EXCEPTION 'Campo obligatorio faltante al actualizar contraseña: %', SQLERRM;
+            RAISE EXCEPTION 'Campo obligatorio faltante al actualizar usuario: %', SQLERRM;
         WHEN no_data_found THEN
-            RAISE EXCEPTION 'No se puede actualizar contraseña: usuario no encontrado';
+            RAISE EXCEPTION 'No se puede actualizar: usuario no encontrado';
         WHEN OTHERS THEN
             RAISE EXCEPTION 'Error al actualizar usuario en SP: %', SQLERRM;
 END;
 $$;
 
-CREATE OR REPLACE PROCEDURE sp_updatePassword(p_id INT, p_newPassword TEXT) 
+CREATE OR REPLACE PROCEDURE sp_update_password(p_id INT, p_new_password TEXT) 
 LANGUAGE plpgsql
 AS $$
 BEGIN
-    IF NOT EXISTS (SELECT 1 FROM users WHERE id = p_id) THEN
+    IF NOT EXISTS (SELECT 1 FROM "User" WHERE id = p_id) THEN
         RAISE EXCEPTION 'Usuario no encontrado' USING ERRCODE = 'no_data_found';
     END IF;
 
-    IF p_newPassword IS NULL OR trim(p_newPassword) = '' THEN
+    IF p_new_password IS NULL OR trim(p_new_password) = '' THEN
         RAISE EXCEPTION 'La nueva contraseña es obligatoria' USING ERRCODE = 'not_null_violation';
     END IF;
 
-    UPDATE users SET password = p_newPassword WHERE id = p_id;
+    UPDATE "User" SET password = p_new_password WHERE id = p_id;
     EXCEPTION
         WHEN not_null_violation THEN
             RAISE EXCEPTION 'Campo obligatorio faltante al actualizar contraseña: %', SQLERRM;

@@ -1,8 +1,8 @@
-CREATE OR REPLACE PROCEDURE sp_createReview (
+CREATE OR REPLACE PROCEDURE sp_create_review (
     p_rating INT, 
     p_comment TEXT, 
-    p_userId INT, 
-    p_productId INT
+    p_user_id INT, 
+    p_product_id INT
 )
 LANGUAGE plpgsql
 AS $$
@@ -10,11 +10,11 @@ BEGIN
     IF p_rating IS NULL THEN
         RAISE EXCEPTION 'La calificación es obligatoria' USING ERRCODE = 'not_null_violation';
     END IF;
-    IF p_userId IS NULL OR p_productId IS NULL THEN
+    IF p_user_id IS NULL OR p_product_id IS NULL THEN
         RAISE EXCEPTION 'El usuario y el producto son obligatorios' USING ERRCODE = 'not_null_violation';
     END IF;
-    INSERT INTO reviews(rating, comment, userId, productId) 
-    VALUES (p_rating, p_comment, p_userId, p_productId);
+    INSERT INTO reviews(rating, comment, user_id, product_id) 
+    VALUES (p_rating, p_comment, p_user_id, p_product_id);
 EXCEPTION
     WHEN foreign_key_violation THEN
         RAISE EXCEPTION 'Usuario o producto no existe';
@@ -25,12 +25,12 @@ EXCEPTION
 END;
 $$;
 
-CREATE OR REPLACE PROCEDURE sp_updateReview (
+CREATE OR REPLACE PROCEDURE sp_update_review (
     p_id INT,
     p_rating INT, 
     p_comment TEXT, 
-    p_userId INT, 
-    p_productId INT
+    p_user_id INT, 
+    p_product_id INT
 )
 LANGUAGE plpgsql
 AS $$
@@ -39,7 +39,7 @@ BEGIN
         RAISE EXCEPTION 'Review no encontrada' USING ERRCODE = 'no_data_found';
     END IF;
     UPDATE reviews 
-    SET rating = p_rating, comment = p_comment, userId = p_userId, productId = p_productId 
+    SET rating = p_rating, comment = p_comment, user_id = p_user_id, product_id = p_product_id 
     WHERE id = p_id;
 EXCEPTION
     WHEN foreign_key_violation THEN
@@ -53,7 +53,7 @@ EXCEPTION
 END;
 $$;
 
-CREATE OR REPLACE PROCEDURE sp_deleteReview (p_id INT)
+CREATE OR REPLACE PROCEDURE sp_delete_review (p_id INT)
 LANGUAGE plpgsql
 AS $$
 BEGIN

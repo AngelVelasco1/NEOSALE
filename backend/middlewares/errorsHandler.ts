@@ -2,8 +2,6 @@ import { Request, Response } from "express";
 import { Prisma } from "@prisma/client";
 import { AppError } from "../errors/errorsClass";
 
-
-
 interface ValidationError extends Error {
   name: "ValidationError";
   details?: unknown[];
@@ -62,31 +60,33 @@ export const errorsHandler = (
   req: Request,
   res: Response,
 ): void => {
-  console.error(` Error capturado en middleware:`, {
+  console.error(`Error capturado en middleware:`, {
     name: error.name,
     message: error.message,
     code: "code" in error ? error.code : "N/A",
-    stack: error.stack?.split("\n")[0], // Solo primera línea del stack
+    stack: error.stack?.split("\n")[0], 
     isPrismaError: error instanceof Prisma.PrismaClientKnownRequestError,
     url: req.url,
-    method: req.method,
+    method: req.method, 
     timestamp: new Date().toISOString(),
   });
 
   // Errores de Prisma
   if (isPrismaKnownError(error)) {
-    console.log(`📝Prisma error - Code: ${error.code}`, error.meta);
+    console.log(`Prisma error - Code: ${error.code}`, error.meta);
 
     if (error.code === "P2001" || error.code === "P2010") {
       const target = error.meta?.target as string[] | undefined;
       const fieldName = target?.[0] || "campo";
 
       const friendlyName =
-        fieldName.includes("email")
+          fieldName.includes("email")
           ? "email"
           : fieldName.includes("phone")
           ? "teléfono"
-          : fieldName;
+          : fieldName.includes("identification")
+          ? "Identificacion"
+          : "campo"
 
       res.status(409).json({
         success: false,
@@ -162,7 +162,7 @@ export const errorsHandler = (
     return;
   }
 
-  // ✅ Errores de autorización
+  //  Errores de autorización
   if (
     error.name === "UnauthorizedError" ||
     error.name === "JsonWebTokenError"

@@ -1,4 +1,4 @@
-CREATE OR REPLACE PROCEDURE createSubcategory(p_name VARCHAR)
+CREATE OR REPLACE PROCEDURE create_subcategory(p_name VARCHAR)
 LANGUAGE plpgsql
 AS $$
 BEGIN
@@ -16,7 +16,7 @@ EXCEPTION
 END;
 $$;
 
-CREATE OR REPLACE PROCEDURE updateSubcategory(p_id INT, p_name VARCHAR)
+CREATE OR REPLACE PROCEDURE update_subcategory(p_id INT, p_name VARCHAR)
 LANGUAGE plpgsql
 AS $$
 BEGIN
@@ -40,7 +40,7 @@ EXCEPTION
 END;
 $$;
 
-CREATE OR REPLACE PROCEDURE deleteSubcategory(p_id INT)
+CREATE OR REPLACE PROCEDURE delete_subcategory(p_id INT)
 LANGUAGE plpgsql
 AS $$
 BEGIN
