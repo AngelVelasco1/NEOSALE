@@ -1,5 +1,4 @@
 "use client"
-
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { Separator } from "@/components/ui/separator"
@@ -11,6 +10,7 @@ import { CategoryFilter } from "./filters/CategoryFilter"
 import { SortFilter } from "./filters/SortFilter"
 import { ActiveFilters } from "./filters/ActiveFilters"
 import type { FilterState } from "../types"
+import React from "react"
 
 interface Color {
   code: string
@@ -27,7 +27,7 @@ interface DesktopFilterProps {
   filters: FilterState
   uniqueData: UniqueData
   activeFiltersCount: number
-  products: any[]
+  products: unknown[]
   updateFilter: (key: keyof FilterState, value: unknown) => void
   handleColorToggle: (colorCode: string) => void
   handleCategoryToggle: (category: string) => void

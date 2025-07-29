@@ -15,7 +15,7 @@ export const useProductFilters = (products: IProduct[], setFilteredProducts: (pr
 
   const uniqueData = useMemo(() => {
      const colors = Array.from(
-      new Map(products.flatMap((product) => product.images).map((image) => [image?.colorcode, {code: image?.colorcode, name: image?.color}])).values(),
+      new Map(products.flatMap((product) => product.images).map((image) => [image?.color_code, {code: image?.color_code, name: image?.color}])).values(),
     )
     const categories = Array.from(new Set(products.map((product) => product.category).filter(Boolean)))
     const priceRange = products.reduce(
@@ -39,7 +39,7 @@ export const useProductFilters = (products: IProduct[], setFilteredProducts: (pr
 
     // Color filter
     if (filters.selectedColors.length > 0) {
-      filtered = filtered.filter((product) => product.images?.some(image => filters.selectedColors.includes(image.colorcode)))
+      filtered = filtered.filter((product) => product.images?.some(image => filters.selectedColors.includes(image.color_code)))
     }
 
     // Category filter
@@ -132,7 +132,7 @@ export const useProductFilters = (products: IProduct[], setFilteredProducts: (pr
    const getColorCount = useCallback(
     (colorCode: string) => {
       return products.filter((product) => 
-        product.images?.some(image => image.colorcode === colorCode)
+        product.images?.some(image => image.color_code === colorCode)
       ).length
     },
     [products],

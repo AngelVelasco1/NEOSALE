@@ -1,6 +1,6 @@
 -- Habilitar extensión para hash de contraseñas para admins
 CREATE EXTENSION IF NOT EXISTS pgcrypto;
-
+select * from "User";
 -- 1. SUBCATEGORÍAS
 INSERT INTO subcategories (name) VALUES 
 ('Camisas deportivas'),
@@ -130,26 +130,26 @@ INSERT INTO images (image_url, color_code, color, product_id) VALUES
 ('https://via.placeholder.com/500x500/CD853F/FFFFFF?text=Producto+15', '#CD853F', 'Café', 15);
 
 -- 8. DIRECCIONES DE USUARIOS
-INSERT INTO addresses (address, country, city, department, user_id) VALUES 
+INSERT INTO addresses (address, country, city, department, is_default, user_id) VALUES 
 -- Direcciones para Angel García (admin)
-('Carrera 27 #34-56, Cabecera', 'Colombia', 'Bucaramanga', 'Santander', 1),
-('Calle 48 #29-45, Provenza', 'Colombia', 'Bucaramanga', 'Santander', 1),
+('Carrera 27 #34-56, Cabecera', 'Colombia', 'Bucaramanga', 'Santander', TRUE, 1),
+('Calle 48 #29-45, Provenza', 'Colombia', 'Bucaramanga', 'Santander', FALSE, 1),
 
 -- Direcciones para María López (admin)
-('Avenida El Poblado #12-34', 'Colombia', 'Medellín', 'Antioquia', 8),
+('Avenida El Poblado #12-34', 'Colombia', 'Medellín', 'Antioquia', TRUE, 8),
 
 -- Direcciones para usuarios regulares
-('Calle 26 #47-89, Zona Rosa', 'Colombia', 'Bogotá', 'Cundinamarca', 9),
-('Carrera 15 #45-67, Centro', 'Colombia', 'Bogotá', 'Cundinamarca', 9),
-('Avenida 6 #23-45, San Fernando', 'Colombia', 'Cali', 'Valle del Cauca', 4),
-('Calle 70 #11-89, Zona Norte', 'Colombia', 'Barranquilla', 'Atlántico', 7),
-('Carrera 50 #76-12, Laureles', 'Colombia', 'Medellín', 'Antioquia', 7),
-('Calle 85 #15-34, Chapinero', 'Colombia', 'Bogotá', 'Cundinamarca', 8),
-('Avenida Las Palmas #45-67', 'Colombia', 'Medellín', 'Antioquia', 8),
-('Carrera 7 #123-45, Zona T', 'Colombia', 'Bogotá', 'Cundinamarca', 9),
-('Calle 100 #89-12, Santa Bárbara', 'Colombia', 'Bogotá', 'Cundinamarca', 10),
-('Avenida Santander #67-89', 'Colombia', 'Bucaramanga', 'Santander', 11),
-('Carrera 43A #34-56, El Poblado', 'Colombia', 'Medellín', 'Antioquia', 12);
+('Calle 26 #47-89, Zona Rosa', 'Colombia', 'Bogotá', 'Cundinamarca', TRUE, 9),
+('Carrera 15 #45-67, Centro', 'Colombia', 'Bogotá', 'Cundinamarca', FALSE, 9),
+('Avenida 6 #23-45, San Fernando', 'Colombia', 'Cali', 'Valle del Cauca', TRUE, 4),
+('Calle 70 #11-89, Zona Norte', 'Colombia', 'Barranquilla', 'Atlántico', TRUE, 7),
+('Carrera 50 #76-12, Laureles', 'Colombia', 'Medellín', 'Antioquia', FALSE, 7),
+('Calle 85 #15-34, Chapinero', 'Colombia', 'Bogotá', 'Cundinamarca', TRUE, 8),
+('Avenida Las Palmas #45-67', 'Colombia', 'Medellín', 'Antioquia', FALSE, 8),
+('Carrera 7 #123-45, Zona T', 'Colombia', 'Bogotá', 'Cundinamarca', TRUE, 9),
+('Calle 100 #89-12, Santa Bárbara', 'Colombia', 'Bogotá', 'Cundinamarca', TRUE, 10),
+('Avenida Santander #67-89', 'Colombia', 'Bucaramanga', 'Santander', TRUE, 11),
+('Carrera 43A #34-56, El Poblado', 'Colombia', 'Medellín', 'Antioquia', TRUE, 11);
 
 
 -- Verificar usuarios creados

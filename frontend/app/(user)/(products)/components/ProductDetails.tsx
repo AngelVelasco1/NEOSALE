@@ -27,9 +27,9 @@ export const ProductDetails = ({ data }: ProductDetailsProps) => {
     const product = {
       id: data.id,
       color: selectedColor,
-      colorCode: data.images[selectedImage].colorcode,
+      colorCode: data.images[selectedImage].color_code,
       colorName: data.images[selectedImage].color,
-      imageUrl: data.images[selectedImage].imageurl,
+      imageUrl: data.images[selectedImage].image_url,
       name: data.name,
       price: data.price,
       quantity: quantity,
@@ -45,7 +45,7 @@ export const ProductDetails = ({ data }: ProductDetailsProps) => {
     } else {
       setSelectedColor(color);
       const firstImageIndex = data.images.findIndex(
-        (img) => img.colorcode === color
+        (img) => img.color_code === color
       );
       setSelectedImage(firstImageIndex !== -1 ? firstImageIndex : 0);
     }
@@ -53,7 +53,7 @@ export const ProductDetails = ({ data }: ProductDetailsProps) => {
 
   useEffect(() => {
   if (images.length > 0) {
-    setSelectedColor(images[0].colorcode || "");
+    setSelectedColor(images[0].color_code || "");
   }
 }, [images]);
 
@@ -62,9 +62,9 @@ export const ProductDetails = ({ data }: ProductDetailsProps) => {
       <div className="flex flex-row-reverse">
         <div className="flex-1 relative aspect-square  rounded-lg bg-gray-100">
           {
-          images.length > 0 && images[selectedImage]?.imageurl ? (  
+          images.length > 0 && images[selectedImage]?.image_url ? (  
             <Image
-              src={images[selectedImage].imageurl}
+              src={images[selectedImage].image_url}
               alt={images[selectedImage].color}
               width={460}
               height={460}
@@ -83,7 +83,7 @@ export const ProductDetails = ({ data }: ProductDetailsProps) => {
             images.map((image, index: number) => (
               <button
                 key={index}
-                onClick={() => handleImageChange(index, image.colorcode)}
+                onClick={() => handleImageChange(index, image.color_code)}
                 className={`relative aspect-square overflow-hidden rounded-lg bg-gray-100 ${
                   selectedImage === index
                     ? "ring-2 ring-primary ring-offset-2"
@@ -91,7 +91,7 @@ export const ProductDetails = ({ data }: ProductDetailsProps) => {
                 }`}
               >
                 <Image
-                  src={image.imageurl}
+                  src={image.image_url}
                   alt={`${data.name} thumbnail ${index + 1}`}
                   fill
                   className="object-contain"
@@ -174,7 +174,7 @@ export const ProductDetails = ({ data }: ProductDetailsProps) => {
             className="flex gap-3"
           >
             {images
-              .map((img) => img.colorcode)
+              .map((img) => img.color_code)
               .filter(
                 (value: string, index: number, self: Array<string>) =>
                   value && self.indexOf(value) === index

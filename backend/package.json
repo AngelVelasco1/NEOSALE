@@ -14,7 +14,7 @@
     "prisma:migrate": "prisma migrate dev --schema=../prisma/schema.prisma --env-file=./.env"
   },
   "dependencies": {
-    "@prisma/client": "^6.12.0",
+    "@prisma/client": "^6.13.0",
     "@prisma/extension-accelerate": "^2.0.1",
     "bcryptjs": "^3.0.2",
     "cors": "^2.8.5",

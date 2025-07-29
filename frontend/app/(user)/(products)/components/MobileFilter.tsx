@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import React, { useState } from "react"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { Separator } from "@/components/ui/separator"
@@ -28,7 +28,7 @@ interface MobileFilterProps {
   filters: FilterState
   uniqueData: UniqueData
   activeFiltersCount: number
-  products: any[]
+  products: unknown[]
   updateFilter: (key: keyof FilterState, value: unknown) => void
   handleColorToggle: (colorCode: string) => void
   handleCategoryToggle: (category: string) => void
@@ -165,7 +165,6 @@ export const MobileFilter = ({
                 )}
               </div>
 
-              {/* Footer Actions */}
               <div className="mt-6 pt-6 border-t border-blue-200 space-y-3">
                 {activeFiltersCount > 0 && (
                   <Button

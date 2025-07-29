@@ -1,7 +1,7 @@
 export interface IProductImage {
   color: string;
-  colorcode: string;
-  imageurl: string;
+  color_code: string;
+  image_url: string;
 }
 
 export interface IProduct {
@@ -10,23 +10,22 @@ export interface IProduct {
   price: number;
   stock: number;
   category: string;
-  imageUrl: string;
+  image_url: string;
   color: string;
-  colorCode: string;
-  images: IProductImage[]
+  color_code: string;
+  images: IProductImage[];
 }
 
 export interface IProductDetails {
-    id: number;
-    images: IProductImage[];
-    name: string;
-    description: string;
-    price: number;
-    quantity: number;
-    sizes: string;
-    stock: number;
-    category: string;
-
+  id: number;
+  images: IProductImage[];
+  name: string;
+  description: string;
+  price: number;
+  quantity: number;
+  sizes: string;
+  stock: number;
+  category: string;
 }
 
 

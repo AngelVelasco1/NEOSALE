@@ -18,9 +18,9 @@ export const ProductCard = ({ data }: ProductCardProps) => {
         <div className="relative p-4 space-y-4">
           {/* Image container */}
           <div className="relative aspect-square overflow-hidden rounded-xl bg-gradient-to-br from-white to-blue-50/50 shadow-inner">
-            {data.imageUrl ? (
+            {data.image_url ? (
               <Image
-                src={data.imageUrl || "/placeholder.svg"}
+                src={data.image_url || "/placeholder.svg"}
                 alt="product"
                 fill
                 sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
@@ -45,14 +45,12 @@ export const ProductCard = ({ data }: ProductCardProps) => {
             </div>
           </div>
 
-          {/* Product info */}
           <div className="space-y-3">
             {/* Product name */}
             <h3 className="text-sm font-semibold text-gray-800 group-hover:text-transparent group-hover:bg-gradient-to-r group-hover:from-blue-600 group-hover:via-purple-600 group-hover:to-fuchsia-600 group-hover:bg-clip-text transition-all duration-300 line-clamp-2 leading-relaxed">
               {data.name}
             </h3>
 
-            {/* Price and stock info */}
             <div className="flex justify-between items-center">
               <div className="space-y-1">
                 <p className="text-xl font-bold bg-gradient-to-r from-blue-600 via-purple-600 to-indigo-600 bg-clip-text text-transparent">
@@ -65,7 +63,7 @@ export const ProductCard = ({ data }: ProductCardProps) => {
               <div className="flex flex-col items-end space-y-1">
                 <div
                   className="w-6 h-6 rounded-full border-2 border-white shadow-lg ring-1 ring-gray-200/50"
-                  style={{ backgroundColor: data.colorCode }}
+                  style={{ backgroundColor: data.color_code }}
                   title={data.color}
                 />
                 <span className="text-xs text-gray-500 capitalize">{data.color}</span>
@@ -73,11 +71,9 @@ export const ProductCard = ({ data }: ProductCardProps) => {
             </div>
           </div>
 
-          {/* Hover effect gradient line */}
           <div className="absolute bottom-0 left-0 right-0 h-1 bg-gradient-to-r from-blue-500 via-purple-500 to-indigo-600 transform scale-x-0 group-hover:scale-x-100 transition-transform duration-500 origin-left" />
         </div>
 
-        {/* Floating action button */}
         <div className="absolute top-4 left-4 opacity-0 group-hover:opacity-100 transition-all duration-300 transform -translate-y-2 group-hover:translate-y-0">
           <div className="w-8 h-8 rounded-full bg-gradient-to-r from-blue-500 via-indigo-500 to-blue-600 flex items-center justify-center shadow-lg backdrop-blur-sm">
             <svg className="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -92,7 +88,6 @@ export const ProductCard = ({ data }: ProductCardProps) => {
           </div>
         </div>
 
-        {/* Shimmer effect */}
         <div className="absolute inset-0 -translate-x-full group-hover:translate-x-full transition-transform duration-1000 bg-gradient-to-r from-transparent via-white/20 to-transparent skew-x-12" />
       </div>
     </Link>

@@ -168,18 +168,16 @@ export const Navbar = () => {
   const handleSearchRef = () => {
     if (searchRef.current) {
       searchRef.current.focus();
-      setIsSearchFocused(true)
+      setIsSearchFocused(true);
     }
-  }
+  };
   if (!mounted) {
     return null;
   }
 
   return (
-    <div className="relative">
-      {/* Navbar con transición perfecta al Banner */}
-      <header
-        className={`w-full  py-2 bg-gradient-to-br from-gray-50 via-white to-blue-50/30 backdrop-blur-xl fixed top-0 z-50 transition-all duration-300 ${
+      <nav
+        className={`w-full py-2 bg-gradient-to-br from-gray-50 via-white to-blue-50/30 backdrop-blur-xl sticky top-0 z-50 transition-all duration-300 ${
           isScrolled
             ? "shadow-xl shadow-gray-200/50 bg-gradient-to-br from-white via-gray-50 to-blue-50"
             : ""
@@ -329,17 +327,17 @@ export const Navbar = () => {
                   </NavigationMenuContent>
                 </NavigationMenuItem>
 
-<NavigationMenuItem>
-  <NavigationMenuLink asChild className="flex flex-row">
-    <Link
-      href="/ofertas"
-      className="flex h-10 w-fit items-center justify-center rounded-lg bg-gradient-to-r from-pink-500 to-fuchsia-500 px-5 text-sm font-medium text-white transition-all duration-200 hover:from-pink-600 hover:to-fuchsia-600 hover:shadow-lg hover:shadow-pink-500/25 hover:scale-105 font-inter shadow-md"
-    >
-      <Zap className="h-4 w-4  flex-shrink-0" />
-      <span>Ofertas</span>
-    </Link>
-  </NavigationMenuLink>
-</NavigationMenuItem>
+                <NavigationMenuItem>
+                  <NavigationMenuLink asChild className="flex flex-row">
+                    <Link
+                      href="/ofertas"
+                      className="flex h-10 w-fit items-center justify-center rounded-lg bg-gradient-to-r from-pink-500 to-fuchsia-500 px-5 text-sm font-medium text-white transition-all duration-200 hover:from-pink-600 hover:to-fuchsia-600 hover:shadow-lg hover:shadow-pink-500/25 hover:scale-105 font-inter shadow-md"
+                    >
+                      <Zap className="h-4 w-4  flex-shrink-0" />
+                      <span>Ofertas</span>
+                    </Link>
+                  </NavigationMenuLink>
+                </NavigationMenuItem>
                 <NavigationMenuItem>
                   <NavigationMenuLink asChild>
                     <NavLink href="/nosotros">Nosotros</NavLink>
@@ -351,7 +349,10 @@ export const Navbar = () => {
             {/* Barra de búsqueda */}
             <div className="flex-1 max-w-lg mx-8 hidden md:block">
               <div className="relative">
-                <SearchIcon onClick={handleSearchRef} className="absolute left-5 top-1/2 transform -translate-y-1/2  h-4 w-4 text-gray-600 cursor-pointer" />
+                <SearchIcon
+                  onClick={handleSearchRef}
+                  className="absolute left-5 top-1/2 transform -translate-y-1/2  h-4 w-4 text-gray-600 cursor-pointer"
+                />
                 <Input
                   ref={searchRef}
                   type="search"
@@ -473,7 +474,6 @@ export const Navbar = () => {
             />
           </div>
         </div>
-      </header>
-    </div>
+      </nav>
   );
 };
