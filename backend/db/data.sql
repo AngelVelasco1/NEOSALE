@@ -89,6 +89,29 @@ INSERT INTO products (name, description, price, stock, weight, sizes, active, ca
 ('Sofá Modular IKEA', 'Sofá modular de 3 puestos en tela gris.', 1200000, 5, 45.0, 'Único', TRUE, 11, 9, 1, 1),
 ('Cama King Size', 'Cama matrimonial king size en madera.', 950000, 8, 60.0, 'Único', TRUE, 12, 9, 1, 1);
 
+-- Actualizar productos con descuentos
+UPDATE products SET discount = 15.0 WHERE name = 'Camiseta Dry-Fit Pro';
+UPDATE products SET discount = 0.0 WHERE name = 'Pantaloneta Running Elite';
+UPDATE products SET discount = 20.0 WHERE name = 'Camiseta Training Adidas';
+UPDATE products SET discount = 10.0 WHERE name = 'Leggings Deportivos';
+UPDATE products SET discount = 25.0 WHERE name = 'Chaqueta Deportiva Puma';
+
+-- CALZADO DEPORTIVO
+UPDATE products SET discount = 12.0 WHERE name = 'Tenis Running Nike Air';
+UPDATE products SET discount = 18.0 WHERE name = 'Tenis Training Adidas';
+
+-- ELECTRÓNICOS
+UPDATE products SET discount = 5.0 WHERE name = 'iPhone 15 Pro';
+UPDATE products SET discount = 8.0 WHERE name = 'Samsung Galaxy S24';
+UPDATE products SET discount = 0.0 WHERE name = 'MacBook Air M2';
+UPDATE products SET discount = 15.0 WHERE name = 'AirPods Pro 2';
+UPDATE products SET discount = 0.0 WHERE name = 'PlayStation 5';
+
+-- ELECTRODOMÉSTICOS Y HOGAR
+UPDATE products SET discount = 30.0 WHERE name = 'Smart TV LG 55"';
+UPDATE products SET discount = 22.0 WHERE name = 'Sofá Modular IKEA';
+UPDATE products SET discount = 35.0 WHERE name = 'Cama King Size';
+
 -- 6. IMÁGENES DE PRODUCTOS
 INSERT INTO images (image_url, color_code, color, product_id) VALUES
 -- Camiseta Dry-Fit Pro
@@ -178,3 +201,5 @@ FROM "User" u
 JOIN addresses a ON u.id = a.user_id
 ORDER BY u.id;
 
+
+SELECT * FROM products WHERE price > 1000000;
