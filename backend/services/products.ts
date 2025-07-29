@@ -16,8 +16,8 @@ export const getProductsService = async (id?: number) => {
             price: p.price,
             stock: p.stock,
             sizes: p.sizes,
-            imageUrl: p.images[0]?.imageurl,
-            colorCode: p.images[0]?.colorcode,
+            image_url: p.images[0]?.image_url,
+            color_code: p.images[0]?.color_code,
             color: p.images[0]?.color,
             category: p.categories?.name,
             images: p.images
@@ -31,7 +31,7 @@ export const getProductsService = async (id?: number) => {
             categories: true 
         }
     });
-      return product
+    return product
 };
 
 export const getLatestProductsService = async () => {
@@ -45,13 +45,13 @@ export const getLatestProductsService = async () => {
         }
     });
     return products.map(p => ({
-            id: p.id,
-            name: p.name,
-            description: p.description,
-            price: p.price,
-            stock: p.stock,
-            imageUrl: p.images[0]?.imageurl,
-            colorCode: p.images[0]?.colorcode,
-            color: p.images[0]?.color
+        id: p.id,
+        name: p.name,
+        description: p.description,
+        price: p.price,
+        stock: p.stock,
+        image_url: p.images[0]?.image_url,
+        color_code: p.images[0]?.color_code,
+        color: p.images[0]?.color
     }));
 };

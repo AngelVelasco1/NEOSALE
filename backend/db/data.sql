@@ -1,10 +1,8 @@
--- SCRIPT DE DATOS DE PRUEBA - NEOSALE
-
 -- Habilitar extensión para hash de contraseñas para admins
 CREATE EXTENSION IF NOT EXISTS pgcrypto;
 
 -- 1. SUBCATEGORÍAS
-INSERT INTO subcategory (name) VALUES 
+INSERT INTO subcategories (name) VALUES 
 ('Camisas deportivas'),
 ('Pantalones deportivos'),
 ('Calzado running'),
@@ -20,7 +18,7 @@ INSERT INTO subcategory (name) VALUES
 ('Decoración');
 
 -- 2. CATEGORÍAS
-INSERT INTO categories (name, idsubcategory) VALUES 
+INSERT INTO categories (name, id_subcategory) VALUES 
 ('Ropa Deportiva', 1),
 ('Ropa Deportiva', 2),
 ('Calzado Deportivo', 3),
@@ -36,20 +34,20 @@ INSERT INTO categories (name, idsubcategory) VALUES
 ('Decoración Hogar', 13);
 
 -- 3. MARCAS
-INSERT INTO brands (id, name, imageurl) VALUES 
-(1, 'Nike', 'https://logoeps.com/wp-content/uploads/2013/03/nike-vector-logo.png'),
-(2, 'Adidas', 'https://logoeps.com/wp-content/uploads/2012/12/adidas-vector-logo.png'),
-(3, 'Puma', 'https://logoeps.com/wp-content/uploads/2013/03/puma-vector-logo.png'),
-(4, 'Under Armour', 'https://example.com/underarmour-logo.png'),
-(5, 'Apple', 'https://logoeps.com/wp-content/uploads/2012/10/apple-vector-logo.png'),
-(6, 'Samsung', 'https://logoeps.com/wp-content/uploads/2014/09/samsung-vector-logo.png'),
-(7, 'Sony', 'https://logoeps.com/wp-content/uploads/2013/03/sony-vector-logo.png'),
-(8, 'LG', 'https://example.com/lg-logo.png'),
-(9, 'IKEA', 'https://logoeps.com/wp-content/uploads/2013/12/ikea-vector-logo.png'),
-(10, 'Zara', 'https://example.com/zara-logo.png');
+INSERT INTO brands (id, name, image_url) VALUES 
+(1, 'Nike', 'https://static.nike.com/a/images/t_PDP_1280_v1/f_auto,q_auto:eco/61734ec7-dad8-40f3-9b95-c7500939150a/dri-fit-miler-mens-running-top-M0D4QV.png'),
+(2, 'Adidas', 'https://m.media-amazon.com/images/I/61pK9bZl+GL._AC_UF1000,1000_QL80_.jpg'),
+(3, 'Puma', 'https://m.media-amazon.com/images/I/61v5ZtQ+1lL._AC_UF1000,1000_QL80_.jpg'),
+(4, 'Under Armour', 'https://m.media-amazon.com/images/I/71v6i5p9ZTL._AC_UF1000,1000_QL80_.jpg'),
+(5, 'Apple', 'https://m.media-amazon.com/images/I/71yzJoE7WlL._AC_UF1000,1000_QL80_.jpg'),
+(6, 'Samsung', 'https://m.media-amazon.com/images/I/71w8c8AywJL._AC_UF1000,1000_QL80_.jpg'),
+(7, 'Sony', 'https://m.media-amazon.com/images/I/61UxfXTUyvL._AC_UF1000,1000_QL80_.jpg'),
+(8, 'LG', 'https://www.lg.com/content/dam/channel/wcms/latin/images/tvs/55up7750psb_awm_eail_latin_01.jpg'),
+(9, 'IKEA', 'https://images.unsplash.com/photo-1519710164239-da123dc03ef4'),
+(10, 'Zara', 'https://images.unsplash.com/photo-1512436991641-6745cdb1723f');
 
 -- 4. USUARIOS
-INSERT INTO "User" (name, email, "emailVerified", password, phonenumber, identification, role) VALUES
+INSERT INTO "User" (name, email, email_verified, password, phone_number, identification, role) VALUES
 -- Administradores
 ('María López', 'maria.admin@neosale.com', '2023-10-02 10:00:00', crypt('Admin123!', gen_salt('bf', 12)), '3012345678', '1098765432', 'admin'),
 
@@ -68,31 +66,31 @@ INSERT INTO "User" (name, email, "emailVerified", password, phonenumber, identif
 -- 5. PRODUCTOS
 
 -- PRODUCTOS DEPORTIVOS
-INSERT INTO PRODUCTS (name, description, price, stock, weight, sizes, isActive, categoryId, brandId, createdBy, updatedBy) VALUES
-('Camiseta Dry-Fit Pro', 'Camiseta deportiva de alto rendimiento con tecnología de absorción de sudor. Perfecta para entrenamientos intensos.', 89000, 50, 0.25, 'XS,S,M,L,XL,XXL', TRUE, 1, 1, 1, 1),
-('Pantaloneta Running Elite', 'Pantaloneta liviana para running con bolsillos laterales y tecnología anti-roce.', 75000, 35, 0.20, 'S,M,L,XL', TRUE, 2, 1, 1, 1),
-('Camiseta Training Adidas', 'Camiseta de entrenamiento con diseño moderno y tejido transpirable.', 95000, 40, 0.30, 'S,M,L,XL,XXL', TRUE, 1, 2, 1, 1),
-('Leggings Deportivos', 'Leggings de compresión para mujer, ideales para yoga y fitness.', 120000, 25, 0.35, 'XS,S,M,L,XL', TRUE, 2, 3, 1, 1),
-('Chaqueta Deportiva Puma', 'Chaqueta resistente al viento con capucha ajustable.', 180000, 20, 0.80, 'S,M,L,XL', TRUE, 1, 3, 1, 1),
+INSERT INTO products (name, description, price, stock, weight, sizes, active, category_id, brand_id, created_by, updated_by) VALUES
+('Camiseta Dry-Fit Pro', 'Camiseta deportiva de alto rendimiento con tecnología de absorción de sudor.', 89000, 50, 0.25, 'XS,S,M,L,XL,XXL', TRUE, 1, 1, 1, 1),
+('Pantaloneta Running Elite', 'Pantaloneta liviana para running con bolsillos laterales.', 75000, 35, 0.20, 'S,M,L,XL', TRUE, 2, 1, 1, 1),
+('Camiseta Training Adidas', 'Camiseta de entrenamiento con diseño moderno.', 95000, 40, 0.30, 'S,M,L,XL,XXL', TRUE, 1, 2, 1, 1),
+('Leggings Deportivos', 'Leggings de compresión para mujer.', 120000, 25, 0.35, 'XS,S,M,L,XL', TRUE, 2, 3, 1, 1),
+('Chaqueta Deportiva Puma', 'Chaqueta resistente al viento con capucha.', 180000, 20, 0.80, 'S,M,L,XL', TRUE, 1, 3, 1, 1),
 
 -- CALZADO DEPORTIVO
-('Tenis Running Nike Air', 'Tenis de running con amortiguación avanzada y suela antideslizante.', 320000, 30, 0.90, '36,37,38,39,40,41,42,43,44', TRUE, 3, 1, 1, 1),
-('Tenis Training Adidas', 'Tenis versátiles para entrenamiento en gimnasio y actividades fitness.', 280000, 25, 0.85, '37,38,39,40,41,42,43', TRUE, 3, 2, 1, 1),
+('Tenis Running Nike Air', 'Tenis de running con amortiguación avanzada.', 320000, 30, 0.90, '36,37,38,39,40,41,42,43,44', TRUE, 3, 1, 1, 1),
+('Tenis Training Adidas', 'Tenis versátiles para entrenamiento.', 280000, 25, 0.85, '37,38,39,40,41,42,43', TRUE, 3, 2, 1, 1),
 
 -- ELECTRÓNICOS
-('iPhone 15 Pro', 'Smartphone Apple iPhone 15 Pro con chip A17 Pro y cámara de 48MP.', 4200000, 15, 0.19, 'Único', TRUE, 6, 5, 1, 1),
-('Samsung Galaxy S24', 'Smartphone Samsung con pantalla Dynamic AMOLED y cámara de 200MP.', 3800000, 20, 0.21, 'Único', TRUE, 6, 6, 1, 1),
-('MacBook Air M2', 'Laptop Apple MacBook Air con chip M2, 8GB RAM y 256GB SSD.', 5500000, 10, 1.24, 'Único', TRUE, 7, 5, 1, 1),
-('AirPods Pro 2', 'Audífonos inalámbricos Apple con cancelación activa de ruido.', 850000, 40, 0.05, 'Único', TRUE, 8, 5, 1, 1),
-('PlayStation 5', 'Consola de videojuegos Sony PlayStation 5 con control inalámbrico.', 2800000, 8, 4.5, 'Único', TRUE, 9, 7, 1, 1),
+('iPhone 15 Pro', 'Smartphone Apple iPhone 15 Pro.', 4200000, 15, 0.19, 'Único', TRUE, 6, 5, 1, 1),
+('Samsung Galaxy S24', 'Smartphone Samsung Galaxy S24.', 3800000, 20, 0.21, 'Único', TRUE, 6, 6, 1, 1),
+('MacBook Air M2', 'Laptop Apple MacBook Air M2.', 5500000, 10, 1.24, 'Único', TRUE, 7, 5, 1, 1),
+('AirPods Pro 2', 'Audífonos inalámbricos Apple.', 850000, 40, 0.05, 'Único', TRUE, 8, 5, 1, 1),
+('PlayStation 5', 'Consola de videojuegos Sony PlayStation 5.', 2800000, 8, 4.5, 'Único', TRUE, 9, 7, 1, 1),
 
 -- ELECTRODOMÉSTICOS Y HOGAR
-('Smart TV LG 55"', 'Televisor LG 55 pulgadas 4K UHD con WebOS y HDR.', 1800000, 12, 15.0, 'Único', TRUE, 8, 8, 1, 1),
-('Sofá Modular IKEA', 'Sofá modular de 3 puestos en tela gris con cojines incluidos.', 1200000, 5, 45.0, 'Único', TRUE, 11, 9, 1, 1),
-('Cama King Size', 'Cama matrimonial king size en madera con cabecero tapizado.', 950000, 8, 60.0, 'Único', TRUE, 12, 9, 1, 1);
+('Smart TV LG 55"', 'Televisor LG 55 pulgadas 4K UHD.', 1800000, 12, 15.0, 'Único', TRUE, 8, 8, 1, 1),
+('Sofá Modular IKEA', 'Sofá modular de 3 puestos en tela gris.', 1200000, 5, 45.0, 'Único', TRUE, 11, 9, 1, 1),
+('Cama King Size', 'Cama matrimonial king size en madera.', 950000, 8, 60.0, 'Único', TRUE, 12, 9, 1, 1);
 
 -- 6. IMÁGENES DE PRODUCTOS
-INSERT INTO IMAGES (imageurl, colorCode, color, productId) VALUES
+INSERT INTO images (image_url, color_code, color, product_id) VALUES
 -- Camiseta Dry-Fit Pro
 ('https://static.nike.com/a/images/t_PDP_1280_v1/f_auto,q_auto:eco/61734ec7-dad8-40f3-9b95-c7500939150a/dri-fit-miler-mens-running-top-M0D4QV.png', '#000000', 'Negro', 1),
 ('https://static.nike.com/a/images/t_PDP_1280_v1/f_auto,q_auto:eco/2a8eb628-e25b-4b1b-9b1a-7b5c3d4e5f6g/dri-fit-miler-mens-running-top-M0D4QV.png', '#FFFFFF', 'Blanco', 1),
@@ -103,20 +101,20 @@ INSERT INTO IMAGES (imageurl, colorCode, color, productId) VALUES
 ('https://static.nike.com/a/images/t_PDP_1280_v1/f_auto,q_auto:eco/shorts-example-2.png', '#0066CC', 'Azul', 2),
 
 -- iPhone 15 Pro
-('https://store.storeimages.cdn-apple.com/4982/as-images.apple.com/is/iphone-15-pro-naturalTitanium.png', '#8E8E93', 'Titanio Natural', 8),
-('https://store.storeimages.cdn-apple.com/4982/as-images.apple.com/is/iphone-15-pro-blueTitanium.png', '#5E5CE6', 'Titanio Azul', 8),
-('https://store.storeimages.cdn-apple.com/4982/as-images.apple.com/is/iphone-15-pro-whiteTitanium.png', '#F2F2F7', 'Titanio Blanco', 8),
+('https://images.unsplash.com/photo-1511707171634-5f897ff02aa9', '#8E8E93', 'Titanio Natural', 8),
+('https://images.unsplash.com/photo-1510557880182-3d4d3c1b9021', '#5E5CE6', 'Titanio Azul', 8),
+('https://images.unsplash.com/photo-1519125323398-675f0ddb6308', '#F2F2F7', 'Titanio Blanco', 8),
 
 -- Samsung Galaxy S24
-('https://images.samsung.com/is/image/samsung/p6pim/latin/2401/gallery/latin-galaxy-s24-s928-sm-s928bzkearo-thumb-539573979.png', '#000000', 'Negro', 9),
-('https://images.samsung.com/is/image/samsung/p6pim/latin/2401/gallery/latin-galaxy-s24-s928-sm-s928bvlearo-thumb-539573982.png', '#800080', 'Violeta', 9),
+('https://images.unsplash.com/photo-1517336714731-489689fd1ca8', '#000000', 'Negro', 9),
+('https://images.unsplash.com/photo-1465101046530-73398c7f28ca', '#800080', 'Violeta', 9),
 
 -- Tenis Nike
 ('https://static.nike.com/a/images/t_PDP_1280_v1/f_auto,q_auto:eco/air-max-example.png', '#000000', 'Negro', 6),
 ('https://static.nike.com/a/images/t_PDP_1280_v1/f_auto,q_auto:eco/air-max-example-white.png', '#FFFFFF', 'Blanco', 6),
 
 -- PlayStation 5
-('https://gmedia.playstation.com/is/image/SIEPDC/ps5-product-thumbnail-01-en-14sep21.png', '#FFFFFF', 'Blanco', 12),
+('https://m.media-amazon.com/images/I/61UxfXTUyvL._AC_UF1000,1000_QL80_.jpg', '#FFFFFF', 'Blanco', 12),
 
 -- Smart TV
 ('https://www.lg.com/content/dam/channel/wcms/latin/images/tvs/55up7750psb_awm_eail_latin_01.jpg', '#000000', 'Negro', 13),
@@ -132,7 +130,7 @@ INSERT INTO IMAGES (imageurl, colorCode, color, productId) VALUES
 ('https://via.placeholder.com/500x500/CD853F/FFFFFF?text=Producto+15', '#CD853F', 'Café', 15);
 
 -- 8. DIRECCIONES DE USUARIOS
-INSERT INTO Addresses (address, country, city, department, userId) VALUES 
+INSERT INTO addresses (address, country, city, department, user_id) VALUES 
 -- Direcciones para Angel García (admin)
 ('Carrera 27 #34-56, Cabecera', 'Colombia', 'Bucaramanga', 'Santander', 1),
 ('Calle 48 #29-45, Provenza', 'Colombia', 'Bucaramanga', 'Santander', 1),
@@ -144,9 +142,9 @@ INSERT INTO Addresses (address, country, city, department, userId) VALUES
 ('Calle 26 #47-89, Zona Rosa', 'Colombia', 'Bogotá', 'Cundinamarca', 9),
 ('Carrera 15 #45-67, Centro', 'Colombia', 'Bogotá', 'Cundinamarca', 9),
 ('Avenida 6 #23-45, San Fernando', 'Colombia', 'Cali', 'Valle del Cauca', 4),
-('Calle 70 #11-89, Zona Norte', 'Colombia', 'Barranquilla', 'Atlántico', 17),
-('Carrera 50 #76-12, Laureles', 'Colombia', 'Medellín', 'Antioquia', 17),
-('Calle 85 #15-34, Chapinero', 'Colombia', 'Bogotá', 'Cundinamarca', 18),
+('Calle 70 #11-89, Zona Norte', 'Colombia', 'Barranquilla', 'Atlántico', 7),
+('Carrera 50 #76-12, Laureles', 'Colombia', 'Medellín', 'Antioquia', 7),
+('Calle 85 #15-34, Chapinero', 'Colombia', 'Bogotá', 'Cundinamarca', 8),
 ('Avenida Las Palmas #45-67', 'Colombia', 'Medellín', 'Antioquia', 8),
 ('Carrera 7 #123-45, Zona T', 'Colombia', 'Bogotá', 'Cundinamarca', 9),
 ('Calle 100 #89-12, Santa Bárbara', 'Colombia', 'Bogotá', 'Cundinamarca', 10),
@@ -163,20 +161,20 @@ ORDER BY id;
 -- Verificar productos con sus categorías y marcas
 SELECT p.id, p.name as producto, p.price, p.stock, 
        c.name as categoria, b.name as marca
-FROM PRODUCTS p
-JOIN categories c ON p.categoryId = c.id
-JOIN brands b ON p.brandId = b.id
+FROM products p
+JOIN categories c ON p.category_id = c.id
+JOIN brands b ON p.brand_id = b.id
 ORDER BY p.id;
 
 -- Verificar imágenes por producto
 SELECT p.name as producto, i.color, i.imageurl
-FROM PRODUCTS p
-LEFT JOIN IMAGES i ON p.id = i.productId
+FROM products p
+LEFT JOIN images i ON p.id = i.product_id
 ORDER BY p.id, i.id;
 
 -- Verificar direcciones por usuario
 SELECT u.name as usuario, a.address, a.city, a.department
 FROM "User" u
-JOIN Addresses a ON u.id = a.userId
+JOIN addresses a ON u.id = a.user_id
 ORDER BY u.id;
 

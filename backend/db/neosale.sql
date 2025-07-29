@@ -1,4 +1,5 @@
 CREATE DATABASE neosale;
+
 -- Tipos ENUM
 DO $$ BEGIN
     IF NOT EXISTS (SELECT 1 FROM pg_type WHERE typname = 'orders_paymentmethod_enum') THEN
@@ -28,7 +29,7 @@ DROP TABLE IF EXISTS orders;
 DROP TABLE IF EXISTS products;
 DROP TABLE IF EXISTS coupons;
 DROP TABLE IF EXISTS categories;
-DROP TABLE IF EXISTS subcategory;
+DROP TABLE IF EXISTS subcategories;
 DROP TABLE IF EXISTS brands;
 DROP TABLE IF EXISTS "User";
 
@@ -123,7 +124,7 @@ CREATE TABLE cart (
     total_price INTEGER NOT NULL CHECK (total_price >= 0),
     created_at TIMESTAMP(6) DEFAULT CURRENT_TIMESTAMP NOT NULL,
     expires_at TIMESTAMP(6),
-    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE NO ACTION ON UPDATE NO ACTION
+    FOREIGN KEY (user_id) REFERENCES "User"(id) ON DELETE NO ACTION ON UPDATE NO ACTION
 );
 
 CREATE TABLE orders (
@@ -139,7 +140,7 @@ CREATE TABLE orders (
     created_at TIMESTAMP(6) DEFAULT CURRENT_TIMESTAMP NOT NULL,
     updated_at TIMESTAMP(6),
     updated_by INTEGER NOT NULL,
-    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE NO ACTION ON UPDATE NO ACTION,
+    FOREIGN KEY (user_id) REFERENCES "User"(id) ON DELETE NO ACTION ON UPDATE NO ACTION,
     FOREIGN KEY (coupon_id) REFERENCES coupons(id) ON DELETE NO ACTION ON UPDATE NO ACTION
 );
 
@@ -158,7 +159,7 @@ CREATE TABLE "Account" (
     created_at TIMESTAMP(6) DEFAULT CURRENT_TIMESTAMP NOT NULL,
     updated_at TIMESTAMP(6) DEFAULT CURRENT_TIMESTAMP NOT NULL,
     PRIMARY KEY (provider, provider_account_id),
-    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+    FOREIGN KEY (user_id) REFERENCES "User"(id) ON DELETE CASCADE
 );
 
 CREATE TABLE addresses (
@@ -170,7 +171,7 @@ CREATE TABLE addresses (
     is_default BOOLEAN NOT NULL,
     user_id INTEGER NOT NULL,
     created_at TIMESTAMP(6) DEFAULT CURRENT_TIMESTAMP NOT NULL,
-    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE NO ACTION ON UPDATE NO ACTION
+    FOREIGN KEY (user_id) REFERENCES "User"(id) ON DELETE NO ACTION ON UPDATE NO ACTION
 );
 
 CREATE TABLE cart_items (
@@ -222,18 +223,19 @@ CREATE TABLE order_logs (
 
 CREATE TABLE reviews (
     id SERIAL PRIMARY KEY,
-    rating INTEGER NOT NULL CHECK (rating >= 1 AND rating <= 5)    comment TEXT,
+    rating INTEGER NOT NULL CHECK (rating >= 1 AND rating <= 5),
+    comment VARCHAR(255),
     user_id INTEGER NOT NULL,
     product_id INTEGER NOT NULL,
     created_at TIMESTAMP(6) DEFAULT CURRENT_TIMESTAMP NOT NULL,
     updated_at TIMESTAMP(6) DEFAULT CURRENT_TIMESTAMP NOT NULL,
 
-    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE NO ACTION ON UPDATE NO ACTION,
+    FOREIGN KEY (user_id) REFERENCES "User"(id) ON DELETE NO ACTION ON UPDATE NO ACTION,
     FOREIGN KEY (product_id) REFERENCES products(id) ON DELETE NO ACTION ON UPDATE NO ACTION
 );
 
 -- Indices para optimización
-CREATE INDEX idx_users_email ON users(email);
+CREATE INDEX idx_user_email ON "User"(email);
 CREATE INDEX idx_products_category_id ON products(category_id);
 CREATE INDEX idx_products_brand_id ON products(brand_id);
 CREATE INDEX idx_cart_user_id ON cart(user_id);

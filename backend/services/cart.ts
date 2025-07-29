@@ -1,23 +1,21 @@
 import { prisma } from '../lib/prisma'
 
-export const addProductToCart  = async (userid?: number, productId?: number, quantity?: number) => {
-    if (!userid || !productId || !quantity) throw new Error('Parámetros inválidos');
+export const addProductToCart  = async (user_id?: number, product_id?: number, quantity?: number) => {
+    if (!user_id || !product_id || !quantity) throw new Error('Parámetros inválidos');
 
     let cart = await prisma.cart.findFirst({
-        where: { userid }
+        where: { user_id }
     })
 
     if (!cart) {
-        await prisma.$executeRawUnsafe(`CALL sp_createCart(${userid})`);    
-        cart = await prisma.cart.findFirst({where: { userid }})
+        await prisma.$executeRawUnsafe(`CALL sp_create_cart(${user_id})`);    
+        cart = await prisma.cart.findFirst({ where: { user_id } })
     }
-    
 
     const existsProduct = await prisma.cart_items.findFirst({
-        where: 
-        {
-            cartid: cart.id,
-            productid: productId
+        where: {
+            cartid: cart?.id,
+            productid: product_id
         }
     })
 
@@ -31,8 +29,7 @@ export const addProductToCart  = async (userid?: number, productId?: number, qua
             },
         });
     }
-     else {
-        await prisma.$executeRawUnsafe(`CALL sp_addProductToCart(${userid}, ${productId}, ${quantity})`); 
+    else {
+        await prisma.$executeRawUnsafe(`CALL sp_add_product_to_cart(${user_id}, ${product_id}, ${quantity})`); 
     }
-
 };

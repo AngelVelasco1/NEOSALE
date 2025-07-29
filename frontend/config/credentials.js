@@ -1,3 +1,4 @@
+import process from "node:process";
 
 const {
   NEXT_PUBLIC_HOST = 'localhost',

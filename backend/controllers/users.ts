@@ -15,9 +15,9 @@ export const registerUser = async (
     const {
       name,
       email,
-      emailVerified,
+      email_verified,
       password,
-      phoneNumber,
+      phone_number,
       identification,
       role,
     } = req.body;
@@ -25,15 +25,15 @@ export const registerUser = async (
     const result = await registerUserService({
       name,
       email,
-      emailVerified,
+      email_verified,
       password,
-      phoneNumber,
+      phone_number,
       identification,
       role,
     });
 
     res.status(201).json(result);
-  } catch (error: any) {
+  } catch (error) {
     next(error);
   }
 };
@@ -59,14 +59,14 @@ export const updateUser = async (
   next: NextFunction
 ) => {
   try {
-    const { id, name, email, emailVerified, phoneNumber, identification } = req.body;
+    const { id, name, email, email_verified, phone_number, identification } = req.body;
 
     const updatedUser = await updateUserService({
       id,
       name,
       email,
-      emailVerified,
-      phoneNumber,
+      email_verified,
+      phone_number,
       identification,
     });
 

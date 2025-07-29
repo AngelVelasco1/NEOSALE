@@ -11,9 +11,9 @@ import { ValidationError } from "../errors/errorsClass";
 export const registerUserService = async ({
   name,
   email,
-  emailVerified,
+  email_verified,
   password,
-  phoneNumber,
+  phone_number,
   identification,
   role,
 }: createUserParams) => {
@@ -23,12 +23,12 @@ export const registerUserService = async ({
 
   const hashedPassword = await bcrypt.hash(password, 12);
   await prisma.$executeRaw`
-      CALL sp_createuser(
+      CALL sp_create_user(
         ${name}, 
         ${email}, 
-        ${emailVerified ?? null}, 
+        ${email_verified ?? null}, 
         ${hashedPassword}, 
-        ${phoneNumber ?? null}, 
+        ${phone_number ?? null}, 
         ${identification ?? null}, 
         ${(role as roles_enum) ?? "user"})`;
 
@@ -38,9 +38,9 @@ export const registerUserService = async ({
       id: true,
       name: true,
       email: true,
-      emailVerified: true,
+      email_verified: true,
       password: true,
-      phonenumber: true,
+      phone_number: true,
       identification: true,
       role: true,
     },
@@ -64,8 +64,8 @@ export const getUserByIdService = async (id: number | undefined) => {
       id: true,
       name: true,
       email: true,
-      emailVerified: true,
-      phonenumber: true,
+      email_verified: true,
+      phone_number: true,
       password: true,
       identification: true,
       role: true,
@@ -87,8 +87,8 @@ export const updateUserService = async ({
   id,
   name,
   email,
-  emailVerified,
-  phoneNumber,
+  email_verified,
+  phone_number,
   identification,
 }: updateUserParams) => {
   if (!id || !name || !email) {
@@ -102,17 +102,17 @@ export const updateUserService = async ({
       : null;
 
   try {
-    // Convertir emailVerified a formato ISO string si existe
-    const emailVerifiedString = emailVerified
-      ? emailVerified.toISOString()
+    // Convertir email_verified a formato ISO string si existe
+    const emailVerifiedString = email_verified
+      ? email_verified.toISOString()
       : null;
 
-    await prisma.$executeRaw` CALL sp_updateUser(
+    await prisma.$executeRaw` CALL sp_update_user(
     ${idAsInt}::int, 
     ${name}::text, 
     ${email}::text, 
     ${emailVerifiedString}::timestamp, 
-    ${phoneNumber ?? null}::text, 
+    ${phone_number ?? null}::text, 
     ${nullIdentification}::text
 )`;
     const user = await prisma.user.findUnique({
@@ -121,8 +121,8 @@ export const updateUserService = async ({
         id: true,
         name: true,
         email: true,
-        emailVerified: true,
-        phonenumber: true,
+        email_verified: true,
+        phone_number: true,
         identification: true,
       },
     });
@@ -146,7 +146,7 @@ export const updatePasswordService = async ({
   const hashedPassword = await bcrypt.hash(newPassword, 12);
 
   try {
-    await prisma.$executeRaw`CALL sp_updatePassword(${id}::int, ${hashedPassword}::text)`;
+    await prisma.$executeRaw`CALL sp_update_password(${id}::int, ${hashedPassword}::text)`;
     return { success: true, message: "Contraseña actualizada exitosamente" };
   } catch (error) {
     console.error(error);

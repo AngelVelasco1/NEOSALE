@@ -1,7 +1,9 @@
+import { FRONT_CONFIG } from './config/credentials.js'
+
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   // Permitir orígenes de desarrollo para solicitudes cross-origin
-  allowedDevOrigins: ['localhost:3000', 'localhost:8000'/* '10.5.213.111:3000' */ /*  '10.5.213.111' */, /* '10.5.213.111:8000' */],
+  allowedDevOrigins: [`${FRONT_CONFIG.host}:${FRONT_CONFIG.front_port}`, `${FRONT_CONFIG.api_origin}`],
   
   images: {
     remotePatterns: [
@@ -25,12 +27,6 @@ const nextConfig = {
       },
       {
         protocol: 'https',
-        hostname: 'via.placeholder.com',
-        port: '',
-        pathname: '/**',
-      },
-      {
-        protocol: 'https',
         hostname: 'static.nike.com',
         port: '',
         pathname: '/**',
@@ -49,30 +45,6 @@ const nextConfig = {
       },
       {
         protocol: 'https',
-        hostname: 'store.storeimages.cdn-apple.com',
-        port: '',
-        pathname: '/**',
-      },
-      {
-        protocol: 'https',
-        hostname: 'images.samsung.com',
-        port: '',
-        pathname: '/**',
-      },
-      {
-        protocol: 'https',
-        hostname: 'gmedia.playstation.com',
-        port: '',
-        pathname: '/**',
-      },
-      {
-        protocol: 'https',
-        hostname: 'logoeps.com',
-        port: '',
-        pathname: '/**',
-      },
-        {
-        protocol: 'https',
         hostname: 'images.unsplash.com',
         port: '',
         pathname: '/**',
@@ -88,7 +60,7 @@ const nextConfig = {
         headers: [
           {
             key: 'Access-Control-Allow-Origin',
-            value: 'http://10.5.213.111:8000',
+            value: `${FRONT_CONFIG.api_origin}`,
           },
           {
             key: 'Access-Control-Allow-Methods',
