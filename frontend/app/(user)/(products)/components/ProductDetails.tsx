@@ -1,100 +1,117 @@
-"use client"
+"use client";
 
-import React, { useCallback, useEffect, useState } from "react"
-import Image from "next/image"
-import { Button } from "@/components/ui/button"
-import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
-import { Badge } from "@/components/ui/badge"
-import { Skeleton } from "@/components/ui/skeleton"
-import { ShoppingCart, Truck, Shield, Star, Check, Heart, Share2, Sparkles } from "lucide-react"
+import React, { useCallback, useEffect, useState } from "react";
+import Image from "next/image";
+import { Button } from "@/components/ui/button";
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+import { Badge } from "@/components/ui/badge";
+import { Skeleton } from "@/components/ui/skeleton";
+import {
+  ShoppingCart,
+  Truck,
+  Shield,
+  Star,
+  Check,
+  Heart,
+  Share2,
+  Sparkles,
+} from "lucide-react";
 import { useCart } from "../../(cart)/hooks/useCart";
 import { SetQuantity } from "../../../components/SetQuantity";
-import type { IProductDetails, CartProductsInfo } from "../types";
+import type { IProductDetails, CartProductsInfo } from "../../types";
+import {
+  RiVisaLine,
+  RiMastercardFill,
+  RiPaypalFill,
+  RiCashLine,
+} from "react-icons/ri";
 
 export interface ProductDetailsProps {
-  data: IProductDetails
+  data: IProductDetails;
 }
 
 // Mock payment methods
 const paymentMethods = [
-  { icon: "💳", name: "Visa" },
-  { icon: "💳", name: "Mastercard" },
-  { icon: "🏦", name: "PSE" },
-  { icon: "📱", name: "Nequi" },
-]
+  { icon: <RiVisaLine />, name: "Visa" },
+  { icon: <RiMastercardFill />, name: "Mastercard" },
+  { icon: <RiPaypalFill />, name: "PayPal" },
+  { icon: <RiCashLine />, name: "Efectivo" },
+];
 
-// Simple PaymentIcon component
-const PaymentIcon = ({ icon }: { icon: string }) => (
-  <div className="text-2xl p-3 bg-white/80 backdrop-blur-sm rounded-xl shadow-sm border border-white/20 transition-all duration-300 hover:scale-105 hover:shadow-md">
-    {icon}
-  </div>
-)
+// Simple PaymentIcon compone
 
 export const ProductDetails = ({ data }: ProductDetailsProps) => {
-  const [quantity, setQuantity] = useState(1)
-  const [selectedImage, setSelectedImage] = useState(0)
-  const [selectedColor, setSelectedColor] = useState("")
-  const [selectedSize, setSelectedSize] = useState("")
-  const [isAddingToCart, setIsAddingToCart] = useState(false)
-  const [showSuccess, setShowSuccess] = useState(false)
-  const { addProductToCart } = useCart()
+  const [quantity, setQuantity] = useState(1);
+  const [selectedImage, setSelectedImage] = useState(0);
+  const [selectedColor, setSelectedColor] = useState("");
+  const [selectedSize, setSelectedSize] = useState("");
+  const [isAddingToCart, setIsAddingToCart] = useState(false);
+  const [showSuccess, setShowSuccess] = useState(false);
+  const { addProductToCart } = useCart();
 
-  const images = Array.isArray(data.images) ? data.images : []
+  const images = Array.isArray(data.images) ? data.images : [];
 
   const handleAddToCart = useCallback(async () => {
     if (!selectedSize) {
-      // Animate size selection to draw attention
-      const sizeSection = document.getElementById("size-selection")
+      const sizeSection = document.getElementById("size-selection");
       if (sizeSection) {
-        sizeSection.classList.add("animate-pulse")
-        setTimeout(() => sizeSection.classList.remove("animate-pulse"), 1000)
+        sizeSection.classList.add("animate-pulse");
+        setTimeout(() => sizeSection.classList.remove("animate-pulse"), 1000);
       }
-      return
+      return;
     }
 
-    setIsAddingToCart(true)
+    setIsAddingToCart(true);
 
     const product: CartProductsInfo = {
       id: data.id,
-      color: selectedColor,
+      color: data.images[selectedImage]?.color || "",
       colorCode: data.images[selectedImage]?.color_code || "",
-      colorName: data.images[selectedImage]?.color || "",
       imageUrl: data.images[selectedImage]?.image_url || "",
       name: data.name,
       price: data.price,
       quantity: quantity,
       size: selectedSize,
       total: data.price * quantity,
-    }
+    };
 
     // Simulate API call delay for better UX
-    await new Promise((resolve) => setTimeout(resolve, 800))
+    await new Promise((resolve) => setTimeout(resolve, 800));
 
-    addProductToCart(product)
-    setIsAddingToCart(false)
-    setShowSuccess(true)
+    addProductToCart(product);
+    setIsAddingToCart(false);
+    setShowSuccess(true);
 
     // Hide success message after 3 seconds
-    setTimeout(() => setShowSuccess(false), 3000)
-  }, [data, selectedImage, selectedColor, selectedSize, quantity, addProductToCart])
+    setTimeout(() => setShowSuccess(false), 3000);
+  }, [
+    data,
+    selectedImage,
+    selectedColor,
+    selectedSize,
+    quantity,
+    addProductToCart,
+  ]);
 
   const handleImageChange = (index: number, color: string) => {
     if (color === selectedColor) {
-      setSelectedImage(index)
+      setSelectedImage(index);
     } else {
-      setSelectedColor(color)
-      const firstImageIndex = data.images.findIndex((img) => img.color_code === color)
-      setSelectedImage(firstImageIndex !== -1 ? firstImageIndex : 0)
+      setSelectedColor(color);
+      const firstImageIndex = data.images.findIndex(
+        (img) => img.color_code === color
+      );
+      setSelectedImage(firstImageIndex !== -1 ? firstImageIndex : 0);
     }
-  }
+  };
 
   useEffect(() => {
     if (images.length > 0) {
-      setSelectedColor(images[0].color_code || "")
+      setSelectedColor(images[0].color_code || "");
     }
-  }, [images])
+  }, [images]);
 
-  const isInStock = data.stock > 0
+  const isInStock = data.stock > 0;
   const discountPercentage = data.discount;
 
   return (
@@ -110,12 +127,10 @@ export const ProductDetails = ({ data }: ProductDetailsProps) => {
           </div>
         )}
 
-        <div className="grid gap-12 lg:grid-cols-2">
+        <div className="grid gap-12 lg:grid-cols-2 mt-10">
           <div className="space-y-6">
             {/* Main Image */}
-            <div className="relative aspect-square bg-white/60 backdrop-blur-sm rounded-2xl shadow-lg overflow-hidden group w-10/12 mx-auto">
-          
-
+            <div className="relative aspect-square bg-white/60 backdrop-blur-sm rounded-xl shadow-xl overflow-hidden group w-10/12 mx-auto">
               {images.length > 0 && images[selectedImage]?.image_url ? (
                 <Image
                   src={images[selectedImage].image_url || "/placeholder.svg"}
@@ -123,7 +138,6 @@ export const ProductDetails = ({ data }: ProductDetailsProps) => {
                   fill
                   className="object-fit transition-all duration-400 group-hover:scale-105"
                   priority
-
                 />
               ) : (
                 <div className="flex items-center justify-center h-full text-gray-400">
@@ -152,7 +166,7 @@ export const ProductDetails = ({ data }: ProductDetailsProps) => {
                 >
                   <Share2 className="h-4 w-4" />
                 </Button>
-              </div>             
+              </div>
             </div>
 
             {/* Thumbnail Gallery */}
@@ -173,7 +187,7 @@ export const ProductDetails = ({ data }: ProductDetailsProps) => {
                       src={image.image_url || "/placeholder.svg"}
                       alt={`${data.name} thumbnail ${index + 1}`}
                       fill
-                      className="object-contain p-2 transition-transform duration-200"
+                      className="object-fit  transition-transform duration-200"
                     />
                   </button>
                 ))
@@ -188,84 +202,123 @@ export const ProductDetails = ({ data }: ProductDetailsProps) => {
           </div>
 
           {/* Product Info */}
-          <div className="space-y-8">
-            {/* Header */}
-            <div className="space-y-4 animate-in fade-in-50 duration-700">
-              <div className="flex items-center gap-2 mb-2">
-                <Badge className="bg-blue-100 text-blue-700 border-0 animate-in slide-in-from-left duration-500">
-                  <Sparkles className="w-3 h-3 mr-1" />
-                  Nuevo
-                </Badge>
-                <div className="flex items-center gap-1">
-                  {[...Array(5)].map((_, i) => (
-                    <Star
-                      key={i}
-                      className="w-4 h-4 fill-yellow-400 text-yellow-400 animate-in zoom-in duration-300"
-                      style={{ animationDelay: `${i * 100}ms` }}
-                    />
-                  ))}
-                  <span className="text-sm text-gray-600 ml-1">(4.8)</span>
+          <div className="space-y-6">
+            {/* Header Section */}
+            <div className="space-y-6 animate-in fade-in-50 duration-700">
+              {/* Badges and Rating */}
+              <div className="flex flex-col gap-4">
+                <div className="flex items-center justify-between">
+                  <Badge className="bg-gradient-to-r from-blue-500/10 to-indigo-500/10 text-blue-700 border border-blue-200/50 px-3 py-1.5 rounded-full font-medium animate-in slide-in-from-left duration-500">
+                    <Sparkles className="w-3 h-3 mr-1.5" />
+                    Nuevo Producto
+                  </Badge>
+                  <div className="flex items-center gap-1.5">
+                    {[...Array(5)].map((_, i) => (
+                      <Star
+                        key={i}
+                        className="w-4 h-4 fill-amber-400 text-amber-400 animate-in zoom-in duration-300"
+                        style={{ animationDelay: `${i * 100}ms` }}
+                      />
+                    ))}
+                    <span className="text-sm text-gray-500 ml-2 font-medium">
+                      (4.8)
+                    </span>
+                  </div>
                 </div>
               </div>
 
-              <h1 className="text-3xl lg:text-4xl font-bold bg-gradient-to-r from-blue-800 via-blue-600 to-purple-600 bg-clip-text text-transparent leading-tight animate-in slide-in-from-bottom duration-700">
-                {data.name}
-              </h1>
+              {/* Product Title */}
+              <div className="space-y-3">
+                <h1 className="text-3xl lg:text-4xl font-bold text-gray-900 leading-tight animate-in slide-in-from-bottom duration-700">
+                  {data.name}
+                </h1>
+                <p className="text-gray-600 leading-relaxed text-lg animate-in fade-in duration-700 delay-200">
+                  {data.description}
+                </p>
+              </div>
 
-              <p className="text-lg text-gray-600 leading-relaxed animate-in fade-in duration-700 delay-200">
-                {data.description}
-              </p>
-
-              {/* Price */}
-              <div className="flex items-center gap-4 animate-in slide-in-from-left duration-700 delay-300">
-                <div className="flex items-baseline gap-2">
-                  <span className="text-4xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
-                    ${Math.round(data.price - (data.price  * ((discountPercentage / 100)))).toLocaleString()}
-                  </span>
-                  <span className="text-xl text-gray-400 line-through">
-                    ${Math.round(data.price).toLocaleString()}
-                  </span>
+              {/* Price Section */}
+              <div className="bg-gradient-to-r from-blue-50 to-indigo-50 rounded-2xl px-6 py-7 border border-blue-100/50 animate-in slide-in-from-left duration-700 delay-300">
+                <div className="flex items-center justify-between">
+                  <div className="space-y-1">
+                    <div className="flex items-baseline gap-3">
+                      <span className="text-4xl font-bold bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">
+                        $
+                        {Math.round(
+                          data.price - data.price * (discountPercentage / 100)
+                        ).toLocaleString()}
+                      </span>
+                      {discountPercentage > 0 && (
+                        <span className="text-xl text-gray-400 line-through font-medium">
+                          ${Math.round(data.price).toLocaleString()}
+                        </span>
+                      )}
+                    </div>
+                  </div>
+                  {discountPercentage > 0 && (
+                    <Badge className="bg-gradient-to-r from-red-500 to-red-600 text-white border-0 px-4 py-2 text-sm font-semibold rounded-full animate-pulse shadow-lg">
+                      -{discountPercentage}% OFF
+                    </Badge>
+                  )}
                 </div>
-                <Badge className="bg-red-100 text-red-700 border-0 px-3 py-1 animate-bounce">
-                  Ahorra {discountPercentage}%
-                </Badge>
               </div>
             </div>
 
             {/* Stock Status */}
-            <div className="bg-green-100 backdrop-blur-sm rounded-2xl px-4 py-3 shadow-sm animate-in fade-in delay-400 hover:shadow-md transition-shadow duration-300 w-fit items-center">
-              <div className="flex items-center justify-between">
-                <span className={`font-semibold ${isInStock ? "text-green-700" : "text-red-600"}`}>
-                  {isInStock ? (
-                    <div className="flex items-center gap-2">
-                      <Check className="w-4 h-4 animate-pulse" />
-                      En stock ({data.stock} disponibles)
-                    </div>
-                  ) : (
-                    "Agotado"
-                  )}
-                </span>
-              </div>
-              
-            </div>
-
+          <div className="bg-white border border-gray-200/60 rounded-xl px-5 py-4 w-fit  animate-in fade-in  transition-all duration-300">
+    <div className="flex items-center gap-3">
+      <div className={`w-3 h-3 rounded-full ${isInStock ? "bg-emerald-500" : "bg-red-500"}`} />
+      <div className="flex-1">
+        <span className={`font-semibold ${isInStock ? "text-gray-900" : "text-red-600"}`}>
+          {isInStock ? "En Stock" : "Agotado"}
+        </span>
+        {isInStock && (
+          <span className="text-gray-500 text-sm ml-2">
+            {data.stock} unidades disponibles
+          </span>
+        )}
+      </div>
+      {isInStock && (
+        <Badge variant="outline" className="text-emerald-600 border-emerald-200 bg-emerald-50">
+          Disponible
+        </Badge>
+      )}
+    </div>
+  </div>
             {/* Size Selection */}
             {data?.sizes && (
-              <div id="size-selection" className="space-y-4 animate-in fade-in duration-700 delay-500 ">
-                <label className="text-lg font-semibold text-gray-800">Tamaño:</label>
-                <RadioGroup value={selectedSize} onValueChange={setSelectedSize} className="flex flex-wrap gap-3 mt-1">
+              <div
+                id="size-selection"
+                className="space-y-4 animate-in fade-in duration-700 delay-500"
+              >
+                <div className="flex items-center justify-between">
+                  <label className="text-lg font-semibold text-gray-900">
+                    Tamaño
+                  </label>
+                  <span className="text-sm text-gray-500">
+                    Selecciona tu talla
+                  </span>
+                </div>
+                <RadioGroup
+                  value={selectedSize}
+                  onValueChange={setSelectedSize}
+                  className="grid grid-cols-6 gap-3"
+                >
                   {data.sizes.split(",").map((size, index) => (
                     <label
                       key={size}
-                      className={`flex cursor-pointer items-center justify-center rounded-xl border-2 px-4 py-3 text-sm font-medium transition-all duration-200 hover:scale-105 animate-in zoom-in ${
+                      className={`relative flex cursor-pointer items-center justify-center rounded-xl border-2 px-4 py-3 text-sm font-semibold transition-all duration-200 hover:scale-105 animate-in zoom-in ${
                         selectedSize === size
-                          ? "border-blue-500 bg-blue-500 text-white shadow-lg scale-105"
-                          : "border-gray-200 bg-white/60 backdrop-blur-sm text-gray-700 hover:border-gray-300"
+                          ? "border-blue-500 bg-blue-500 text-white shadow-lg shadow-blue-500/25 scale-105"
+                          : "border-gray-200 bg-white text-gray-700 hover:border-blue-300 hover:bg-blue-50"
                       }`}
                       style={{ animationDelay: `${index * 100}ms` }}
                     >
                       <RadioGroupItem value={size} className="sr-only" />
-                      {size.charAt(0).toUpperCase() + size.slice(1)}
+                      {size.toUpperCase()}
+                      {selectedSize === size && (
+                        <div className="absolute -top-1 -right-1 w-3 h-3 bg-blue-600 rounded-full border-2 border-white" />
+                      )}
                     </label>
                   ))}
                 </RadioGroup>
@@ -274,37 +327,58 @@ export const ProductDetails = ({ data }: ProductDetailsProps) => {
 
             {/* Color Selection */}
             <div className="space-y-4 animate-in fade-in duration-700 delay-600">
-              <label className="text-lg font-semibold text-gray-800">Color:</label>
-              <div className="flex gap-3 mt-1">
+              <div className="flex items-center justify-between">
+                <label className="text-lg font-semibold text-gray-900">
+                  Color
+                </label>
+                <span className="text-sm text-gray-500">
+                  {images.find((img) => img.color_code === selectedColor)
+                    ?.color || "Selecciona color"}
+                </span>
+              </div>
+              <div className="flex gap-3">
                 {images
                   .map((img) => img.color_code)
-                  .filter((value: string, index: number, self: Array<string>) => value && self.indexOf(value) === index)
+                  .filter(
+                    (value: string, index: number, self: Array<string>) =>
+                      value && self.indexOf(value) === index
+                  )
                   .map((colorCode: string, index) => (
                     <button
                       key={colorCode}
                       onClick={() => handleImageChange(0, colorCode)}
-                      className={`w-10 h-10 rounded-full transition-all duration-200 hover:scale-110 animate-in zoom-in ${
+                      className={`relative w-12 h-12 rounded-full transition-all duration-200 hover:scale-110 animate-in zoom-in ${
                         selectedColor === colorCode
                           ? "ring-2 ring-blue-500 ring-offset-2 shadow-lg scale-110"
-                          : "ring-2 ring-gray-300 hover:ring-gray-400"
+                          : "ring-2 ring-gray-300 hover:ring-gray-400 shadow-md"
                       }`}
                       style={{
                         backgroundColor: colorCode,
                         animationDelay: `${index * 100}ms`,
                       }}
-                    />
+                    >
+                      {selectedColor === colorCode && (
+                        <div className="absolute inset-0 rounded-full bg-white/20 flex items-center justify-center">
+                          <Check className="w-5 h-5 text-white drop-shadow-sm" />
+                        </div>
+                      )}
+                    </button>
                   ))}
               </div>
             </div>
 
             {/* Quantity and Add to Cart */}
             <div className="space-y-6 animate-in fade-in duration-700 delay-700">
-              <div className="flex items-center gap-6">
+              <div className="flex items-center gap-4">
                 <div className="space-y-2">
                   <SetQuantity
                     cartProduct={{ quantity }}
-                    handleDecrease={() => setQuantity((prev) => Math.max(1, prev - 1))}
-                    handleIncrease={() => setQuantity((prev) => Math.min(data.stock, prev + 1))}
+                    handleDecrease={() =>
+                      setQuantity((prev) => Math.max(1, prev - 1))
+                    }
+                    handleIncrease={() =>
+                      setQuantity((prev) => Math.min(data.stock, prev + 1))
+                    }
                   />
                 </div>
 
@@ -312,55 +386,86 @@ export const ProductDetails = ({ data }: ProductDetailsProps) => {
                   <Button
                     onClick={handleAddToCart}
                     disabled={!isInStock || !selectedSize || isAddingToCart}
-                    className="w-full bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 text-white py-6 text-lg font-semibold rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed disabled:scale-100"
+                    className="w-full bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white py-6 text-lg font-semibold rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-[1.02] disabled:opacity-50 disabled:cursor-not-allowed disabled:scale-100 disabled:hover:shadow-lg"
                     size="lg"
                   >
                     {isAddingToCart ? (
                       <div className="flex items-center gap-2">
-                        <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-xl animate-spin" />
-                        Añadiendo...
+                        <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                        Añadiendo al carrito...
                       </div>
                     ) : (
-                      <>
-                        <ShoppingCart className="w-5 h-5 mr-2" />
+                      <div className="flex items-center gap-2">
+                        <ShoppingCart className="w-5 h-5" />
                         Añadir al carrito
-                      </>
+                      </div>
                     )}
                   </Button>
                 </div>
               </div>
             </div>
 
-            {/* Shipping Info */}
-            <div className="bg-white/60 backdrop-blur-sm rounded-2xl p-6 shadow-sm animate-in fade-in duration-700 delay-800 hover:shadow-md transition-all duration-300 hover:scale-105">
-              <div className="flex items-center gap-3 mb-4">
-                <div className="w-10 h-10 bg-green-500/10 rounded-full flex items-center justify-center">
-                  <Truck className="w-5 h-5 text-green-500" />
+            {/* Features Grid */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 animate-in fade-in delay-800">
+              {/* Shipping Info */}
+              <div className="bg-gradient-to-br from-emerald-50 to-green-50 rounded-xl p-5 border border-emerald-200/50 hover:shadow-md transition-all duration-300 group">
+                <div className="flex items-start gap-3">
+                  <div className="w-10 h-10 bg-emerald-500/10 rounded-xl flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
+                    <Truck className="w-5 h-5 text-emerald-600" />
+                  </div>
+                  <div>
+                    <p className="font-semibold text-gray-900 mb-1">
+                      Envío Gratis
+                    </p>
+                    <p className="text-sm text-gray-600">
+                      Compras superiores a $100.000
+                    </p>
+                  </div>
                 </div>
-                <div>
-                  <p className="font-semibold text-gray-800">Envío gratis</p>
-                  <p className="text-sm text-gray-600">Por compras superiores a $100.000</p>
+              </div>
+
+              {/* Security Info */}
+              <div className="bg-gradient-to-br from-blue-50 to-indigo-50 rounded-xl p-5 border border-blue-200/50 hover:shadow-md transition-all duration-300 group">
+                <div className="flex items-start gap-3">
+                  <div className="w-10 h-10 bg-blue-500/10 rounded-xl flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
+                    <Shield className="w-5 h-5 text-blue-600" />
+                  </div>
+                  <div>
+                    <p className="font-semibold text-gray-900 mb-1">
+                      Compra Segura
+                    </p>
+                    <p className="text-sm text-gray-600">
+                      Protección garantizada
+                    </p>
+                  </div>
                 </div>
               </div>
             </div>
 
             {/* Payment Methods */}
-            <div className="bg-white/60 backdrop-blur-sm rounded-2xl p-6 shadow-sm animate-in fade-in duration-700 delay-900 hover:shadow-md transition-all duration-300">
+            <div className="bg-white rounded-xl p-6 border border-gray-200/60 shadow-sm animate-in fade-in duration-700 delay-900">
               <div className="flex items-center gap-3 mb-4">
-                <div className="w-10 h-10 bg-blue-500/10 rounded-full flex items-center justify-center">
-                  <Shield className="w-5 h-5 text-blue-500" />
+                <div className="w-8 h-8 bg-gradient-to-r from-blue-500 to-indigo-500 rounded-lg flex items-center justify-center">
+                  <Shield className="w-4 h-4 text-white" />
                 </div>
-                <p className="font-semibold text-gray-800">Seguridad Garantizada</p>
+                <p className="font-semibold text-gray-900">
+                  Métodos de Pago Seguros
+                </p>
               </div>
 
-              <div className="flex flex-wrap items-center gap-4">
+              <div className="grid grid-cols-4 gap-3">
                 {paymentMethods.map((method, index) => (
                   <div
                     key={index}
-                    className="animate-in zoom-in duration-300"
+                    className="bg-gray-50 rounded-lg p-3 text-center border border-gray-200/60 hover:border-blue-300 hover:bg-blue-50 transition-all duration-300 animate-in zoom-in"
                     style={{ animationDelay: `${index * 100}ms` }}
                   >
-                    <PaymentIcon icon={method.icon} />
+                    <div className="text-3xl mb-1">
+                      <p className="flex justify-center">{method.icon}</p>
+                    </div>
+                    <p className="text-xs text-gray-600 font-medium">
+                      {method.name}
+                    </p>
                   </div>
                 ))}
               </div>
@@ -368,8 +473,6 @@ export const ProductDetails = ({ data }: ProductDetailsProps) => {
           </div>
         </div>
       </div>
-
-
     </div>
-  )
-}
+  );
+};

@@ -1,7 +1,7 @@
 import React from "react";
 import type { Metadata } from "next";
 import "./styles/globals.css";
-import { Montserrat, Poppins, Oswald } from "next/font/google";
+import { Montserrat, Poppins } from "next/font/google";
 import { RootProviders } from "./providers/RootProviders";
 import { Toaster } from "sonner";
 
@@ -16,13 +16,6 @@ export const adminFont = Poppins({
   weight: ["300", "400", "500", "700", "800"],
   subsets: ["latin"],
   variable: '--font-inter',
-  display: 'swap', 
-});
-
-export const boldFont = Oswald({
-  weight: ["300", "400", "500", "700"],
-  subsets: ["latin"],
-  variable: '--font-oswald',
   display: 'swap', 
 });
 

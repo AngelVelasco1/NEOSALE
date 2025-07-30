@@ -2,7 +2,7 @@
 
 import React from 'react';
 import {useContext, createContext, useState, useCallback, ReactNode} from 'react';
-import { CartProductsContext, CartProductsInfo } from '../types';
+import { CartProductsContext, CartProductsInfo } from '../../types';
 
 const CartContext = createContext<CartProductsContext | undefined>(undefined) ;
 
@@ -30,6 +30,7 @@ export const CartProvider = ({children}: {children: ReactNode}) => {
             
             return [...prevCart, product];
           })
+          localStorage.setItem("cart", JSON.stringify([...cartProducts, product]));
         }, [])
 
     const updateQuantity = (id: number, color: string, quantity: number, size: string) => {
@@ -42,10 +43,17 @@ export const CartProvider = ({children}: {children: ReactNode}) => {
 
     const removeProductCart = (id: number, color: string, size: string) => {
         setCartProduct((prev) => prev.filter((product) => !(product.id === id && product.colorCode == color && product.size === size)))
+        localStorage.setItem("cart", JSON.stringify(cartProducts.filter((product) => !(product.id === id && product.colorCode == color && product.size === size))));
     }
 
+    const getCartProductCount = useCallback(() => {
+        return cartProducts.length;
+    }, [cartProducts]);
+
+    const getSubTotal = () => cartProducts.reduce((total, product) => total + product.quantity * product.price, 0);
+
     return (
-    <CartContext.Provider value={{ cartProducts, addProductToCart, updateQuantity, removeProductCart}}>
+    <CartContext.Provider value={{ cartProducts, addProductToCart, updateQuantity, removeProductCart, getCartProductCount, getSubTotal}}>
         {children}
     </CartContext.Provider>
     )

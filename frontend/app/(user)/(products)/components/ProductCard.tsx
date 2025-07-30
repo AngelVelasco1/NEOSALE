@@ -1,7 +1,7 @@
 import Image from "next/image"
 import Link from "next/link"
 import { Skeleton } from "../../../../components/ui/skeleton"
-import type { IProduct } from "../types"
+import type { IProduct } from "../../types"
 import React from 'react'
 export interface ProductCardProps {
   data: IProduct
@@ -24,7 +24,7 @@ export const ProductCard = ({ data }: ProductCardProps) => {
                 alt="product"
                 fill
                 sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-                className="object-contain object-center p-4 group-hover:scale-110 transition-transform duration-700"
+                className="object-fit object-center  group-hover:scale-110 transition-transform duration-700"
                 priority
               />
             ) : (
