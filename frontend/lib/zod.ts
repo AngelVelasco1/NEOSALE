@@ -17,7 +17,7 @@ export const registerSchema = z.object({
     .min(1, 'Contraseña es requerida')
     .min(8, 'La Contraseña debe ser minimo de 8 caracteres')
     .max(32, 'La contraseña no debe tener mas de 32 caracteres'),
-  phoneNumber: z.string()
+  phone_number: z.string()
     .min(10, 'El número de teléfono debe tener al menos 10 dígitos')
     .max(10, 'El número de teléfono no debe pasar de 10 dígitos')
     .or(z.literal(''))
@@ -38,7 +38,7 @@ export const updateUserSchema = z.object({
   }),
   email: z.string().email(),
   emailVerified: z.boolean().optional(),
-  phoneNumber: z
+  phone_number: z
     .string()
     .optional()
     .refine((val) => {

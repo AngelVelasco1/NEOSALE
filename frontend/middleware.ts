@@ -1,4 +1,4 @@
-import { auth } from "../app/(auth)/auth";
+import { auth } from "@/app/(auth)/auth";
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 
@@ -10,11 +10,22 @@ export default async function middleware(request: NextRequest) {
   if (session?.user?.role === "admin") {
     const publicRoutes = ["/", "/products", "/about", "/contact", "/login", "/register"];
     const isPublicRoute = publicRoutes.some(route => 
-      pathname === route || pathname.startsWith(route + "/")
+      pathname === route 
     );
 
     if (isPublicRoute) {
       return NextResponse.redirect(new URL("/dashboard", request.url));
+    }
+  }
+
+   if (!session || !session.user) {
+    const privateRoutes = ["/profile", "/orders", ];
+    const isPrivateRoute = privateRoutes.some(route => 
+      pathname === route || pathname.startsWith(route + "/")
+    );
+
+    if (isPrivateRoute) {
+      return NextResponse.redirect(new URL("/login", request.url));
     }
   }
 

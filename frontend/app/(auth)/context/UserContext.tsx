@@ -7,7 +7,7 @@ import { getUserById } from '../services/api';
 interface UserProfile {
   name: string | null;
   email: string | null;
-  phonenumber: string | null;
+  phone_number: string | null;
   identification?: string | null;
   password: string | null;
   addresses: string[] | null;
@@ -32,7 +32,7 @@ export const UserProvider = ({ children }: UserProviderProps) => {
   const [userProfile, setUserProfile] = useState<UserProfile | null>(null);
   const [selectedAddress, setSelectedAddress] = useState<string>();
   const [isLoading, setIsLoading] = useState(true);
-  const [mounted, setMounted] = useState(false); // ✅ Añadido para hidratación
+  const [mounted, setMounted] = useState(false);
 
   // ✅ Manejar la hidratación
   useEffect(() => {

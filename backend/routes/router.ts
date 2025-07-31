@@ -1,6 +1,6 @@
 import { Router } from 'express';
-import { productsRoutes } from './products.js';
-import { usersRoutes } from './users.js';
+import { productsRoutes } from './products';
+import { usersRoutes } from './users';
 
 export const initRoutes = () => {
     const app = Router();

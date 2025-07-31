@@ -72,10 +72,10 @@ export default {
             name: user.name,
             email: user.email,
             role: user.role,
-            emailVerified: user.emailVerified,
+            emailVerified: user.email_verified,
             image: user.image,
             password: user.password,
-            phonenumber: user.phonenumber,
+            phonenumber: user.phone_number,
             identification: user.identification,
           };
         } catch (error) {

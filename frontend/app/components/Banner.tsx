@@ -1,24 +1,14 @@
 "use client"
 
 import { Button } from "@/components/ui/button"
-import { useEffect, useState } from "react"
+import React,{ useEffect, useState } from "react"
 
 export const Banner = () => {
-  const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 })
   const [isLoaded, setIsLoaded] = useState(false)
 
   useEffect(() => {
     setIsLoaded(true)
 
-    const handleMouseMove = (e: MouseEvent) => {
-      setMousePosition({
-        x: (e.clientX / window.innerWidth) * 100,
-        y: (e.clientY / window.innerHeight) * 100,
-      })
-    }
-
-    window.addEventListener("mousemove", handleMouseMove)
-    return () => window.removeEventListener("mousemove", handleMouseMove)
   }, [])
 
   return (
@@ -27,10 +17,8 @@ export const Banner = () => {
       <div className="absolute inset-0">
         {/* Gradiente principal con parallax más pronunciado */}
         <div
-          className="absolute inset-0 bg-gradient-to-r from-blue-500/8 via-purple-500/12 to-cyan-500/8 transition-transform duration-700 ease-out"
-          style={{
-            transform: `translate(${mousePosition.x * 0.03}px, ${mousePosition.y * 0.03}px)`,
-          }}
+          className="absolute inset-0  transition-transform duration-700 ease-out"
+         
         />
 
         {/* Formas geométricas con animaciones más dinámicas */}

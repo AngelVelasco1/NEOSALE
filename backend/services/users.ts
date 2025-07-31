@@ -102,7 +102,6 @@ export const updateUserService = async ({
       : null;
 
   try {
-    // Convertir email_verified a formato ISO string si existe
     const emailVerifiedString = email_verified
       ? email_verified.toISOString()
       : null;

@@ -250,7 +250,8 @@ select * from products;
 
 DELETE FROM images WHERE product_id = 999;
 DELETE FROM addresses WHERE user_id = 999;
-DELETE FROM products WHERE is_active = false AND stock = 0;
+DELETE FROM products WHERE active = false AND stock = 0;
+select * from "User";
 
 -- Productos con sus categorías
 SELECT p.name, p.price, c.name AS category_name 
@@ -316,11 +317,11 @@ UNION ALL
 SELECT 'Producto' AS tipo, name FROM products;
 
 
--- Categorías con más de 3 productos
+-- Categorías con más de 2 productos
 SELECT category_id, COUNT(*) AS total_productos
 FROM products 
 GROUP BY category_id 
-HAVING COUNT(*) > 3;
+HAVING COUNT(*) > 2;
 
 -- Marcas con precio promedio mayor a 500000
 SELECT brand_id, AVG(price) AS precio_promedio
