@@ -1,22 +1,21 @@
 import React from "react";
 import type { Metadata } from "next";
-import "./styles/globals.css";
+import "./globals.css";
 import { Montserrat, Poppins } from "next/font/google";
 import { RootProviders } from "./providers/RootProviders";
-import { Toaster } from "sonner";
-
+import { ThemeProvider } from "@/components/ThemeProvider";
 export const userFont = Montserrat({
   weight: ["300", "400", "500", "700", "800"],
   subsets: ["latin"],
-  variable: '--font-montserrat',
-  display: 'swap',
+  variable: "--font-montserrat",
+  display: "swap",
 });
 
 export const adminFont = Poppins({
   weight: ["300", "400", "500", "600", "700", "800"],
   subsets: ["latin"],
-  variable: '--font-inter',
-  display: 'swap', 
+  variable: "--font-inter",
+  display: "swap",
 });
 
 export const metadata: Metadata = {
@@ -38,22 +37,13 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="es" suppressHydrationWarning>
-      <body className={`${userFont.variable} ${adminFont.variable} font-montserrat antialiased`}>
-        <RootProviders>
-          {children}
-        </RootProviders>
-        <Toaster
-              position="top-right"
-              toastOptions={{
-                style: {
-                  background: "white",
-                  border: "1px solid #e5e7eb",
-                  color: "#374151",
-                },
-              }}
-              closeButton
-              richColors
-            />
+      <body
+        className={`${userFont.variable} ${adminFont.variable} font-montserrat antialiased`}
+      >
+         <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
+
+        <RootProviders>{children}</RootProviders>
+         </ThemeProvider>
       </body>
     </html>
   );

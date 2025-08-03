@@ -110,3 +110,5 @@ EXCEPTION
         RAISE EXCEPTION 'No se puede desactivar: producto no encontrado';
     WHEN OTHERS THEN
         RAISE EXCEPTION 'Error inesperado al desactivar producto: %', SQLERRM;
+END;
+$$;

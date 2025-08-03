@@ -1,10 +1,10 @@
-// app/(user)/layout.tsx
 "use client";
 
 import { Footer } from "../components/Footer";
 import { UserProviders } from "@/app/providers/UserProviders";
 import { Navbar } from "../components/Navbar";
 import { useMounted } from "@/app/(auth)/hooks/useMounted";
+import React from "react";
 
 export default function UserLayout({
   children,
@@ -36,12 +36,13 @@ export default function UserLayout({
   }
 
   return (
-    <UserProviders>
-      <div className="flex flex-col min-h-screen w-full font-montserrat">
-        <Navbar />
-        <main className="flex-grow">{children}</main>
-        <Footer />
-      </div>
-    </UserProviders>
+ 
+      <UserProviders>
+        <div className="flex flex-col min-h-screen w-full font-montserrat">
+          <Navbar />
+          <main className="flex-grow">{children}</main>
+          <Footer />
+        </div>
+      </UserProviders>
   );
 }

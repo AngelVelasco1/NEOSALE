@@ -2,7 +2,7 @@ CREATE OR REPLACE FUNCTION fn_create_order(
     p_total NUMERIC,
     p_payment_method orders_paymentmethod_enum,
     p_user_id INT,
-    p_coupon_id INT DEFAULT NULL,
+    p_coupon_id INT,
     p_updated_by INT
 )
 RETURNS INT
@@ -72,15 +72,15 @@ BEGIN
     RETURNING id INTO new_order_id;
 
     -- Añadir productos del carrito a order_items y descontar stock
-    FOR cart_item IN
+    FOR rec IN
         SELECT * FROM cart_items WHERE cart_id = v_cart_id
     LOOP
         INSERT INTO order_items (price, quantity, subtotal, product_id, order_id, created_at)
         VALUES (
-            cart_item.unit_price,
-            cart_item.quantity,
-            cart_item.unit_price * rec.quantity,
-            cart_item.product_id,
+            rec.unit_price,
+            rec.quantity,
+            rec.unit_price * rec.quantity,
+            rec.product_id,
             new_order_id,
             NOW()
         );

@@ -24,12 +24,10 @@ export default function Home() {
 
   return (
     <>
-      <div className="mx-auto flex flex-col gap-y-16">
-        <div>
-          <Banner />
-        </div>
+      <div className="mx-auto flex flex-col gap-y-16  ">
+        <Banner />
 
-        <h3 className="text-3xl text-center font-montserrat font-bold text-gray-900">
+        <h3 className="text-3xl text-center font-montserrat font-bold">
           Últimos Productos
         </h3>
 
@@ -39,7 +37,6 @@ export default function Home() {
           })}
         </div>
 
-        {/* 🎨 BOTÓN MODERNO MEJORADO */}
         <div className="flex justify-center items-center px-4">
           <button
             onClick={() => router.push("/products")}
@@ -54,13 +51,14 @@ export default function Home() {
                      font-inter overflow-hidden cursor-pointer"
           >
             {/* Efecto de brillo animado */}
-            <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent 
+            <div
+              className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent 
                           translate-x-[-100%] group-hover:translate-x-[100%] 
-                          transition-transform duration-1000 ease-in-out" />
+                          transition-transform duration-1000 ease-in-out"
+            />
 
             {/* Iconos decorativos */}
             <Sparkles className="h-6 w-6 text-white animate-pulse" />
-
 
             {/* Texto */}
             <span className="relative z-10 tracking-wide">
@@ -69,7 +67,6 @@ export default function Home() {
 
             {/* Flecha animada */}
             <ArrowRight className="h-5 w-5 group-hover:translate-x-1 transition-transform duration-300" />
-            
           </button>
         </div>
 
