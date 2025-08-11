@@ -19,7 +19,7 @@ export default async function middleware(request: NextRequest) {
   }
 
    if (!session || !session.user) {
-    const privateRoutes = ["/profile", "/orders", ];
+    const privateRoutes = ["/profile", "/orders"];
     const isPrivateRoute = privateRoutes.some(route => 
       pathname === route || pathname.startsWith(route + "/")
     );

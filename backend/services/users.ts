@@ -101,12 +101,11 @@ export const updateUserService = async ({
       ? identification.trim()
       : null;
 
-  try {
-    const emailVerifiedString = email_verified
-      ? email_verified.toISOString()
-      : null;
+  const emailVerifiedString = email_verified
+    ? email_verified.toISOString()
+    : null;
 
-    await prisma.$executeRaw` CALL sp_update_user(
+  await prisma.$executeRaw` CALL sp_update_user(
     ${idAsInt}::int, 
     ${name}::text, 
     ${email}::text, 
@@ -114,24 +113,21 @@ export const updateUserService = async ({
     ${phone_number ?? null}::text, 
     ${nullIdentification}::text
 )`;
-    const user = await prisma.user.findUnique({
-      where: { id: idAsInt },
-      select: {
-        id: true,
-        name: true,
-        email: true,
-        email_verified: true,
-        phone_number: true,
-        identification: true,
-      },
-    });
-    if (!user) {
-      throw new Error("Usuario no encontrado");
-    }
-    return user;
-  } catch (err) {
-    throw new Error("Error al actualizar el usuario: " + err);
+  const user = await prisma.user.findUnique({
+    where: { id: idAsInt },
+    select: {
+      id: true,
+      name: true,
+      email: true,
+      email_verified: true,
+      phone_number: true,
+      identification: true,
+    },
+  });
+  if (!user) {
+    throw new Error("Usuario no encontrado");
   }
+  return user;
 };
 
 export const updatePasswordService = async ({
@@ -144,11 +140,6 @@ export const updatePasswordService = async ({
 
   const hashedPassword = await bcrypt.hash(newPassword, 12);
 
-  try {
-    await prisma.$executeRaw`CALL sp_update_password(${id}::int, ${hashedPassword}::text)`;
-    return { success: true, message: "Contraseña actualizada exitosamente" };
-  } catch (error) {
-    console.error(error);
-    throw new Error("Error al actualizar la contraseña: " + error);
-  }
+  await prisma.$executeRaw`CALL sp_update_password(${id}::int, ${hashedPassword}::text)`;
+  return { success: true, message: "Contraseña actualizada exitosamente" };
 };

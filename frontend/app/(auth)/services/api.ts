@@ -3,7 +3,7 @@ import { api } from "@/config/api";
 export const registerUser = async (userData: {
   name: string;
   email: string;
-  emailVerified?: Date;
+  email_verified?: Date;
   password: string;
   phoneNumber?: string;
 }) => {
@@ -21,7 +21,7 @@ export const updateUser = async (userData: {
   id: number;
   name: string;
   email: string;
-  emailVerified?: Date;
+  email_verified?: Date;
   phoneNumber?: string;
   identification?: string;
 }) => {

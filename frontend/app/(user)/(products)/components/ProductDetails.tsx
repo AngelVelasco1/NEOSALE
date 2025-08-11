@@ -38,8 +38,6 @@ const paymentMethods = [
   { icon: <RiCashLine />, name: "Efectivo" },
 ];
 
-// Simple PaymentIcon compone
-
 export const ProductDetails = ({ data }: ProductDetailsProps) => {
   const [quantity, setQuantity] = useState(1);
   const [selectedImage, setSelectedImage] = useState(0);
@@ -52,22 +50,14 @@ export const ProductDetails = ({ data }: ProductDetailsProps) => {
   const images = Array.isArray(data.images) ? data.images : [];
 
   const handleAddToCart = useCallback(async () => {
-    if (!selectedSize) {
-      const sizeSection = document.getElementById("size-selection");
-      if (sizeSection) {
-        sizeSection.classList.add("animate-pulse");
-        setTimeout(() => sizeSection.classList.remove("animate-pulse"), 1000);
-      }
-      return;
-    }
-
     setIsAddingToCart(true);
+  const selectedImageData = images.find(img => img.color_code === selectedColor);
 
     const product: CartProductsInfo = {
       id: data.id,
-      color: data.images[selectedImage]?.color || "",
-      colorCode: data.images[selectedImage]?.color_code || "",
-      imageUrl: data.images[selectedImage]?.image_url || "",
+      color: selectedImageData?.color || "",
+      color_code: selectedColor,
+      imageUrl: selectedImageData?.image_url || "",
       name: data.name,
       price: data.price,
       quantity: quantity,
@@ -75,34 +65,20 @@ export const ProductDetails = ({ data }: ProductDetailsProps) => {
       total: data.price * quantity,
     };
 
-    // Simulate API call delay for better UX
-    await new Promise((resolve) => setTimeout(resolve, 800));
-
     addProductToCart(product);
     setIsAddingToCart(false);
     setShowSuccess(true);
 
-    // Hide success message after 3 seconds
     setTimeout(() => setShowSuccess(false), 3000);
-  }, [
-    data,
-    selectedImage,
-    selectedColor,
-    selectedSize,
-    quantity,
-    addProductToCart,
-  ]);
+  }, [data, selectedColor, selectedSize, quantity, addProductToCart]);
 
   const handleImageChange = (index: number, color: string) => {
-    if (color === selectedColor) {
-      setSelectedImage(index);
-    } else {
-      setSelectedColor(color);
-      const firstImageIndex = data.images.findIndex(
-        (img) => img.color_code === color
-      );
-      setSelectedImage(firstImageIndex !== -1 ? firstImageIndex : 0);
-    }
+    setSelectedColor(color); 
+
+    const colorImageIndex = data.images.findIndex(
+      (img) => img.color_code === color
+    );
+    setSelectedImage(colorImageIndex !== -1 ? colorImageIndex : index);
   };
 
   useEffect(() => {
@@ -265,26 +241,37 @@ export const ProductDetails = ({ data }: ProductDetailsProps) => {
             </div>
 
             {/* Stock Status */}
-          <div className="bg-white border border-gray-200/60 rounded-xl px-5 py-4 w-fit  animate-in fade-in  transition-all duration-300">
-    <div className="flex items-center gap-3">
-      <div className={`w-3 h-3 rounded-full ${isInStock ? "bg-emerald-500" : "bg-red-500"}`} />
-      <div className="flex-1">
-        <span className={`font-semibold ${isInStock ? "text-gray-900" : "text-red-600"}`}>
-          {isInStock ? "En Stock" : "Agotado"}
-        </span>
-        {isInStock && (
-          <span className="text-gray-500 text-sm ml-2">
-            {data.stock} unidades disponibles
-          </span>
-        )}
-      </div>
-      {isInStock && (
-        <Badge variant="outline" className="text-emerald-600 border-emerald-200 bg-emerald-50">
-          Disponible
-        </Badge>
-      )}
-    </div>
-  </div>
+            <div className="bg-white border border-gray-200/60 rounded-xl px-5 py-4 w-fit  animate-in fade-in  transition-all duration-300">
+              <div className="flex items-center gap-3">
+                <div
+                  className={`w-3 h-3 rounded-full ${
+                    isInStock ? "bg-emerald-500" : "bg-red-500"
+                  }`}
+                />
+                <div className="flex-1">
+                  <span
+                    className={`font-semibold ${
+                      isInStock ? "text-gray-900" : "text-red-600"
+                    }`}
+                  >
+                    {isInStock ? "En Stock" : "Agotado"}
+                  </span>
+                  {isInStock && (
+                    <span className="text-gray-500 text-sm ml-2">
+                      {data.stock} unidades disponibles
+                    </span>
+                  )}
+                </div>
+                {isInStock && (
+                  <Badge
+                    variant="outline"
+                    className="text-emerald-600 border-emerald-200 bg-emerald-50"
+                  >
+                    Disponible
+                  </Badge>
+                )}
+              </div>
+            </div>
             {/* Size Selection */}
             {data?.sizes && (
               <div
@@ -316,9 +303,6 @@ export const ProductDetails = ({ data }: ProductDetailsProps) => {
                     >
                       <RadioGroupItem value={size} className="sr-only" />
                       {size.toUpperCase()}
-                      {selectedSize === size && (
-                        <div className="absolute -top-1 -right-1 w-3 h-3 bg-blue-600 rounded-full border-2 border-white" />
-                      )}
                     </label>
                   ))}
                 </RadioGroup>

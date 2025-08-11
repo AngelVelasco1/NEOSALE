@@ -1,48 +1,130 @@
-
-CREATE OR REPLACE sp_createCart(p_userId INT)
-    LANGUAGE plpgsql
-        AS $$
-        BEGIN
-          INSERT INTO cart (userId, createdAt, totalPrice) VALUES (p_userId, CURRENT_TIMESTAMP, 0);
-        END;
-    $$;
-
-
-CREATE OR REPLACE PROCEDURE sp_addProductToCart(p_userId INT, p_productId INT, p_quantity INT) 
-   LANGUAGE plpgsql
-      AS $$
-      BEGIN
-        INSERT INTO cart_items (cartId, productId, quantity, unitPrice, expiresAt) 
-        VALUES (
-        (SELECT id FROM cart WHERE userId = p_userId),
-        p_productId,
-        p_quantity,
-        (SELECT price FROM products WHERE id = p_productId),
-        NOW() + INTERVAL '60 days');
-      END;
-    $$;
-
-
-CREATE OR REPLACE PROCEDURE sp_deleteProductToCart(p_userId INT, p_productId INT)
-
+CREATE OR REPLACE PROCEDURE sp_create_cart(p_user_id INT)
     LANGUAGE plpgsql
     AS $$
     BEGIN
-        DELETE FROM cart_items WHERE productId = p_productId
-        AND cartId = (SELECT id FROM cart WHERE userId = p_userId);
-
+        IF EXISTS (SELECT 1 FROM cart WHERE user_id = p_user_id) THEN
+            RAISE EXCEPTION 'El usuario ya tiene un carrito';
+        END IF;
+        INSERT INTO cart (user_id, created_at, total_price) VALUES (p_user_id, CURRENT_TIMESTAMP, 0);
     END;
     $$;
 
-
-CREATE PROCEDURE sp_updateProductToCart(p_userId INT, p_productId INT, p_quantity INT) 
-   LANGUAGE plpgsql
+CREATE OR REPLACE PROCEDURE sp_add_product_to_cart(p_user_id INT, p_product_id INT, p_quantity INT, p_color_code VARCHAR(20), p_size VARCHAR(10))
+    LANGUAGE plpgsql
     AS $$
+    DECLARE 
+        v_cart_id INT;
     BEGIN
-        UPDATE cart_items 
-        SET quantity = p_quantity 
-        WHERE productId = p_productId
-        AND cartId = (SELECT id FROM cart WHERE userId = p_userId);
+        SELECT id INTO v_cart_id FROM cart WHERE user_id = p_user_id;
+        IF v_cart_id IS NULL THEN
+            RAISE EXCEPTION 'El usuario no tiene carrito';
+        END IF;
+
+        IF NOT EXISTS (SELECT 1 FROM products WHERE id = p_product_id) THEN
+            RAISE EXCEPTION 'El producto no existe';
+        END IF;
+
+        IF p_quantity <= 0 THEN 
+            RAISE EXCEPTION 'La cantidad debe ser mayor a 0';
+        END IF;
+
+        IF EXISTS (SELECT 1 FROM cart_items WHERE cart_id = v_cart_id AND product_id = p_product_id AND color_code = p_color_code AND size = p_size) THEN
+            UPDATE cart_items
+            SET quantity = quantity + p_quantity
+            WHERE cart_id = v_cart_id AND product_id = p_product_id AND color_code = p_color_code AND size = p_size;       
+        ELSE
+            INSERT INTO cart_items (cart_id, product_id, quantity, unit_price)
+            VALUES (
+                v_cart_id,
+                p_product_id,
+                p_quantity,
+                (SELECT price FROM products WHERE id = p_product_id),
+                p_size
+                p_color_code,
+            );
+        END IF;
     END;
     $$;
 
+CREATE OR REPLACE PROCEDURE sp_delete_product_from_cart(
+    p_user_id INT, 
+    p_product_id INT, 
+    p_color_code VARCHAR(20), 
+    p_size VARCHAR(10)
+)
+LANGUAGE plpgsql
+AS $$
+DECLARE
+    v_cart_id INT;
+BEGIN
+    SELECT id INTO v_cart_id FROM cart WHERE user_id = p_user_id;
+    IF v_cart_id IS NULL THEN
+        RAISE EXCEPTION 'El usuario no tiene carrito';
+    END IF;
+
+    IF NOT EXISTS (
+        SELECT 1 FROM cart_items 
+        WHERE cart_id = v_cart_id 
+        AND product_id = p_product_id 
+        AND color_code = p_color_code 
+        AND size = p_size
+    ) THEN
+        RAISE EXCEPTION 'El producto con las especificaciones dadas no está en el carrito';
+    END IF;
+
+    DELETE FROM cart_items
+    WHERE cart_id = v_cart_id
+    AND product_id = p_product_id
+    AND color_code = p_color_code
+    AND size = p_size;
+END;
+$$;
+
+-- 1. Eliminar el SP de agregar producto con menos parámetros (solo user_id, product_id, quantity)
+DROP PROCEDURE IF EXISTS sp_add_product_to_cart(INT, INT, INT);
+
+-- 2. Eliminar el SP de eliminar producto con menos parámetros (solo user_id, product_id)
+DROP PROCEDURE IF EXISTS sp_delete_product_from_cart(INT, INT);
+
+-- 3. Eliminar el SP de actualizar producto si existía con menos parámetros (solo user_id, product_id, quantity)
+DROP PROCEDURE IF EXISTS sp_update_product_in_cart(INT, INT, INT);
+
+CREATE OR REPLACE PROCEDURE sp_update_product_in_cart(
+    p_user_id INT, 
+    p_product_id INT, 
+    p_quantity INT,
+    p_color_code VARCHAR(20),
+    p_size VARCHAR(10)
+)
+LANGUAGE plpgsql
+AS $$
+DECLARE
+    v_cart_id INT;
+BEGIN
+    SELECT id INTO v_cart_id FROM cart WHERE user_id = p_user_id;
+    IF v_cart_id IS NULL THEN
+        RAISE EXCEPTION 'El usuario no tiene carrito';
+    END IF;
+
+    IF NOT EXISTS (
+        SELECT 1 FROM cart_items 
+        WHERE cart_id = v_cart_id 
+        AND product_id = p_product_id 
+        AND color_code = p_color_code 
+        AND size = p_size
+    ) THEN
+        RAISE EXCEPTION 'El producto con las especificaciones dadas no está en el carrito';
+    END IF;
+
+    IF p_quantity <= 0 THEN
+        RAISE EXCEPTION 'La cantidad debe ser mayor a cero';
+    END IF;
+
+    UPDATE cart_items
+    SET quantity = p_quantity
+    WHERE cart_id = v_cart_id
+    AND product_id = p_product_id
+    AND color_code = p_color_code
+    AND size = p_size;
+END;
+$$;

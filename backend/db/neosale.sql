@@ -13,25 +13,34 @@ DO $$ BEGIN
     IF NOT EXISTS (SELECT 1 FROM pg_type WHERE typname = 'roles_enum') THEN
         CREATE TYPE roles_enum AS ENUM ('user', 'admin');
     END IF;
+
+    IF NOT EXISTS (SELECT 1 FROM pg_type WHERE typname = 'return_status_enum') THEN
+        CREATE TYPE return_status_enum AS ENUM ('requested', 'approved', 'rejected', 'processed', 'refunded');
+    END IF;
 END $$;
 
-
-DROP TABLE IF EXISTS cart_items;
-DROP TABLE IF EXISTS order_items;
-DROP TABLE IF EXISTS order_logs;
+-- DROP TABLES en orden inverso de dependencias
+DROP TABLE IF EXISTS return_items;
+DROP TABLE IF EXISTS returns;
+DROP TABLE IF EXISTS favorites;
 DROP TABLE IF EXISTS reviews;
+DROP TABLE IF EXISTS order_logs;
+DROP TABLE IF EXISTS order_items;
+DROP TABLE IF EXISTS cart_items;
 DROP TABLE IF EXISTS images;
 DROP TABLE IF EXISTS addresses;
-DROP TABLE IF EXISTS category_subcategory;
 DROP TABLE IF EXISTS "Account";
-DROP TABLE IF EXISTS cart;
 DROP TABLE IF EXISTS orders;
+DROP TABLE IF EXISTS cart;
 DROP TABLE IF EXISTS products;
-DROP TABLE IF EXISTS coupons;
+DROP TABLE IF EXISTS category_subcategory;
 DROP TABLE IF EXISTS categories;
 DROP TABLE IF EXISTS subcategories;
 DROP TABLE IF EXISTS brands;
+DROP TABLE IF EXISTS coupons;
 DROP TABLE IF EXISTS "User";
+DROP TABLE IF EXISTS "verificationtoken";
+
 
 CREATE TABLE "User" (
     id SERIAL PRIMARY KEY,
@@ -53,7 +62,6 @@ CREATE TABLE "User" (
     created_at TIMESTAMP(6) DEFAULT CURRENT_TIMESTAMP NOT NULL,
     updated_at TIMESTAMP(6) DEFAULT NULL
 );
-
 
 CREATE TABLE brands (
     id SERIAL PRIMARY KEY,
@@ -180,7 +188,6 @@ CREATE TABLE cart_items (
     product_id INTEGER NOT NULL,
     quantity INTEGER NOT NULL CHECK (quantity > 0),
     unit_price INTEGER NOT NULL CHECK (unit_price >= 0),
-    expires_at TIMESTAMP(6) NOT NULL,
     FOREIGN KEY (cart_id) REFERENCES cart(id) ON DELETE NO ACTION ON UPDATE NO ACTION,
     FOREIGN KEY (product_id) REFERENCES products(id) ON DELETE NO ACTION ON UPDATE NO ACTION
 );
@@ -193,8 +200,6 @@ CREATE TABLE images (
     product_id INTEGER NOT NULL,
     FOREIGN KEY (product_id) REFERENCES products(id) ON DELETE NO ACTION ON UPDATE NO ACTION
 );
-
-
 
 CREATE TABLE order_items (
     id SERIAL PRIMARY KEY,
@@ -229,12 +234,51 @@ CREATE TABLE reviews (
     product_id INTEGER NOT NULL,
     created_at TIMESTAMP(6) DEFAULT CURRENT_TIMESTAMP NOT NULL,
     updated_at TIMESTAMP(6) DEFAULT CURRENT_TIMESTAMP NOT NULL,
-
     FOREIGN KEY (user_id) REFERENCES "User"(id) ON DELETE NO ACTION ON UPDATE NO ACTION,
     FOREIGN KEY (product_id) REFERENCES products(id) ON DELETE NO ACTION ON UPDATE NO ACTION
 );
 
--- Indices para optimización
+CREATE TABLE returns (
+    id SERIAL PRIMARY KEY,
+    order_id INTEGER NOT NULL,
+    user_id INTEGER NOT NULL,
+    reason VARCHAR(255) NOT NULL,
+    description VARCHAR(500),
+    status return_status_enum DEFAULT 'requested' NOT NULL,
+    refund_amount INTEGER CHECK (refund_amount >= 0),
+    admin_response TEXT,
+    images VARCHAR(255)[], 
+    requested_at TIMESTAMP(6) DEFAULT CURRENT_TIMESTAMP NOT NULL,
+    processed_at TIMESTAMP(6),
+    refunded_at TIMESTAMP(6),
+    processed_by INTEGER,
+    FOREIGN KEY (order_id) REFERENCES orders(id) ON DELETE NO ACTION ON UPDATE NO ACTION,
+    FOREIGN KEY (user_id) REFERENCES "User"(id) ON DELETE NO ACTION ON UPDATE NO ACTION,
+    FOREIGN KEY (processed_by) REFERENCES "User"(id) ON DELETE NO ACTION ON UPDATE NO ACTION
+);
+
+CREATE TABLE return_items (
+    id SERIAL PRIMARY KEY,
+    return_id INTEGER NOT NULL,
+    order_item_id INTEGER NOT NULL,
+    quantity INTEGER NOT NULL CHECK (quantity > 0),
+    reason VARCHAR(255),
+    FOREIGN KEY (return_id) REFERENCES returns(id) ON DELETE CASCADE,
+    FOREIGN KEY (order_item_id) REFERENCES order_items(id) ON DELETE NO ACTION ON UPDATE NO ACTION
+);
+
+CREATE TABLE favorites (
+    id SERIAL PRIMARY KEY,
+    user_id INTEGER NOT NULL,
+    product_id INTEGER NOT NULL,
+    created_at TIMESTAMP(6) DEFAULT CURRENT_TIMESTAMP NOT NULL,
+    CONSTRAINT unique_user_product_favorite UNIQUE(user_id, product_id),
+    FOREIGN KEY (user_id) REFERENCES "User"(id) ON DELETE CASCADE,
+    FOREIGN KEY (product_id) REFERENCES products(id) ON DELETE CASCADE
+);
+
+
+-- Índices para optimización
 CREATE INDEX idx_user_email ON "User"(email);
 CREATE INDEX idx_products_category_id ON products(category_id);
 CREATE INDEX idx_products_brand_id ON products(brand_id);
@@ -242,134 +286,6 @@ CREATE INDEX idx_cart_user_id ON cart(user_id);
 CREATE INDEX idx_orders_user_id ON orders(user_id);
 CREATE INDEX idx_reviews_product_id ON reviews(product_id);
 CREATE INDEX idx_images_product_id ON images(product_id);
+CREATE INDEX idx_favorites_user_id ON favorites(user_id);
+CREATE INDEX idx_favorites_product_id ON favorites(product_id);
 
-UPDATE products SET price = 150000 WHERE id = 1;
-UPDATE "User" SET email_verified = CURRENT_TIMESTAMP WHERE email = 'usuario@email.com';
-UPDATE products SET active = false WHERE stock = 0;
-select * from products;
-
-DELETE FROM images WHERE product_id = 999;
-DELETE FROM addresses WHERE user_id = 999;
-DELETE FROM products WHERE active = false AND stock = 0;
-select * from "User";
-
--- Productos con sus categorías
-SELECT p.name, p.price, c.name AS category_name 
-FROM products p 
-JOIN categories c ON p.category_id = c.id;
-
--- Productos con sus marcas
-SELECT p.name, p.price, b.name AS brand_name 
-FROM products p 
-JOIN brands b ON p.brand_id = b.id;
-
--- Usuarios con sus direcciones
-SELECT u.name, u.email, a.address, a.city 
-FROM "User" u 
-JOIN addresses a ON u.id = a.user_id;
-
--- Productos más caros que el promedio
-SELECT * FROM products WHERE price > (SELECT AVG(price) FROM products);
-
--- Usuarios que tienen direcciones
-SELECT * FROM "User" WHERE id IN (SELECT DISTINCT user_id FROM addresses);
-
--- Productos de categorías populares (con más de 2 productos)
-SELECT * FROM products WHERE category_id IN 
-(SELECT category_id FROM products GROUP BY category_id HAVING COUNT(*) > 2);
-
-
-SELECT name, price,
-       CASE 
-           WHEN price > 1000000 THEN 'Precio Alto'
-           WHEN price BETWEEN 500000 AND 1000000 THEN 'Precio Medio'
-           ELSE 'Precio Bajo'
-       END AS rango_precio
-FROM products;
-
-SELECT name, stock,
-       CASE 
-           WHEN stock = 0 THEN 'Sin Stock'
-           WHEN stock < 10 THEN 'Stock Bajo'
-           ELSE 'Stock Disponible'
-       END AS estado_stock
-FROM products;
-
-
--- Combinar nombres de usuarios y nombres de productos
-SELECT name AS nombre FROM "User"
-UNION
-SELECT name AS nombre FROM products;
-
--- Combinar ciudades de direcciones y nombres de categorías
-SELECT city AS texto FROM addresses
-UNION
-SELECT name AS texto FROM categories;
-
-
--- Incluir duplicados en la combinación
-SELECT name AS nombre FROM "User"
-UNION ALL
-SELECT name AS nombre FROM products;
-
-SELECT 'Usuario' AS tipo, name FROM "User"
-UNION ALL
-SELECT 'Producto' AS tipo, name FROM products;
-
-
--- Categorías con más de 2 productos
-SELECT category_id, COUNT(*) AS total_productos
-FROM products 
-GROUP BY category_id 
-HAVING COUNT(*) > 2;
-
--- Marcas con precio promedio mayor a 500000
-SELECT brand_id, AVG(price) AS precio_promedio
-FROM products 
-GROUP BY brand_id 
-HAVING AVG(price) > 500000;
-
--- Usuarios con más de 1 dirección
-SELECT user_id, COUNT(*) AS total_direcciones
-FROM addresses 
-GROUP BY user_id 
-HAVING COUNT(*) > 1;
-
-
--- Productos que tienen imágenes
-SELECT * FROM products p
-WHERE EXISTS (SELECT 1 FROM images i WHERE i.product_id = p.id);
-
--- Usuarios que tienen direcciones
-SELECT * FROM "User" u
-WHERE EXISTS (SELECT 1 FROM addresses a WHERE a.user_id = u.id);
-
--- Categorías que tienen productos
-SELECT * FROM categories c
-WHERE EXISTS (SELECT 1 FROM products p WHERE p.category_id = c.id);
-
-
--- Productos que contienen "Nike" en el nombre
-SELECT * FROM products WHERE name LIKE '%Nike%';
-
--- Usuarios con email de Gmail
-SELECT * FROM "User" WHERE email LIKE '%@gmail.com';
-
--- Productos que empiezan con "Camiseta"
-SELECT * FROM products WHERE name LIKE 'Camiseta%';
-
--- Direcciones en Bogotá
-SELECT * FROM addresses WHERE city LIKE '%Bogotá%';
-
-
--- Productos con precio entre 100,000 y 500,000
-SELECT * FROM products WHERE price BETWEEN 100000 AND 500000;
-
--- Productos con stock entre 10 y 50
-SELECT * FROM products WHERE stock BETWEEN 10 AND 50;
-
--- Usuarios registrados en diciembre de 2023
-SELECT * FROM "User" WHERE created_at BETWEEN '2023-12-01' AND '2023-12-31';
-
--- Productos creados en los últimos 30 días
-SELECT * FROM products WHERE created_at BETWEEN CURRENT_DATE - INTERVAL '30 days' AND CURRENT_DATE;

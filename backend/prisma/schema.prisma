@@ -47,7 +47,8 @@ model cart_items {
   product_id Int
   quantity   Int
   unit_price Int
-  expires_at DateTime @db.Timestamp(6)
+  size       String?  @db.VarChar(10)
+  color_code String?  @db.VarChar(20)
   cart       cart     @relation(fields: [cart_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
   products   products @relation(fields: [product_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
 }
@@ -94,16 +95,17 @@ model images {
 }
 
 model order_items {
-  id         Int       @id @default(autoincrement())
-  price      Int
-  quantity   Int
-  subtotal   Int
-  product_id Int
-  order_id   Int
-  created_at DateTime  @default(now()) @db.Timestamp(6)
-  updated_at DateTime? @db.Timestamp(6)
-  orders     orders    @relation(fields: [order_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
-  products   products  @relation(fields: [product_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  id           Int            @id @default(autoincrement())
+  price        Int
+  quantity     Int
+  subtotal     Int
+  product_id   Int
+  order_id     Int
+  created_at   DateTime       @default(now()) @db.Timestamp(6)
+  updated_at   DateTime?      @db.Timestamp(6)
+  orders       orders         @relation(fields: [order_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  products     products       @relation(fields: [product_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  return_items return_items[]
 }
 
 model order_logs {
@@ -135,6 +137,7 @@ model orders {
   order_logs          order_logs[]
   coupons             coupons?                  @relation(fields: [coupon_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
   users               User                      @relation(fields: [user_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  returns             returns[]
 
   @@index([user_id], map: "idx_orders_user_id")
 }
@@ -156,6 +159,7 @@ model products {
   updated_at  DateTime?     @db.Timestamp(6)
   updated_by  Int
   cart_items  cart_items[]
+  favorites   favorites[]
   images      images[]
   order_items order_items[]
   brands      brands        @relation(fields: [brand_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
@@ -181,23 +185,26 @@ model reviews {
 }
 
 model User {
-  id             Int         @id @default(autoincrement())
-  name           String      @db.VarChar(255)
-  email          String      @unique @db.VarChar(255)
-  email_verified DateTime?   @db.Timestamp(6)
-  password       String?     @db.VarChar(255)
-  image          String?     @db.VarChar(255)
-  phone_number   String?     @unique @db.VarChar(20)
-  identification String?     @unique @db.VarChar(20)
-  role           roles_enum  @default(user)
-  active         Boolean     @default(true)
-  created_at     DateTime    @default(now()) @db.Timestamp(6)
-  updated_at     DateTime?   @db.Timestamp(6)
-  Account        Account[]
-  addresses      addresses[]
-  cart           cart[]
-  orders         orders[]
-  reviews        reviews[]
+  id                                 Int         @id @default(autoincrement())
+  name                               String      @db.VarChar(255)
+  email                              String      @unique @db.VarChar(255)
+  email_verified                     DateTime?   @db.Timestamp(6)
+  password                           String?     @db.VarChar(255)
+  image                              String?     @db.VarChar(255)
+  phone_number                       String?     @unique @db.VarChar(20)
+  identification                     String?     @unique @db.VarChar(20)
+  role                               roles_enum  @default(user)
+  active                             Boolean     @default(true)
+  created_at                         DateTime    @default(now()) @db.Timestamp(6)
+  updated_at                         DateTime?   @db.Timestamp(6)
+  Account                            Account[]
+  addresses                          addresses[]
+  cart                               cart[]
+  favorites                          favorites[]
+  orders                             orders[]
+  returns_returns_processed_byToUser returns[]   @relation("returns_processed_byToUser")
+  returns_returns_user_idToUser      returns[]   @relation("returns_user_idToUser")
+  reviews                            reviews[]
 
   @@index([email], map: "idx_user_email")
 }
@@ -229,6 +236,51 @@ model subcategories {
   category_subcategory category_subcategory[]
 }
 
+model favorites {
+  id         Int      @id @default(autoincrement())
+  user_id    Int
+  product_id Int
+  created_at DateTime @default(now()) @db.Timestamp(6)
+  products   products @relation(fields: [product_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+  User       User     @relation(fields: [user_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+
+  @@unique([user_id, product_id], map: "unique_user_product_favorite")
+  @@index([product_id], map: "idx_favorites_product_id")
+  @@index([user_id], map: "idx_favorites_user_id")
+}
+
+/// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
+model return_items {
+  id            Int         @id @default(autoincrement())
+  return_id     Int
+  order_item_id Int
+  quantity      Int
+  reason        String?     @db.VarChar(255)
+  order_items   order_items @relation(fields: [order_item_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  returns       returns     @relation(fields: [return_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+}
+
+/// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
+model returns {
+  id                              Int                @id @default(autoincrement())
+  order_id                        Int
+  user_id                         Int
+  reason                          String             @db.VarChar(255)
+  description                     String?            @db.VarChar(500)
+  status                          return_status_enum @default(requested)
+  refund_amount                   Int?
+  admin_response                  String?
+  images                          String[]           @db.VarChar(255)
+  requested_at                    DateTime           @default(now()) @db.Timestamp(6)
+  processed_at                    DateTime?          @db.Timestamp(6)
+  refunded_at                     DateTime?          @db.Timestamp(6)
+  processed_by                    Int?
+  return_items                    return_items[]
+  orders                          orders             @relation(fields: [order_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  User_returns_processed_byToUser User?              @relation("returns_processed_byToUser", fields: [processed_by], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  User_returns_user_idToUser      User               @relation("returns_user_idToUser", fields: [user_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+}
+
 enum orders_paymentmethod_enum {
   paypal
   nequi
@@ -246,4 +298,12 @@ enum orders_status_enum {
 enum roles_enum {
   user
   admin
+}
+
+enum return_status_enum {
+  requested
+  approved
+  rejected
+  processed
+  refunded
 }

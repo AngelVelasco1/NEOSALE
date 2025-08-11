@@ -1,10 +1,18 @@
 "use client";
 
-import { createContext, useContext, useState, useEffect, ReactNode, useCallback } from 'react';
-import { useSession } from 'next-auth/react';
-import { getUserById } from '../services/api';
+import React, {
+  createContext,
+  useContext,
+  useState,
+  useEffect,
+  ReactNode,
+  useCallback,
+} from "react";
+import { useSession } from "next-auth/react";
+import { getUserById } from "../services/api";
 
 interface UserProfile {
+  id: number;
   name: string | null;
   email: string | null;
   phone_number: string | null;
@@ -18,7 +26,7 @@ interface UserContextType {
   isLoading: boolean;
   setSelectedAddress: (addressIndex: string) => void;
   selectedAddress: string | undefined;
-  reFetchUserProfile: () => Promise<UserProfile | null>; // ✅ Corregido el tipo de retorno
+  reFetchUserProfile: () => Promise<UserProfile | null>; 
 }
 
 const UserContext = createContext<UserContextType | undefined>(undefined);
@@ -39,33 +47,33 @@ export const UserProvider = ({ children }: UserProviderProps) => {
     setMounted(true);
   }, []);
 
-  const fetchUserProfile = useCallback(async (): Promise<UserProfile | null> => {
-    try {
-      setIsLoading(true);
-      
-      if (session?.user?.id) {
-        const data = await getUserById(Number(session.user.id));
-        setUserProfile(data);
-        return data;
-      } else if (status !== 'loading') {
+  const fetchUserProfile =
+    useCallback(async (): Promise<UserProfile | null> => {
+      try {
+        setIsLoading(true);
+
+        if (session?.user?.id) {
+          const data = await getUserById(Number(session.user.id));
+          setUserProfile(data);
+          return data;
+        } else if (status !== 'loading') {
+          setUserProfile(null);
+          return null;
+        }
+
+        return null;
+      } catch (err) {
+        console.error("Error fetching user profile:", err);
         setUserProfile(null);
         return null;
+      } finally {
+        setIsLoading(false);
       }
-      
-      return null;
-    } catch (err) {
-      console.error('Error fetching user profile:', err);
-      setUserProfile(null);
-      return null;
-    } finally {
-      setIsLoading(false);
-    }
-  }, [session?.user?.id, status]);
+    }, [session?.user?.id, status]);
 
-  // ✅ Solo ejecutar después de la hidratación
   useEffect(() => {
     if (!mounted) return;
-    
+
     if (status === 'loading') {
       setIsLoading(true);
       return;
@@ -74,7 +82,6 @@ export const UserProvider = ({ children }: UserProviderProps) => {
     fetchUserProfile();
   }, [mounted, fetchUserProfile, status]);
 
-  // ✅ Proporcionar valores por defecto durante la hidratación
   const defaultValue: UserContextType = {
     userProfile: null,
     isLoading: true,
@@ -83,7 +90,6 @@ export const UserProvider = ({ children }: UserProviderProps) => {
     reFetchUserProfile: async () => null,
   };
 
-  // ✅ Durante la hidratación, usar valores por defecto
   if (!mounted) {
     return (
       <UserContext.Provider value={defaultValue}>
@@ -100,17 +106,13 @@ export const UserProvider = ({ children }: UserProviderProps) => {
     reFetchUserProfile: fetchUserProfile,
   };
 
-  return (
-    <UserContext.Provider value={value}>
-      {children}
-    </UserContext.Provider>
-  );
+  return <UserContext.Provider value={value}>{children}</UserContext.Provider>;
 };
 
 export const useUser = () => {
   const context = useContext(UserContext);
   if (context === undefined) {
-    throw new Error('useUser must be used within a UserProvider');
+    throw new Error("useUser must be used within a UserProvider");
   }
   return context;
 };

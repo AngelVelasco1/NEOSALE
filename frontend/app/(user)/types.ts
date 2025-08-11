@@ -31,7 +31,7 @@ export interface IProductDetails {
 export interface CartProductsInfo {
     id: number;
     color: string;
-    colorCode: string;
+    color_code: string;
     imageUrl: string;
     name: string;
     price: number;
@@ -42,10 +42,11 @@ export interface CartProductsInfo {
 export interface CartProductsContext {
     cartProducts: CartProductsInfo[],
     addProductToCart: (product: CartProductsInfo) => void,
-    updateQuantity: (id: number, color: string, quantity: number, size: string) => void,
-    removeProductCart: (id: number, color: string, size: string) => void;
+    updateQuantity: (id: number, color_code: string, quantity: number, size: string) => void,
+    deleteProductFromCart: (id: number, color_code: string, size: string) => void;
     getCartProductCount: () => number;
     getSubTotal: () => number;
+    isLoading: boolean;
 }
 
 export interface FilterState {

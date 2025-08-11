@@ -7,8 +7,8 @@ import { Button } from "../../../../components/ui/button";
 import { Trash2, ShoppingBag, ArrowRight } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 
-export default function CartProduct() {
-  const { cartProducts, updateQuantity, removeProductCart, getSubTotal } =
+export default function CartProducts() {
+  const { cartProducts, updateQuantity, deleteProductFromCart, getSubTotal } =
     useCart();
 
   const containerVariants = {
@@ -158,7 +158,7 @@ export default function CartProduct() {
             >
               {cartProducts.map((product) => (
                 <motion.div
-                  key={`${product.id}-${product.colorCode}-${product.size}`}
+                  key={`${product.id}-${product.color_code}-${product.size}`}
                   variants={itemVariants}
                   layout
                   className="group bg-white rounded-2xl p-6 shadow-sm border border-gray-100 hover:shadow-md transition-all duration-300 hover:border-blue-200"
@@ -190,7 +190,7 @@ export default function CartProduct() {
                         <div className="flex items-center gap-2">
                           <div
                             className="w-4 h-4 rounded-full border-2 border-white shadow-sm ring-1 ring-gray-200"
-                            style={{ backgroundColor: product.colorCode }}
+                            style={{ backgroundColor: product.color_code }}
                             title={product.color}
                           />
                           <span className="text-sm text-gray-500">
@@ -223,7 +223,7 @@ export default function CartProduct() {
                         handleDecrease={() =>
                           updateQuantity(
                             product.id,
-                            product.colorCode,
+                            product.color_code,
                             Math.max(1, product.quantity - 1),
                             product.size
                           )
@@ -231,7 +231,7 @@ export default function CartProduct() {
                         handleIncrease={() =>
                           updateQuantity(
                             product.id,
-                            product.colorCode,
+                            product.color_code,
                             product.quantity + 1,
                             product.size
                           )
@@ -241,9 +241,9 @@ export default function CartProduct() {
                     <motion.button
                       className="p-2 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded-lg transition-all duration-200 cursor-pointer"
                       onClick={() =>
-                        removeProductCart(
+                        deleteProductFromCart(
                           product.id,
-                          product.colorCode,
+                          product.color_code,
                           product.size
                         )
                       }

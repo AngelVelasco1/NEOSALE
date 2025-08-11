@@ -1,6 +1,5 @@
 -- Habilitar extensión para hash de contraseñas para admins
 CREATE EXTENSION IF NOT EXISTS pgcrypto;
-select * from "User";
 -- 1. SUBCATEGORÍAS
 INSERT INTO subcategories (name) VALUES 
 ('Camisas deportivas'),
@@ -50,7 +49,8 @@ INSERT INTO brands (id, name, image_url) VALUES
 INSERT INTO "User" (name, email, email_verified, password, phone_number, identification, role) VALUES
 -- Administradores
 ('María López', 'maria.admin@neosale.com', '2023-10-02 10:00:00', crypt('Admin123!', gen_salt('bf', 12)), '3012345678', '1098765432', 'admin'),
-
+select * from cart;
+select * from cart_items;
 -- Usuarios regulares
 ('Carlos Rodríguez', 'carlos.rodriguez@email.com', '2023-11-15 14:30:00', crypt('User123!', gen_salt('bf', 12)), '3023456789', '1087654321', 'user'),
 ('Ana Martínez', 'ana.martinez@email.com', '2023-11-20 09:15:00', crypt('User456!', gen_salt('bf', 12)), '3034567890', '1076543210', 'user'),
@@ -64,7 +64,6 @@ INSERT INTO "User" (name, email, email_verified, password, phone_number, identif
 ('Camila Torres', 'camila.torres@email.com', '2024-01-05 14:20:00', crypt('User707!', gen_salt('bf', 12)), '3112345678', '1008765432', 'user');
 
 -- 5. PRODUCTOS
-
 -- PRODUCTOS DEPORTIVOS
 INSERT INTO products (name, description, price, stock, weight, sizes, active, category_id, brand_id, created_by, updated_by) VALUES
 ('Camiseta Dry-Fit Pro', 'Camiseta deportiva de alto rendimiento con tecnología de absorción de sudor.', 89000, 50, 0.25, 'XS,S,M,L,XL,XXL', TRUE, 1, 1, 1, 1),
@@ -111,15 +110,13 @@ UPDATE products SET discount = 0.0 WHERE name = 'PlayStation 5';
 UPDATE products SET discount = 30.0 WHERE name = 'Smart TV LG 55"';
 UPDATE products SET discount = 22.0 WHERE name = 'Sofá Modular IKEA';
 UPDATE products SET discount = 35.0 WHERE name = 'Cama King Size';
-
--- 6. IMÁGENES DE PRODUCTOS
+select * from products;-- 6. IMÁGENES DE PRODUCTOS
 INSERT INTO images (image_url, color_code, color, product_id) VALUES
 -- Camiseta Dry-Fit Pro
 ('https://static.nike.com/a/images/t_PDP_1280_v1/f_auto,q_auto:eco/61734ec7-dad8-40f3-9b95-c7500939150a/dri-fit-miler-mens-running-top-M0D4QV.png', '#000000', 'Negro', 1),
 ('https://static.nike.com/a/images/t_PDP_1280_v1/f_auto,q_auto:eco/2a8eb628-e25b-4b1b-9b1a-7b5c3d4e5f6g/dri-fit-miler-mens-running-top-M0D4QV.png', '#FFFFFF', 'Blanco', 1),
 ('https://static.nike.com/a/images/t_PDP_1280_v1/f_auto,q_auto:eco/3c9fc639-f36c-5c2c-ac2b-8c6d4e5f6g7h/dri-fit-miler-mens-running-top-M0D4QV.png', '#FF0000', 'Rojo', 1),
 
-select * from images;
 -- Pantaloneta Running Elite
 ('https://static.nike.com/a/images/t_PDP_1280_v1/f_auto,q_auto:eco/shorts-example-1.png', '#000000', 'Negro', 2),
 ('https://static.nike.com/a/images/t_PDP_1280_v1/f_auto,q_auto:eco/shorts-example-2.png', '#0066CC', 'Azul', 2),
@@ -201,6 +198,3 @@ SELECT u.name as usuario, a.address, a.city, a.department
 FROM "User" u
 JOIN addresses a ON u.id = a.user_id
 ORDER BY u.id;
-
-
-SELECT * FROM products WHERE price > 1000000;
