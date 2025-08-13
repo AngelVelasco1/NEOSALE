@@ -8,8 +8,9 @@ import { Trash2, ShoppingBag, ArrowRight } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 
 export default function CartProducts() {
-  const { cartProducts, updateQuantity, deleteProductFromCart, getSubTotal } =
-    useCart();
+  const { cartProducts, updateQuantity, deleteProductFromCart, getSubTotal } = useCart();
+  console.log(cartProducts);
+  
 
   const containerVariants = {
     hidden: { opacity: 0 },
@@ -220,22 +221,29 @@ export default function CartProducts() {
                       </div>
                       <SetQuantity
                         cartProduct={product}
-                        handleDecrease={() =>
-                          updateQuantity(
-                            product.id,
-                            product.color_code,
-                            Math.max(1, product.quantity - 1),
-                            product.size
-                          )
-                        }
-                        handleIncrease={() =>
-                          updateQuantity(
-                            product.id,
-                            product.color_code,
-                            product.quantity + 1,
-                            product.size
-                          )
-                        }
+                        handleDecrease={() => {
+                          const newQuantity = Math.max(1, product.quantity - 1);
+                          if (newQuantity !== product.quantity) {
+                            updateQuantity(
+                              product.id,
+                              product.color_code,
+                              newQuantity,
+                              product.size
+                            )
+                          }
+
+                        }}
+                        handleIncrease={() => {                          
+                          const newQuantity = Math.min(product.stock, product.quantity + 1);
+                          if (newQuantity !== product.quantity) {
+                            updateQuantity(
+                              product.id,
+                              product.color_code,
+                              newQuantity,
+                              product.size
+                            )
+                          }
+                        }}
                       />
                     </div>
                     <motion.button

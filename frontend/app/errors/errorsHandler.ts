@@ -41,7 +41,7 @@ export class ErrorsHandler {
       typeof error === "object" &&
       error !== null &&
       "isHandledError" in error &&
-      (error as any).isHandledError === true &&
+      (error as unknown as ApiError).isHandleError === true &&
       "message" in error &&
       "code" in error
     );
@@ -54,7 +54,7 @@ export class ErrorsHandler {
       "success" in error &&
       "message" in error &&
       "code" in error &&
-      (error as any).success === false
+      (error as ApiError).success === false
     );
   }
 

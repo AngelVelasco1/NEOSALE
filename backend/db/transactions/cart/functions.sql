@@ -9,7 +9,7 @@ CREATE OR REPLACE PROCEDURE sp_create_cart(p_user_id INT)
     END;
     $$;
 
-CREATE OR REPLACE PROCEDURE sp_add_product_to_cart(p_user_id INT, p_product_id INT, p_quantity INT, p_color_code VARCHAR(20), p_size VARCHAR(10))
+CREATE OR REPLACE PROCEDURE sp_add_product_to_cart(p_user_id INT, p_product_id INT, p_quantity INT, p_color_code VARCHAR(7), p_size VARCHAR(25))
     LANGUAGE plpgsql
     AS $$
     DECLARE 
@@ -31,16 +31,19 @@ CREATE OR REPLACE PROCEDURE sp_add_product_to_cart(p_user_id INT, p_product_id I
         IF EXISTS (SELECT 1 FROM cart_items WHERE cart_id = v_cart_id AND product_id = p_product_id AND color_code = p_color_code AND size = p_size) THEN
             UPDATE cart_items
             SET quantity = quantity + p_quantity
-            WHERE cart_id = v_cart_id AND product_id = p_product_id AND color_code = p_color_code AND size = p_size;       
+            WHERE cart_id = v_cart_id 
+            AND product_id = p_product_id    
+            AND COALESCE(color_code, '') = COALESCE(p_color_code, '')
+            AND COALESCE(size, '') = COALESCE(p_size, '');       
         ELSE
-            INSERT INTO cart_items (cart_id, product_id, quantity, unit_price)
+            INSERT INTO cart_items (cart_id, product_id, quantity, unit_price, size, color_code)
             VALUES (
                 v_cart_id,
                 p_product_id,
                 p_quantity,
                 (SELECT price FROM products WHERE id = p_product_id),
-                p_size
-                p_color_code,
+                p_size,
+                p_color_code
             );
         END IF;
     END;
@@ -49,8 +52,8 @@ CREATE OR REPLACE PROCEDURE sp_add_product_to_cart(p_user_id INT, p_product_id I
 CREATE OR REPLACE PROCEDURE sp_delete_product_from_cart(
     p_user_id INT, 
     p_product_id INT, 
-    p_color_code VARCHAR(20), 
-    p_size VARCHAR(10)
+    p_color_code VARCHAR(7), 
+    p_size VARCHAR(25)
 )
 LANGUAGE plpgsql
 AS $$
@@ -80,51 +83,38 @@ BEGIN
 END;
 $$;
 
--- 1. Eliminar el SP de agregar producto con menos parámetros (solo user_id, product_id, quantity)
-DROP PROCEDURE IF EXISTS sp_add_product_to_cart(INT, INT, INT);
-
--- 2. Eliminar el SP de eliminar producto con menos parámetros (solo user_id, product_id)
-DROP PROCEDURE IF EXISTS sp_delete_product_from_cart(INT, INT);
-
--- 3. Eliminar el SP de actualizar producto si existía con menos parámetros (solo user_id, product_id, quantity)
-DROP PROCEDURE IF EXISTS sp_update_product_in_cart(INT, INT, INT);
-
-CREATE OR REPLACE PROCEDURE sp_update_product_in_cart(
+CREATE OR REPLACE PROCEDURE sp_update_cart_quantity(
     p_user_id INT, 
     p_product_id INT, 
-    p_quantity INT,
-    p_color_code VARCHAR(20),
-    p_size VARCHAR(10)
+    p_new_quantity INT,
+    p_color_code VARCHAR(50),
+    p_size VARCHAR(25)
 )
 LANGUAGE plpgsql
 AS $$
-DECLARE
+DECLARE 
     v_cart_id INT;
+    v_product_stock INT;
 BEGIN
+    IF p_new_quantity < 0 THEN
+        RAISE EXCEPTION 'La cantidad no puede ser negativa';
+    END IF;
+
     SELECT id INTO v_cart_id FROM cart WHERE user_id = p_user_id;
     IF v_cart_id IS NULL THEN
         RAISE EXCEPTION 'El usuario no tiene carrito';
     END IF;
 
-    IF NOT EXISTS (
-        SELECT 1 FROM cart_items 
+    SELECT stock INTO v_product_stock FROM products WHERE id = p_product_id;
+    IF p_new_quantity > v_product_stock THEN
+        RAISE EXCEPTION 'Cantidad solicitada (%) excede el stock disponible (%)', p_new_quantity, v_product_stock;
+    END IF;
+
+        UPDATE cart_items
+        SET quantity = p_new_quantity
         WHERE cart_id = v_cart_id 
         AND product_id = p_product_id 
-        AND color_code = p_color_code 
-        AND size = p_size
-    ) THEN
-        RAISE EXCEPTION 'El producto con las especificaciones dadas no está en el carrito';
-    END IF;
-
-    IF p_quantity <= 0 THEN
-        RAISE EXCEPTION 'La cantidad debe ser mayor a cero';
-    END IF;
-
-    UPDATE cart_items
-    SET quantity = p_quantity
-    WHERE cart_id = v_cart_id
-    AND product_id = p_product_id
-    AND color_code = p_color_code
-    AND size = p_size;
+        AND COALESCE(color_code, '') = COALESCE(p_color_code, '')
+        AND COALESCE(size, '') = COALESCE(p_size, '');
 END;
 $$;

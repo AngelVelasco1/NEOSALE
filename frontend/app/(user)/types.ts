@@ -38,6 +38,7 @@ export interface CartProductsInfo {
     size: string;
     quantity: number;
     total: number;
+    stock: number;
 }
 export interface CartProductsContext {
     cartProducts: CartProductsInfo[],

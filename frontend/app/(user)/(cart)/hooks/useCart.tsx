@@ -4,6 +4,7 @@ import React, { useContext, createContext, useState, useCallback, useEffect, Rea
 import { CartProductsContext, CartProductsInfo } from "../../types";
 import { useUserSafe } from "../../../(auth)/hooks/useUserSafe";
 import { addProductToCartApi, getCartApi, deleteProductFromCartApi, updateQuantityApi } from "../services/api";
+import { ErrorsHandler } from "@/app/errors/errorsHandler";
 
 const CartContext = createContext<CartProductsContext | undefined>(undefined);
 
@@ -12,29 +13,29 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
   const [cartProducts, setCartProduct] = useState<CartProductsInfo[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
- useEffect(() => {
-  const loadInitialCart = async () => {
-    setIsLoading(true);
-    
-    if (userProfile) {
-      try {
-        localStorage.removeItem("cart");
-        const cartItems = await getCartApi(userProfile.id); 
-        setCartProduct(cartItems || []);
-      } catch (error) {
-        console.error("Error loading cart", error);
-        setCartProduct([]);
-      }
-    } else {
-      const stored = localStorage.getItem("cart");
-      setCartProduct(stored ? JSON.parse(stored) : []);
-    }
-    
-    setIsLoading(false);
-  };
+  useEffect(() => {
+    const loadInitialCart = async () => {
+      setIsLoading(true);
 
-  loadInitialCart();
-}, [userProfile]);
+      if (userProfile) {
+        try {
+          localStorage.removeItem("cart");
+          const cartItems = await getCartApi(userProfile.id);
+          setCartProduct(cartItems || []);
+        } catch (error) {
+          console.error("Error loading cart", error);
+          setCartProduct([]);
+        }
+      } else {
+        const stored = localStorage.getItem("cart");
+        setCartProduct(stored ? JSON.parse(stored) : []);
+      }
+
+      setIsLoading(false);
+    };
+
+    loadInitialCart();
+  }, [userProfile]);
 
   const addProductToCart = useCallback(
     async (product: CartProductsInfo) => {
@@ -46,10 +47,10 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
             quantity: product.quantity,
             color_code: product.color_code,
             size: product.size,
-          };          
-          
+          };
+
           await addProductToCartApi(productData);
-          const cartItem = await getCartApi(userProfile.id);        
+          const cartItem = await getCartApi(userProfile.id);
           setCartProduct(cartItem);
         } catch (error) {
           console.error("Error adding product to cart:", error);
@@ -67,8 +68,8 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
           if (existingProduct) {
             updatedCart = prevCart.map((item) =>
               item.id === product.id &&
-              item.color_code === product.color_code &&
-              item.size === product.size
+                item.color_code === product.color_code &&
+                item.size === product.size
                 ? { ...item, quantity: item.quantity + product.quantity }
                 : item
             );
@@ -84,23 +85,25 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
     [userProfile]
   );
 
-  const updateQuantity = (
+  const updateQuantity = useCallback(async (
     id: number,
     color_code: string,
     quantity: number,
     size: string
   ) => {
-    setCartProduct((prevCart) =>
-      prevCart.map((product) =>
+
+    const currentProduct = cartProducts.find(
+      (product) =>
         product.id === id &&
         product.color_code === color_code &&
         product.size === size
-          ? { ...product, quantity }
-          : product
-      )
-    );
+    )
 
-    // Si hay usuario, también actualizar en BD
+    if (quantity > currentProduct!.stock) {
+      ErrorsHandler.showInfo("Superaste el stock disponible")
+      return
+    };
+
     if (userProfile) {
       const productData = {
         user_id: userProfile.id,
@@ -109,28 +112,30 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
         color_code,
         size
       };
-      updateQuantityApi(productData)
-        .then(() => {
-          getCartApi(userProfile.id).then((cartItems) => {
-            setCartProduct(cartItems);
-          });
-        })
-        .catch((error) => {
-          console.error("Error updating product quantity:", error);
-        });
-      
+
+      await updateQuantityApi(productData);
+      const updatedCart = await getCartApi(userProfile.id);
+      setCartProduct(updatedCart || []);
     } else {
-      // Actualizar localStorage para usuarios no logueados
+      setCartProduct((prevCart) =>
+        prevCart.map((product) =>
+          product.id === id &&
+            product.color_code === color_code &&
+            product.size === size
+            ? { ...product, quantity }
+            : product
+        )
+      );
       const updatedCart = cartProducts.map((product) =>
         product.id === id &&
-        product.color_code === color_code &&
-        product.size === size
+          product.color_code === color_code &&
+          product.size === size
           ? { ...product, quantity }
           : product
       );
       localStorage.setItem("cart", JSON.stringify(updatedCart));
     }
-  };
+  }, [userProfile, cartProducts]);
 
   const deleteProductFromCart = async (id: number, color_code: string, size: string) => {
     setCartProduct((prev) =>
@@ -145,14 +150,13 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
     );
 
     if (userProfile) {
-        const productData = {
-            user_id: userProfile.id,
-            product_id: id,
-            color_code,
-            size
-          };
-          console.log(productData);
-          
+      const productData = {
+        user_id: userProfile.id,
+        product_id: id,
+        color_code,
+        size
+      };
+
       await deleteProductFromCartApi(productData)
     } else {
       const filteredCart = cartProducts.filter(

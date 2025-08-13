@@ -47,8 +47,8 @@ model cart_items {
   product_id Int
   quantity   Int
   unit_price Int
-  size       String?  @db.VarChar(10)
-  color_code String?  @db.VarChar(20)
+  color_code String   @db.VarChar(7)
+  size       String   @db.VarChar(25)
   cart       cart     @relation(fields: [cart_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
   products   products @relation(fields: [product_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
 }

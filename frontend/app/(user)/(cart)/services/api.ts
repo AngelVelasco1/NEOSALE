@@ -22,17 +22,19 @@ export const deleteProductFromCartApi = async (productData: {
   color_code: string;
   size: string;
 }) => {
-  const { data } = await api.delete("/api/cart/deleteProduct", { data: productData });
+  const { data } = await api.delete("/api/cart/deleteProduct", {
+    data: productData,
+  });
   return data;
 };
 
 export const updateQuantityApi = async (productData: {
-   user_id: number;
-    product_id: number;
-    quantity: number;
-    color_code: string;
-    size: string;
+  user_id: number;
+  product_id: number;
+  quantity: number;
+  color_code: string;
+  size: string;
 }) => {
   const { data } = await api.put("/api/cart/updateProduct", productData);
   return data;
-}
+};

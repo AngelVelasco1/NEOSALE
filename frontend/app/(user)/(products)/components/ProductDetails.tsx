@@ -1,5 +1,4 @@
 "use client";
-
 import React, { useCallback, useEffect, useState } from "react";
 import Image from "next/image";
 import { Button } from "@/components/ui/button";
@@ -25,12 +24,12 @@ import {
   RiPaypalFill,
   RiCashLine,
 } from "react-icons/ri";
+import { ErrorsHandler } from "@/app/errors/errorsHandler";
 
 export interface ProductDetailsProps {
   data: IProductDetails;
 }
 
-// Mock payment methods
 const paymentMethods = [
   { icon: <RiVisaLine />, name: "Visa" },
   { icon: <RiMastercardFill />, name: "Mastercard" },
@@ -44,13 +43,12 @@ export const ProductDetails = ({ data }: ProductDetailsProps) => {
   const [selectedColor, setSelectedColor] = useState("");
   const [selectedSize, setSelectedSize] = useState("");
   const [isAddingToCart, setIsAddingToCart] = useState(false);
-  const [showSuccess, setShowSuccess] = useState(false);
   const { addProductToCart } = useCart();
 
   const images = Array.isArray(data.images) ? data.images : [];
 
   const handleAddToCart = useCallback(async () => {
-    setIsAddingToCart(true);
+  setIsAddingToCart(true);
   const selectedImageData = images.find(img => img.color_code === selectedColor);
 
     const product: CartProductsInfo = {
@@ -63,13 +61,13 @@ export const ProductDetails = ({ data }: ProductDetailsProps) => {
       quantity: quantity,
       size: selectedSize,
       total: data.price * quantity,
+      stock: data.stock
     };
 
     addProductToCart(product);
     setIsAddingToCart(false);
-    setShowSuccess(true);
-
-    setTimeout(() => setShowSuccess(false), 3000);
+    ErrorsHandler.showSuccess("Producto Añadido al carrito", "Revisalo")
+    
   }, [data, selectedColor, selectedSize, quantity, addProductToCart]);
 
   const handleImageChange = (index: number, color: string) => {
@@ -93,16 +91,6 @@ export const ProductDetails = ({ data }: ProductDetailsProps) => {
   return (
     <div className="min-h-screen bg-gradient-to-b from-white via-gray-50/30 to-white">
       <div className="container mx-auto px-4 py-8">
-        {/* Success Message */}
-        {showSuccess && (
-          <div className="fixed top-4 right-4 z-50 animate-in slide-in-from-right duration-500">
-            <div className="bg-green-500 text-white px-6 py-3 rounded-2xl shadow-xl flex items-center gap-2">
-              <Check className="w-5 h-5" />
-              ¡Producto añadido al carrito!
-            </div>
-          </div>
-        )}
-
         <div className="grid gap-12 lg:grid-cols-2 mt-10">
           <div className="space-y-6">
             {/* Main Image */}

@@ -1,4 +1,4 @@
-import { addProductToCartService, getCartService, deleteProductFromCartService } from "../services/cart";
+import { addProductToCartService, getCartService, deleteProductFromCartService, updateProductQuantityService } from "../services/cart";
 import { NextFunction, Request, Response } from "express";
 
 export const getCart = async (req: Request, res: Response, next: NextFunction) => {
@@ -27,6 +27,7 @@ export const addProductToCart = async (req: Request, res: Response, next: NextFu
 
 export const deleteProductFromCart = async (req: Request, res: Response, next: NextFunction) => {
   const { user_id, product_id, color_code, size } = req.body;
+  
   try {
     await deleteProductFromCartService(user_id, product_id, color_code, size);
     res.status(200).json({ message: 'Producto eliminado del carrito' });
@@ -34,3 +35,19 @@ export const deleteProductFromCart = async (req: Request, res: Response, next: N
     next(err)
   }
 }
+
+
+export const updateQuantityInCart = async (req: Request, res: Response, next: NextFunction) => {
+  const { user_id, product_id, quantity, color_code, size } = req.body;
+
+  if (!user_id || !product_id || !quantity || quantity <= 0) {
+    return res.status(400).json({ error: "Parámetros inválidos" });
+  }
+
+  try {
+    await updateProductQuantityService(user_id, product_id, quantity, color_code, size);
+    res.status(200).json({ message: 'Cantidad actualizada en el carrito' });
+  } catch (err) {
+    next(err)
+  }
+};

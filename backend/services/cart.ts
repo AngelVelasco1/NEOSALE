@@ -35,6 +35,7 @@ export const getCartService = async (user_id: number) => {
       quantity: item.quantity,
       size: item.size,
       total: item.quantity * item.unit_price,
+      stock: item.products.stock || 0
     };
   });
 
@@ -73,5 +74,19 @@ export const deleteProductFromCartService = async (
     throw new Error("Parámetros inválidos");
   }
 
-  await prisma.$executeRaw`CALL sp_delete_product_from_cart(${user_id}::integer, ${product_id}::integer, ${color_code}::varchar ${size}::varchar )`;
+  await prisma.$executeRaw`CALL sp_delete_product_from_cart(${user_id}::integer, ${product_id}::integer, ${color_code}::varchar, ${size}::varchar)`;
 };
+
+export const updateProductQuantityService = async (
+  user_id: number,
+  product_id: number,
+  new_quantity: number,
+  color_code: string,
+  size: string,
+) => {
+  if (!user_id || !product_id || new_quantity < 0 || !color_code || !size) {
+    throw new Error("Parámetros inválidos");
+  }
+
+  await prisma.$executeRaw`CALL sp_update_cart_quantity(${user_id}::integer, ${product_id}::integer, ${new_quantity}::integer, ${color_code}::varchar, ${size}::varchar)`;
+}

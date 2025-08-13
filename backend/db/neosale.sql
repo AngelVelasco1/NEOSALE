@@ -41,7 +41,6 @@ DROP TABLE IF EXISTS coupons;
 DROP TABLE IF EXISTS "User";
 DROP TABLE IF EXISTS "verificationtoken";
 
-
 CREATE TABLE "User" (
     id SERIAL PRIMARY KEY,
     name VARCHAR(255) NOT NULL,
@@ -74,9 +73,7 @@ CREATE TABLE subcategories (
     id SERIAL PRIMARY KEY,
     name VARCHAR(255) NOT NULL,
     active BOOLEAN DEFAULT TRUE NOT NULL
-
 );
-
 
 CREATE TABLE categories (
     id SERIAL PRIMARY KEY,
@@ -85,7 +82,6 @@ CREATE TABLE categories (
     active BOOLEAN DEFAULT TRUE NOT NULL,
     FOREIGN KEY (id_subcategory) REFERENCES subcategories(id) ON DELETE NO ACTION ON UPDATE NO ACTION
 );
-
 
 CREATE TABLE category_subcategory (
     category_id INTEGER NOT NULL,
@@ -124,6 +120,21 @@ CREATE TABLE products (
     FOREIGN KEY (category_id) REFERENCES categories(id) ON DELETE NO ACTION ON UPDATE NO ACTION,
     FOREIGN KEY (brand_id) REFERENCES brands(id) ON DELETE NO ACTION ON UPDATE NO ACTION
 );
+
+CREATE TABLE product_variants (
+    id SERIAL PRIMARY KEY,
+    product_id INTEGER NOT NULL,
+    color_code VARCHAR(7) NOT NULL,
+    size VARCHAR(25) NOT NULL,
+    stock INTEGER NOT NULL CHECK (stock >= 0),
+    sku VARCHAR(100), 
+    created_at TIMESTAMP(6) DEFAULT CURRENT_TIMESTAMP NOT NULL,
+    updated_at TIMESTAMP(6),
+    CONSTRAINT unique_product_variant UNIQUE(product_id, color_code, size),
+    FOREIGN KEY (product_id) REFERENCES products(id) ON DELETE CASCADE
+);
+
+CREATE INDEX idx_product_variants ON product_variants(product_id, color_code, size);
 
 CREATE TABLE cart (
     id SERIAL PRIMARY KEY,
@@ -188,6 +199,8 @@ CREATE TABLE cart_items (
     product_id INTEGER NOT NULL,
     quantity INTEGER NOT NULL CHECK (quantity > 0),
     unit_price INTEGER NOT NULL CHECK (unit_price >= 0),
+    color_code VARCHAR(7) NOT NULL,
+    size VARCHAR (25) NOT NULL,
     FOREIGN KEY (cart_id) REFERENCES cart(id) ON DELETE NO ACTION ON UPDATE NO ACTION,
     FOREIGN KEY (product_id) REFERENCES products(id) ON DELETE NO ACTION ON UPDATE NO ACTION
 );
@@ -277,7 +290,6 @@ CREATE TABLE favorites (
     FOREIGN KEY (product_id) REFERENCES products(id) ON DELETE CASCADE
 );
 
-
 -- Índices para optimización
 CREATE INDEX idx_user_email ON "User"(email);
 CREATE INDEX idx_products_category_id ON products(category_id);
@@ -288,4 +300,3 @@ CREATE INDEX idx_reviews_product_id ON reviews(product_id);
 CREATE INDEX idx_images_product_id ON images(product_id);
 CREATE INDEX idx_favorites_user_id ON favorites(user_id);
 CREATE INDEX idx_favorites_product_id ON favorites(product_id);
-
