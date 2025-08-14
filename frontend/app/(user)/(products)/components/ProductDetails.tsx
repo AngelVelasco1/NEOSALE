@@ -25,6 +25,7 @@ import {
   RiCashLine,
 } from "react-icons/ri";
 import { ErrorsHandler } from "@/app/errors/errorsHandler";
+import { getVariantStockApi } from "../services/api"; // ✅ NUEVO IMPORT
 
 export interface ProductDetailsProps {
   data: IProductDetails;
@@ -43,32 +44,101 @@ export const ProductDetails = ({ data }: ProductDetailsProps) => {
   const [selectedColor, setSelectedColor] = useState("");
   const [selectedSize, setSelectedSize] = useState("");
   const [isAddingToCart, setIsAddingToCart] = useState(false);
+  // ✅ NUEVOS ESTADOS PARA MANEJO DE STOCK POR VARIANTE
+  const [variantStock, setVariantStock] = useState<number>(0);
+  const [isLoadingStock, setIsLoadingStock] = useState(false);
+  const [hasSelectedVariant, setHasSelectedVariant] = useState(false);
+  
   const { addProductToCart } = useCart();
 
   const images = Array.isArray(data.images) ? data.images : [];
 
-  const handleAddToCart = useCallback(async () => {
-  setIsAddingToCart(true);
-  const selectedImageData = images.find(img => img.color_code === selectedColor);
-
-    const product: CartProductsInfo = {
-      id: data.id,
-      color: selectedImageData?.color || "",
-      color_code: selectedColor,
-      imageUrl: selectedImageData?.image_url || "",
-      name: data.name,
-      price: data.price,
-      quantity: quantity,
-      size: selectedSize,
-      total: data.price * quantity,
-      stock: data.stock
-    };
-
-    addProductToCart(product);
-    setIsAddingToCart(false);
-    ErrorsHandler.showSuccess("Producto Añadido al carrito", "Revisalo")
+  // ✅ NUEVA FUNCIÓN PARA OBTENER STOCK DE VARIANTE
+  const fetchVariantStock = useCallback(async (productId: number, colorCode: string, size: string) => {
+    if (!colorCode || !size) {
+      setVariantStock(0);
+      setHasSelectedVariant(false);
+      return;
+    }
     
-  }, [data, selectedColor, selectedSize, quantity, addProductToCart]);
+    try {
+      setIsLoadingStock(true);
+      const response = await getVariantStockApi({
+        id: productId,
+        color_code: colorCode,
+        size: size
+      });
+      
+      const stock = response.data?.stock || response.stock || 0;
+      setVariantStock(stock);
+      setHasSelectedVariant(true);
+      
+      // ✅ Ajustar cantidad si excede el stock disponible
+      if (quantity > stock) {
+        setQuantity(Math.max(1, Math.min(stock, quantity)));
+      }
+      
+    } catch (error) {
+      console.error('Error fetching variant stock:', error);
+      setVariantStock(0);
+      setHasSelectedVariant(true);
+    } finally {
+      setIsLoadingStock(false);
+    }
+  }, [quantity]);
+
+  useEffect(() => {
+    if (selectedColor && selectedSize) {
+      fetchVariantStock(data.id, selectedColor, selectedSize);
+    } else {
+      setVariantStock(0);
+      setHasSelectedVariant(false);
+    }
+  }, [selectedColor, selectedSize, data.id, fetchVariantStock]);
+
+  const handleAddToCart = useCallback(async () => {
+    // Validaciones previas
+    if (!selectedColor || !selectedSize) {
+      ErrorsHandler.showError("Selección incompleta", "Selecciona color y talla");
+      return;
+    }
+
+    if (variantStock === 0) {
+      ErrorsHandler.showError("Sin stock", "Esta variante no está disponible");
+      return;
+    }
+
+    if (quantity > variantStock) {
+      ErrorsHandler.showError("Stock insuficiente", `Solo quedan ${variantStock} unidades`);
+      return;
+    }
+
+    setIsAddingToCart(true);
+    
+    try {
+      const selectedImageData = images.find(img => img.color_code === selectedColor);
+
+      const product: CartProductsInfo = {
+        id: data.id,
+        color: selectedImageData?.color || "",
+        color_code: selectedColor,
+        imageUrl: selectedImageData?.image_url || "",
+        name: data.name,
+        price: data.price,
+        quantity: quantity,
+        size: selectedSize,
+        total: data.price * quantity,
+        stock: variantStock // ✅ USAR STOCK DE VARIANTE
+      };
+
+      await addProductToCart(product);
+      ErrorsHandler.showSuccess("Producto añadido al carrito", "Revísalo");
+    } catch (error: unknown) {
+      ErrorsHandler.showError(error.message, "No se pudo agregar el producto");
+    } finally {
+      setIsAddingToCart(false);
+    }
+  }, [data, selectedColor, selectedSize, quantity, variantStock, addProductToCart, images]);
 
   const handleImageChange = (index: number, color: string) => {
     setSelectedColor(color); 
@@ -85,7 +155,9 @@ export const ProductDetails = ({ data }: ProductDetailsProps) => {
     }
   }, [images]);
 
-  const isInStock = data.stock > 0;
+  // ✅ ACTUALIZAR LÓGICA DE STOCK
+  const isVariantInStock = variantStock > 0;
+  const showStockInfo = hasSelectedVariant || (selectedColor && selectedSize);
   const discountPercentage = data.discount;
 
   return (
@@ -93,7 +165,7 @@ export const ProductDetails = ({ data }: ProductDetailsProps) => {
       <div className="container mx-auto px-4 py-8">
         <div className="grid gap-12 lg:grid-cols-2 mt-10">
           <div className="space-y-6">
-            {/* Main Image */}
+            {/* Main Image - SIN CAMBIOS */}
             <div className="relative aspect-square bg-white/60 backdrop-blur-sm rounded-xl shadow-xl overflow-hidden group w-10/12 mx-auto">
               {images.length > 0 && images[selectedImage]?.image_url ? (
                 <Image
@@ -114,7 +186,7 @@ export const ProductDetails = ({ data }: ProductDetailsProps) => {
                 </div>
               )}
 
-              {/* Action Buttons */}
+              {/* Action Buttons - SIN CAMBIOS */}
               <div className="absolute top-4 right-4 flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
                 <Button
                   variant="ghost"
@@ -133,7 +205,7 @@ export const ProductDetails = ({ data }: ProductDetailsProps) => {
               </div>
             </div>
 
-            {/* Thumbnail Gallery */}
+            {/* Thumbnail Gallery - SIN CAMBIOS */}
             <div className="flex gap-3 overflow-x-auto pb-2">
               {images.length > 0 ? (
                 images.map((image, index: number) => (
@@ -151,7 +223,7 @@ export const ProductDetails = ({ data }: ProductDetailsProps) => {
                       src={image.image_url || "/placeholder.svg"}
                       alt={`${data.name} thumbnail ${index + 1}`}
                       fill
-                      className="object-fit  transition-transform duration-200"
+                      className="object-fit transition-transform duration-200"
                     />
                   </button>
                 ))
@@ -167,7 +239,7 @@ export const ProductDetails = ({ data }: ProductDetailsProps) => {
 
           {/* Product Info */}
           <div className="space-y-6">
-            {/* Header Section */}
+            {/* Header Section - SIN CAMBIOS HASTA PRICE */}
             <div className="space-y-6 animate-in fade-in-50 duration-700">
               {/* Badges and Rating */}
               <div className="flex flex-col gap-4">
@@ -201,7 +273,7 @@ export const ProductDetails = ({ data }: ProductDetailsProps) => {
                 </p>
               </div>
 
-              {/* Price Section */}
+              {/* Price Section - SIN CAMBIOS */}
               <div className="bg-gradient-to-r from-blue-50 to-indigo-50 rounded-2xl px-6 py-7 border border-blue-100/50 animate-in slide-in-from-left duration-700 delay-300">
                 <div className="flex items-center justify-between">
                   <div className="space-y-1">
@@ -228,29 +300,44 @@ export const ProductDetails = ({ data }: ProductDetailsProps) => {
               </div>
             </div>
 
-            {/* Stock Status */}
-            <div className="bg-white border border-gray-200/60 rounded-xl px-5 py-4 w-fit  animate-in fade-in  transition-all duration-300">
+            {/* ✅ STOCK STATUS ACTUALIZADO */}
+            <div className="bg-white border border-gray-200/60 rounded-xl px-5 py-4 w-fit animate-in fade-in transition-all duration-300">
               <div className="flex items-center gap-3">
                 <div
                   className={`w-3 h-3 rounded-full ${
-                    isInStock ? "bg-emerald-500" : "bg-red-500"
+                    !showStockInfo
+                      ? "bg-gray-400" 
+                      : isVariantInStock 
+                        ? "bg-emerald-500" 
+                        : "bg-red-500"
                   }`}
                 />
                 <div className="flex-1">
                   <span
                     className={`font-semibold ${
-                      isInStock ? "text-gray-900" : "text-red-600"
+                      !showStockInfo
+                        ? "text-gray-500"
+                        : isVariantInStock 
+                          ? "text-gray-900" 
+                          : "text-red-600"
                     }`}
                   >
-                    {isInStock ? "En Stock" : "Agotado"}
+                    {isLoadingStock
+                      ? "Verificando..."
+                      : !selectedColor || !selectedSize
+                        ? "Selecciona variante"
+                        : isVariantInStock 
+                          ? "En Stock" 
+                          : "Agotado"
+                    }
                   </span>
-                  {isInStock && (
+                  {showStockInfo && isVariantInStock && !isLoadingStock && (
                     <span className="text-gray-500 text-sm ml-2">
-                      {data.stock} unidades disponibles
+                      {variantStock} unidades disponibles
                     </span>
                   )}
                 </div>
-                {isInStock && (
+                {showStockInfo && isVariantInStock && !isLoadingStock && (
                   <Badge
                     variant="outline"
                     className="text-emerald-600 border-emerald-200 bg-emerald-50"
@@ -260,7 +347,8 @@ export const ProductDetails = ({ data }: ProductDetailsProps) => {
                 )}
               </div>
             </div>
-            {/* Size Selection */}
+
+            {/* Size Selection - SIN CAMBIOS */}
             {data?.sizes && (
               <div
                 id="size-selection"
@@ -297,7 +385,7 @@ export const ProductDetails = ({ data }: ProductDetailsProps) => {
               </div>
             )}
 
-            {/* Color Selection */}
+            {/* Color Selection - SIN CAMBIOS */}
             <div className="space-y-4 animate-in fade-in duration-700 delay-600">
               <div className="flex items-center justify-between">
                 <label className="text-lg font-semibold text-gray-900">
@@ -339,7 +427,7 @@ export const ProductDetails = ({ data }: ProductDetailsProps) => {
               </div>
             </div>
 
-            {/* Quantity and Add to Cart */}
+            {/* ✅ QUANTITY AND ADD TO CART ACTUALIZADO */}
             <div className="space-y-6 animate-in fade-in duration-700 delay-700">
               <div className="flex items-center gap-4">
                 <div className="space-y-2">
@@ -349,7 +437,7 @@ export const ProductDetails = ({ data }: ProductDetailsProps) => {
                       setQuantity((prev) => Math.max(1, prev - 1))
                     }
                     handleIncrease={() =>
-                      setQuantity((prev) => Math.min(data.stock, prev + 1))
+                      setQuantity((prev) => Math.min(variantStock, prev + 1)) // ✅ USAR variantStock
                     }
                   />
                 </div>
@@ -357,11 +445,23 @@ export const ProductDetails = ({ data }: ProductDetailsProps) => {
                 <div className="flex-1">
                   <Button
                     onClick={handleAddToCart}
-                    disabled={!isInStock || !selectedSize || isAddingToCart}
+                    disabled={
+                      !selectedSize || 
+                      !selectedColor || 
+                      !isVariantInStock || 
+                      isAddingToCart ||
+                      isLoadingStock ||
+                      variantStock === 0
+                    } // ✅ CONDICIONES ACTUALIZADAS
                     className="w-full bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white py-6 text-lg font-semibold rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-[1.02] disabled:opacity-50 disabled:cursor-not-allowed disabled:scale-100 disabled:hover:shadow-lg"
                     size="lg"
                   >
-                    {isAddingToCart ? (
+                    {isLoadingStock ? (
+                      <div className="flex items-center gap-2">
+                        <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                        Verificando stock...
+                      </div>
+                    ) : isAddingToCart ? (
                       <div className="flex items-center gap-2">
                         <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
                         Añadiendo al carrito...
@@ -369,7 +469,12 @@ export const ProductDetails = ({ data }: ProductDetailsProps) => {
                     ) : (
                       <div className="flex items-center gap-2">
                         <ShoppingCart className="w-5 h-5" />
-                        Añadir al carrito
+                        {!selectedColor || !selectedSize
+                          ? "Selecciona variante"
+                          : variantStock === 0 
+                            ? "Sin stock" 
+                            : "Añadir al carrito"
+                        }
                       </div>
                     )}
                   </Button>
@@ -377,7 +482,7 @@ export const ProductDetails = ({ data }: ProductDetailsProps) => {
               </div>
             </div>
 
-            {/* Features Grid */}
+            {/* Features Grid - SIN CAMBIOS */}
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 animate-in fade-in delay-800">
               {/* Shipping Info */}
               <div className="bg-gradient-to-br from-emerald-50 to-green-50 rounded-xl p-5 border border-emerald-200/50 hover:shadow-md transition-all duration-300 group">
@@ -414,7 +519,7 @@ export const ProductDetails = ({ data }: ProductDetailsProps) => {
               </div>
             </div>
 
-            {/* Payment Methods */}
+            {/* Payment Methods - SIN CAMBIOS */}
             <div className="bg-white rounded-xl p-6 border border-gray-200/60 shadow-sm animate-in fade-in duration-700 delay-900">
               <div className="flex items-center gap-3 mb-4">
                 <div className="w-8 h-8 bg-gradient-to-r from-blue-500 to-indigo-500 rounded-lg flex items-center justify-center">

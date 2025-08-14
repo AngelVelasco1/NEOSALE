@@ -1,7 +1,7 @@
 import { api } from "@/config/api";
 
 export const getProducts = async () => {
-  const { data } = await api.get("/api/products/getProducts");  
+  const { data } = await api.get("/api/products/getProducts");
   return data;
 };
 
@@ -15,3 +15,16 @@ export const getLatestProducts = async () => {
   return data;
 };
 
+export const getVariantStockApi = async (productData: {
+  id: number;
+  color_code: string;
+  size: string;
+}) => {
+  const { data } = await api.post(`/api/products/getVariantStock`, {
+      id: productData.id,
+      color_code: productData.color_code,
+      size: productData.size
+    }
+  );
+  return data;
+};

@@ -1,9 +1,8 @@
 "use client"
 
-import React, {useEffect, useState} from "react"
+import React, { useEffect, useState } from "react"
 import { Moon, Sun } from "lucide-react"
 import { useTheme } from "next-themes"
-import { Button } from "@/components/ui/button"
 
 export function ThemeToggle() {
   const { theme, setTheme } = useTheme()
@@ -15,28 +14,44 @@ export function ThemeToggle() {
 
   if (!mounted) {
     return (
-      <Button
-        variant="ghost"
-        size="sm"
-        className="fixed top-6 right-6 z-50 bg-white/90 backdrop-blur-md border border-slate-200/60 rounded-full p-3 shadow-lg"
-      >
-        <div className="h-5 w-5" />
-      </Button>
+      <div className="w-14 h-7 rounded-full bg-gradient-to-r from-slate-200 to-slate-300 dark:from-slate-700 dark:to-slate-800 shadow-md border border-slate-300/30 dark:border-slate-600/30" />
     )
   }
 
   return (
-    <Button
-      variant="ghost"
-      size="sm"
+    <button
       onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
-      className="group fixed top-6 right-6 z-50 bg-white/90 dark:bg-slate-800/90 backdrop-blur-md border border-slate-200/60 dark:border-slate-700/50 rounded-full p-3 shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-110"
+      className="group relative w-14 h-8 rounded-full transition-all duration-300  mt-2  cursor-pointer"
+      style={{
+        background: theme === "dark" 
+          ? "linear-gradient(135deg, #1e293b 0%, #334155 50%, #475569 100%)"
+          : "linear-gradient(135deg, #f1f5f9 0%, #e2e8f0 50%, #cbd5e1 100%)"
+      }}
     >
-      {theme === "dark" ? (
-        <Sun className="h-5 w-5 text-yellow-500 group-hover:rotate-180 transition-transform duration-500" />
-      ) : (
-        <Moon className="h-5 w-5 text-slate-600 dark:text-slate-400 group-hover:-rotate-12 transition-transform duration-500" />
-      )}
-    </Button>
+      {/* Solo el switch sin iconos de fondo */}
+      <div className="absolute inset-0 rounded-full shadow-lg border border-slate-300/40 dark:border-slate-600/40" />
+      <div className="absolute inset-0.5 rounded-full bg-white/20 dark:bg-black/20 backdrop-blur-sm" />
+      
+      <div 
+        className={`absolute top-0.5 w-7 h-7 rounded-full transition-all duration-500 ease-out shadow-lg ${
+          theme === "dark" 
+            ? "translate-x-7 bg-gradient-to-br from-slate-700 via-slate-600 to-slate-800" 
+            : "translate-x-0.5 bg-gradient-to-br from-white via-slate-50 to-slate-100"
+        }`}
+      >
+        <div className="absolute inset-0 rounded-full flex items-center justify-center">
+          {theme === "dark" ? (
+            <Moon className="h-4 w-4 text-slate-200 drop-shadow-sm" />
+          ) : (
+            <Sun className="h-4 w-4 text-amber-500 drop-shadow-sm" />
+          )}
+        </div>
+        
+      
+      </div>
+
+      {/* Efecto de hover */}
+      <div className="absolute inset-0 rounded-full bg-gradient-to-r from-blue-500/0 via-blue-400/10 to-blue-500/0 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+    </button>
   )
 }

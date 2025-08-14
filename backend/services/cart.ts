@@ -10,6 +10,13 @@ export const getCartService = async (user_id: number) => {
             include: {
               categories: true,
               images: true,
+              product_variants: {
+                select: {
+                  size: true,
+                  color_code: true,
+                  stock: true,
+                }
+              }
             },
           },
         },
@@ -25,6 +32,12 @@ export const getCartService = async (user_id: number) => {
           (img) => img.color_code === item.color_code 
         )
       : item.products.images[0];
+
+      const variant = item.products.product_variants.find((variant) => 
+          variant.color_code === item.color_code &&
+          variant.size === item.size
+      );
+
     return {
       id: item.products.id,
       color: selectedImage?.color || null,
@@ -35,7 +48,7 @@ export const getCartService = async (user_id: number) => {
       quantity: item.quantity,
       size: item.size,
       total: item.quantity * item.unit_price,
-      stock: item.products.stock || 0
+      stock: variant?.stock || 0
     };
   });
 

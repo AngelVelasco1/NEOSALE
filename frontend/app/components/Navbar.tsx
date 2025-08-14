@@ -186,108 +186,110 @@ export const Navbar = () => {
 
   return (
     <nav
-      className={`w-full py-2 backdrop-blur-2xl sticky top-0 z-50 transition-all duration-300 ${
-        isScrolled ? "" : ""
-      }`}
+      className={`w-full py-3 backdrop-blur-2xl sticky top-0 z-50 transition-all duration-300 ${isScrolled ? "bg-background/80" : "bg-background/60"
+        }`}
     >
-      <div className="container mx-auto px-4 sm:px-6 lg:px-8 relative">
+      <div className="container mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16">
-          {/* Mobile Menu */}
-          <Sheet>
-            <SheetTrigger asChild>
-              <Button
-                variant="ghost"
-                size="icon"
-                className="lg:hidden group hover:bg-accent rounded-lg transition-all duration-200"
-              >
-                <Menu className="h-6 w-6 group-hover:scale-110 transition-transform duration-200" />
-              </Button>
-            </SheetTrigger>
-            <SheetContent side="left" className="w-80 backdrop-blur-xl border-r">
-              <div className="flex flex-col gap-6 mt-8">
-                <Link
-                  href="/"
-                  className="text-xl font-semibold hover:text-blue-600 transition-colors duration-200 font-montserrat"
+          {/* Mobile Menu + Logo Section */}
+          <div className="flex items-center gap-3">
+            {/* Mobile Menu */}
+            <Sheet>
+              <SheetTrigger asChild>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="lg:hidden group hover:bg-accent rounded-xl transition-all duration-200 w-10 h-10"
                 >
-                  Inicio
-                </Link>
-                <div className="space-y-4">
-                  {categories.map((category) => (
-                    <div key={category.name}>
-                      <div className="flex items-center gap-3 mb-3">
-                        <category.icon className="h-6 w-6 text-blue-500" />
-                        <h3 className="font-semibold font-montserrat text-lg">
-                          {category.name}
-                        </h3>
-                        {category.featured && (
-                          <Badge
-                            className={`bg-gradient-to-r ${category.color} text-white text-xs shadow-lg`}
-                          >
-                            Popular
-                          </Badge>
-                        )}
+                  <Menu className="h-5 w-5 group-hover:scale-110 transition-transform duration-200" />
+                </Button>
+              </SheetTrigger>
+              <SheetContent side="left" className="w-80 backdrop-blur-xl border-r">
+                <div className="flex flex-col gap-6 mt-8">
+                  <Link
+                    href="/"
+                    className="text-xl font-semibold hover:text-blue-600 transition-colors duration-200 font-montserrat"
+                  >
+                    Inicio
+                  </Link>
+                  <div className="space-y-4">
+                    {categories.map((category) => (
+                      <div key={category.name}>
+                        <div className="flex items-center gap-3 mb-3">
+                          <category.icon className="h-6 w-6 text-blue-500" />
+                          <h3 className="font-semibold font-montserrat text-lg">
+                            {category.name}
+                          </h3>
+                          {category.featured && (
+                            <Badge
+                              className={`bg-gradient-to-r ${category.color} text-white text-xs shadow-lg`}
+                            >
+                              Popular
+                            </Badge>
+                          )}
+                        </div>
+                        <div className="pl-9 space-y-1">
+                          {category.subcategories.map((sub) => (
+                            <Link
+                              key={sub}
+                              href={`/categoria/${sub.toLowerCase()}`}
+                              className="block text-muted-foreground hover:text-blue-600 transition-all duration-200 hover:translate-x-2 font-inter text-sm py-1"
+                            >
+                              {sub}
+                            </Link>
+                          ))}
+                        </div>
                       </div>
-                      <div className="pl-9 space-y-1">
-                        {category.subcategories.map((sub) => (
-                          <Link
-                            key={sub}
-                            href={`/categoria/${sub.toLowerCase()}`}
-                            className="block text-muted-foreground hover:text-blue-600 transition-all duration-200 hover:translate-x-2 font-inter text-sm py-1"
-                          >
-                            {sub}
-                          </Link>
-                        ))}
-                      </div>
-                    </div>
-                  ))}
+                    ))}
+                  </div>
                 </div>
+              </SheetContent>
+            </Sheet>
+
+            {/* Logo */}
+            <Link href="/" className="flex items-center group ml-2 lg:ml-0">
+              <div className="relative">
+                <Image
+                  src="/imgs/Logo.png"
+                  alt="NEOSALE"
+                  width={85}
+                  height={85}
+                  className="transition-all duration-300 group-hover:scale-105 filter drop-shadow-lg"
+                />
               </div>
-            </SheetContent>
-          </Sheet>
+            </Link>
+          </div>
 
-          {/* Logo */}
-          <Link href="/" className="flex items-center group">
-            <div className="relative">
-              <Image
-                src="/imgs/Logo.png"
-                alt="NEOSALE"
-                width={100}
-                height={100}
-                className="transition-all duration-200 group-hover:scale-105 filter drop-shadow-lg"
-              />
-            </div>
-          </Link>
-
-          {/* Desktop Navigation */}
-          <NavigationMenu className="hidden lg:flex">
-            <NavigationMenuList className="gap-2">
+          {/* Desktop Navigation - Centrado */}
+          <NavigationMenu className="hidden lg:flex flex-1 justify-center max-w-2xl mx-6">
+            <NavigationMenuList className="gap-1">
               <NavigationMenuItem>
                 <NavigationMenuLink asChild>
-                  <NavLink href="/">Inicio</NavLink>
+                  <NavLink href="/" className="px-5">Inicio</NavLink>
                 </NavigationMenuLink>
               </NavigationMenuItem>
 
               <NavigationMenuItem>
                 <NavigationMenuLink asChild>
-                  <NavLink href="/products">Productos</NavLink>
+                  <NavLink href="/products" className="px-5">Productos</NavLink>
                 </NavigationMenuLink>
               </NavigationMenuItem>
 
               <NavigationMenuItem>
-                <NavigationMenuTrigger className="h-10 border-none bg-transparent rounded-lg font-inter transition-all duration-200">
+                <NavigationMenuTrigger className="h-10 border-none bg-transparent hover:bg-accent rounded-xl font-inter transition-all duration-200 px-5">
                   Categorías
                 </NavigationMenuTrigger>
                 <NavigationMenuContent>
-                  <div className="w-[600px] backdrop-blur-xl shadow-2xl border rounded-xl p-4">
-                    <div className="grid grid-cols-2 gap-4">
+                  <div className="w-[650px] backdrop-blur-xl shadow-2xl border rounded-2xl p-6 bg-background/95">
+                    <div className="grid grid-cols-2 gap-6">
                       {categories.map((category) => (
                         <div
                           key={category.name}
-                          className="group p-4 rounded-lg bg-card hover:bg-accent transition-all duration-200 border hover:shadow-md"
+                          className="group p-5 rounded-xl bg-card/50 hover:bg-accent/80 transition-all duration-300 border border-border/50 hover:shadow-lg hover:border-border"
                         >
-                          <div className="flex items-center gap-3 mb-3">
+                          <div className="flex items-center gap-4 mb-4">
                             <div
-                              className={`p-2 rounded-lg bg-gradient-to-r ${category.color} text-white shadow-md`}
+                              className={`p-3 rounded-xl bg-gradient-to-r ${category.color} text-white shadow-md group-hover:scale-110 transition-transform duration-300`}
                             >
                               <category.icon className="h-5 w-5" />
                             </div>
@@ -304,14 +306,14 @@ export const Navbar = () => {
                               )}
                             </div>
                           </div>
-                          <div className="space-y-1">
+                          <div className="space-y-2">
                             {category.subcategories.map((sub) => (
                               <Link
                                 key={sub}
                                 href={`/categoria/${sub
                                   .toLowerCase()
                                   .replace(/\s+/g, "-")}`}
-                                className="block text-muted-foreground hover:text-blue-600 hover:bg-accent transition-all duration-200 p-2 rounded-md font-inter text-sm"
+                                className="block text-muted-foreground hover:text-blue-600 hover:bg-accent/50 transition-all duration-200 p-2.5 rounded-lg font-inter text-sm hover:translate-x-1"
                               >
                                 {sub}
                               </Link>
@@ -328,27 +330,27 @@ export const Navbar = () => {
                 <NavigationMenuLink asChild className="flex flex-row">
                   <Link
                     href="/ofertas"
-                    className="flex h-10 w-fit items-center justify-center rounded-lg bg-gradient-to-r from-pink-500 to-fuchsia-500 px-5 text-sm font-medium text-white transition-all duration-200 hover:from-pink-600 hover:to-fuchsia-600 hover:shadow-lg hover:shadow-pink-500/25 hover:scale-105 font-inter shadow-md"
+                    className="flex h-10 w-fit items-center justify-center rounded-xl bg-gradient-to-r from-pink-500 to-fuchsia-500 px-6 py-2 text-sm font-medium text-white transition-all duration-300 hover:from-pink-600 hover:to-fuchsia-600 hover:shadow-lg hover:shadow-pink-500/25 hover:scale-105 font-inter shadow-md gap-2"
                   >
                     <Zap className="h-4 w-4 flex-shrink-0" />
                     <span>Ofertas</span>
                   </Link>
                 </NavigationMenuLink>
               </NavigationMenuItem>
+
               <NavigationMenuItem>
                 <NavigationMenuLink asChild>
-                  <NavLink href="/nosotros">Nosotros</NavLink>
+                  <NavLink href="/nosotros" className="px-5">Nosotros</NavLink>
                 </NavigationMenuLink>
               </NavigationMenuItem>
             </NavigationMenuList>
           </NavigationMenu>
 
-          {/* Barra de búsqueda */}
           <div className="flex-1 max-w-fit hidden md:block">
             <div className="relative">
               <SearchIcon
                 onClick={handleSearchRef}
-                className="absolute left-7 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground cursor-pointer"
+                className="absolute left-4 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground cursor-pointer"
               />
               <Input
                 ref={searchRef}
@@ -358,7 +360,7 @@ export const Navbar = () => {
                 onChange={(e) => setSearchQuery(e.target.value)}
                 onFocus={() => setIsSearchFocused(true)}
                 onBlur={() => setTimeout(() => setIsSearchFocused(false), 200)}
-                className="pl-14 pr-10 h-12 w-full rounded-xl transition-all duration-200 font-inter shadow-md"
+                className="pl-10  h-10 w-full rounded-xl transition-all duration-200 font-inter shadow-md border-slate-400"
               />
 
               {isSearchFocused && searchQuery.length === 0 && (
@@ -385,33 +387,35 @@ export const Navbar = () => {
             </div>
           </div>
 
+          {/* Actions Section - Mejor espaciado */}
           <div className="flex items-center gap-2">
-            <ThemeToggle />
-
-            <IconButton variant="heart" className="hidden md:flex">
-              <Heart className="h-6 w-6" />
+            <IconButton variant="heart" className="hidden md:flex w-10 h-10 ms-4">
+              <Heart className="h-5 w-5" />
             </IconButton>
 
             <IconButton
               variant="cart"
               onClick={() => router.push("/productsCart")}
-              className="relative"
+              className="relative w-10 h-10"
             >
-              <ShoppingCart className="h-6 w-6" />
+              <ShoppingCart className="h-5 w-5" />
               {cartProductCount > 0 && (
-                <Badge className="absolute -top-1 -right-1 h-5 w-5 rounded-full p-0 flex items-center justify-center text-xs bg-gradient-to-r from-blue-500 to-cyan-500 text-white shadow-lg ring-2 ring-white/20">
+                <Badge className="absolute -top-1.5 -right-1.5 h-5 w-5 rounded-full p-0 flex items-center justify-center text-xs bg-gradient-to-r from-blue-500 to-cyan-500 text-white shadow-lg ring-2 ring-background/80 font-bold">
                   {cartProductCount}
                 </Badge>
               )}
             </IconButton>
 
-            {/* User Account */}
+            <div className="ml-2">
+              <ThemeToggle />
+            </div>
+
             {userProfile ? (
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
-                  <div className="flex items-center gap-2 h-10 px-3 rounded-lg hover:bg-accent transition-all duration-200 cursor-pointer hover:scale-105">
+                  <div className="flex items-center gap-2 h-10 px-3 rounded-xl hover:bg-accent transition-all duration-200 cursor-pointer hover:scale-105 ml-2">
                     <div className="relative">
-                      <User className="h-5 w-5" />
+                      <User className="h-4 w-4" />
                       <div className="absolute -bottom-0.5 -right-0.5 w-2 h-2 bg-green-400 rounded-full border border-background shadow-sm"></div>
                     </div>
                     <ChevronDown className="h-3 w-3" />
@@ -419,9 +423,9 @@ export const Navbar = () => {
                 </DropdownMenuTrigger>
                 <DropdownMenuContent
                   align="end"
-                  className="w-fit bg-card backdrop-blur-xl shadow-2xl border rounded-xl p-2"
+                  className="w-64 bg-background/95 backdrop-blur-xl shadow-2xl border border-border/50 rounded-xl p-3"
                 >
-                  <div className="p-4 border-b">
+                  <div className="p-4 border-b border-border/50">
                     <div className="flex items-center gap-3">
                       <div className="w-10 h-10 bg-gradient-to-r from-blue-500 to-cyan-500 rounded-full flex items-center justify-center text-white text-sm font-bold shadow-lg">
                         {userProfile?.name?.charAt(0).toUpperCase() || "U"}
@@ -433,7 +437,7 @@ export const Navbar = () => {
                   </div>
                   <DropdownMenuItem
                     onClick={() => router.push("/profile")}
-                    className="hover:bg-accent hover:text-blue-600 cursor-pointer font-inter rounded-lg p-3 font-medium"
+                    className="hover:bg-accent hover:text-blue-600 cursor-pointer font-inter rounded-lg p-3 font-medium mt-2"
                   >
                     <User className="h-4 w-4 mr-3" />
                     Mi Perfil
@@ -442,8 +446,8 @@ export const Navbar = () => {
                     <ShoppingCart className="h-4 w-4 mr-3" />
                     Mis Pedidos
                   </DropdownMenuItem>
-                  <DropdownMenuSeparator />
-                  <DropdownMenuItem className="text-red-600 hover:bg-red-50 rounded-lg p-3 font-medium">
+                  <DropdownMenuSeparator className="my-2" />
+                  <DropdownMenuItem className="text-red-600 hover:bg-red-50 dark:hover:bg-red-950/20 rounded-lg p-3 font-medium">
                     <SignOut />
                   </DropdownMenuItem>
                 </DropdownMenuContent>
@@ -451,9 +455,8 @@ export const Navbar = () => {
             ) : (
               <Button
                 onClick={() => router.push("/login")}
-                className="group h-11 ml-4 pr-7 gap-2 rounded-xl bg-gradient-to-r from-blue-600 to-indigo-500 text-white transition-all duration-200 hover:from-blue-600 hover:to-indigo-700 hover:shadow-xl hover:shadow-blue-500/30 hover:scale-105 font-inter shadow-lg ring-1 ring-white/20 font-medium"
+                className="h-10 ml-3 px-5 rounded-xl bg-gradient-to-r from-blue-600 to-indigo-500 text-white transition-all duration-300 hover:from-blue-700 hover:to-indigo-600 hover:shadow-lg hover:shadow-blue-500/25 hover:scale-105 font-inter shadow-md ring-1 ring-white/20 font-medium text-sm"
               >
-                <LogInIcon className="w-0 h-0 opacity-0 group-hover:w-4 group-hover:h-4 group-hover:opacity-100 transition-all duration-200" />
                 <span>Iniciar Sesión</span>
               </Button>
             )}
@@ -461,17 +464,44 @@ export const Navbar = () => {
         </div>
       </div>
 
-      {/* Búsqueda móvil */}
-      <div className="md:hidden px-4 pb-4">
+      {/* Búsqueda móvil - Manteniendo el estilo anterior */}
+      <div className="md:hidden px-4 pb-3 mt-2">
         <div className="relative">
-          <SearchIcon className="absolute left-4 top-1/2 transform -translate-y-1/2 text-muted-foreground h-5 w-5" />
+          <SearchIcon
+            onClick={handleSearchRef}
+            className="absolute left-4 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground cursor-pointer hover:text-foreground transition-colors"
+          />
           <Input
             type="search"
             placeholder="Buscar productos..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            className="pl-12 pr-4 w-full h-12 backdrop-blur-sm rounded-xl font-inter shadow-md"
+            onFocus={() => setIsSearchFocused(true)}
+            onBlur={() => setTimeout(() => setIsSearchFocused(false), 200)}
+            className="pl-12 pr-4 w-full h-10 rounded-xl transition-all duration-200 font-inter shadow-sm bg-background/80 border-border/50 hover:border-border focus:border-blue-500/50 backdrop-blur-sm"
           />
+
+          {isSearchFocused && searchQuery.length === 0 && (
+            <div className="absolute top-full left-0 right-0 mt-3 bg-background/95 backdrop-blur-xl rounded-xl shadow-2xl border border-border/50 p-5 z-50">
+              <div className="text-sm mb-4 font-semibold font-inter text-muted-foreground">
+                Búsquedas populares:
+              </div>
+              <div className="flex flex-wrap gap-2">
+                {trendingSearches.map((search) => (
+                  <button
+                    key={search}
+                    className="px-4 py-2 bg-card hover:bg-accent text-foreground rounded-lg text-sm hover:text-blue-600 transition-all duration-200 hover:scale-105 font-inter border border-border/50 shadow-sm font-medium"
+                    onClick={() => {
+                      setSearchQuery(search);
+                      setIsSearchFocused(false);
+                    }}
+                  >
+                    {search}
+                  </button>
+                ))}
+              </div>
+            </div>
+          )}
         </div>
       </div>
     </nav>
