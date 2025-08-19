@@ -186,7 +186,7 @@ export const Navbar = () => {
 
   return (
     <nav
-      className={`w-full py-3 backdrop-blur-2xl sticky top-0 z-50 transition-all duration-300 ${isScrolled ? "bg-background/80" : "bg-background/60"
+      className={`w-full py-2 backdrop-blur-2xl bg-white/60 sticky top-0 z-50 transition-all duration-300 ${isScrolled ? "bg-background/80" : "bg-background/60"
         }`}
     >
       <div className="container mx-auto px-4 sm:px-6 lg:px-8">
@@ -464,7 +464,7 @@ export const Navbar = () => {
         </div>
       </div>
 
-      {/* Búsqueda móvil - Manteniendo el estilo anterior */}
+      {/* Búsqueda móvil */}
       <div className="md:hidden px-4 pb-3 mt-2">
         <div className="relative">
           <SearchIcon

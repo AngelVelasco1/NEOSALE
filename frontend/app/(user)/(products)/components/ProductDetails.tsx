@@ -25,7 +25,7 @@ import {
   RiCashLine,
 } from "react-icons/ri";
 import { ErrorsHandler } from "@/app/errors/errorsHandler";
-import { getVariantStockApi } from "../services/api"; // ✅ NUEVO IMPORT
+import { getProductVariantApi } from "../services/api";
 
 export interface ProductDetailsProps {
   data: IProductDetails;
@@ -44,45 +44,41 @@ export const ProductDetails = ({ data }: ProductDetailsProps) => {
   const [selectedColor, setSelectedColor] = useState("");
   const [selectedSize, setSelectedSize] = useState("");
   const [isAddingToCart, setIsAddingToCart] = useState(false);
-  // ✅ NUEVOS ESTADOS PARA MANEJO DE STOCK POR VARIANTE
   const [variantStock, setVariantStock] = useState<number>(0);
   const [isLoadingStock, setIsLoadingStock] = useState(false);
-  const [hasSelectedVariant, setHasSelectedVariant] = useState(false);
-  
+  const [isSelectedVariant, setIsSelectedVariant] = useState(false);
   const { addProductToCart } = useCart();
 
   const images = Array.isArray(data.images) ? data.images : [];
 
-  // ✅ NUEVA FUNCIÓN PARA OBTENER STOCK DE VARIANTE
-  const fetchVariantStock = useCallback(async (productId: number, colorCode: string, size: string) => {
-    if (!colorCode || !size) {
+  const fetchVariantStock = useCallback(async (id: number, color_code: string, size: string) => {
+    if (!color_code || !size) {
       setVariantStock(0);
-      setHasSelectedVariant(false);
+      setIsSelectedVariant(false);
       return;
     }
-    
+
     try {
       setIsLoadingStock(true);
-      const response = await getVariantStockApi({
-        id: productId,
-        color_code: colorCode,
-        size: size
+      const variant = await getProductVariantApi({
+        id,
+        color_code,
+        size
       });
-      
-      const stock = response.data?.stock || response.stock || 0;
-      setVariantStock(stock);
-      setHasSelectedVariant(true);
-      
-      // ✅ Ajustar cantidad si excede el stock disponible
-      if (quantity > stock) {
-        setQuantity(Math.max(1, Math.min(stock, quantity)));
+      const variantStock = variant.stock || 0;
+
+      setVariantStock(variantStock);
+      setIsSelectedVariant(true);
+
+      if (quantity > variantStock) {
+        setQuantity(Math.max(1, Math.min(variantStock, quantity)));
       }
-      
+      setIsLoadingStock(false);
+
     } catch (error) {
       console.error('Error fetching variant stock:', error);
       setVariantStock(0);
-      setHasSelectedVariant(true);
-    } finally {
+      setIsSelectedVariant(false);
       setIsLoadingStock(false);
     }
   }, [quantity]);
@@ -92,32 +88,24 @@ export const ProductDetails = ({ data }: ProductDetailsProps) => {
       fetchVariantStock(data.id, selectedColor, selectedSize);
     } else {
       setVariantStock(0);
-      setHasSelectedVariant(false);
+      setIsSelectedVariant(false);
     }
   }, [selectedColor, selectedSize, data.id, fetchVariantStock]);
 
   const handleAddToCart = useCallback(async () => {
-    // Validaciones previas
-    if (!selectedColor || !selectedSize) {
-      ErrorsHandler.showError("Selección incompleta", "Selecciona color y talla");
-      return;
-    }
-
     if (variantStock === 0) {
       ErrorsHandler.showError("Sin stock", "Esta variante no está disponible");
       return;
     }
-
     if (quantity > variantStock) {
       ErrorsHandler.showError("Stock insuficiente", `Solo quedan ${variantStock} unidades`);
       return;
     }
 
     setIsAddingToCart(true);
-    
+
     try {
       const selectedImageData = images.find(img => img.color_code === selectedColor);
-
       const product: CartProductsInfo = {
         id: data.id,
         color: selectedImageData?.color || "",
@@ -128,12 +116,12 @@ export const ProductDetails = ({ data }: ProductDetailsProps) => {
         quantity: quantity,
         size: selectedSize,
         total: data.price * quantity,
-        stock: variantStock // ✅ USAR STOCK DE VARIANTE
+        stock: variantStock
       };
 
-      await addProductToCart(product);
+      addProductToCart(product);
       ErrorsHandler.showSuccess("Producto añadido al carrito", "Revísalo");
-    } catch (error: unknown) {
+    } catch (error) {
       ErrorsHandler.showError(error.message, "No se pudo agregar el producto");
     } finally {
       setIsAddingToCart(false);
@@ -141,7 +129,7 @@ export const ProductDetails = ({ data }: ProductDetailsProps) => {
   }, [data, selectedColor, selectedSize, quantity, variantStock, addProductToCart, images]);
 
   const handleImageChange = (index: number, color: string) => {
-    setSelectedColor(color); 
+    setSelectedColor(color);
 
     const colorImageIndex = data.images.findIndex(
       (img) => img.color_code === color
@@ -155,401 +143,401 @@ export const ProductDetails = ({ data }: ProductDetailsProps) => {
     }
   }, [images]);
 
-  // ✅ ACTUALIZAR LÓGICA DE STOCK
   const isVariantInStock = variantStock > 0;
-  const showStockInfo = hasSelectedVariant || (selectedColor && selectedSize);
-  const discountPercentage = data.discount;
+  const showStockInfo = isSelectedVariant || (selectedColor && selectedSize);
+const discountPercentage = data.discount;
 
-  return (
-    <div className="min-h-screen bg-gradient-to-b from-white via-gray-50/30 to-white">
-      <div className="container mx-auto px-4 py-8">
-        <div className="grid gap-12 lg:grid-cols-2 mt-10">
-          <div className="space-y-6">
-            {/* Main Image - SIN CAMBIOS */}
-            <div className="relative aspect-square bg-white/60 backdrop-blur-sm rounded-xl shadow-xl overflow-hidden group w-10/12 mx-auto">
-              {images.length > 0 && images[selectedImage]?.image_url ? (
-                <Image
-                  src={images[selectedImage].image_url || "/placeholder.svg"}
-                  alt={images[selectedImage].color}
-                  fill
-                  className="object-fit transition-all duration-400 group-hover:scale-105"
-                  priority
-                />
-              ) : (
-                <div className="flex items-center justify-center h-full text-gray-400">
-                  <div className="text-center">
-                    <div className="w-24 h-24 bg-gray-200 rounded-full mx-auto mb-4 flex items-center justify-center">
-                      <ShoppingCart className="w-12 h-12" />
-                    </div>
-                    <p>No hay imagen disponible</p>
+return (
+  <div className="min-h-screen">
+    <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-8 md:py-12">
+      <div className="grid gap-10 lg:gap-16 lg:grid-cols-2 max-w-7xl mx-auto">
+        {/* Columna Izquierda: Galería de Imágenes */}
+        <div className="flex flex-col space-y-8">
+          {/* Imagen Principal */}
+          <div className="relative aspect-square bg-white/90 backdrop-blur-xl rounded-3xl shadow-2xl overflow-hidden group border border-gray-200/50 transition-all duration-500 hover:shadow-3xl hover:scale-[1.01]">
+            {images.length > 0 && images[selectedImage]?.image_url ? (
+              <Image
+                src={images[selectedImage].image_url || "/placeholder.svg"}
+                alt={images[selectedImage].color || data.name}
+                fill
+                className="object-contain p-6 transition-all duration-700 ease-out group-hover:scale-110 group-hover:rotate-1"
+                priority
+              />
+            ) : (
+              <div className="flex items-center justify-center h-full text-gray-400">
+                <div className="text-center animate-pulse">
+                  <div className="w-24 h-24 bg-gradient-to-br from-gray-100 to-gray-200 rounded-full mx-auto mb-4 flex items-center justify-center shadow-inner">
+                    <ShoppingCart className="w-12 h-12 text-gray-500" />
                   </div>
+                  <p className="text-sm font-medium">No hay imagen disponible</p>
                 </div>
-              )}
-
-              {/* Action Buttons - SIN CAMBIOS */}
-              <div className="absolute top-4 right-4 flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  className="bg-white/80 backdrop-blur-sm hover:bg-white/90 shadow-lg rounded-full w-10 h-10 transition-all duration-200 hover:scale-110"
-                >
-                  <Heart className="h-4 w-4" />
-                </Button>
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  className="bg-white/80 backdrop-blur-sm hover:bg-white/90 shadow-lg rounded-full w-10 h-10 transition-all duration-200 hover:scale-110"
-                >
-                  <Share2 className="h-4 w-4" />
-                </Button>
               </div>
+            )}
+
+            {/* Botones de Acción */}
+            <div className="absolute top-6 right-6 flex gap-3 opacity-0 group-hover:opacity-100 transition-all duration-500 transform translate-y-2 group-hover:translate-y-0">
+              <button className="bg-white/95 backdrop-blur-md hover:bg-white shadow-xl rounded-full w-12 h-12 flex items-center justify-center transition-all duration-300 hover:scale-110 hover:shadow-2xl border border-white/50">
+                <Heart className="h-4 w-4 text-gray-600 hover:text-red-500 transition-colors" />
+              </button>
+              <button className="bg-white/95 backdrop-blur-md hover:bg-white shadow-xl rounded-full w-12 h-12 flex items-center justify-center transition-all duration-300 hover:scale-110 hover:shadow-2xl border border-white/50">
+                <Share2 className="h-4 w-4 text-gray-600 hover:text-blue-500 transition-colors" />
+              </button>
             </div>
 
-            {/* Thumbnail Gallery - SIN CAMBIOS */}
-            <div className="flex gap-3 overflow-x-auto pb-2">
-              {images.length > 0 ? (
-                images.map((image, index: number) => (
-                  <button
-                    key={index}
-                    onClick={() => handleImageChange(index, image.color_code)}
-                    className={`relative flex-shrink-0 aspect-square w-20 h-20 mt-2 ms-2 overflow-hidden rounded-xl transition-all duration-300 hover:scale-105 ${
-                      selectedImage === index
-                        ? "ring-2 ring-blue-500 ring-offset-2 shadow-lg scale-105"
-                        : "hover:ring-2 hover:ring-gray-300 hover:ring-offset-1"
-                    }`}
-                  >
-                    <div className="absolute inset-0 bg-white/60 backdrop-blur-sm" />
-                    <Image
-                      src={image.image_url || "/placeholder.svg"}
-                      alt={`${data.name} thumbnail ${index + 1}`}
-                      fill
-                      className="object-fit transition-transform duration-200"
-                    />
-                  </button>
-                ))
-              ) : (
-                <div className="flex gap-3">
-                  {[...Array(4)].map((_, i) => (
-                    <Skeleton key={i} className="w-20 h-20 rounded-xl" />
-                  ))}
-                </div>
-              )}
+            {/* Indicador de zoom */}
+            <div className="absolute bottom-6 left-6 opacity-0 group-hover:opacity-100 transition-all duration-300">
+              <div className="bg-black/70 text-white px-3 py-1.5 rounded-full text-xs font-medium backdrop-blur-sm">
+                Hover para zoom
+              </div>
             </div>
           </div>
 
-          {/* Product Info */}
-          <div className="space-y-6">
-            {/* Header Section - SIN CAMBIOS HASTA PRICE */}
-            <div className="space-y-6 animate-in fade-in-50 duration-700">
-              {/* Badges and Rating */}
-              <div className="flex flex-col gap-4">
-                <div className="flex items-center justify-between">
-                  <Badge className="bg-gradient-to-r from-blue-500/10 to-indigo-500/10 text-blue-700 border border-blue-200/50 px-3 py-1.5 rounded-full font-medium animate-in slide-in-from-left duration-500">
-                    <Sparkles className="w-3 h-3 mr-1.5" />
-                    Nuevo Producto
-                  </Badge>
-                  <div className="flex items-center gap-1.5">
-                    {[...Array(5)].map((_, i) => (
-                      <Star
-                        key={i}
-                        className="w-4 h-4 fill-amber-400 text-amber-400 animate-in zoom-in duration-300"
-                        style={{ animationDelay: `${i * 100}ms` }}
-                      />
-                    ))}
-                    <span className="text-sm text-gray-500 ml-2 font-medium">
-                      (4.8)
-                    </span>
-                  </div>
-                </div>
-              </div>
-
-              {/* Product Title */}
-              <div className="space-y-3">
-                <h1 className="text-3xl lg:text-4xl font-bold text-gray-900 leading-tight animate-in slide-in-from-bottom duration-700">
-                  {data.name}
-                </h1>
-                <p className="text-gray-600 leading-relaxed text-lg animate-in fade-in duration-700 delay-200">
-                  {data.description}
-                </p>
-              </div>
-
-              {/* Price Section - SIN CAMBIOS */}
-              <div className="bg-gradient-to-r from-blue-50 to-indigo-50 rounded-2xl px-6 py-7 border border-blue-100/50 animate-in slide-in-from-left duration-700 delay-300">
-                <div className="flex items-center justify-between">
-                  <div className="space-y-1">
-                    <div className="flex items-baseline gap-3">
-                      <span className="text-4xl font-bold bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">
-                        $
-                        {Math.round(
-                          data.price - data.price * (discountPercentage / 100)
-                        ).toLocaleString()}
-                      </span>
-                      {discountPercentage > 0 && (
-                        <span className="text-xl text-gray-400 line-through font-medium">
-                          ${Math.round(data.price).toLocaleString()}
-                        </span>
-                      )}
-                    </div>
-                  </div>
-                  {discountPercentage > 0 && (
-                    <Badge className="bg-gradient-to-r from-red-500 to-red-600 text-white border-0 px-4 py-2 text-sm font-semibold rounded-full animate-pulse shadow-lg">
-                      -{discountPercentage}% OFF
-                    </Badge>
+          {/* Miniaturas */}
+          <div className="flex justify-center gap-4 overflow-x-auto pb-2 scrollbar-hide">
+            {images.length > 0 ? (
+              images.map((image, index: number) => (
+                <button
+                  key={index}
+                  onClick={() => handleImageChange(index, image.color_code)}
+                  className={`relative flex-shrink-0 aspect-square w-20 h-20 overflow-hidden rounded-2xl transition-all duration-500 hover:scale-110 border-2 group ${
+                    selectedImage === index
+                      ? "border-blue-500 ring-4 ring-blue-500/30 ring-offset-2 ring-offset-white shadow-lg scale-110 shadow-blue-500/25"
+                      : "border-gray-200/70 hover:border-blue-300 hover:shadow-lg"
+                  }`}
+                  style={{ 
+                    animationDelay: `${index * 150}ms`,
+                    animation: `slideInUp 0.6s ease-out forwards ${index * 150}ms`
+                  }}
+                >
+                  <div className="absolute inset-0 bg-gradient-to-br from-white/80 to-gray-50/80 backdrop-blur-sm" />
+                  <Image
+                    src={image.image_url || "/placeholder.svg"}
+                    alt={`${data.name} thumbnail ${index + 1}`}
+                    fill
+                    className="object-contain p-2 transition-all duration-300 group-hover:scale-110"
+                  />
+                  {selectedImage === index && (
+                    <div className="absolute inset-0 bg-blue-500/10 rounded-2xl" />
                   )}
+                </button>
+              ))
+            ) : (
+              <div className="flex gap-4">
+                {[...Array(4)].map((_, i) => (
+                  <Skeleton key={i} className="w-20 h-20 rounded-2xl animate-pulse bg-gradient-to-br from-gray-200 to-gray-300" />
+                ))}
+              </div>
+            )}
+          </div>
+
+          {/* Cards de Beneficios */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 mt-10">
+            <div className="group bg-gradient-to-br from-emerald-50/80 to-green-50/60 rounded-2xl p-6 border border-emerald-200/60 hover:shadow-xl transition-all duration-500 hover:scale-105 hover:-translate-y-1">
+              <div className="flex items-start gap-4">
+                <div className="w-12 h-12 bg-gradient-to-br from-emerald-100 to-emerald-200 rounded-xl flex items-center justify-center group-hover:scale-110 group-hover:rotate-6 transition-all duration-300 shadow-lg">
+                  <Truck className="w-6 h-6 text-emerald-600" />
+                </div>
+                <div>
+                  <p className="font-bold text-slate-900 mb-2 text-lg">
+                    Envío Gratis
+                  </p>
+                  <p className="text-sm text-slate-600 leading-relaxed">
+                    Compras superiores a $100.000
+                  </p>
                 </div>
               </div>
             </div>
 
-            {/* ✅ STOCK STATUS ACTUALIZADO */}
-            <div className="bg-white border border-gray-200/60 rounded-xl px-5 py-4 w-fit animate-in fade-in transition-all duration-300">
+            <div className="group bg-gradient-to-br from-blue-50/80 to-indigo-50/60 rounded-2xl p-6 border border-blue-200/60 hover:shadow-xl transition-all duration-500 hover:scale-105 hover:-translate-y-1">
+              <div className="flex items-start gap-4">
+                <div className="w-12 h-12 bg-gradient-to-br from-blue-100 to-blue-200 rounded-xl flex items-center justify-center group-hover:scale-110 group-hover:rotate-6 transition-all duration-300 shadow-lg">
+                  <Shield className="w-6 h-6 text-blue-600" />
+                </div>
+                <div>
+                  <p className="font-bold text-slate-900 mb-2 text-lg">
+                    Compra Segura
+                  </p>
+                  <p className="text-sm text-slate-600 leading-relaxed">
+                    Protección garantizada
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Columna Derecha: Información del Producto */}
+        <div className="flex flex-col space-y-8">
+          {/* Header con Badge y Rating */}
+          <div className="space-y-6 animate-in slide-in-from-right duration-700">
+            <div className="flex items-center justify-between flex-wrap gap-4">
+              <Badge className="bg-gradient-to-r from-blue-500/15 to-indigo-500/15 text-blue-700 border border-blue-200/50 px-5 py-2.5 rounded-full font-semibold shadow-lg backdrop-blur-sm hover:shadow-xl transition-all duration-300 hover:scale-105">
+                <Sparkles className="w-4 h-4 mr-2 animate-pulse" />
+                Nuevo Producto
+              </Badge>
               <div className="flex items-center gap-3">
-                <div
-                  className={`w-3 h-3 rounded-full ${
-                    !showStockInfo
-                      ? "bg-gray-400" 
-                      : isVariantInStock 
-                        ? "bg-emerald-500" 
-                        : "bg-red-500"
-                  }`}
-                />
-                <div className="flex-1">
-                  <span
-                    className={`font-semibold ${
-                      !showStockInfo
-                        ? "text-gray-500"
-                        : isVariantInStock 
-                          ? "text-gray-900" 
-                          : "text-red-600"
-                    }`}
-                  >
-                    {isLoadingStock
-                      ? "Verificando..."
-                      : !selectedColor || !selectedSize
-                        ? "Selecciona variante"
-                        : isVariantInStock 
-                          ? "En Stock" 
-                          : "Agotado"
-                    }
+                <div className="flex items-center gap-1">
+                  {[...Array(5)].map((_, i) => (
+                    <Star
+                      key={i}
+                      className="w-5 h-5 fill-amber-400 text-amber-400 transition-all duration-300 hover:scale-125"
+                      style={{ 
+                        animationDelay: `${i * 100}ms`,
+                        filter: 'drop-shadow(0 0 3px rgb(251 191 36 / 0.5))'
+                      }}
+                    />
+                  ))}
+                </div>
+                <span className="text-sm text-slate-500 font-semibold ml-2 bg-amber-50 px-2 py-1 rounded-full">
+                  4.8 ⭐
+                </span>
+              </div>
+            </div>
+
+            {/* Título y Descripción */}
+            <div className="space-y-4">
+              <h1 className="text-4xl lg:text-5xl font-bold bg-gradient-to-r from-slate-900 via-slate-800 to-slate-900 bg-clip-text text-transparent leading-tight">
+                {data.name}
+              </h1>
+              <p className="text-slate-600 leading-relaxed text-xl font-medium">
+                {data.description}
+              </p>
+            </div>
+
+            {/* Precio */}
+            <div className="bg-gradient-to-r from-blue-50/90 to-indigo-50/90 rounded-3xl px-8 py-8 border border-blue-200/50 backdrop-blur-xl shadow-xl hover:shadow-2xl transition-all duration-500">
+              <div className="flex items-center justify-between">
+                <div className="flex items-baseline gap-6">
+                  <span className="text-5xl lg:text-6xl font-black bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600 bg-clip-text text-transparent">
+                    ${Math.round(
+                      data.price - data.price * (discountPercentage / 100)
+                    ).toLocaleString()}
                   </span>
-                  {showStockInfo && isVariantInStock && !isLoadingStock && (
-                    <span className="text-gray-500 text-sm ml-2">
-                      {variantStock} unidades disponibles
+                  {discountPercentage > 0 && (
+                    <span className="text-2xl text-slate-400 line-through font-bold opacity-75">
+                      ${Math.round(data.price).toLocaleString()}
                     </span>
                   )}
                 </div>
-                {showStockInfo && isVariantInStock && !isLoadingStock && (
-                  <Badge
-                    variant="outline"
-                    className="text-emerald-600 border-emerald-200 bg-emerald-50"
-                  >
-                    Disponible
+                {discountPercentage > 0 && (
+                  <Badge className="bg-gradient-to-r from-red-500 to-red-600 text-white border-0 px-6 py-3 text-base font-bold rounded-full animate-bounce shadow-2xl shadow-red-500/25">
+                    -{discountPercentage}% OFF
                   </Badge>
                 )}
               </div>
             </div>
+          </div>
 
-            {/* Size Selection - SIN CAMBIOS */}
-            {data?.sizes && (
+          {/* Estado de Stock */}
+          <div className="bg-white/70 border border-gray-200/60 backdrop-blur-xl rounded-2xl px-6 py-5 w-fit shadow-lg transition-all duration-300 hover:shadow-xl">
+            <div className="flex items-center gap-4">
               <div
-                id="size-selection"
-                className="space-y-4 animate-in fade-in duration-700 delay-500"
-              >
-                <div className="flex items-center justify-between">
-                  <label className="text-lg font-semibold text-gray-900">
-                    Tamaño
-                  </label>
-                  <span className="text-sm text-gray-500">
-                    Selecciona tu talla
-                  </span>
-                </div>
-                <RadioGroup
-                  value={selectedSize}
-                  onValueChange={setSelectedSize}
-                  className="grid grid-cols-6 gap-3"
+                className={`w-4 h-4 rounded-full transition-all duration-500 shadow-lg ${
+                  !showStockInfo
+                    ? "bg-gradient-to-r from-blue-400 to-blue-600 animate-pulse shadow-blue-500/50"
+                    : isVariantInStock
+                    ? "bg-gradient-to-r from-emerald-400 to-emerald-600 animate-pulse shadow-emerald-500/50"
+                    : "bg-gradient-to-r from-red-400 to-red-600 shadow-red-500/50"
+                }`}
+              />
+              <div>
+                <span
+                  className={`font-bold text-lg transition-colors duration-300 ${
+                    !showStockInfo
+                      ? "text-slate-600"
+                      : isVariantInStock
+                      ? "text-emerald-700"
+                      : "text-red-600"
+                  }`}
                 >
-                  {data.sizes.split(",").map((size, index) => (
-                    <label
-                      key={size}
-                      className={`relative flex cursor-pointer items-center justify-center rounded-xl border-2 px-4 py-3 text-sm font-semibold transition-all duration-200 hover:scale-105 animate-in zoom-in ${
-                        selectedSize === size
-                          ? "border-blue-500 bg-blue-500 text-white shadow-lg shadow-blue-500/25 scale-105"
-                          : "border-gray-200 bg-white text-gray-700 hover:border-blue-300 hover:bg-blue-50"
-                      }`}
-                      style={{ animationDelay: `${index * 100}ms` }}
-                    >
-                      <RadioGroupItem value={size} className="sr-only" />
-                      {size.toUpperCase()}
-                    </label>
-                  ))}
-                </RadioGroup>
+                  {isLoadingStock
+                    ? "Verificando disponibilidad..."
+                    : !selectedColor || !selectedSize
+                    ? "Selecciona variante completa"
+                    : isVariantInStock
+                    ? "✅ Disponible en stock"
+                    : "❌ Producto agotado"}
+                </span>
+                {showStockInfo && isVariantInStock && !isLoadingStock && (
+                  <span className="text-slate-500 text-sm ml-2 block font-medium">
+                    📦 {variantStock} unidades disponibles
+                  </span>
+                )}
               </div>
-            )}
+            </div>
+          </div>
 
-            {/* Color Selection - SIN CAMBIOS */}
-            <div className="space-y-4 animate-in fade-in duration-700 delay-600">
+          {/* Selector de Tamaño */}
+          {data?.sizes && (
+            <div className="space-y-5">
               <div className="flex items-center justify-between">
-                <label className="text-lg font-semibold text-gray-900">
-                  Color
+                <label className="text-xl font-bold text-slate-900">
+                  📏 Tamaño
                 </label>
-                <span className="text-sm text-gray-500">
-                  {images.find((img) => img.color_code === selectedColor)
-                    ?.color || "Selecciona color"}
+                <span className="text-sm text-slate-500 font-semibold bg-slate-100 px-3 py-1.5 rounded-full">
+                  {selectedSize ? `Talla ${selectedSize}` : "Selecciona tu talla"}
                 </span>
               </div>
-              <div className="flex gap-3">
-                {images
-                  .map((img) => img.color_code)
-                  .filter(
-                    (value: string, index: number, self: Array<string>) =>
-                      value && self.indexOf(value) === index
-                  )
-                  .map((colorCode: string, index) => (
-                    <button
-                      key={colorCode}
-                      onClick={() => handleImageChange(0, colorCode)}
-                      className={`relative w-12 h-12 rounded-full transition-all duration-200 hover:scale-110 animate-in zoom-in ${
-                        selectedColor === colorCode
-                          ? "ring-2 ring-blue-500 ring-offset-2 shadow-lg scale-110"
-                          : "ring-2 ring-gray-300 hover:ring-gray-400 shadow-md"
-                      }`}
-                      style={{
-                        backgroundColor: colorCode,
-                        animationDelay: `${index * 100}ms`,
-                      }}
-                    >
-                      {selectedColor === colorCode && (
-                        <div className="absolute inset-0 rounded-full bg-white/20 flex items-center justify-center">
-                          <Check className="w-5 h-5 text-white drop-shadow-sm" />
-                        </div>
-                      )}
-                    </button>
-                  ))}
-              </div>
-            </div>
-
-            {/* ✅ QUANTITY AND ADD TO CART ACTUALIZADO */}
-            <div className="space-y-6 animate-in fade-in duration-700 delay-700">
-              <div className="flex items-center gap-4">
-                <div className="space-y-2">
-                  <SetQuantity
-                    cartProduct={{ quantity }}
-                    handleDecrease={() =>
-                      setQuantity((prev) => Math.max(1, prev - 1))
-                    }
-                    handleIncrease={() =>
-                      setQuantity((prev) => Math.min(variantStock, prev + 1)) // ✅ USAR variantStock
-                    }
-                  />
-                </div>
-
-                <div className="flex-1">
-                  <Button
-                    onClick={handleAddToCart}
-                    disabled={
-                      !selectedSize || 
-                      !selectedColor || 
-                      !isVariantInStock || 
-                      isAddingToCart ||
-                      isLoadingStock ||
-                      variantStock === 0
-                    } // ✅ CONDICIONES ACTUALIZADAS
-                    className="w-full bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white py-6 text-lg font-semibold rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-[1.02] disabled:opacity-50 disabled:cursor-not-allowed disabled:scale-100 disabled:hover:shadow-lg"
-                    size="lg"
+              <RadioGroup
+                value={selectedSize}
+                onValueChange={setSelectedSize}
+                className="grid grid-cols-4 sm:grid-cols-6 gap-4"
+              >
+                {data.sizes.split(",").map((size, index) => (
+                  <label
+                    key={size}
+                    className={`relative flex cursor-pointer items-center justify-center rounded-2xl border-3 p-4 text-sm font-bold transition-all duration-300 hover:scale-110 hover:-translate-y-1 ${
+                      selectedSize === size
+                        ? "border-blue-500 bg-gradient-to-br from-blue-500 to-indigo-600 text-white shadow-2xl shadow-blue-500/40 scale-110 -translate-y-1"
+                        : "border-gray-200 bg-gradient-to-br from-white to-gray-50 text-slate-700 hover:border-blue-400 hover:shadow-xl"
+                    }`}
+                    style={{ 
+                      animationDelay: `${index * 100}ms`,
+                      animation: `fadeInUp 0.6s ease-out forwards ${index * 100}ms`
+                    }}
                   >
-                    {isLoadingStock ? (
-                      <div className="flex items-center gap-2">
-                        <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-                        Verificando stock...
-                      </div>
-                    ) : isAddingToCart ? (
-                      <div className="flex items-center gap-2">
-                        <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-                        Añadiendo al carrito...
-                      </div>
-                    ) : (
-                      <div className="flex items-center gap-2">
-                        <ShoppingCart className="w-5 h-5" />
-                        {!selectedColor || !selectedSize
-                          ? "Selecciona variante"
-                          : variantStock === 0 
-                            ? "Sin stock" 
-                            : "Añadir al carrito"
-                        }
+                    <RadioGroupItem value={size} className="sr-only" />
+                    {size.toUpperCase()}
+                    {selectedSize === size && (
+                      <div className="absolute -top-1 -right-1 w-3 h-3 bg-white rounded-full animate-ping" />
+                    )}
+                  </label>
+                ))}
+              </RadioGroup>
+            </div>
+          )}
+
+          {/* Selector de Color */}
+          <div className="space-y-5">
+            <div className="flex items-center justify-between">
+              <label className="text-xl font-bold text-slate-900">
+                🎨 Color
+              </label>
+              <span className="text-sm text-slate-500 font-semibold bg-slate-100 px-3 py-1.5 rounded-full">
+                {images.find((img) => img.color_code === selectedColor)
+                  ?.color || "Selecciona color"}
+              </span>
+            </div>
+            <div className="flex flex-wrap gap-5">
+              {images
+                .map((img) => img.color_code)
+                .filter(
+                  (value: string, index: number, self: Array<string>) =>
+                    value && self.indexOf(value) === index
+                )
+                .map((colorCode: string, index) => (
+                  <button
+                    key={colorCode}
+                    onClick={() => handleImageChange(0, colorCode)}
+                    className={`relative w-14 h-14 rounded-full transition-all duration-400 hover:scale-125 hover:-translate-y-1 border-4 shadow-lg ${
+                      selectedColor === colorCode
+                        ? "ring-4 ring-blue-500 ring-offset-4 ring-offset-white shadow-2xl scale-125 -translate-y-1 border-white"
+                        : "border-gray-300 hover:border-white hover:shadow-2xl"
+                    }`}
+                    style={{
+                      backgroundColor: colorCode,
+                      animationDelay: `${index * 150}ms`,
+                      boxShadow: selectedColor === colorCode 
+                        ? `0 10px 25px -5px ${colorCode}40, 0 0 0 4px #3b82f6` 
+                        : `0 4px 12px -2px ${colorCode}30`
+                    }}
+                  >
+                    {selectedColor === colorCode && (
+                      <div className="absolute inset-0 rounded-full bg-white/40 flex items-center justify-center">
+                        <Check className="w-6 h-6 text-white drop-shadow-lg animate-bounce" />
                       </div>
                     )}
-                  </Button>
-                </div>
-              </div>
-            </div>
-
-            {/* Features Grid - SIN CAMBIOS */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 animate-in fade-in delay-800">
-              {/* Shipping Info */}
-              <div className="bg-gradient-to-br from-emerald-50 to-green-50 rounded-xl p-5 border border-emerald-200/50 hover:shadow-md transition-all duration-300 group">
-                <div className="flex items-start gap-3">
-                  <div className="w-10 h-10 bg-emerald-500/10 rounded-xl flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
-                    <Truck className="w-5 h-5 text-emerald-600" />
-                  </div>
-                  <div>
-                    <p className="font-semibold text-gray-900 mb-1">
-                      Envío Gratis
-                    </p>
-                    <p className="text-sm text-gray-600">
-                      Compras superiores a $100.000
-                    </p>
-                  </div>
-                </div>
-              </div>
-
-              {/* Security Info */}
-              <div className="bg-gradient-to-br from-blue-50 to-indigo-50 rounded-xl p-5 border border-blue-200/50 hover:shadow-md transition-all duration-300 group">
-                <div className="flex items-start gap-3">
-                  <div className="w-10 h-10 bg-blue-500/10 rounded-xl flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
-                    <Shield className="w-5 h-5 text-blue-600" />
-                  </div>
-                  <div>
-                    <p className="font-semibold text-gray-900 mb-1">
-                      Compra Segura
-                    </p>
-                    <p className="text-sm text-gray-600">
-                      Protección garantizada
-                    </p>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            {/* Payment Methods - SIN CAMBIOS */}
-            <div className="bg-white rounded-xl p-6 border border-gray-200/60 shadow-sm animate-in fade-in duration-700 delay-900">
-              <div className="flex items-center gap-3 mb-4">
-                <div className="w-8 h-8 bg-gradient-to-r from-blue-500 to-indigo-500 rounded-lg flex items-center justify-center">
-                  <Shield className="w-4 h-4 text-white" />
-                </div>
-                <p className="font-semibold text-gray-900">
-                  Métodos de Pago Seguros
-                </p>
-              </div>
-
-              <div className="grid grid-cols-4 gap-3">
-                {paymentMethods.map((method, index) => (
-                  <div
-                    key={index}
-                    className="bg-gray-50 rounded-lg p-3 text-center border border-gray-200/60 hover:border-blue-300 hover:bg-blue-50 transition-all duration-300 animate-in zoom-in"
-                    style={{ animationDelay: `${index * 100}ms` }}
-                  >
-                    <div className="text-3xl mb-1">
-                      <p className="flex justify-center">{method.icon}</p>
-                    </div>
-                    <p className="text-xs text-gray-600 font-medium">
-                      {method.name}
-                    </p>
-                  </div>
+                    <div className="absolute -inset-1 rounded-full bg-gradient-to-r from-white/20 to-transparent opacity-0 hover:opacity-100 transition-opacity duration-300" />
+                  </button>
                 ))}
+            </div>
+          </div>
+
+          {/* Cantidad y Botón de Añadir */}
+          <div className="space-y-8 pt-4">
+            <div className="flex items-center gap-6">
+              <div className="flex-shrink-0">
+                <SetQuantity
+                  cartProduct={{ quantity }}
+                  handleDecrease={() =>
+                    setQuantity((prev) => Math.max(1, prev - 1))
+                  }
+                  handleIncrease={() =>
+                    setQuantity((prev) => Math.min(variantStock || 99, prev + 1))
+                  }
+                />
               </div>
+
+              <Button
+                onClick={handleAddToCart}
+                disabled={
+                  !selectedSize ||
+                  !selectedColor ||
+                  !isVariantInStock ||
+                  isAddingToCart ||
+                  isLoadingStock ||
+                  variantStock === 0
+                }
+                className="flex-1 bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600 hover:from-blue-700 hover:via-indigo-700 hover:to-purple-700 text-white py-8 text-xl font-bold rounded-2xl shadow-2xl hover:shadow-3xl transition-all duration-500 hover:scale-105 hover:-translate-y-1 disabled:opacity-50 disabled:cursor-not-allowed disabled:scale-100 disabled:translate-y-0 disabled:hover:shadow-2xl min-h-[4rem] border-0"
+                size="lg"
+              >
+                {isLoadingStock ? (
+                  <div className="flex items-center gap-4">
+                    <div className="w-6 h-6 border-3 border-white/30 border-t-white rounded-full animate-spin" />
+                    <span>Verificando...</span>
+                  </div>
+                ) : isAddingToCart ? (
+                  <div className="flex items-center gap-4">
+                    <div className="w-6 h-6 border-3 border-white/30 border-t-white rounded-full animate-spin" />
+                    <span>Añadiendo al carrito...</span>
+                  </div>
+                ) : (
+                  <div className="flex items-center gap-4">
+                    <ShoppingCart className="w-6 h-6 animate-bounce" />
+                    <span>
+                      {!selectedColor || !selectedSize
+                        ? "🔍 Selecciona variante"
+                        : variantStock === 0
+                        ? "❌ Sin stock"
+                        : "🛒 Añadir al carrito"}
+                    </span>
+                  </div>
+                )}
+              </Button>
+            </div>
+          </div>
+
+          {/* Métodos de Pago */}
+          <div className="bg-gradient-to-br from-white/90 to-gray-50/80 rounded-3xl p-8 border border-gray-200/60 shadow-2xl backdrop-blur-xl mt-auto hover:shadow-3xl transition-all duration-500">
+            <div className="flex items-center gap-5 mb-8">
+              <div className="w-12 h-12 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-2xl flex items-center justify-center shadow-xl">
+                <Shield className="w-6 h-6 text-white" />
+              </div>
+              <p className="font-black text-slate-900 text-xl">
+                🔒 Métodos de Pago Seguros
+              </p>
+            </div>
+
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-5">
+              {paymentMethods.map((method, index) => (
+                <div
+                  key={index}
+                  className="group bg-gradient-to-br from-gray-50/90 to-white/90 rounded-2xl p-5 text-center border border-gray-200/60 hover:border-blue-300 hover:bg-gradient-to-br hover:from-blue-50 hover:to-indigo-50 transition-all duration-400 hover:scale-110 hover:-translate-y-2 hover:shadow-2xl"
+                  style={{ animationDelay: `${index * 200}ms` }}
+                >
+                  <div className="text-4xl mb-3 text-slate-600 group-hover:text-blue-600 transition-all duration-300 group-hover:scale-125">
+                    <div className="flex justify-center">{method.icon}</div>
+                  </div>
+                  <p className="text-xs text-slate-600 font-bold group-hover:text-slate-900 transition-colors duration-300">
+                    {method.name}
+                  </p>
+                </div>
+              ))}
             </div>
           </div>
         </div>
       </div>
     </div>
-  );
+  </div>
+);
 };

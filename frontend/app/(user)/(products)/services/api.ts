@@ -15,7 +15,7 @@ export const getLatestProducts = async () => {
   return data;
 };
 
-export const getVariantStockApi = async (productData: {
+export const getProductVariantApi = async (productData: {
   id: number;
   color_code: string;
   size: string;
