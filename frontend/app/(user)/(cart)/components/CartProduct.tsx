@@ -7,7 +7,7 @@ import { Button } from "../../../../components/ui/button";
 import { Badge } from "../../../../components/ui/badge";
 import { Trash2, ShoppingBag, ArrowRight, AlertTriangle, RefreshCw } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
-import { getVariantStockApi } from "../../(products)/services/api"; // ✅ IMPORT DEL API
+import { getProductVariantApi } from "../../(products)/services/api";
 import { CartProductsInfo } from "../../types"; // ✅ IMPORT DEL TIPO
 
 // ✅ NUEVO TIPO PARA MANEJAR STOCK DE VARIANTES
@@ -41,7 +41,7 @@ export default function CartProducts() {
         [variantKey]: { ...prev[variantKey], isLoading: true }
       }));
 
-      const response = await getVariantStockApi({
+      const response = await getProductVariantApi({
         id: product.id,
         color_code: product.color_code,
         size: product.size

@@ -23,9 +23,7 @@ ALTER SEQUENCE cart_items_id_seq RESTART WITH 1;
 
 -- Habilitar extensión para hash de contraseñas
 CREATE EXTENSION IF NOT EXISTS pgcrypto;
-SELECT * FROM products 
-INNER JOIN images ON products.id = images.product_id 
-WHERE products.name LIKE 'Air%';
+
 -- 1. SUBCATEGORÍAS
 INSERT INTO subcategories (name) VALUES 
 ('Camisas deportivas'),
