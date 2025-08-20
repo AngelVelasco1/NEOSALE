@@ -85,9 +85,9 @@ BEGIN
             NOW()
         );
 
-        UPDATE products
+        UPDATE product_variants
         SET stock = stock - rec.quantity
-        WHERE id = rec.product_id;
+        WHERE product_id = rec.product_id;
     END LOOP;
 
     DELETE FROM cart_items WHERE cart_id = v_cart_id;
