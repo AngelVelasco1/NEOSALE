@@ -417,12 +417,12 @@ export const RegisterForm: React.FC = () => {
                   transition={{ duration: 0.5, delay: 1.0 }}
                 >
                   <p className="text-gray-600 text-sm">
-                    ¿Ya tienes una cuenta?{" "}
+                    ¿Ya tienes cuenta?{" "}
                     <Link
                       href="/login"
                       className="text-blue-600 hover:text-blue-700 font-semibold hover:underline transition-all duration-200 hover:scale-105 inline-block"
                     >
-                      Inicia sesión aquí
+                      Inicia sesión
                     </Link>
                   </p>
                 </motion.div>

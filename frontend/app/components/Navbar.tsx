@@ -42,6 +42,7 @@ import { useUserSafe } from "../(auth)/hooks/useUserSafe";
 import { useMounted } from "../(auth)/hooks/useMounted";
 import { useCart } from "../(user)/(cart)/hooks/useCart";
 import { ThemeToggle } from "./ThemeToggle";
+import { SearchFilter } from "../(user)/(products)/components/filters/SearchFilter";
 
 const categories = [
   {
@@ -348,20 +349,8 @@ export const Navbar = () => {
 
           <div className="flex-1 max-w-fit hidden md:block">
             <div className="relative">
-              <SearchIcon
-                onClick={handleSearchRef}
-                className="absolute left-4 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground cursor-pointer"
-              />
-              <Input
-                ref={searchRef}
-                type="search"
-                placeholder="Buscar productos..."
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                onFocus={() => setIsSearchFocused(true)}
-                onBlur={() => setTimeout(() => setIsSearchFocused(false), 200)}
-                className="pl-10  h-10 w-full rounded-xl transition-all duration-200 font-inter shadow-md border-slate-400"
-              />
+{/*                   <SearchFilter searchTerm={filters.searchTerm} onSearchChange={(value) => updateFilter("searchTerm", value)} />
+ */}            
 
               {isSearchFocused && searchQuery.length === 0 && (
                 <div className="absolute top-full left-0 right-0 mt-2 bg-card backdrop-blur-xl rounded-xl shadow-2xl border p-4 z-50">
