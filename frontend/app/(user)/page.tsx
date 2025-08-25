@@ -8,6 +8,7 @@ import { useRouter } from "next/navigation";
 import { Testimonials } from "../components/Testimonials";
 import { BenefitsList } from "../components/BenefitsList";
 import { ArrowRight, Sparkles } from "lucide-react";
+import { Pricing } from "../components/Pricing";
 
 export default function Home() {
   const [products, setProducts] = useState<IProduct[]>([]);
@@ -72,6 +73,10 @@ export default function Home() {
 
         <div className="mt-16 mb-4">
           <BenefitsList />
+        </div>
+
+        <div className="mt-16 mb-4">
+          <Pricing />
         </div>
 
         <div>

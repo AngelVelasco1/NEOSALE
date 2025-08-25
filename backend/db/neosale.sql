@@ -152,8 +152,8 @@ CREATE TABLE products (
     CONSTRAINT chk_product_price CHECK (price > 0),
     CONSTRAINT chk_product_stock CHECK (stock >= 0),
     CONSTRAINT chk_product_weight CHECK (weight_grams > 0),
-    CONSTRAINT chk_product_base_discount CHECK (base_discount >= 0 AND base_discount <= 100),
-    CONSTRAINT chk_product_offer_discount CHECK (offer_discount >= 0),
+    CONSTRAINT chk_product_base_discount CHECK (base_discount > 0 AND base_discount <= 100),
+    CONSTRAINT chk_product_offer_discount CHECK (offer_discount > 0),
     CONSTRAINT chk_product_offer_dates CHECK (
         (in_offer = FALSE) OR
         (in_offer = TRUE AND 
@@ -326,7 +326,17 @@ CREATE TABLE review_images (
     created_at TIMESTAMP(6) DEFAULT CURRENT_TIMESTAMP NOT NULL
 );
 
-CREATE TABLE returns (
+CREATE TABLE favorites (
+    id SERIAL PRIMARY KEY,
+    user_id INTEGER NOT NULL REFERENCES "User"(id) ON DELETE CASCADE,
+    product_id INTEGER NOT NULL REFERENCES products(id) ON DELETE CASCADE,
+    created_at TIMESTAMP(6) DEFAULT CURRENT_TIMESTAMP NOT NULL,
+    
+    CONSTRAINT unq_user_product_favorite UNIQUE(user_id, product_id)
+);
+
+-- Para otra version
+/* CREATE TABLE returns (
     id SERIAL PRIMARY KEY,
     order_id INTEGER NOT NULL REFERENCES orders(id) ON DELETE NO ACTION,
     user_id INTEGER NOT NULL REFERENCES "User"(id) ON DELETE NO ACTION,
@@ -352,16 +362,7 @@ CREATE TABLE return_items (
     reason VARCHAR(255),
     
     CONSTRAINT chk_return_item_quantity CHECK (quantity > 0)
-);
-
-CREATE TABLE favorites (
-    id SERIAL PRIMARY KEY,
-    user_id INTEGER NOT NULL REFERENCES "User"(id) ON DELETE CASCADE,
-    product_id INTEGER NOT NULL REFERENCES products(id) ON DELETE CASCADE,
-    created_at TIMESTAMP(6) DEFAULT CURRENT_TIMESTAMP NOT NULL,
-    
-    CONSTRAINT unq_user_product_favorite UNIQUE(user_id, product_id)
-);
+); */
 
 -- INDICES
 
