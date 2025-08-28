@@ -1,307 +1,400 @@
 "use client"
 
 import { Button } from "@/components/ui/button"
-import { Check, Star, Zap, Crown } from "lucide-react"
-import { useEffect, useState } from "react"
+import { Check } from "lucide-react"
+import { useState } from "react"
+import { motion, AnimatePresence } from "framer-motion"
 
 const plans = [
   {
-    name: "Básico",
-    price: "9",
-    period: "mes",
-    description: "Perfecto para empezar tu transformación digital",
-    icon: Star,
+    badge: "Básico",
+    badgeColor: "bg-blue-100 text-blue-600",
+    monthlyPrice: "29",
+    yearlyPrice: "290", // 10 months price
+    description: "Perfecto para emprendedores que inician su tienda online",
     features: [
-      "Hasta 1,000 usuarios",
-      "5GB de almacenamiento",
+      "Hasta 500 productos",
+      "2 métodos de pago (Stripe, PayPal)",
+      "Dashboard básico con métricas",
+      "Gestión de clientes básica",
+      "5 cupones de descuento",
       "Soporte por email",
-      "Dashboard básico",
-      "Integraciones básicas",
-      "SSL incluido",
+      "SSL gratuito",
     ],
     popular: false,
-    gradient: "from-blue-500 to-cyan-500",
-    darkGradient: "dark:from-blue-400 dark:to-cyan-400",
-    bgGradient: "from-blue-50 to-cyan-50",
-    darkBgGradient: "dark:from-blue-950/20 dark:to-cyan-950/20",
+    buttonStyle: "outline",
+    borderColor: "border-blue-300",
+    shadowColor: "shadow-blue-200/40",
+    hoverShadow: "hover:shadow-blue-300/60",
+    hoverBorder: "hover:border-blue-400",
   },
   {
-    name: "Pro",
-    price: "29",
-    period: "mes",
-    description: "La elección inteligente para empresas en crecimiento",
-    icon: Zap,
+    badge: "Profesional",
+    badgeColor: "bg-purple-100 text-purple-600",
+    monthlyPrice: "79",
+    yearlyPrice: "790", // 10 months price
+    description: "La mejor opción para negocios en crecimiento",
     features: [
-      "Hasta 10,000 usuarios",
-      "50GB de almacenamiento",
+      "Productos ilimitados",
+      "Todas las pasarelas de pago",
+      "Dashboard avanzado + Analytics",
+      "CRM completo de clientes",
+      "Sistema de cupones y promociones",
+      "Gestión avanzada de productos y categorías",
       "Soporte prioritario 24/7",
-      "Dashboard avanzado",
-      "Todas las integraciones",
-      "API completa",
-      "Analytics avanzados",
-      "Backup automático",
+      "Reportes y exportaciones",
     ],
     popular: true,
-    gradient: "from-purple-500 to-pink-500",
-    darkGradient: "dark:from-purple-400 dark:to-pink-400",
-    bgGradient: "from-purple-50 to-pink-50",
-    darkBgGradient: "dark:from-purple-950/20 dark:to-pink-950/20",
+    buttonStyle: "filled",
+    gradientBg: true,
   },
   {
-    name: "Premium",
-    price: "99",
-    period: "mes",
-    description: "Solución empresarial completa sin límites",
-    icon: Crown,
+    badge: "Premium",
+    badgeColor: "bg-indigo-100 text-indigo-600",
+    monthlyPrice: "199",
+    yearlyPrice: "1990", // 10 months price
+    description: "Solución avanzada para pasar al siguiente nivel",
     features: [
-      "Usuarios ilimitados",
-      "Almacenamiento ilimitado",
-      "Soporte dedicado",
-      "Dashboard personalizable",
-      "Integraciones personalizadas",
-      "API sin límites",
-      "Analytics empresariales",
-      "Backup en tiempo real",
-      "Consultoría incluida",
-      "SLA garantizado",
+      "Todo lo de Professional +",
+      "White-label completo",
+      "Workflows automatizados",
+      "CDN global y alta disponibilidad",
+      "Backup automático diario",
+      "Gerente de cuenta dedicado",
+      "SLA 99.9% uptime",
+      "Auditorías de seguridad",
+      "Desarrollo de features personalizadas",
     ],
     popular: false,
-    gradient: "from-cyan-500 to-blue-500",
-    darkGradient: "dark:from-cyan-400 dark:to-blue-400",
-    bgGradient: "from-cyan-50 to-blue-50",
-    darkBgGradient: "dark:from-cyan-950/20 dark:to-blue-950/20",
+    buttonStyle: "outline",
+    borderColor: "border-indigo-300",
+    shadowColor: "shadow-indigo-200/40",
+    hoverShadow: "hover:shadow-indigo-300/60",
+    hoverBorder: "hover:border-indigo-400",
   },
 ]
 
-export const Pricing = () => {
-  const [isLoaded, setIsLoaded] = useState(false)
+export const Pricing= () => {
+  const [isYearly, setIsYearly] = useState(false)
 
-  useEffect(() => {
-    setIsLoaded(true)
-  }, [])
+  const getPrice = (plan: any) => {
+    return isYearly ? plan.yearlyPrice : plan.monthlyPrice
+  }
+
+  const getSavings = (monthlyPrice: string, yearlyPrice: string) => {
+    const monthly = Number.parseInt(monthlyPrice)
+    const yearly = Number.parseInt(yearlyPrice)
+    const monthlyCost = monthly * 12
+    const savings = monthlyCost - yearly
+    return savings
+  }
 
   return (
-    <section className="relative min-h-screen w-full overflow-hidden bg-gradient-to-br from-slate-50 via-white to-blue-50 dark:from-slate-950 dark:via-slate-900 dark:to-slate-950 py-24">
-      {/* Background Effects */}
-      <div className="absolute inset-0">
-        <div className="absolute inset-0 opacity-60 dark:opacity-30">
-          <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-gradient-to-br from-purple-400/30 to-blue-400/20 dark:from-purple-500/20 dark:to-blue-500/15 rounded-full blur-3xl animate-float-gentle" />
-          <div className="absolute bottom-1/4 right-1/4 w-80 h-80 bg-gradient-to-tr from-cyan-400/25 to-pink-400/20 dark:from-cyan-500/15 dark:to-pink-500/10 rounded-full blur-2xl animate-float-gentle-delayed" />
-        </div>
-        <div className="absolute inset-0 bg-[linear-gradient(rgba(59,130,246,0.03)_1px,transparent_1px),linear-gradient(90deg,rgba(59,130,246,0.03)_1px,transparent_1px)] dark:bg-[linear-gradient(rgba(99,179,237,0.02)_1px,transparent_1px),linear-gradient(90deg,rgba(99,179,237,0.02)_1px,transparent_1px)] bg-[size:60px_60px] animate-grid-drift" />
-      </div>
+    <section className="py-16 bg-gradient-to-br from-slate-50 via-white to-blue-50">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+ <h2 className="text-4xl lg:text-5xl font-black leading-tight relative">
+                <motion.span
+                  className="bg-gradient-to-r from-slate-900 via-purple-900 to-slate-800 bg-clip-text text-transparent"
+                  animate={{
+                    backgroundPosition: ["0% 50%", "100% 50%", "0% 50%"],
+                  }}
+                  transition={{
+                    duration: 8,
+                    repeat: Number.POSITIVE_INFINITY,
+                    ease: "easeInOut",
+                  }}
+                  style={{
+                    backgroundSize: "200% 200%",
+                  }}
+                >
+                  Planes que se
+                </motion.span>
+                <br />
+                <motion.span
+                  className="bg-gradient-to-r from-blue-600 via-purple-600 to-indigo-600 bg-clip-text text-transparent relative"
+                  animate={{
+                    backgroundPosition: ["100% 50%", "0% 50%", "100% 50%"],
+                  }}
+                  transition={{
+                    duration: 8,
+                    repeat: Number.POSITIVE_INFINITY,
+                    ease: "easeInOut",
+                    delay: 0.5,
+                  }}
+                  style={{
+                    backgroundSize: "200% 200%",
+                  }}
+                >
+                  adaptan a ti
+                  <motion.div
+                    className="absolute -inset-1 bg-gradient-to-r from-blue-400/20 via-purple-400/20 to-indigo-400/20 blur-xl -z-10"
+                    animate={{
+                      opacity: [0.3, 0.6, 0.3],
+                      scale: [0.95, 1.05, 0.95],
+                    }}
+                    transition={{
+                      duration: 4,
+                      repeat: Number.POSITIVE_INFINITY,
+                      ease: "easeInOut",
+                    }}
+                  />
+                </motion.span>
+              </h2>        {/* Header */}
+        <div className="flex flex-col lg:flex-row lg:items-center justify-center px-4 mb-16">
+        
+          {/* Enhanced Billing Toggle with Framer Motion */}
+          <div className="flex items-center gap-6">
+          
 
-      <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        {/* Header */}
-        <div className="text-center mb-20">
-          <div
-            className={`inline-flex items-center gap-2 bg-white/90 dark:bg-slate-800/90 backdrop-blur-md border border-slate-200/60 dark:border-slate-700/50 rounded-full px-6 py-3 shadow-lg dark:shadow-2xl dark:shadow-black/40 mb-8 transition-all duration-1000 ${
-              isLoaded ? "animate-slide-up opacity-100" : "opacity-0 translate-y-8"
-            }`}
-          >
-            <div className="w-2 h-2 bg-gradient-to-r from-purple-500 to-blue-500 dark:from-purple-400 dark:to-blue-400 rounded-full animate-pulse-soft" />
-            <span className="text-slate-600 dark:text-slate-300 text-sm font-medium tracking-wide">
-              PLANES Y PRECIOS
-            </span>
-          </div>
+            <div className="flex items-center bg-white rounded-full p-1.5 shadow-lg border border-gray-200 relative ">
+              {/* Animated Background Slider with matching gradient */}
+              <motion.div
+                className="absolute top-1.5 bottom-1.5 bg-gradient-to-br from-slate-900 via-purple-900 to-slate-800 rounded-full shadow-lg shadow-purple-900/30"
+                animate={{
+                  left: isYearly ? "calc(54% + 0.125rem)" : "0.375rem",
+                  right: isYearly ? "0.375rem" : "calc(46% + 0.125rem)",
+                }}
+                transition={{
+                  type: "spring",
+                  stiffness: 400,
+                  damping: 40,
+                }}
+              />
 
-          <div
-            className={`space-y-6 transition-all duration-1200 delay-300 ${
-              isLoaded ? "animate-fade-up opacity-100" : "opacity-0 translate-y-8"
-            }`}
-          >
-            <h2 className="text-5xl md:text-6xl lg:text-7xl font-black tracking-tight">
-              <span className="bg-gradient-to-r from-blue-600 via-purple-600 to-cyan-600 dark:from-blue-400 dark:via-purple-400 dark:to-cyan-400 bg-clip-text text-transparent animate-gradient-shift">
-                Elige tu Plan
-              </span>
-            </h2>
-            <p className="text-xl text-slate-600 dark:text-slate-400 max-w-3xl mx-auto leading-relaxed">
-              Transforma tu negocio con la solución perfecta para tus necesidades. Todos los planes incluyen soporte
-              técnico y actualizaciones gratuitas.
-            </p>
+              <motion.button
+                onClick={() => setIsYearly(false)}
+                className={`relative z-10 px-6 py-2.5 rounded-full text-sm font-semibold ${
+                  !isYearly ? "text-white" : "text-gray-600"
+                }`}
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+                transition={{ type: "spring", stiffness: 400, damping: 17 }}
+              >
+                Mensual
+              </motion.button>
+
+              <motion.button
+                onClick={() => setIsYearly(true)}
+                className={`relative z-10 px-6 py-2.5 rounded-full text-sm font-semibold ${
+                  isYearly ? "text-white" : "text-gray-600"
+                }`}
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+                transition={{ type: "spring", stiffness: 400, damping: 17 }}
+              >
+                Anual
+                <motion.span
+                  className="absolute -top-2 -right-2 bg-gradient-to-r z-0 from-green-500 to-emerald-500 text-white text-xs px-2 py-0.5 rounded-full font-bold shadow-lg"
+                  animate={{
+                    scale: isYearly ? 1 : 0.8,
+                    opacity: isYearly ? 1 : 0.7,
+                  }}
+                  transition={{ type: "spring", stiffness: 300, damping: 20 }}
+                >
+                  -17%
+                </motion.span>
+              </motion.button>
+            </div>
           </div>
         </div>
 
         {/* Pricing Cards */}
-        <div className="grid lg:grid-cols-3 gap-8 lg:gap-6">
-          {plans.map((plan, index) => {
-            const Icon = plan.icon
-            return (
+        <div className="grid lg:grid-cols-3 gap-8">
+          {plans.map((plan, index) => (
+            <motion.div
+              key={plan.badge}
+              initial={{ opacity: 0, y: 50 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{
+                type: "spring",
+                stiffness: 300,
+                damping: 30,
+                delay: index * 0.1,
+              }}
+              whileHover={{
+                y: -8,
+                transition: { type: "spring", stiffness: 400, damping: 25 },
+              }}
+              className={`relative ${plan.popular ? "lg:-mt-6 lg:mb-6" : ""}`}
+            >
+              {/* Enhanced Card */}
               <div
-                key={plan.name}
-                className={`relative group transition-all duration-700 delay-${index * 200} ${
-                  isLoaded ? "animate-scale-up opacity-100" : "opacity-0 scale-95"
-                } ${plan.popular ? "lg:-mt-8 lg:mb-8" : ""}`}
+                className={`relative h-full rounded-2xl p-8 backdrop-blur-sm ${
+                  plan.gradientBg
+                    ? "bg-gradient-to-br from-slate-900 via-purple-900 to-slate-800 text-white shadow-2xl shadow-purple-500/20 border border-purple-500/20"
+                    : `bg-white/80 backdrop-blur-sm ${plan.borderColor} border ${plan.shadowColor} shadow-lg ${plan.hoverShadow} ${plan.hoverBorder} hover:shadow-xl hover:bg-white`
+                }`}
               >
-                {/* Popular Badge */}
-                {plan.popular && (
-                  <div className="absolute -top-4 left-1/2 transform -translate-x-1/2 z-20">
-                    <div className="bg-gradient-to-r from-purple-500 to-pink-500 dark:from-purple-400 dark:to-pink-400 text-white px-6 py-2 rounded-full text-sm font-bold shadow-lg animate-pulse-glow">
-                      MÁS POPULAR
-                    </div>
-                  </div>
-                )}
-
-                {/* Card */}
-                <div
-                  className={`relative h-full bg-white/90 dark:bg-slate-800/90 backdrop-blur-md border-2 ${
-                    plan.popular
-                      ? "border-purple-200 dark:border-purple-500/30 shadow-2xl shadow-purple-500/20 dark:shadow-purple-500/30"
-                      : "border-slate-200/60 dark:border-slate-700/50 shadow-xl dark:shadow-black/20"
-                  } rounded-3xl p-8 transition-all duration-500 hover:scale-105 hover:shadow-2xl group-hover:border-opacity-100 overflow-hidden`}
+                {/* Badge */}
+                <motion.div
+                  className="mb-6"
+                  initial={{ opacity: 0, scale: 0.8 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  transition={{ delay: index * 0.1 + 0.2, type: "spring", stiffness: 300 }}
                 >
-                  {/* Background Gradient */}
-                  <div
-                    className={`absolute inset-0 bg-gradient-to-br ${plan.bgGradient} ${plan.darkBgGradient} opacity-50 dark:opacity-20 transition-opacity duration-500 group-hover:opacity-70 dark:group-hover:opacity-30`}
-                  />
+                  <span
+                    className={`inline-flex items-center px-4 py-2 rounded-full text-sm font-medium backdrop-blur-sm ${
+                      plan.gradientBg ? "bg-white/10 text-white border border-white/20" : plan.badgeColor
+                    }`}
+                  >
+                    {plan.badge}
+                  </span>
+                </motion.div>
 
-                  {/* Animated Border */}
-                  <div className="absolute inset-0 rounded-3xl bg-gradient-to-r from-transparent via-white/20 dark:via-white/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 animate-border-flow" />
-
-                  <div className="relative z-10">
-                    {/* Icon */}
-                    <div
-                      className={`inline-flex items-center justify-center w-16 h-16 bg-gradient-to-r ${plan.gradient} ${plan.darkGradient} rounded-2xl mb-6 shadow-lg group-hover:scale-110 transition-transform duration-300`}
+                {/* Animated Price */}
+                <div className="mb-8">
+                  <div className="flex items-baseline gap-3">
+                    <AnimatePresence mode="wait">
+                      <motion.div
+                        key={isYearly ? "yearly" : "monthly"}
+                        initial={{ opacity: 0, y: 20, scale: 0.8 }}
+                        animate={{ opacity: 1, y: 0, scale: 1 }}
+                        exit={{ opacity: 0, y: -20, scale: 0.8 }}
+                        transition={{
+                          type: "spring",
+                          stiffness: 300,
+                          damping: 30,
+                          duration: 0.3,
+                        }}
+                        className={`text-6xl font-black tracking-tight ${
+                          plan.gradientBg ? "text-white" : "text-slate-900"
+                        }`}
+                      >
+                        ${getPrice(plan)}
+                      </motion.div>
+                    </AnimatePresence>
+                    <motion.span
+                      className={`text-lg font-medium ${plan.gradientBg ? "text-white/70" : "text-slate-500"}`}
+                      animate={{ opacity: [0.7, 1, 0.7] }}
+                      transition={{ duration: 2, repeat: Number.POSITIVE_INFINITY }}
                     >
-                      <Icon className="w-8 h-8 text-white" />
-                    </div>
-
-                    {/* Plan Name */}
-                    <h3 className="text-2xl font-bold text-slate-900 dark:text-white mb-2">{plan.name}</h3>
-
-                    {/* Description */}
-                    <p className="text-slate-600 dark:text-slate-400 mb-8 leading-relaxed">{plan.description}</p>
-
-                    {/* Price */}
-                    <div className="mb-8">
-                      <div className="flex items-baseline gap-2">
-                        <span className="text-5xl font-black text-slate-900 dark:text-white">${plan.price}</span>
-                        <span className="text-slate-600 dark:text-slate-400 font-medium">/{plan.period}</span>
-                      </div>
-                    </div>
-
-                    {/* Features */}
-                    <ul className="space-y-4 mb-8">
-                      {plan.features.map((feature, featureIndex) => (
-                        <li key={featureIndex} className="flex items-start gap-3">
-                          <div
-                            className={`flex-shrink-0 w-5 h-5 bg-gradient-to-r ${plan.gradient} ${plan.darkGradient} rounded-full flex items-center justify-center mt-0.5`}
-                          >
-                            <Check className="w-3 h-3 text-white" />
-                          </div>
-                          <span className="text-slate-700 dark:text-slate-300 leading-relaxed">{feature}</span>
-                        </li>
-                      ))}
-                    </ul>
-
-                    {/* CTA Button */}
-                    <Button
-                      size="lg"
-                      className={`w-full group/btn relative overflow-hidden ${
-                        plan.popular
-                          ? `bg-gradient-to-r ${plan.gradient} ${plan.darkGradient} hover:shadow-2xl hover:shadow-purple-500/30 dark:hover:shadow-purple-500/40`
-                          : "bg-slate-900 dark:bg-white text-white dark:text-slate-900 hover:bg-slate-800 dark:hover:bg-slate-100"
-                      } text-white font-bold py-4 rounded-2xl transition-all duration-500 hover:scale-105 shadow-lg`}
-                    >
-                      <span className="relative z-10">{plan.popular ? "Comenzar Ahora" : "Seleccionar Plan"}</span>
-
-                      {/* Button Effects */}
-                      <div className="absolute inset-0 bg-gradient-to-r from-white/20 dark:from-white/10 to-transparent opacity-0 group-hover/btn:opacity-100 transition-opacity duration-500 animate-shimmer-sweep" />
-                      <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/30 dark:via-white/15 to-transparent -translate-x-full group-hover/btn:translate-x-full transition-transform duration-1000 skew-x-12" />
-                    </Button>
+                      / {isYearly ? "año" : "mes"}
+                    </motion.span>
                   </div>
+
+                  {/* Compact Animated Savings Display */}
+                  <AnimatePresence>
+                    {isYearly && (
+                      <motion.div
+                        initial={{ opacity: 0, height: 0, y: -10 }}
+                        animate={{ opacity: 1, height: "auto", y: 0 }}
+                        exit={{ opacity: 0, height: 0, y: -10 }}
+                        transition={{
+                          type: "spring",
+                          stiffness: 300,
+                          damping: 30,
+                          duration: 0.4,
+                        }}
+                        className="mt-3 flex justify-start"
+                      >
+                        <motion.div
+                          initial={{ scale: 0.8 }}
+                          animate={{ scale: 1 }}
+                          transition={{ delay: 0.1, type: "spring", stiffness: 400 }}
+                          className={`inline-flex items-center px-3 py-1 rounded-full text-sm font-semibold ${
+                            plan.gradientBg
+                              ? "bg-white/20 text-white border border-white/30"
+                              : "bg-green-100 text-green-700 border border-green-200"
+                          }`}
+                        >
+                          <motion.span initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.2 }}>
+                            Ahorras ${getSavings(plan.monthlyPrice, plan.yearlyPrice)} al año
+                          </motion.span>
+                        </motion.div>
+                      </motion.div>
+                    )}
+                  </AnimatePresence>
                 </div>
+
+                {/* Plan Name & Description */}
+    
+                <motion.p
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  transition={{ delay: index * 0.1 + 0.4 }}
+                  className={`mb-8 leading-relaxed ${plan.gradientBg ? "text-white/90" : "text-gray-600"}`}
+                >
+                  {plan.description}
+                </motion.p>
+
+                {/* Divider */}
+                <motion.div
+                  initial={{ scaleX: 0 }}
+                  animate={{ scaleX: 1 }}
+                  transition={{ delay: index * 0.1 + 0.5, duration: 0.3 }}
+                  className={`w-full border-t mb-6 origin-left ${plan.gradientBg ? "border-white/30" : "border-gray-200"}`}
+                />
+
+                {/* Features */}
+                <ul className="space-y-5 mb-10">
+                  {plan.features.map((feature, featureIndex) => (
+                    <motion.li
+                      key={featureIndex}
+                      initial={{ opacity: 0, x: -20 }}
+                      animate={{ opacity: 1, x: 0 }}
+                      transition={{
+                        delay: index * 0.1 + 0.6 + featureIndex * 0.05,
+                        type: "spring",
+                        stiffness: 300,
+                        damping: 30,
+                      }}
+                      whileHover={{
+                        x: 4,
+                        transition: { type: "spring", stiffness: 400, damping: 25 },
+                      }}
+                      className="flex items-start gap-4"
+                    >
+                      <motion.div
+                        whileHover={{ scale: 1.1 }}
+                        transition={{ type: "spring", stiffness: 400, damping: 25 }}
+                        className={`flex-shrink-0 w-5 h-5 rounded-full flex items-center justify-center mt-1 ${
+                          plan.gradientBg ? "bg-white/20" : "bg-slate-100"
+                        }`}
+                      >
+                        <Check
+                          className={`w-3 h-3 stroke-[2.5] ${plan.gradientBg ? "text-white" : "text-slate-600"}`}
+                        />
+                      </motion.div>
+                      <span
+                        className={`text-base leading-relaxed ${plan.gradientBg ? "text-white/90" : "text-slate-700"}`}
+                      >
+                        {feature}
+                      </span>
+                    </motion.li>
+                  ))}
+                </ul>
+
+                {/* CTA Button */}
+                <motion.div
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: index * 0.1 + 1 }}
+                >
+                  <Button
+                    size="lg"
+                    className="w-full bg-slate-900 hover:bg-slate-800 text-white font-semibold py-4 px-6 rounded-xl shadow-lg shadow-slate-900/25 hover:shadow-xl hover:shadow-slate-900/40 border border-slate-800"
+                    asChild
+                  >
+                    <motion.button
+                      whileHover={{ scale: 1.02 }}
+                      whileTap={{ scale: 0.98 }}
+                      transition={{ type: "spring", stiffness: 400, damping: 25 }}
+                    >
+                      {plan.name === "Starter"
+                        ? "Comenzar Ahora"
+                        : plan.name === "Professional"
+                          ? "Obtener Profesional"
+                          : "Obtener Avanzado"}
+                    </motion.button>
+                  </Button>
+                </motion.div>
               </div>
-            )
-          })}
+            </motion.div>
+          ))}
         </div>
 
-        {/* Bottom CTA */}
-        <div
-          className={`text-center mt-20 transition-all duration-1500 delay-1000 ${
-            isLoaded ? "animate-fade-up opacity-100" : "opacity-0 translate-y-8"
-          }`}
-        >
-          <p className="text-slate-600 dark:text-slate-400 mb-6">
-            ¿Necesitas algo personalizado? Contáctanos para una solución a medida.
-          </p>
-          <Button
-            variant="outline"
-            size="lg"
-            className="bg-white/90 dark:bg-slate-800/90 backdrop-blur-md border-2 border-slate-300 dark:border-slate-600 text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-700 hover:border-blue-500 dark:hover:border-blue-400 hover:text-blue-600 dark:hover:text-blue-400 px-8 py-4 rounded-2xl transition-all duration-400 hover:scale-105 shadow-lg hover:shadow-xl"
-          >
-            Contactar Ventas
-          </Button>
-        </div>
+     
       </div>
-
-      <style jsx>{`
-        @keyframes float-gentle {
-          0%, 100% { transform: translateY(0px) translateX(0px) rotate(0deg); }
-          33% { transform: translateY(-20px) translateX(10px) rotate(1deg); }
-          66% { transform: translateY(10px) translateX(-15px) rotate(-1deg); }
-        }
-        @keyframes float-gentle-delayed {
-          0%, 100% { transform: translateY(0px) translateX(0px) rotate(0deg); }
-          33% { transform: translateY(15px) translateX(-10px) rotate(-1deg); }
-          66% { transform: translateY(-25px) translateX(20px) rotate(1deg); }
-        }
-        @keyframes grid-drift {
-          0% { transform: translate(0, 0); }
-          100% { transform: translate(30px, 30px); }
-        }
-        @keyframes slide-up {
-          0% { transform: translateY(30px); opacity: 0; }
-          100% { transform: translateY(0); opacity: 1; }
-        }
-        @keyframes fade-up {
-          0% { transform: translateY(40px); opacity: 0; }
-          100% { transform: translateY(0); opacity: 1; }
-        }
-        @keyframes scale-up {
-          0% { transform: scale(0.9); opacity: 0; }
-          100% { transform: scale(1); opacity: 1; }
-        }
-        @keyframes pulse-soft {
-          0%, 100% { opacity: 0.6; transform: scale(1); }
-          50% { opacity: 1; transform: scale(1.1); }
-        }
-        @keyframes pulse-glow {
-          0%, 100% { box-shadow: 0 0 20px rgba(168, 85, 247, 0.4); }
-          50% { box-shadow: 0 0 30px rgba(168, 85, 247, 0.6); }
-        }
-        @keyframes gradient-shift {
-          0%, 100% { background-position: 0% 50%; }
-          50% { background-position: 100% 50%; }
-        }
-        @keyframes border-flow {
-          0% { transform: translateX(-100%) skewX(-15deg); }
-          100% { transform: translateX(200%) skewX(-15deg); }
-        }
-        @keyframes shimmer-sweep {
-          0% { transform: translateX(-100%); }
-          100% { transform: translateX(100%); }
-        }
-
-        .animate-float-gentle { animation: float-gentle 8s ease-in-out infinite; }
-        .animate-float-gentle-delayed { animation: float-gentle-delayed 10s ease-in-out infinite; }
-        .animate-grid-drift { animation: grid-drift 20s linear infinite; }
-        .animate-slide-up { animation: slide-up 0.8s ease-out forwards; }
-        .animate-fade-up { animation: fade-up 1s ease-out forwards; }
-        .animate-scale-up { animation: scale-up 0.8s ease-out forwards; }
-        .animate-pulse-soft { animation: pulse-soft 2s ease-in-out infinite; }
-        .animate-pulse-glow { animation: pulse-glow 2s ease-in-out infinite; }
-        .animate-gradient-shift { 
-          animation: gradient-shift 3s ease infinite; 
-          background-size: 200% 200%; 
-        }
-        .animate-border-flow { animation: border-flow 2s ease-in-out infinite; }
-        .animate-shimmer-sweep { animation: shimmer-sweep 1.5s ease-in-out infinite; }
-
-        .delay-0 { animation-delay: 0ms; }
-        .delay-200 { animation-delay: 200ms; }
-        .delay-400 { animation-delay: 400ms; }
-      `}</style>
     </section>
   )
 }

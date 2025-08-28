@@ -2,8 +2,9 @@ import React from "react";
 import type { Metadata } from "next";
 import "./globals.css";
 import { Montserrat, Poppins } from "next/font/google";
-import { RootProviders } from "./providers/RootProviders";
-import { ThemeProvider } from "@/components/ThemeProvider";
+import { RootProviders } from "./providers/RootProviders"; // Asegúrate de que la ruta sea correcta
+import { ThemeProvider } from "@/components/ThemeProvider"; // Asegúrate de que la ruta sea correcta
+
 export const userFont = Montserrat({
   weight: ["300", "400", "500", "700", "800"],
   subsets: ["latin"],
@@ -40,10 +41,18 @@ export default function RootLayout({
       <body
         className={`${userFont.variable} ${adminFont.variable} font-montserrat antialiased`}
       >
-         <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
-
-        <RootProviders>{children}</RootProviders>
-         </ThemeProvider>
+        {/* 1. ThemeProvider envuelve a todo para controlar el tema */}
+        <ThemeProvider
+          attribute="class"
+          defaultTheme="system"
+          enableSystem
+          disableTransitionOnChange
+        >
+          {/* 2. RootProviders va DENTRO para dar contexto de sesión a los hijos */}
+          <RootProviders>
+            {children}
+          </RootProviders>
+        </ThemeProvider>
       </body>
     </html>
   );

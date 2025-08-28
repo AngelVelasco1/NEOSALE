@@ -1,8 +1,20 @@
+"use client"
+
 import Image from "next/image"
 import Link from "next/link"
-import { Skeleton } from "../../../../components/ui/skeleton"
-import type { IProduct } from "../../types"
-import React from 'react'
+import { Skeleton } from "@/components/ui/skeleton"
+import { motion } from "framer-motion"
+
+export interface IProduct {
+  id: string
+  name: string
+  price: number
+  stock: number
+  color: string
+  color_code: string
+  image_url?: string
+}
+
 export interface ProductCardProps {
   data: IProduct
 }
@@ -10,86 +22,139 @@ export interface ProductCardProps {
 export const ProductCard = ({ data }: ProductCardProps) => {
   return (
     <Link href={`/${data.id}`}>
-      <div className="group relative overflow-hidden rounded-2xl bg-gradient-to-br from-blue-50 via-purple-50 to-fuchsia-50 border border-blue-100/50 hover:border-purple-200/70 transition-all duration-500 hover:shadow-2xl hover:shadow-purple-500/20 hover:-translate-y-2">
-        {/* Gradient overlay effect */}
-        <div className="absolute inset-0 bg-gradient-to-br from-blue-500/5 via-purple-500/5 to-fuchsia-500/5 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+      <motion.div
+        className="group relative overflow-hidden rounded-2xl bg-gradient-to-br from-blue-100 via-purple-100 to-indigo-100 backdrop-blur-sm border-2 border-slate-300/50 shadow-xl hover:shadow-2xl hover:shadow-blue-500/30 transition-all duration-500  hover:from-indigo-200/60 hover:via-slate-200/80 hover:to-purple-200"
+        whileHover={{
+          y: -8,
+          transition: { type: "spring", stiffness: 400, damping: 25 },
+        }}
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{
+          type: "spring",
+          stiffness: 300,
+          damping: 30,
+        }}
+      >
+        {/* Enhanced gradient overlay */}
+
+        {/* More prominent glow effect */}
 
         {/* Content container */}
-        <div className="relative p-4 space-y-4">
-          {/* Image container */}
-          <div className="relative aspect-square overflow-hidden rounded-xl bg-gradient-to-br from-white to-blue-50/50 shadow-inner">
+        <div className="relative p-4 space-y-5">
+          {/* Image container with stronger borders */}
+          <div className="relative aspect-square overflow-hidden rounded-xl bg-gradient-to-br from-white to-slate-50 border-2 border-slate-200  transition-colors duration-300 shadow-inner">
             {data.image_url ? (
               <Image
                 src={data.image_url || "/placeholder.svg"}
                 alt="product"
                 fill
                 sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-                className="object-fit object-center  group-hover:scale-110 transition-transform duration-700"
+                className="object-fit object-center group-hover:scale-110 transition-transform duration-700"
                 priority
               />
             ) : (
-              <Skeleton className="w-full h-full rounded-xl bg-gradient-to-br from-blue-100 to-purple-100" />
+              <Skeleton className="w-full h-full rounded-xl bg-gradient-to-br from-slate-100 to-slate-200" />
             )}
 
-            {/* Stock badge */}
-            <div className="absolute top-3 right-3">
+            {/* Enhanced stock badge */}
+            <motion.div
+              className="absolute top-3 right-3"
+              initial={{ scale: 0.8, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              transition={{ delay: 0.2, type: "spring", stiffness: 400 }}
+            >
               <div
-                className={`px-2 py-1 rounded-full text-xs font-medium backdrop-blur-sm ${
+                className={`px-3 py-1.5 rounded-full text-xs font-semibold backdrop-blur-md border-2 shadow-xl ${
                   data.stock > 0
-                    ? "bg-gradient-to-r from-emerald-400/90 to-green-500/90 text-white shadow-lg"
-                    : "bg-gradient-to-r from-red-400/90 to-pink-500/90 text-white shadow-lg"
+                    ? "bg-gradient-to-r from-emerald-500 to-green-600 text-white border-emerald-300"
+                    : "bg-gradient-to-r from-red-500 to-pink-600 text-white border-red-300"
                 }`}
               >
                 {data.stock > 0 ? "Disponible" : "Agotado"}
               </div>
-            </div>
+            </motion.div>
+
+            {/* Quick view icon */}
+            <motion.div
+              className="absolute top-3 left-3 opacity-0 group-hover:opacity-100 transition-all duration-300"
+              initial={{ scale: 0.8, opacity: 0 }}
+              whileHover={{ scale: 1.1 }}
+              transition={{ type: "spring", stiffness: 400, damping: 25 }}
+            >
+              <div className="w-9 h-9 rounded-full bg-white backdrop-blur-md border-2 border-blue-200 flex items-center justify-center shadow-xl hover:shadow-2xl hover:border-blue-300 transition-all duration-300">
+                <svg className="w-4 h-4 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"
+                  />
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"
+                  />
+                </svg>
+              </div>
+            </motion.div>
           </div>
 
-          <div className="space-y-3">
+          <div className="space-y-4">
             {/* Product name */}
-            <h3 className="text-sm font-semibold text-gray-800 group-hover:text-transparent group-hover:bg-gradient-to-r group-hover:from-blue-600 group-hover:via-purple-600 group-hover:to-fuchsia-600 group-hover:bg-clip-text transition-all duration-300 line-clamp-2 leading-relaxed">
+            <motion.h3
+              className="text-lg font-bold text-slate-800 group-hover:text-transparent group-hover:bg-gradient-to-r group-hover:from-blue-700 group-hover:via-purple-700 group-hover:to-indigo-700 group-hover:bg-clip-text transition-all duration-300 line-clamp-2 leading-relaxed"
+              whileHover={{ scale: 1.02 }}
+              transition={{ type: "spring", stiffness: 400, damping: 25 }}
+            >
               {data.name}
-            </h3>
+            </motion.h3>
 
-            <div className="flex justify-between items-center">
-              <div className="space-y-1">
-                <p className="text-xl font-bold bg-gradient-to-r from-blue-600 via-purple-600 to-indigo-600 bg-clip-text text-transparent">
+            <div className="flex justify-between items-end">
+              <div className="space-y-2">
+                <motion.p
+                  className="text-2xl font-black bg-gradient-to-r from-blue-700 via-purple-700 to-indigo-700 bg-clip-text text-transparent"
+                  whileHover={{ scale: 1.05 }}
+                  transition={{ type: "spring", stiffness: 400, damping: 25 }}
+                >
                   ${data.price.toLocaleString()}
+                </motion.p>
+                <p className="text-sm text-slate-600 font-medium">
+                  {data.stock > 0 ? `${data.stock} en stock` : "Sin stock"}
                 </p>
-                <p className="text-xs text-gray-500">{data.stock > 0 ? `${data.stock} en stock` : "Sin stock"}</p>
               </div>
 
-              {/* Color indicator */}
-              <div className="flex flex-col items-end space-y-1">
-                <div
-                  className="w-6 h-6 rounded-full border-2 border-white shadow-lg ring-1 ring-gray-200/50"
-                  style={{ backgroundColor: data.color_code }}
-                  title={data.color}
-                />
-                <span className="text-xs text-gray-500 capitalize">{data.color}</span>
+              {/* Enhanced color indicator */}
+              <div className="flex flex-col items-end space-y-2">
+                <motion.div
+                  className="relative"
+                  whileHover={{ scale: 1.1 }}
+                  transition={{ type: "spring", stiffness: 400, damping: 25 }}
+                >
+                  <div
+                    className="w-8 h-8 rounded-full border-3 border-white shadow-xl ring-2 ring-blue-200 group-hover:ring-blue-300 transition-all duration-300"
+                    style={{ backgroundColor: data.color_code }}
+                    title={data.color}
+                  />
+                  <div className="absolute inset-0 rounded-full bg-gradient-to-br from-white/20 to-transparent" />
+                </motion.div>
+                <span className="text-xs text-slate-500 capitalize font-medium">{data.color}</span>
               </div>
             </div>
           </div>
 
-          <div className="absolute bottom-0 left-0 right-0 h-1 bg-gradient-to-r from-blue-500 via-purple-500 to-indigo-600 transform scale-x-0 group-hover:scale-x-100 transition-transform duration-500 origin-left" />
+          {/* Enhanced bottom accent line */}
+          <div className="absolute bottom-0 left-0 right-0 h-1.5 bg-gradient-to-r from-blue-600 via-purple-600 to-indigo-600 transform scale-x-0 group-hover:scale-x-100 transition-transform duration-500 origin-left rounded-b-2xl" />
         </div>
 
-        <div className="absolute top-4 left-4 opacity-0 group-hover:opacity-100 transition-all duration-300 transform -translate-y-2 group-hover:translate-y-0">
-          <div className="w-8 h-8 rounded-full bg-gradient-to-r from-blue-500 via-indigo-500 to-blue-600 flex items-center justify-center shadow-lg backdrop-blur-sm">
-            <svg className="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"
-              />
-            </svg>
-          </div>
-        </div>
+        {/* Enhanced shine effect */}
+        <div className="absolute inset-0 -translate-x-full group-hover:translate-x-full transition-transform duration-1000 bg-gradient-to-r from-transparent via-white/30 to-transparent skew-x-12" />
 
-        <div className="absolute inset-0 -translate-x-full group-hover:translate-x-full transition-transform duration-1000 bg-gradient-to-r from-transparent via-white/20 to-transparent skew-x-12" />
-      </div>
+        {/* Strong border glow on hover */}
+        <div className="absolute inset-0 rounded-2xl border-2 border-transparent group-hover:border-blue-300/80 transition-colors duration-500" />
+        <div className="absolute -inset-1 rounded-3xl border-2 border-blue-400/0 group-hover:border-blue-400/50 transition-colors duration-500 blur-sm" />
+      </motion.div>
     </Link>
   )
 }

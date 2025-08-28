@@ -177,11 +177,11 @@ export const RegisterForm: React.FC = () => {
               <div className="flex items-center justify-center gap-2 mb-4">
                 <motion.div
               
-                    className="p-2 bg-gradient-to-r from-blue-500 to-indigo-500 rounded-xl animate-bounce"
+                    className="p-3 bg-gradient-to-r from-blue-500 to-indigo-500 rounded-2xl "
                 >
                   <UserPlus className="w-6 h-6 text-white" />
                 </motion.div>
-                <h2 className="text-3xl font-bold bg-gradient-to-r from-blue-700 to-blue-600 bg-clip-text text-transparent font-montserrat">
+                <h2 className="text-3xl font-bold bg-gradient-to-r from-blue-700 to-slate-700 bg-clip-text text-transparent font-montserrat">
                   Crear cuenta
                 </h2>
               </div>
