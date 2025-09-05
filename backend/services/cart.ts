@@ -9,7 +9,6 @@ export const getCartService = async (user_id: number) => {
           products: {
             include: {
               categories: true,
-              images: true,
               product_variants: {
                 select: {
                   size: true,
@@ -23,26 +22,20 @@ export const getCartService = async (user_id: number) => {
       },
     },
   });
+  
   if (!cart) {
     return [];
   }
+  
   const cartProducts = cart.cart_items.map((item) => {
-    const selectedImage = item.color_code
-      ? item.products.images.find(
-          (img) => img.color_code === item.color_code 
-        )
-      : item.products.images[0];
-
-      const variant = item.products.product_variants.find((variant) => 
-          variant.color_code === item.color_code &&
-          variant.size === item.size
-      );
+    const variant = item.products.product_variants.find((variant) => 
+        variant.color_code === item.color_code &&
+        variant.size === item.size
+    );
 
     return {
       id: item.products.id,
-      color: selectedImage?.color || null,
-      color_code: selectedImage?.color_code || null,
-      imageUrl: selectedImage?.image_url || null,
+      color_code: item.color_code || null,
       name: item.products.name,
       price: item.products.price,
       quantity: item.quantity,

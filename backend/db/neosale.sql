@@ -3,15 +3,15 @@ CREATE DATABASE neosale;
 -- TIPOS ENUM
 DO $$ BEGIN
     IF NOT EXISTS (SELECT 1 FROM pg_type WHERE typname = 'payment_method_enum') THEN
-        CREATE TYPE payment_method_enum AS ENUM ('paypal', 'efecty', 'pse', 'credit_card', 'debit_card');
+        CREATE TYPE payment_method_enum AS ENUM ('paypal', 'efecty', 'pse', 'credit_card', 'debit_card', 'mercadopago');
     END IF;
 
     IF NOT EXISTS (SELECT 1 FROM pg_type WHERE typname = 'orders_status_enum') THEN
-        CREATE TYPE orders_status_enum AS ENUM ('pending', 'paid', 'processing', 'shipped', 'delivered', 'canceled');
+        CREATE TYPE orders_status_enum AS ENUM ('pending', 'confirmed', 'paid', 'processing', 'shipped', 'delivered', 'canceled', 'refunded');
     END IF;
 
     IF NOT EXISTS (SELECT 1 FROM pg_type WHERE typname = 'roles_enum') THEN
-        CREATE TYPE roles_enum AS ENUM ('user', 'admin');
+        CREATE TYPE roles_enum AS ENUM ('user', 'admin', 'super_admin');
     END IF;
 
     IF NOT EXISTS (SELECT 1 FROM pg_type WHERE typname = 'notification_type_enum') THEN
@@ -26,30 +26,38 @@ DO $$ BEGIN
         );
     END IF;
 
-  /*   IF NOT EXISTS (SELECT 1 FROM pg_type WHERE typname = 'return_status_enum') THEN
+    IF NOT EXISTS (SELECT 1 FROM pg_type WHERE typname = 'return_status_enum') THEN
         CREATE TYPE return_status_enum AS ENUM ('requested', 'approved', 'rejected', 'processed', 'refunded');
-    END IF;  */
+    END IF;
 END $$;
 
--- ELIMINACION DE TABLAS EN ORDEN
+-- ELIMINACION DE TABLAS EN ORDEN CORRECTO (de dependientes a independientes)
+
+-- 1. Tablas que dependen de otras (eliminar primero)
+DROP TABLE IF EXISTS review_images;
 DROP TABLE IF EXISTS return_items;
 DROP TABLE IF EXISTS returns;
 DROP TABLE IF EXISTS favorites;
-DROP TABLE IF EXISTS reviews;
 DROP TABLE IF EXISTS order_logs;
 DROP TABLE IF EXISTS order_items;
 DROP TABLE IF EXISTS cart_items;
 DROP TABLE IF EXISTS images;
-DROP TABLE IF EXISTS addresses;
-DROP TABLE IF EXISTS "Account";
+DROP TABLE IF EXISTS product_variants;
+
+-- 2. Tablas con dependencias intermedias
 DROP TABLE IF EXISTS orders;
 DROP TABLE IF EXISTS cart;
 DROP TABLE IF EXISTS products;
+DROP TABLE IF EXISTS addresses;
+DROP TABLE IF EXISTS "Account";
+DROP TABLE IF EXISTS coupons;
 DROP TABLE IF EXISTS category_subcategory;
+
+-- 3. Tablas de referencia (eliminar al final)
 DROP TABLE IF EXISTS categories;
 DROP TABLE IF EXISTS subcategories;
 DROP TABLE IF EXISTS brands;
-DROP TABLE IF EXISTS coupons;
+DROP TABLE IF EXISTS reviews;
 DROP TABLE IF EXISTS "User";
 DROP TABLE IF EXISTS "verificationtoken";
 
@@ -305,18 +313,16 @@ CREATE TABLE order_logs (
     CONSTRAINT chk_order_log_user_type CHECK (user_type IN ('admin', 'system'))
 );
 
-CREATE TABLE order_logs (
+CREATE TABLE reviews (
     id SERIAL PRIMARY KEY,
-    previous_status orders_status_enum NOT NULL,
-    new_status orders_status_enum NOT NULL,
-    note VARCHAR(500),
-    order_id INTEGER NOT NULL REFERENCES orders(id) ON DELETE NO ACTION,
+    user_id INTEGER NOT NULL REFERENCES "User"(id) ON DELETE CASCADE,
+    product_id INTEGER NOT NULL REFERENCES products(id) ON DELETE CASCADE,
+    rating INTEGER NOT NULL,
+    comment TEXT,
     created_at TIMESTAMP(6) DEFAULT CURRENT_TIMESTAMP NOT NULL,
     updated_at TIMESTAMP(6),
-    updated_by INTEGER NOT NULL REFERENCES "User"(id) ON DELETE NO ACTION,
-    user_type VARCHAR(20) DEFAULT 'admin',
     
-    CONSTRAINT chk_order_log_user_type CHECK (user_type IN ('admin', 'system'))
+    CONSTRAINT chk_review_rating CHECK (rating >= 1 AND rating <= 5)
 );
 
 CREATE TABLE review_images (
@@ -433,19 +439,23 @@ CREATE INDEX idx_image_primary ON images(product_id) WHERE is_primary = TRUE;
 -- Reviews
 CREATE INDEX idx_review_product ON reviews(product_id);
 CREATE INDEX idx_review_user ON reviews(user_id);
+CREATE INDEX idx_review_rating ON reviews(rating);
+
+-- Review Images
+CREATE INDEX idx_review_image_review ON review_images(review_id);
 
 -- Favoritos
 CREATE INDEX idx_favorite_user ON favorites(user_id);
 CREATE INDEX idx_favorite_product ON favorites(product_id);
 
--- Devoluciones
-CREATE INDEX idx_return_order ON returns(order_id);
-CREATE INDEX idx_return_user ON returns(user_id);
-CREATE INDEX idx_return_status ON returns(status) WHERE status IN ('requested', 'approved');
+-- Devoluciones (comentado porque las tablas están comentadas)
+-- CREATE INDEX idx_return_order ON returns(order_id);
+-- CREATE INDEX idx_return_user ON returns(user_id);
+-- CREATE INDEX idx_return_status ON returns(status) WHERE status IN ('requested', 'approved');
 
--- Items de devoluciones
-CREATE INDEX idx_return_item_return ON return_items(return_id);
-CREATE INDEX idx_return_item_order_item ON return_items(order_item_id);
+-- Items de devoluciones (comentado porque las tablas están comentadas)
+-- CREATE INDEX idx_return_item_return ON return_items(return_id);
+-- CREATE INDEX idx_return_item_order_item ON return_items(order_item_id);
 
 -- Variantes disponibles (con stock)
 CREATE INDEX idx_variant_available ON product_variants(product_id, active, stock) 

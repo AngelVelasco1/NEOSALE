@@ -14,11 +14,12 @@
     "prisma:migrate": "prisma migrate dev --schema=../prisma/schema.prisma --env-file=./.env"
   },
   "dependencies": {
-    "@prisma/client": "^6.14.0",
+    "@prisma/client": "^6.15.0",
     "@prisma/extension-accelerate": "^2.0.1",
     "bcryptjs": "^3.0.2",
     "cors": "^2.8.5",
-    "express": "^5.1.0"
+    "express": "^5.1.0",
+    "mercadopago": "^2.8.0"
   },
   "devDependencies": {
     "@types/bcrypt": "^5.0.2",
