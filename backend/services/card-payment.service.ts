@@ -1,7 +1,6 @@
 import { MercadoPagoConfig, Payment, CardToken } from 'mercadopago';
 import { BACK_CONFIG } from '../config/credentials';
 
-// Extend MercadoPago types with additional properties
 interface ExtendedPaymentResponse {
   id?: number;
   status?: string;
@@ -133,11 +132,6 @@ class CardPaymentService {
     this.cardToken = new CardToken(this.client);
   }
 
-  /**
-   * Valida los datos de la tarjeta antes de tokenizarla
-   * @param cardData - Datos de la tarjeta
-   * @returns Datos validados
-   */
   validateCardData(cardData: CardData): CardData {
     const requiredFields = ['card_number', 'security_code', 'expiration_month', 'expiration_year'];
     const missingFields = requiredFields.filter(field => !cardData[field as keyof CardData]);
@@ -192,11 +186,7 @@ class CardPaymentService {
     };
   }
 
-  /**
-   * Crea un token de tarjeta para usar en pagos
-   * @param cardData - Datos de la tarjeta
-   * @returns Token de la tarjeta
-   */
+
   async createCardToken(cardData: CardData): Promise<string> {
     try {
       const validatedData = this.validateCardData(cardData);
@@ -221,11 +211,6 @@ class CardPaymentService {
     }
   }
 
-  /**
-   * Procesa un pago con tarjeta
-   * @param paymentData - Datos del pago
-   * @returns Resultado del pago
-   */
   async processCardPayment(paymentData: PaymentRequest): Promise<PaymentResponse> {
     try {
       const paymentResponse = await this.payment.create({
@@ -291,12 +276,6 @@ class CardPaymentService {
     }
   }
 
-  /**
-   * Flujo completo: tokenizar tarjeta y procesar pago
-   * @param cardData - Datos de la tarjeta
-   * @param paymentInfo - Información del pago (monto, descripción, etc.)
-   * @returns Resultado del pago
-   */
   async processPaymentWithCard(
     cardData: CardData, 
     paymentInfo: {
@@ -343,12 +322,6 @@ class CardPaymentService {
     }
   }
 
-  /**
-   * Obtiene un mensaje descriptivo del estado del pago
-   * @param status - Estado del pago
-   * @param statusDetail - Detalle del estado
-   * @returns Mensaje descriptivo
-   */
   private getPaymentStatusMessage(status: string, statusDetail: string): string {
     const messages: { [key: string]: string } = {
       'approved': 'Pago aprobado exitosamente',
@@ -378,11 +351,6 @@ class CardPaymentService {
     return detailMessages[statusDetail] || messages[status] || 'Estado desconocido';
   }
 
-  /**
-   * Consulta un pago específico por ID
-   * @param paymentId - ID del pago
-   * @returns Información del pago
-   */
   async getPayment(paymentId: number): Promise<PaymentResponse> {
     try {
       const payment = await this.payment.get({ id: paymentId });
@@ -432,11 +400,6 @@ class CardPaymentService {
     }
   }
 
-  /**
-   * Cancela un pago autorizado pero no capturado
-   * @param paymentId - ID del pago
-   * @returns Resultado de la cancelación
-   */
   async cancelPayment(paymentId: number): Promise<PaymentResponse> {
     try {
       const payment = await this.payment.cancel({ id: paymentId });
@@ -447,23 +410,6 @@ class CardPaymentService {
     }
   }
 
-  /**
-   * Reembolsa un pago total o parcialmente
-   * @param paymentId - ID del pago
-   * @param amount - Monto a reembolsar (opcional, si no se especifica se reembolsa todo)
-   * @returns Resultado del reembolso
-   */
-  async refundPayment(paymentId: number, amount?: number) {
-    try {
-      // Note: For refunds, you typically need to use the MercadoPago Refund API
-      // This is a placeholder implementation - you'll need to implement according to your needs
-      console.log(`Refund requested for payment ${paymentId}${amount ? ` amount: ${amount}` : ' (full refund)'}`);
-      throw new Error('Refund functionality needs to be implemented with proper MercadoPago Refund API');
-    } catch (error) {
-      console.error('Error procesando reembolso:', error);
-      throw new Error('Error al procesar el reembolso');
-    }
-  }
 }
 
 export default CardPaymentService;

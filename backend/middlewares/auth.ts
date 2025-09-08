@@ -12,9 +12,10 @@ declare module 'express-serve-static-core' {
   }
 }
 
-// Middleware básico de autenticación
-// TODO: Integrar con NextAuth cuando esté listo
-export const authenticateToken = async (req: Request, res: Response, next: NextFunction) => {
+// Creamos un objeto authMiddleware que contiene todas las funciones
+export const authMiddleware = {
+  // Middleware para verificar token
+  verifyToken: async (req: Request, res: Response, next: NextFunction) => {
   try {
     // Por ahora, un middleware básico que permite desarrollo
     // En producción, esto debe validar tokens reales de NextAuth
@@ -82,10 +83,10 @@ export const authenticateToken = async (req: Request, res: Response, next: NextF
       message: 'Error interno de autenticación'
     });
   }
-};
+  },
 
-// Middleware para requerir rol de administrador
-export const requireAdmin = (req: Request, res: Response, next: NextFunction) => {
+  // Middleware para requerir rol de administrador
+  isAdmin: (req: Request, res: Response, next: NextFunction) => {
   if (!req.user) {
     return res.status(401).json({
       success: false,
@@ -101,10 +102,10 @@ export const requireAdmin = (req: Request, res: Response, next: NextFunction) =>
   }
 
   next();
-};
+  },
 
-// Middleware opcional de autenticación (para rutas públicas con datos extra si está logueado)
-export const optionalAuth = async (req: Request, res: Response, next: NextFunction) => {
+  // Middleware opcional de autenticación (para rutas públicas con datos extra si está logueado)
+  optional: async (req: Request, res: Response, next: NextFunction) => {
   try {
     const authHeader = req.headers['authorization'];
     const token = authHeader && authHeader.split(' ')[1];
@@ -145,4 +146,10 @@ export const optionalAuth = async (req: Request, res: Response, next: NextFuncti
     // En caso de error, continuar sin usuario
     next(error);
   }
+  }
 };
+
+// También mantenemos las exportaciones individuales para compatibilidad con código existente
+export const authenticateToken = authMiddleware.verifyToken;
+export const requireAdmin = authMiddleware.isAdmin;
+export const optionalAuth = authMiddleware.optional;

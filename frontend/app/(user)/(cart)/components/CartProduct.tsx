@@ -4,11 +4,12 @@ import { useCart } from "../hooks/useCart";
 import Image from "next/image";
 import { SetQuantity } from "../../../components/SetQuantity";
 import { Button } from "../../../../components/ui/button";
-import { Badge } from "../../../../components/ui/badge";
 import { Trash2, ShoppingBag, ArrowRight, AlertTriangle, RefreshCw } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { getProductVariantApi } from "../../(products)/services/api";
 import { CartProductsInfo } from "../../types"; // ✅ IMPORT DEL TIPO
+import { useRouter } from "next/navigation";
+
 
 // ✅ NUEVO TIPO PARA MANEJAR STOCK DE VARIANTES
 interface VariantStock {
@@ -20,6 +21,7 @@ interface VariantStock {
 }
 
 export default function CartProducts() {
+  const router = useRouter();
   const { cartProducts, updateQuantity, deleteProductFromCart, getSubTotal } = useCart();
   
   // ✅ NUEVO ESTADO PARA MANEJAR STOCK DE VARIANTES
@@ -229,7 +231,7 @@ export default function CartProducts() {
                   whileHover={{ scale: 1.02 }}
                   whileTap={{ scale: 0.98 }}
                 >
-                  <Button className="bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white px-5 py-5 rounded-lg font-medium transition-all duration-300 shadow-lg hover:shadow-xl group">
+                  <Button onClick={() => router.push('/checkout')} className="bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white px-5 py-5 rounded-lg font-medium transition-all duration-300 shadow-lg hover:shadow-xl group">
                     <span>Proceder al Pago</span>
                     <ArrowRight className="w-4 h-4 ml-2 group-hover:translate-x-1 transition-transform duration-200" />
                   </Button>

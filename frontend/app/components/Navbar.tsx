@@ -8,7 +8,6 @@ import {
   Menu,
   ChevronDown,
   Zap,
-  LogInIcon,
   Smartphone,
   Shirt,
   Home,

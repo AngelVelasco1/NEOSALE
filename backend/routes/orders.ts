@@ -4,7 +4,6 @@ import {
   getProductWithVariants,
   checkVariantAvailability,
   getUserCart,
-  addToCart,
   handlePaymentWebhook,
   getOrderById,
   getUserOrders,
@@ -26,7 +25,6 @@ export const ordersRoutes = () => {
     
     // Carrito de compras
     app.get("/cart", authenticateToken, getUserCart);
-    app.post("/cart/add", authenticateToken, addToCart);
     
     // Gestión de órdenes
     app.get("/user-orders", authenticateToken, getUserOrders);

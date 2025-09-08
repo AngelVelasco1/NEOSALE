@@ -160,7 +160,7 @@ export const ProductDetails = ({ data }: ProductDetailsProps) => {
 
   const isVariantInStock = variantStock > 0;
   const showStockInfo = isSelectedVariant || (selectedColor && selectedSize);
-  const discountPercentage = data.discount;
+  const discountPercentage = data.base_discount;
 
   return (
     <div className="min-h-screen">

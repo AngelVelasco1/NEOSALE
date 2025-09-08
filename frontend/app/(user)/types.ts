@@ -24,7 +24,7 @@ export interface IProductDetails {
   price: number;
   quantity: number;
   sizes: string;
-  discount: number;
+  base_discount: number;
   stock: number;
   category: string;
 }

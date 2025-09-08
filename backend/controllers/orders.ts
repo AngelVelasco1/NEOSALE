@@ -62,7 +62,6 @@ export const createOrder = async (
   }
 };
 
-// Obtener producto con variantes
 export const getProductWithVariants = async (
   req: Request,
   res: Response,
@@ -143,49 +142,6 @@ export const getUserCart = async (
     res.json({
       success: true,
       data: cart
-    });
-
-  } catch (err) {
-    next(err);
-  }
-};
-
-// Agregar producto al carrito
-export const addToCart = async (
-  req: Request,
-  res: Response,
-  next: NextFunction
-) => {
-  try {
-    const { productId, quantity, colorCode, size } = req.body;
-    const userId = req.user?.id;
-
-    if (!userId) {
-      return res.status(401).json({ 
-        success: false, 
-        message: 'Usuario no autenticado' 
-      });
-    }
-
-    if (!productId || !quantity || quantity <= 0) {
-      return res.status(400).json({
-        success: false,
-        message: 'Datos inválidos. Se requiere productId y quantity > 0'
-      });
-    }
-
-    const result = await addToCartService(
-      userId,
-      productId,
-      quantity,
-      colorCode,
-      size
-    );
-
-    res.status(201).json({
-      success: true,
-      message: 'Producto agregado al carrito',
-      data: result
     });
 
   } catch (err) {

@@ -1,5 +1,32 @@
 CREATE DATABASE neosale;
 
+DROP TABLE IF EXISTS review_images;
+DROP TABLE IF EXISTS favorites;
+DROP TABLE IF EXISTS order_logs;
+DROP TABLE IF EXISTS order_items;
+DROP TABLE IF EXISTS cart_items;
+DROP TABLE IF EXISTS images;
+DROP TABLE IF EXISTS reviews;
+DROP TABLE IF EXISTS "Account";
+
+-- 2. Tablas con dependencias intermedias
+DROP TABLE IF EXISTS product_variants;
+DROP TABLE IF EXISTS orders;
+DROP TABLE IF EXISTS cart;
+DROP TABLE IF EXISTS addresses;
+DROP TABLE IF EXISTS products;
+DROP TABLE IF EXISTS coupons;
+DROP TABLE IF EXISTS category_subcategory;
+
+-- 3. Tablas base (referenciadas por otras)
+DROP TABLE IF EXISTS categories;
+DROP TABLE IF EXISTS subcategories;
+DROP TABLE IF EXISTS brands;
+DROP TABLE IF EXISTS "User";
+
+-- 4. Tablas de NextAuth que no se usan en el esquema principal
+DROP TABLE IF EXISTS "verificationtoken";
+
 -- TIPOS ENUM
 DO $$ BEGIN
     IF NOT EXISTS (SELECT 1 FROM pg_type WHERE typname = 'payment_method_enum') THEN
@@ -7,7 +34,7 @@ DO $$ BEGIN
     END IF;
 
     IF NOT EXISTS (SELECT 1 FROM pg_type WHERE typname = 'orders_status_enum') THEN
-        CREATE TYPE orders_status_enum AS ENUM ('pending', 'confirmed', 'paid', 'processing', 'shipped', 'delivered', 'canceled', 'refunded');
+        CREATE TYPE orders_status_enum AS ENUM ('pending', 'confirmed', 'paid', 'processing', 'shipped', 'delivered', 'cancelled', 'refunded');
     END IF;
 
     IF NOT EXISTS (SELECT 1 FROM pg_type WHERE typname = 'roles_enum') THEN
@@ -31,35 +58,6 @@ DO $$ BEGIN
     END IF;
 END $$;
 
--- ELIMINACION DE TABLAS EN ORDEN CORRECTO (de dependientes a independientes)
-
--- 1. Tablas que dependen de otras (eliminar primero)
-DROP TABLE IF EXISTS review_images;
-DROP TABLE IF EXISTS return_items;
-DROP TABLE IF EXISTS returns;
-DROP TABLE IF EXISTS favorites;
-DROP TABLE IF EXISTS order_logs;
-DROP TABLE IF EXISTS order_items;
-DROP TABLE IF EXISTS cart_items;
-DROP TABLE IF EXISTS images;
-DROP TABLE IF EXISTS product_variants;
-
--- 2. Tablas con dependencias intermedias
-DROP TABLE IF EXISTS orders;
-DROP TABLE IF EXISTS cart;
-DROP TABLE IF EXISTS products;
-DROP TABLE IF EXISTS addresses;
-DROP TABLE IF EXISTS "Account";
-DROP TABLE IF EXISTS coupons;
-DROP TABLE IF EXISTS category_subcategory;
-
--- 3. Tablas de referencia (eliminar al final)
-DROP TABLE IF EXISTS categories;
-DROP TABLE IF EXISTS subcategories;
-DROP TABLE IF EXISTS brands;
-DROP TABLE IF EXISTS reviews;
-DROP TABLE IF EXISTS "User";
-DROP TABLE IF EXISTS "verificationtoken";
 
 
 -- CREACION DE TABLAS EN ORDEN
@@ -131,7 +129,7 @@ CREATE TABLE coupons (
     CONSTRAINT chk_coupon_discount_value_positive CHECK (discount_value > 0),
     CONSTRAINT chk_coupon_discount_value_valid CHECK (
         (discount_type = 'percentage' AND discount_value > 0 AND discount_value <= 100) OR
-        (discount_type = 'fixed_amount' AND discount_value > 0)
+        (discount_type = 'fixed' AND discount_value > 0)
     ),
     CONSTRAINT chk_coupon_dates CHECK (created_at < expires_at)
 );
@@ -160,7 +158,7 @@ CREATE TABLE products (
     CONSTRAINT chk_product_price CHECK (price > 0),
     CONSTRAINT chk_product_stock CHECK (stock >= 0),
     CONSTRAINT chk_product_weight CHECK (weight_grams > 0),
-    CONSTRAINT chk_product_base_discount CHECK (base_discount > 0 AND base_discount <= 100),
+    CONSTRAINT chk_product_base_discount CHECK (base_discount >= 0 AND base_discount <= 100),
     CONSTRAINT chk_product_offer_discount CHECK (offer_discount > 0),
     CONSTRAINT chk_product_offer_dates CHECK (
         (in_offer = FALSE) OR
@@ -369,7 +367,7 @@ CREATE TABLE return_items (
     
     CONSTRAINT chk_return_item_quantity CHECK (quantity > 0)
 ); */
-
+select * from products;
 -- INDICES
 
 -- Usuarios
@@ -425,7 +423,6 @@ CREATE INDEX idx_order_item_product ON order_items(product_id);
 
 -- Logs de órdenes
 CREATE INDEX idx_order_log_order ON order_logs(order_id);
-CREATE INDEX idx_order_log_recent ON order_logs(created_at) WHERE created_at > CURRENT_DATE - INTERVAL '90 days';
 CREATE INDEX idx_order_log_status ON order_logs(new_status);
 
 -- Direcciones
