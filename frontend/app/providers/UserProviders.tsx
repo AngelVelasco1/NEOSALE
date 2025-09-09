@@ -1,5 +1,5 @@
 "use client";
-import { CartProvider } from "../(user)/(cart)/hooks/useCart";
+import { CartProvider } from "../(customer)/(cart)/hooks/useCart";
 import { UserProvider } from "../(auth)/context/UserContext";
 
 export function UserProviders({

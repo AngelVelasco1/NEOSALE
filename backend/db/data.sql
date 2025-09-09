@@ -95,14 +95,13 @@ INSERT INTO "User" (name, email, email_verified, password, phone_number, identif
 ('Luis Fernández', 'luis.fernandez@email.com', '2023-12-01 16:45:00', crypt('User789!', gen_salt('bf', 12)), '3045678901', '1065432109', 'CE', 'user', TRUE, FALSE),
 ('Sofia Herrera', 'sofia.herrera@email.com', '2023-12-05 11:20:00', crypt('User101!', gen_salt('bf', 12)), '3056789012', '1054321098', 'CC', 'user', TRUE, TRUE),
 ('Diego Morales', 'diego.morales@email.com', '2023-12-10 13:10:00', crypt('User202!', gen_salt('bf', 12)), '3067890123', '1043210987', 'CC', 'user', TRUE, TRUE);
-
 -- 9. CUPONES
 INSERT INTO coupons (code, name, discount_type, discount_value, min_purchase_amount, usage_limit, expires_at, created_by) VALUES
 ('WELCOME10', '10% Descuento de Bienvenida', 'percentage', 10.00, 50000, 1, '2026-12-31 23:59:59', 1),
 ('FREESHIP', 'Envío Gratis', 'fixed', 15000, 100000, 100, '2026-12-31 23:59:59', 1),
 ('TECH20', '20% en Tecnología', 'percentage', 20.00, 1000000, 50, '2026-10-31 23:59:59', 1),
 ('EXPIRED', 'Cupón Vencido', 'percentage', 50.00, 0, 10, '2026-01-01 00:00:00', 1);
-
+SELECT * FROM product_variants;
 -- 10. PRODUCTOS
 INSERT INTO products (name, description, price, stock, weight_grams, sizes, base_discount, category_id, brand_id, active, in_offer, offer_discount, offer_start_date, offer_end_date, created_by, updated_by) VALUES
 ('Camiseta Dry-Fit Pro', 'Camiseta deportiva de alto rendimiento', 89000, 0, 250, 'XS,S,M,L,XL,XXL', 0, 1, 1, TRUE, TRUE, 20.0, '2024-08-01 00:00:00', '2025-12-31 23:59:59', 1, 1),
@@ -218,7 +217,7 @@ INSERT INTO order_logs (previous_status, new_status, note, order_id, updated_by,
 -- 19. FAVORITOS DE USUARIOS
 INSERT INTO favorites (user_id, product_id) VALUES
 (4, 8), (4, 12), (5, 1), (6, 6), (7, 4);
-
+select * from "User";
 UPDATE products SET stock = (
     SELECT COALESCE(SUM(pv.stock), 0)
     FROM product_variants pv

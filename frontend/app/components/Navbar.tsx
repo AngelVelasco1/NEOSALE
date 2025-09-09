@@ -39,9 +39,9 @@ import { SignOut } from "../(auth)/components/SingOut";
 import { useRouter } from "next/navigation";
 import { useUserSafe } from "../(auth)/hooks/useUserSafe";
 import { useMounted } from "../(auth)/hooks/useMounted";
-import { useCart } from "../(user)/(cart)/hooks/useCart";
+import { useCart } from "../(customer)/(cart)/hooks/useCart";
 import { ThemeToggle } from "./ThemeToggle";
-import { SearchFilter } from "../(user)/(products)/components/filters/SearchFilter";
+import { SearchFilter } from "../(customer)/(products)/components/filters/SearchFilter";
 
 const categories = [
   {

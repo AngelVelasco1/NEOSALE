@@ -1,7 +1,7 @@
 import React from "react";
 import { Navbar } from "../components/Navbar";
 import { UserProvider } from "./context/UserContext";
-import { CartProvider } from "../(user)/(cart)/hooks/useCart";
+import { CartProvider } from "../(customer)/(cart)/hooks/useCart";
 
 
 export default function AuthLayout({
