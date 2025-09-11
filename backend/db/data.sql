@@ -41,10 +41,6 @@ ALTER SEQUENCE reviews_id_seq RESTART WITH 1;
 -- 3. HABILITAR EXTENSIÓN PARA HASH DE CONTRASEÑAS
 CREATE EXTENSION IF NOT EXISTS pgcrypto;
 
--- ========================================
--- INSERCIÓN DE DATOS
--- ========================================
-
 -- 4. SUBCATEGORÍAS
 INSERT INTO subcategories (name, active) VALUES 
 ('Camisas deportivas', TRUE), ('Pantalones deportivos', TRUE), ('Calzado running', TRUE), ('Accesorios fitness', TRUE),
@@ -89,7 +85,6 @@ INSERT INTO brands (name, description, image_url, active) VALUES
 INSERT INTO "User" (name, email, email_verified, password, phone_number, identification, identification_type, role, active, email_notifications) VALUES
 ('Angel García', 'angel.admin@neosale.com', '2023-10-01 10:00:00', crypt('Admin123!', gen_salt('bf', 12)), '3001234567', '123456789', 'CC', 'admin', TRUE, TRUE),
 ('María López', 'maria.admin@neosale.com', '2023-10-02 10:00:00', crypt('Admin123!', gen_salt('bf', 12)), '3012345678', '987654321', 'CC', 'admin', TRUE, TRUE),
-('Super Admin', 'super@neosale.com', '2023-09-01 08:00:00', crypt('Super123!', gen_salt('bf', 12)), '3000000001', '111111111', 'CC', 'super_admin', TRUE, TRUE),
 ('Carlos Rodríguez', 'carlos.rodriguez@email.com', '2023-11-15 14:30:00', crypt('User123!', gen_salt('bf', 12)), '3023456789', '1087654321', 'CC', 'user', TRUE, TRUE),
 ('Ana Martínez', 'ana.martinez@email.com', '2023-11-20 09:15:00', crypt('User456!', gen_salt('bf', 12)), '3034567890', '1076543210', 'CC', 'user', TRUE, TRUE),
 ('Luis Fernández', 'luis.fernandez@email.com', '2023-12-01 16:45:00', crypt('User789!', gen_salt('bf', 12)), '3045678901', '1065432109', 'CE', 'user', TRUE, FALSE),
@@ -175,22 +170,20 @@ INSERT INTO addresses (address, country, city, department, is_default, user_id) 
 ('Calle 26 #47-89, Zona Rosa', 'Colombia', 'Bogotá', 'Cundinamarca', TRUE, 4),
 ('Avenida 6 #23-45, San Fernando', 'Colombia', 'Cali', 'Valle del Cauca', TRUE, 5),
 ('Calle 70 #11-89, Zona Norte', 'Colombia', 'Barranquilla', 'Atlántico', TRUE, 6),
-('Calle 85 #15-34, Chapinero', 'Colombia', 'Bogotá', 'Cundinamarca', TRUE, 7),
-('Carrera 7 #123-45, Zona T', 'Colombia', 'Bogotá', 'Cundinamarca', TRUE, 8);
+('Calle 85 #15-34, Chapinero', 'Colombia', 'Bogotá', 'Cundinamarca', TRUE, 7);
 
 -- 14. CARRITOS DE COMPRAS
 INSERT INTO cart (user_id, session_token, subtotal, expires_at) VALUES
 (4, NULL, 391200, '2025-09-30 23:59:59'), -- Carlos Rodríguez
-(5, NULL, 3900000, '2025-09-30 23:59:59'), -- Ana Martínez
-(NULL, 'a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a11', 71200, '2025-09-05 23:59:59'); -- Carrito anónimo
+(5, NULL, 3900000, '2025-09-30 23:59:59'); -- Ana Martínez
+
 
 -- 15. ITEMS EN CARRITOS
 INSERT INTO cart_items (cart_id, product_id, quantity, unit_price, color_code, size) VALUES
 (1, 1, 1, 71200, '#000000', 'M'),
 (1, 6, 1, 320000, '#000000', '40'),
 (2, 4, 1, 120000, '#4ECDC4', 'S'),
-(2, 8, 1, 3780000, '#8E8E93', 'Único'),
-(3, 1, 1, 71200, '#FF0000', 'L');
+(2, 8, 1, 3780000, '#8E8E93', 'Único');
 
 -- 16. ÓRDENES
 INSERT INTO orders (status, subtotal, discount, shipping_cost, taxes, total, payment_method, payment_status, transaction_id, paid_at, shipping_address_id, user_note, user_id, coupon_id, updated_by) VALUES
@@ -217,10 +210,9 @@ INSERT INTO order_logs (previous_status, new_status, note, order_id, updated_by,
 -- 19. FAVORITOS DE USUARIOS
 INSERT INTO favorites (user_id, product_id) VALUES
 (4, 8), (4, 12), (5, 1), (6, 6), (7, 4);
-select * from "User";
+
 UPDATE products SET stock = (
     SELECT COALESCE(SUM(pv.stock), 0)
     FROM product_variants pv
     WHERE pv.product_id = products.id AND pv.active = TRUE
 );
-update products SET base_discount = 20 where price = 89000;

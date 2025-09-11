@@ -129,13 +129,16 @@ BEGIN
     END IF;
 
     -- Si se elimina la dirección default, hacer que otra sea default
-    IF v_is_default = TRUE THEN
-        UPDATE addresses 
-        SET is_default = TRUE 
+IF v_is_default = TRUE THEN
+    UPDATE addresses
+    SET is_default = TRUE
+    WHERE id = (
+        SELECT id FROM addresses
         WHERE user_id = v_current_user_id AND id != p_id
         ORDER BY created_at ASC
-        LIMIT 1;
-    END IF;
+        LIMIT 1
+    );
+END IF;
 
     DELETE FROM addresses WHERE id = p_id;
 
@@ -224,7 +227,7 @@ BEGIN
         a.created_at
     FROM addresses a
     WHERE a.user_id = p_user_id
-    ORDER BY a.is_default DESC, a.created_at DESC;
+    ORDER BY a.is_default DESC;
 
 EXCEPTION
     WHEN not_null_violation THEN

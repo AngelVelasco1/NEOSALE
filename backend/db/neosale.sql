@@ -38,7 +38,7 @@ DO $$ BEGIN
     END IF;
 
     IF NOT EXISTS (SELECT 1 FROM pg_type WHERE typname = 'roles_enum') THEN
-        CREATE TYPE roles_enum AS ENUM ('user', 'admin', 'super_admin');
+        CREATE TYPE roles_enum AS ENUM ('user', 'admin');
     END IF;
 
     IF NOT EXISTS (SELECT 1 FROM pg_type WHERE typname = 'notification_type_enum') THEN
@@ -59,8 +59,32 @@ DO $$ BEGIN
 END $$;
 
 
+DO $$ BEGIN
+    IF EXISTS (SELECT 1 FROM pg_type WHERE typname = 'payment_method_enum') THEN
+        DROP TYPE payment_method_enum;
+    END IF;
 
--- CREACION DE TABLAS EN ORDEN
+    IF EXISTS (SELECT 1 FROM pg_type WHERE typname = 'orders_status_enum') THEN
+        DROP TYPE orders_status_enum;
+    END IF;
+
+    IF EXISTS (SELECT 1 FROM pg_type WHERE typname = 'roles_enum') THEN
+        DROP TYPE roles_enum;
+    END IF;
+
+    IF EXISTS (SELECT 1 FROM pg_type WHERE typname = 'notification_type_enum') THEN
+        DROP TYPE notification_type_enum;
+    END IF;
+
+    IF EXISTS (SELECT 1 FROM pg_type WHERE typname = 'return_status_enum') THEN
+        DROP TYPE return_status_enum;
+    END IF;
+END $$;
+
+
+
+-- CREACION DE TABLAS 
+
 CREATE TABLE "User" (
     id SERIAL PRIMARY KEY,
     name VARCHAR(255) NOT NULL,
@@ -367,9 +391,9 @@ CREATE TABLE return_items (
     
     CONSTRAINT chk_return_item_quantity CHECK (quantity > 0)
 ); */
-select * from products;
--- INDICES
 
+
+-- INDICES
 -- Usuarios
 CREATE INDEX idx_user_email ON "User"(email);
 CREATE INDEX idx_user_phone ON "User"(phone_number);

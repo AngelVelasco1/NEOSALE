@@ -342,19 +342,15 @@ model reviews {
 
 enum orders_status_enum {
   pending
-  confirmed
   paid
   processing
   shipped
   delivered
-  canceled
-  refunded
 }
 
 enum roles_enum {
   user
   admin
-  super_admin
 }
 
 enum return_status_enum {
@@ -382,4 +378,10 @@ enum payment_method_enum {
   credit_card
   debit_card
   mercadopago
+}
+
+enum orders_paymentmethod_enum {
+  paypal
+  nequi
+  efecty
 }
