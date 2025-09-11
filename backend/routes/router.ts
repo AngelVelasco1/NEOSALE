@@ -3,8 +3,8 @@ import { productsRoutes } from './products';
 import { usersRoutes } from './users';
 import { cartRoutes } from './cart';
 import { ordersRoutes } from './orders';
-import mercadopagoRoutes from './mercadopago.routes';
-import {cardPaymentRoutes} from './card-payment.routes';
+import { paymentRoutes } from './payments';
+import { addressesRoutes } from './addresses'
 
 export const initRoutes = () => {
     const app = Router();
@@ -12,7 +12,7 @@ export const initRoutes = () => {
     app.use("/products", productsRoutes())
     app.use("/cart", cartRoutes())
     app.use("/orders", ordersRoutes())
-    app.use("/payments", mercadopagoRoutes)
-    app.use("/card-payments", cardPaymentRoutes)
+    app.use("/payments", paymentRoutes())
+    app.use("/addresses", addressesRoutes())
     return app;
 }

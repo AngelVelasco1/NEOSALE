@@ -5,7 +5,7 @@ CREATE OR REPLACE PROCEDURE sp_create_cart(p_user_id INT)
         IF EXISTS (SELECT 1 FROM cart WHERE user_id = p_user_id) THEN
             RAISE EXCEPTION 'El usuario ya tiene un carrito';
         END IF;
-        INSERT INTO cart (user_id, created_at, total_price) VALUES (p_user_id, CURRENT_TIMESTAMP, 0);
+        INSERT INTO cart (user_id, created_at, subtotal) VALUES (p_user_id, CURRENT_TIMESTAMP, 0);
     END;
     $$;
 
