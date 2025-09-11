@@ -1,7 +1,7 @@
 import { Router } from 'express';
 import { getUserAddresses, getAddressById, getDefaultAddress, setDefaultAddress, createAddress, updateAddress, deleteAddress } from '../controllers/addresses';
 
-export const addressRoutes = () => {
+export const addressesRoutes = () => {
     const app = Router();
     app.get("/getUserAddresses", getUserAddresses);
     app.get("/getAddress/:address_id", getAddressById);

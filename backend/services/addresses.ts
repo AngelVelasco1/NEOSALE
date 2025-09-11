@@ -181,13 +181,25 @@ export const setDefaultAddressService = async (address_id: number, user_id: numb
 
 export const getDefaultAddressService = async (user_id: number): Promise<Address | null> => {
   if (!user_id) {
-    return null;
+    throw new Error("ID de usuario requerido");
   }
 
   try {
+    // con procedure
+    /*
+    const result = await prisma.$queryRaw<Address[]>`
+      SELECT * FROM sp_get_default_address(${user_id}::INT)
+    `;
+    return result.length > 0 ? result[0] : null;
+    */
+
+    // Usar el servicio 
     const addresses = await getUserAddressesService(user_id);
     return addresses.find(addr => addr.is_default) || null;
-  } catch (error) {
+
+  } catch (error: any) {
+    console.error('Error getting default address:', error);
+    // No lanzar error, devolver null si no se encuentra
     return null;
   }
-};
+}

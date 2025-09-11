@@ -26,7 +26,6 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { processCardPaymentApi } from "../services/paymentsApi";
 import { ErrorsHandler } from "@/app/errors/errorsHandler";
 
-// Inicializamos el SDK con la clave pública
 initMercadoPago(process.env.NEXT_PUBLIC_MP_PUBLIC_KEY!);
 
 // Validación de esquema para el formulario de pago
@@ -37,7 +36,6 @@ const paymentFormSchema = z.object({
   identificationNumber: z.string().min(6, 'Número de documento debe tener al menos 6 dígitos'),
 });
 
-// ✅ PROPS CORREGIDAS - Solo las que realmente necesitamos
 interface CardPaymentFormProps {
   amount: number;
   description: string;
@@ -57,7 +55,6 @@ export default function CardPaymentForm({
 }: CardPaymentFormProps) {
   const [isLoading, setIsLoading] = useState(false);
   
-  // ✅ TIPOS DE DOCUMENTO COLOMBIANOS
   const identificationTypes = [
     { id: 'CC', name: 'Cédula de Ciudadanía' },
     { id: 'CE', name: 'Cédula de Extranjería' },

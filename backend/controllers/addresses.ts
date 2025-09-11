@@ -14,9 +14,9 @@ import {
 // ✅ OBTENER TODAS LAS DIRECCIONES DEL USUARIO
 export const getUserAddresses = async (req: Request, res: Response) => {
   try {
-    const user_id = req.user?.id;
+    const user_id = parseInt(req.query.user_id as string);
 
-    if (!user_id) {
+    if (!user_id || isNaN(user_id)) {
       res.status(401).json({
         success: false,
         message: "Usuario no autenticado"
@@ -87,10 +87,11 @@ export const createAddress = async (req: Request, res: Response) => {
     const user_id = req.user?.id;
 
     if (!user_id) {
-      return res.status(401).json({
+      res.status(401).json({
         success: false,
         message: "Usuario no autenticado"
       });
+      return;
     }
 
     const addressData: CreateAddressData = req.body;
@@ -98,10 +99,11 @@ export const createAddress = async (req: Request, res: Response) => {
     // Validación básica de campos requeridos
     const { address, country, city, department } = addressData;
     if (!address || !country || !city || !department) {
-      return res.status(400).json({
+      res.status(400).json({
         success: false,
         message: "Los campos dirección, país, ciudad y departamento son obligatorios"
       });
+      return;
     }
 
     const newAddress = await createAddressService(user_id, addressData);
@@ -128,28 +130,30 @@ export const updateAddress = async (req: Request, res: Response) => {
     const address_id = parseInt(req.params.id);
 
     if (!user_id) {
-      return res.status(401).json({
+      res.status(401).json({
         success: false,
         message: "Usuario no autenticado"
       });
+      return;
     }
 
     if (!address_id || isNaN(address_id)) {
-      return res.status(400).json({
+      res.status(400).json({
         success: false,
         message: "ID de dirección inválido"
       });
+      return;
     }
 
     const updateData: UpdateAddressData = req.body;
 
-    // Validar que al menos un campo esté presente para actualizar
     if (!updateData.address && !updateData.country && !updateData.city && 
         !updateData.department && updateData.is_default === undefined) {
-      return res.status(400).json({
+      res.status(400).json({
         success: false,
         message: "Debe proporcionar al menos un campo para actualizar"
       });
+      return;
     }
 
     const updatedAddress = await updateAddressService(address_id, user_id, updateData);
@@ -176,17 +180,19 @@ export const deleteAddress = async (req: Request, res: Response) => {
     const address_id = parseInt(req.params.id);
 
     if (!user_id) {
-      return res.status(401).json({
+      res.status(401).json({
         success: false,
         message: "Usuario no autenticado"
       });
+      return;
     }
 
     if (!address_id || isNaN(address_id)) {
-      return res.status(400).json({
+      res.status(400).json({
         success: false,
         message: "ID de dirección inválido"
       });
+      return;
     }
 
     await deleteAddressService(address_id, user_id);
@@ -215,14 +221,15 @@ export const setDefaultAddress = async (req: Request, res: Response) => {
     const address_id = parseInt(req.params.address_id);
 
     if (!user_id) {
-      return res.status(401).json({
+      res.status(401).json({
         success: false,
         message: "Usuario no autenticado"
       });
+      return;
     }
 
     if (!address_id || isNaN(address_id)) {
-      return res.status(400).json({
+      res.status(400).json({
         success: false,
         message: "ID de dirección inválido"
       });
@@ -248,22 +255,24 @@ export const setDefaultAddress = async (req: Request, res: Response) => {
 
 export const getDefaultAddress = async (req: Request, res: Response) => {
   try {
-    const user_id = req.user?.id;
+    const user_id = parseInt(req.query.user_id as string);
 
-    if (!user_id) {
-      return res.status(401).json({
+    if (!user_id || isNaN(user_id)) {
+      res.status(401).json({
         success: false,
         message: "Usuario no autenticado"
       });
+      return;
     }
 
     const defaultAddress = await getDefaultAddressService(user_id);
 
     if (!defaultAddress) {
-      return res.status(404).json({
+      res.status(404).json({
         success: false,
         message: "No tienes una dirección predeterminada configurada"
       });
+      return;
     }
 
     res.status(200).json({
