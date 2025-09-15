@@ -18,7 +18,7 @@ import { useAddresses } from './hooks/useAddresses';
 export default function CheckoutPage() {
   const router = useRouter();
   const { getUserAddresses, createAddress, getDefaultAddress, isAuthenticated } = useAddresses();
-  const { cartProducts, isLoading: cartLoading, getSubTotal } = useCart();
+  const { cartProducts, isLoading: cartLoading, getSubTotal, clearCart } = useCart();
 
   const [userAddresses, setUserAddresses] = useState<Address[]>([]);
   const [selectedAddress, setSelectedAddress] = useState<Address | null>(null);
@@ -26,6 +26,7 @@ export default function CheckoutPage() {
   const [error, setError] = useState<string | null>(null);
   const [isProcessingOrder, setIsProcessingOrder] = useState(false);
 
+  // ✅ VALIDAR AUTENTICACIÓN
   useEffect(() => {
     if (!isAuthenticated) {
       router.replace('/login');
@@ -33,21 +34,25 @@ export default function CheckoutPage() {
     }
   }, [isAuthenticated, router]);
 
+  // ✅ VALIDAR CARRITO
   useEffect(() => {
     if (!cartLoading && (!cartProducts || cartProducts.length === 0)) {
       ErrorsHandler.showError(
         "Carrito vacío",
         "No hay productos en tu carrito"
       );
+      router.replace('/cart');
       return;
     }
   }, [cartProducts, cartLoading, router]);
 
+  // ✅ CÁLCULOS DE PRECIOS
   const subtotal = cartProducts && cartProducts.length > 0 ? getSubTotal() : 0;
   const shipping = subtotal >= 100000 ? 0 : 10000;
   const taxes = subtotal * 0.19;
   const total = subtotal + shipping + taxes;
 
+  // ✅ CARGAR DATOS DEL CHECKOUT
   const fetchData = useCallback(async () => {
     if (!isAuthenticated) {
       return;
@@ -87,8 +92,8 @@ export default function CheckoutPage() {
     }
   }, [cartLoading, isAuthenticated, cartProducts, fetchData]);
 
-
-  const handlePaymentSuccess = async (paymentId: string, paymentMethod: string) => {
+  // ✅ MANEJAR ÉXITO DE PAGO - CORREGIDO
+  const handlePaymentSuccess = useCallback(async (paymentId: string, paymentMethod?: string) => {
     setIsProcessingOrder(true);
 
     try {
@@ -100,6 +105,7 @@ export default function CheckoutPage() {
         throw new Error('La dirección seleccionada no es válida');
       }
 
+      // ✅ CREAR ORDEN CON EL PAYMENT_ID RECIBIDO
       const orderData = {
         payment_id: paymentId,
         address_id: selectedAddress.id,
@@ -114,10 +120,15 @@ export default function CheckoutPage() {
         taxes,
         shipping,
         total,
-        payment_method: paymentMethod
+        payment_method: paymentMethod || 'card'
       };
 
+      console.log('Creando orden con datos:', orderData);
+
       const order = await createOrderApi(orderData);
+
+      // ✅ LIMPIAR CARRITO DESPUÉS DE ORDEN EXITOSA
+      await clearCart();
 
       ErrorsHandler.showSuccess(
         "¡Orden completada!",
@@ -132,16 +143,19 @@ export default function CheckoutPage() {
     } finally {
       setIsProcessingOrder(false);
     }
-  };
+  }, [selectedAddress, cartProducts, subtotal, taxes, shipping, total, clearCart, router]);
 
   // ✅ MANEJAR ERROR DE PAGO
-  const handlePaymentError = (error: Error) => {
+  const handlePaymentError = useCallback((error: Error) => {
     console.error('Payment error:', error);
-    ErrorsHandler.showError("Error de pago", "Hubo un problema procesando tu pago.");
-  };
+    ErrorsHandler.showError(
+      "Error de pago", 
+      "Hubo un problema procesando tu pago. Por favor intenta nuevamente."
+    );
+  }, []);
 
   // ✅ MANEJAR CREACIÓN DE NUEVA DIRECCIÓN
-  const handleCreateAddress = async (addressData: any) => {
+  const handleCreateAddress = useCallback(async (addressData: any) => {
     try {
       const newAddress = await createAddress(addressData);
       setUserAddresses(prev => [...prev, newAddress]);
@@ -152,15 +166,16 @@ export default function CheckoutPage() {
       const errorMessage = error instanceof Error ? error.message : 'Error al crear la dirección';
       ErrorsHandler.showError("Error", errorMessage);
     }
-  };
+  }, [createAddress]);
 
+  // ✅ LOADING STATES
   if (cartLoading || isLoading) {
     return (
       <div className="max-w-7xl mx-auto p-4 flex items-center justify-center min-h-[60vh]">
         <div className="text-center">
           <div className="w-12 h-12 border-4 border-primary border-t-transparent rounded-full animate-spin mx-auto"></div>
           <p className="mt-4 text-muted-foreground">
-            Cargando información...
+            Cargando información del checkout...
           </p>
         </div>
       </div>
@@ -187,7 +202,7 @@ export default function CheckoutPage() {
             <p className="text-destructive">{error}</p>
           </CardContent>
           <CardFooter className="flex gap-2">
-            <Button variant="outline" onClick={() => window.location.reload()}>
+            <Button variant="outline" onClick={() => fetchData()}>
               Reintentar
             </Button>
             <Button onClick={() => router.push('/cart')}>
@@ -205,7 +220,7 @@ export default function CheckoutPage() {
         <div className="mb-6 px-4">
           <h1 className="text-2xl font-bold">Finalizar compra</h1>
           <p className="text-muted-foreground">
-            Hola, completa tu orden
+            Completa tu orden
           </p>
         </div>
 

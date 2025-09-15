@@ -3,7 +3,6 @@ import {
   createOrder,
   getProductWithVariants,
   checkVariantAvailability,
-  getUserCart,
   handlePaymentWebhook,
   getOrderById,
   getUserOrders,
@@ -14,7 +13,6 @@ import { authenticateToken } from '../middlewares/auth';
 export const ordersRoutes = () => {
     const app = Router();
     
-    // Crear nueva orden con preferencia de MercadoPago (requiere autenticación)
     app.post("/create", authenticateToken, createOrder);
     
     // Obtener producto con variantes disponibles
@@ -24,7 +22,6 @@ export const ordersRoutes = () => {
     app.get("/product/:productId/variants/:colorCode/:size", checkVariantAvailability);
     
     // Carrito de compras
-    app.get("/cart", authenticateToken, getUserCart);
     
     // Gestión de órdenes
     app.get("/user-orders", authenticateToken, getUserOrders);

@@ -311,6 +311,8 @@ CREATE TABLE order_items (
     price INTEGER NOT NULL,
     quantity INTEGER NOT NULL,
     subtotal INTEGER NOT NULL,
+    color_code VARCHAR(7) NOT NULL,
+    size VARCHAR(25) NOT NULL,
     product_id INTEGER NOT NULL REFERENCES products(id) ON DELETE NO ACTION,
     order_id INTEGER NOT NULL REFERENCES orders(id) ON DELETE NO ACTION,
     created_at TIMESTAMP(6) DEFAULT CURRENT_TIMESTAMP NOT NULL,

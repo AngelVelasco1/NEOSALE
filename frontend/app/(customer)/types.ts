@@ -50,6 +50,7 @@ export interface CartProductsContext {
     deleteProductFromCart: (id: number, color_code: string, size: string) => void;
     getCartProductCount: () => number;
     getSubTotal: () => number;
+    clearCart: () => void;
     isLoading: boolean;
 }
 

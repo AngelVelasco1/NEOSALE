@@ -21,72 +21,11 @@ interface CreateOrderResponse {
 
 export const createOrderService = async ({
   userId,
-  productId,
-  quantity,
-  colorCode,
-  size,
+  items,
   shippingAddressId
 }: CreateOrderRequest): Promise<CreateOrderResponse> => {
   try {
-    // 1. Obtener el producto con sus relaciones
-    const product = await prisma.products.findUnique({
-      where: { id: productId },
-      include: {
-        brands: true,
-        categories: true,
-        product_variants: {
-          where: {
-            color_code: colorCode || undefined,
-            size: size || undefined,
-            active: true
-          }
-        }
-      }
-    });
-
-    if (!product) {
-      throw new Error('Producto no encontrado');
-    }
-
-    if (!product.active) {
-      throw new Error('Producto no disponible');
-    }
-
-    // 2. Verificar variante específica si se proporcionó color/size
-    let variant = null;
-    let unitPrice = product.price;
-    let availableStock = product.stock;
-
-    if (colorCode && size) {
-      variant = product.product_variants.find(
-        v => v.color_code === colorCode && v.size === size
-      );
-
-      if (!variant) {
-        throw new Error(`Variante no disponible: ${colorCode} - ${size}`);
-      }
-
-      if (!variant.active) {
-        throw new Error('Variante no disponible');
-      }
-
-      // Usar precio de la variante si existe, sino el del producto
-      unitPrice = variant.price || product.price;
-      availableStock = variant.stock;
-    }
-
-    // 3. Verificar stock disponible
-    if (availableStock < quantity) {
-      throw new Error(`Stock insuficiente. Disponible: ${availableStock}`);
-    }
-
-    // 4. Calcular precio con ofertas
-    if (product.in_offer && product.offer_discount && product.offer_end_date && new Date() < product.offer_end_date) {
-      const discountAmount = unitPrice * (Number(product.offer_discount) / 100);
-      unitPrice = Math.round(unitPrice - discountAmount);
-    }
-
-    // 5. Obtener información del usuario
+    // 1. Validar usuario
     const user = await prisma.user.findUnique({
       where: { id: userId },
       select: { id: true, name: true, email: true }
@@ -96,7 +35,7 @@ export const createOrderService = async ({
       throw new Error('Usuario no encontrado');
     }
 
-    // 6. Verificar que la dirección de envío pertenece al usuario
+    // 2. Validar dirección
     const address = await prisma.addresses.findFirst({
       where: { 
         id: shippingAddressId,
@@ -108,13 +47,78 @@ export const createOrderService = async ({
       throw new Error('Dirección de envío no válida');
     }
 
-    // 7. Calcular totales
-    const subtotal = unitPrice * quantity;
-    const shippingCost = subtotal >= 100000 ? 0 : 15000; // Envío gratis para compras mayores a $100,000
-    const taxes = Math.round(subtotal * 0.19); // IVA 19%
+    // 3. Procesar cada item y validar stock
+    const processedItems = [];
+    let subtotal = 0;
+
+    for (const item of items) {
+      const product = await prisma.products.findUnique({
+        where: { id: item.productId },
+        include: {
+          brands: true,
+          categories: true,
+          product_variants: {
+            where: {
+              color_code: item.colorCode || undefined,
+              size: item.size || undefined,
+              active: true
+            }
+          }
+        }
+      });
+
+      if (!product || !product.active) {
+        throw new Error(`Producto ${item.productId} no disponible`);
+      }
+
+      // Determinar precio y stock
+      let unitPrice = product.price;
+      let availableStock = product.stock;
+
+      if (item.colorCode && item.size) {
+        const variant = product.product_variants.find(
+          v => v.color_code === item.colorCode && v.size === item.size
+        );
+
+        if (!variant || !variant.active) {
+          throw new Error(`Variante no disponible: ${item.colorCode} - ${item.size}`);
+        }
+
+        unitPrice = variant.price || product.price;
+        availableStock = variant.stock;
+      }
+
+      // Verificar stock
+      if (availableStock < item.quantity) {
+        throw new Error(`Stock insuficiente para ${product.name}. Disponible: ${availableStock}`);
+      }
+
+      // Aplicar ofertas
+      if (product.in_offer && product.offer_discount && product.offer_end_date && new Date() < product.offer_end_date) {
+        const discountAmount = unitPrice * (Number(product.offer_discount) / 100);
+        unitPrice = Math.round(unitPrice - discountAmount);
+      }
+
+      const itemSubtotal = unitPrice * item.quantity;
+      subtotal += itemSubtotal;
+
+      processedItems.push({
+        productId: item.productId,
+        product,
+        quantity: item.quantity,
+        unitPrice,
+        subtotal: itemSubtotal,
+        colorCode: item.colorCode,
+        size: item.size
+      });
+    }
+
+    // 4. Calcular totales
+    const shippingCost = subtotal >= 100000 ? 0 : 15000;
+    const taxes = Math.round(subtotal * 0.19);
     const total = subtotal + shippingCost + taxes;
 
-    // 8. Crear la orden en la base de datos
+    // 5. Crear orden
     const order = await prisma.orders.create({
       data: {
         user_id: userId,
@@ -124,22 +128,23 @@ export const createOrderService = async ({
         total: total,
         status: 'pending',
         payment_status: 'pending',
+        payment_method: 'mercadopago',
         shipping_address_id: shippingAddressId,
         updated_by: userId,
         order_items: {
-          create: {
-            product_id: productId,
-            quantity: quantity,
-            price: unitPrice,
-            subtotal: subtotal,
-            color_code: colorCode,
-            size: size
-          }
+          create: processedItems.map(item => ({
+            product_id: item.productId,
+            quantity: item.quantity,
+            price: item.unitPrice,
+            subtotal: item.subtotal,
+            size: item.size,
+            color_code: item.colorCode,
+          }))
         }
       }
     });
 
-    // 9. Crear preferencia en MercadoPago
+    // 6. Crear preferencia en MercadoPago
     const mercadopago = new MercadoPagoConfig({
       accessToken: BACK_CONFIG.mercado_pago_access_token
     });
@@ -147,32 +152,32 @@ export const createOrderService = async ({
     const preference = new Preference(mercadopago);
 
     const preferenceData = {
-      items: [
-        {
-          id: product.id.toString(),
-          title: product.name,
-          description: `${product.description}${colorCode ? ` - Color: ${colorCode}` : ''}${size ? `, Talla: ${size}` : ''}`,
-          unit_price: Number(unitPrice),
-          quantity: quantity,
-          currency_id: 'COP'
-        }
-      ],
+      items: processedItems.map(item => ({
+        id: item.product.id.toString(),
+        title: item.product.name,
+        description: `${item.product.description}${item.colorCode ? ` - Color: ${item.colorCode}` : ''}${item.size ? `, Talla: ${item.size}` : ''}`,
+        unit_price: Number(item.unitPrice),
+        quantity: item.quantity,
+        currency_id: 'COP'
+      })),
       payer: {
         name: user.name,
         email: user.email
       },
       back_urls: {
-        success: `${BACK_CONFIG.frontend_url}/payment/success`,
-        failure: `${BACK_CONFIG.frontend_url}/payment/failure`,
-        pending: `${BACK_CONFIG.frontend_url}/payment/pending`
+        success: `${BACK_CONFIG.frontend_url}/checkout/success?order_id=${order.id}`,
+        failure: `${BACK_CONFIG.frontend_url}/checkout/failure?order_id=${order.id}`,
+        pending: `${BACK_CONFIG.frontend_url}/checkout/pending?order_id=${order.id}`
       },
       auto_return: 'approved',
       external_reference: order.id.toString(),
-      notification_url: `${BACK_CONFIG.backend_url}/api/orders/webhook/mercadopago`,
+      notification_url: `https://ba400ebaadda.ngrok-free.app/api/orders/webhook/mercadopago`,
       shipments: {
         cost: shippingCost,
         mode: 'not_specified'
-      }
+      },
+      // ✅ CONFIGURACIÓN PARA TESTING
+      sandbox_init_point: process.env.NODE_ENV !== 'production'
     };
 
     const response = await preference.create({ body: preferenceData });
@@ -181,7 +186,7 @@ export const createOrderService = async ({
       throw new Error('Error al crear la preferencia de pago en MercadoPago');
     }
 
-    // 10. Actualizar la orden con el preference_id
+    // 7. Actualizar orden con preference_id
     await prisma.orders.update({
       where: { id: order.id },
       data: { 
@@ -202,6 +207,7 @@ export const createOrderService = async ({
     throw new Error(error instanceof Error ? error.message : 'Error al crear la orden');
   }
 };
+
 
 export const getProductWithVariantsService = async (productId: number) => {
   try {
@@ -301,182 +307,6 @@ export const checkVariantAvailabilityService = async (
   }
 };
 
-export const getUserCartService = async (userId: number) => {
-  try {
-    const cart = await prisma.cart.findFirst({
-      where: { user_id: userId },
-      include: {
-        cart_items: {
-          include: {
-            products: {
-              include: {
-                brands: true,
-                categories: true,
-                product_variants: {
-                  where: { active: true }
-                }
-              }
-            }
-          }
-        },
-        users: {
-          select: { id: true, name: true, email: true }
-        }
-      }
-    });
-
-    if (!cart) {
-      return {
-        id: null,
-        user_id: userId,
-        subtotal: 0,
-        items: [],
-        itemCount: 0
-      };
-    }
-
-    // Calcular información adicional del carrito
-    const items = cart.cart_items.map(item => {
-      const product = item.products;
-      const variant = product.product_variants.find(
-        v => v.color_code === item.color_code && v.size === item.size
-      );
-
-      return {
-        id: item.id,
-        productId: product.id,
-        productName: product.name,
-        quantity: item.quantity,
-        unitPrice: item.unit_price,
-        subtotal: item.quantity * item.unit_price,
-        colorCode: item.color_code,
-        size: item.size,
-        brand: product.brands.name,
-        category: product.categories.name,
-        availableStock: variant?.stock || 0,
-        isAvailable: variant ? variant.stock >= item.quantity : false
-      };
-    });
-
-    const totalItems = items.reduce((sum, item) => sum + item.quantity, 0);
-    const calculatedSubtotal = items.reduce((sum, item) => sum + item.subtotal, 0);
-
-    return {
-      id: cart.id,
-      user_id: cart.user_id,
-      subtotal: calculatedSubtotal,
-      items: items,
-      itemCount: totalItems,
-      created_at: cart.created_at,
-      expires_at: cart.expires_at
-    };
-
-  } catch (error) {
-    console.error('Error in getUserCartService:', error);
-    throw new Error(error instanceof Error ? error.message : 'Error al obtener el carrito');
-  }
-};
-
-export const addToCartService = async (
-  userId: number,
-  productId: number,
-  quantity: number,
-  colorCode?: string,
-  size?: string
-) => {
-  try {
-    // 1. Verificar que el producto y variante existen
-    const availability = await checkVariantAvailabilityService(productId, colorCode || '', size || '');
-    
-    if (!availability.available) {
-      throw new Error(availability.message);
-    }
-
-    if (availability.stock < quantity) {
-      throw new Error(`Stock insuficiente. Disponible: ${availability.stock}`);
-    }
-
-    // 2. Buscar o crear carrito del usuario
-    let cart = await prisma.cart.findFirst({
-      where: { user_id: userId }
-    });
-
-    if (!cart) {
-      cart = await prisma.cart.create({
-        data: {
-          user_id: userId,
-          subtotal: 0,
-          expires_at: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000) // 7 días
-        }
-      });
-    }
-
-    // 3. Verificar si el item ya existe en el carrito
-    const existingItem = await prisma.cart_items.findFirst({
-      where: {
-        cart_id: cart.id,
-        product_id: productId,
-        color_code: colorCode,
-        size: size
-      }
-    });
-
-    let cartItem;
-    
-    if (existingItem) {
-      // Actualizar cantidad del item existente
-      const newQuantity = existingItem.quantity + quantity;
-      
-      if (availability.stock < newQuantity) {
-        throw new Error(`Stock insuficiente para la cantidad total. Disponible: ${availability.stock}, En carrito: ${existingItem.quantity}`);
-      }
-
-      cartItem = await prisma.cart_items.update({
-        where: { id: existingItem.id },
-        data: { quantity: newQuantity }
-      });
-    } else {
-      // Crear nuevo item en el carrito
-      cartItem = await prisma.cart_items.create({
-        data: {
-          cart_id: cart.id,
-          product_id: productId,
-          quantity: quantity,
-          unit_price: availability.price || 0,
-          color_code: colorCode,
-          size: size
-        }
-      });
-    }
-
-    // 4. Recalcular subtotal del carrito
-    const cartItems = await prisma.cart_items.findMany({
-      where: { cart_id: cart.id }
-    });
-
-    const newSubtotal = cartItems.reduce((sum, item) => sum + (item.quantity * item.unit_price), 0);
-
-    await prisma.cart.update({
-      where: { id: cart.id },
-      data: { subtotal: newSubtotal }
-    });
-
-    return {
-      cartId: cart.id,
-      itemId: cartItem.id,
-      message: existingItem ? 'Cantidad actualizada en el carrito' : 'Producto agregado al carrito',
-      productId,
-      quantity: cartItem.quantity,
-      unitPrice: availability.price,
-      subtotal: (availability.price || 0) * cartItem.quantity,
-      cartSubtotal: newSubtotal
-    };
-
-  } catch (error) {
-    console.error('Error in addToCartService:', error);
-    throw new Error(error instanceof Error ? error.message : 'Error al agregar al carrito');
-  }
-};
 
 export const getOrderByIdService = async (orderId: number) => {
   try {

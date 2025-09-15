@@ -116,6 +116,14 @@ INSERT INTO products (name, description, price, stock, weight_grams, sizes, base
 ('Cama King Size', 'Cama king size en madera maciza', 950000, 0, 60000, 'Único', 0, 12, 8, TRUE, TRUE, 40.0, '2024-08-25 00:00:00', '2025-12-31 23:59:59', 1, 1),
 ('Producto Descontinuado', 'Este producto ya no está disponible', 50000, 0, 100, 'Único', 0, 5, 1, FALSE, FALSE, NULL, NULL, NULL, 1, 1);
 
+INSERT INTO PRODUCTS (name, description, price, stock, weight_grams, sizes, base_discount, category_id, brand_id, active, in_offer, offer_discount, offer_start_date, offer_end_date, created_by, updated_by) VALUES
+('Producto D', 'Este producto ya no está disponible', 10000, 10, 100, 'Único', 0, 5, 1, FALSE, FALSE, NULL, NULL, NULL, 1, 1);
+select * from products;
+insert into images (image_url, color_code, color, is_primary, product_id, variant_id) values
+('https://via.placeholder.com/500x500/808080/FFFFFF?text=Discontinued+Product', '#808080', 'Gris', TRUE, 18, NULL);
+insert into product_variants (product_id, color_code, size, stock, sku, price, weight_grams, active) values
+(18, '#808080', 'Único', 10, 'DISCONTINUED-GRAY', 10000, 100, FALSE);
+update product_variants set stock = 10 where product_id = 18;
 -- 11. VARIANTES DE PRODUCTOS
 INSERT INTO product_variants (product_id, color_code, size, stock, sku, price, weight_grams, active) VALUES
 -- Camiseta Dry-Fit Pro (ID: 1) - Con oferta

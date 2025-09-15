@@ -1,5 +1,5 @@
 import axios from "axios";
-import { FRONT_CONFIG } from "./credentials";
+import { FRONT_CONFIG } from "./credentials.js";
 import { ErrorsHandler } from "@/app/errors/errorsHandler";
 
 export const api = axios.create({
