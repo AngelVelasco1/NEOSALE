@@ -37,24 +37,19 @@ export const getCartService = async (user_id: number) => {
     return [];
   }
   
-  // ✅ MAPEAR LOS ITEMS DEL CARRITO CON LA ESTRUCTURA CORRECTA
   const cartProducts = cart.cart_items.map((item) => {
-    // ✅ BUSCAR LA VARIANTE ESPECÍFICA (color + talla)
     const variant = item.products.product_variants.find((variant) => 
         variant.color_code === item.color_code &&
         variant.size === item.size
     );
 
-    // ✅ BUSCAR LA IMAGEN ESPECÍFICA DEL COLOR SELECCIONADO
     const selectedColorImage = item.products.images.find(img => 
       img.color_code === item.color_code
     );
 
-    // ✅ FALLBACK: Si no hay imagen para el color específico, usar la principal
     const fallbackImage = item.products.images.find(img => img.is_primary) 
                          || item.products.images[0];
 
-    // ✅ USAR LA IMAGEN DEL COLOR SELECCIONADO O EL FALLBACK
     const selectedImage = selectedColorImage || fallbackImage;
 
     return {
@@ -64,9 +59,8 @@ export const getCartService = async (user_id: number) => {
       price: item.products.price,
       quantity: item.quantity,
       size: item.size,
-      total: item.quantity * item.unit_price, // Usar unit_price del item del carrito
+      total: item.quantity * item.unit_price, 
       stock: variant?.stock || 0,
-      // ✅ IMAGEN ESPECÍFICA DE LA VARIANTE SELECCIONADA
       image_url: selectedImage?.image_url || null,
       alt_text: selectedImage?.color_code ? 
         `${item.products.name} color ${selectedImage.color_code}` : 

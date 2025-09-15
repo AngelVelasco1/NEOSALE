@@ -1,35 +1,53 @@
 "use client";
 
-import React, { useState, useEffect, useCallback } from 'react';
-import { useRouter } from 'next/navigation';
-import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
-import { ErrorsHandler } from '@/app/errors/errorsHandler';
-import { useCart } from '../(cart)/hooks/useCart';
+import React, { useState, useEffect, useCallback } from "react";
+import { useRouter } from "next/navigation";
+import { Button } from "@/components/ui/button";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { ErrorsHandler } from "@/app/errors/errorsHandler";
+import { useCart } from "../(cart)/hooks/useCart";
 
-import { ShippingAddressForm } from './components/ShippingAddressForm';
-import { PaymentMethods } from './components/PaymentMethods';
-import { OrderSummary } from '../orders/components/OrderSummary';
+import { ShippingAddressForm } from "./components/ShippingAddressForm";
+import { PaymentMethods } from "./components/PaymentMethods";
+import { OrderSummary } from "../orders/components/OrderSummary";
 
-import { Address } from './services/addressesApi';
-import { createOrderApi } from '../orders/services/ordersApi';
-import { useAddresses } from './hooks/useAddresses';
+import { Address } from "./services/addressesApi";
+import { createOrderApi } from "../orders/services/ordersApi";
+import { useAddresses } from "./hooks/useAddresses";
+import { useUser } from "@/app/(auth)/context/UserContext";
 
 export default function CheckoutPage() {
   const router = useRouter();
-  const { getUserAddresses, createAddress, getDefaultAddress, isAuthenticated } = useAddresses();
-  const { cartProducts, isLoading: cartLoading, getSubTotal, clearCart } = useCart();
+  const {
+    getUserAddresses,
+    createAddress,
+    getDefaultAddress,
+    isAuthenticated,
+  } = useAddresses();
+  const {
+    cartProducts,
+    isLoading: cartLoading,
+    getSubTotal,
+    clearCart,
+  } = useCart();
 
   const [userAddresses, setUserAddresses] = useState<Address[]>([]);
   const [selectedAddress, setSelectedAddress] = useState<Address | null>(null);
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
   const [isProcessingOrder, setIsProcessingOrder] = useState(false);
+  const { userProfile } = useUser();
 
-  // ✅ VALIDAR AUTENTICACIÓN
   useEffect(() => {
     if (!isAuthenticated) {
-      router.replace('/login');
+      router.replace("/login");
       return;
     }
   }, [isAuthenticated, router]);
@@ -41,12 +59,11 @@ export default function CheckoutPage() {
         "Carrito vacío",
         "No hay productos en tu carrito"
       );
-      router.replace('/cart');
+      router.replace("/cart");
       return;
     }
   }, [cartProducts, cartLoading, router]);
 
-  // ✅ CÁLCULOS DE PRECIOS
   const subtotal = cartProducts && cartProducts.length > 0 ? getSubTotal() : 0;
   const shipping = subtotal >= 100000 ? 0 : 10000;
   const taxes = subtotal * 0.19;
@@ -75,98 +92,129 @@ export default function CheckoutPage() {
       } else {
         setSelectedAddress(null);
       }
-
     } catch (err) {
-      console.error('Error loading checkout data:', err);
-      const errorMessage = err instanceof Error ? err.message : 'Hubo un error al cargar los datos necesarios para el checkout';
+      console.error("Error loading checkout data:", err);
+      const errorMessage =
+        err instanceof Error
+          ? err.message
+          : "Hubo un error al cargar los datos necesarios para el checkout";
       setError(errorMessage);
-      ErrorsHandler.showError("Error", "No pudimos cargar la información necesaria para el checkout");
+      ErrorsHandler.showError(
+        "Error",
+        "No pudimos cargar la información necesaria para el checkout"
+      );
     } finally {
       setIsLoading(false);
     }
   }, [isAuthenticated, getUserAddresses, getDefaultAddress]);
 
   useEffect(() => {
-    if (!cartLoading && isAuthenticated && cartProducts && cartProducts.length > 0) {
+    if (
+      !cartLoading &&
+      isAuthenticated &&
+      cartProducts &&
+      cartProducts.length > 0
+    ) {
       fetchData();
     }
   }, [cartLoading, isAuthenticated, cartProducts, fetchData]);
 
   // ✅ MANEJAR ÉXITO DE PAGO - CORREGIDO
-  const handlePaymentSuccess = useCallback(async (paymentId: string, paymentMethod?: string) => {
-    setIsProcessingOrder(true);
+  const handlePaymentSuccess = useCallback(
+    async (paymentId: string, paymentMethod?: string) => {
+      setIsProcessingOrder(true);
 
-    try {
-      if (!selectedAddress) {
-        throw new Error('Debes seleccionar una dirección de envío');
+      try {
+        if (!selectedAddress) {
+          throw new Error("Debes seleccionar una dirección de envío");
+        }
+
+        if (!selectedAddress.id) {
+          throw new Error("La dirección seleccionada no es válida");
+        }
+
+        // ✅ CREAR ORDEN CON EL PAYMENT_ID RECIBIDO
+        const orderData = {
+          payment_id: paymentId,
+          address_id: selectedAddress.id,
+          items: cartProducts.map((item) => ({
+            product_id: item.id,
+            quantity: item.quantity,
+            unit_price: item.price,
+            color_code: item.color_code,
+            size: item.size,
+          })),
+          subtotal,
+          taxes,
+          shipping,
+          total,
+          payment_method: paymentMethod || "card",
+        };
+
+        console.log("Creando orden con datos:", orderData);
+
+        const order = await createOrderApi(orderData);
+
+        // ✅ LIMPIAR CARRITO DESPUÉS DE ORDEN EXITOSA
+        await clearCart();
+
+        ErrorsHandler.showSuccess(
+          "¡Orden completada!",
+          `Tu orden #${order.id} ha sido procesada exitosamente`
+        );
+
+        router.push(`/checkout/success?order_id=${order.id}`);
+      } catch (error) {
+        console.error("Error creating order:", error);
+        const errorMessage =
+          error instanceof Error
+            ? error.message
+            : "Hubo un problema al crear tu orden";
+        ErrorsHandler.showError("Error", errorMessage);
+      } finally {
+        setIsProcessingOrder(false);
       }
-
-      if (!selectedAddress.id) {
-        throw new Error('La dirección seleccionada no es válida');
-      }
-
-      // ✅ CREAR ORDEN CON EL PAYMENT_ID RECIBIDO
-      const orderData = {
-        payment_id: paymentId,
-        address_id: selectedAddress.id,
-        items: cartProducts.map(item => ({
-          product_id: item.id,
-          quantity: item.quantity,
-          unit_price: item.price,
-          color_code: item.color_code,
-          size: item.size
-        })),
-        subtotal,
-        taxes,
-        shipping,
-        total,
-        payment_method: paymentMethod || 'card'
-      };
-
-      console.log('Creando orden con datos:', orderData);
-
-      const order = await createOrderApi(orderData);
-
-      // ✅ LIMPIAR CARRITO DESPUÉS DE ORDEN EXITOSA
-      await clearCart();
-
-      ErrorsHandler.showSuccess(
-        "¡Orden completada!",
-        `Tu orden #${order.id} ha sido procesada exitosamente`
-      );
-
-      router.push(`/checkout/success?order_id=${order.id}`);
-    } catch (error) {
-      console.error('Error creating order:', error);
-      const errorMessage = error instanceof Error ? error.message : 'Hubo un problema al crear tu orden';
-      ErrorsHandler.showError("Error", errorMessage);
-    } finally {
-      setIsProcessingOrder(false);
-    }
-  }, [selectedAddress, cartProducts, subtotal, taxes, shipping, total, clearCart, router]);
+    },
+    [
+      selectedAddress,
+      cartProducts,
+      subtotal,
+      taxes,
+      shipping,
+      total,
+      clearCart,
+      router,
+    ]
+  );
 
   // ✅ MANEJAR ERROR DE PAGO
   const handlePaymentError = useCallback((error: Error) => {
-    console.error('Payment error:', error);
+    console.error("Payment error:", error);
     ErrorsHandler.showError(
-      "Error de pago", 
+      "Error de pago",
       "Hubo un problema procesando tu pago. Por favor intenta nuevamente."
     );
   }, []);
 
   // ✅ MANEJAR CREACIÓN DE NUEVA DIRECCIÓN
-  const handleCreateAddress = useCallback(async (addressData: any) => {
-    try {
-      const newAddress = await createAddress(addressData);
-      setUserAddresses(prev => [...prev, newAddress]);
-      setSelectedAddress(newAddress);
-      ErrorsHandler.showSuccess("Éxito", "Dirección creada exitosamente");
-    } catch (error) {
-      console.error('Error creating address:', error);
-      const errorMessage = error instanceof Error ? error.message : 'Error al crear la dirección';
-      ErrorsHandler.showError("Error", errorMessage);
-    }
-  }, [createAddress]);
+  const handleCreateAddress = useCallback(
+    async (addressData: any) => {
+      try {
+        const newAddress = await createAddress(addressData);
+        setUserAddresses((prev) => [...prev, newAddress]);
+        setSelectedAddress(newAddress);
+        ErrorsHandler.showSuccess("Éxito", "Dirección creada exitosamente");
+      } catch (error) {
+        console.error("Error creating address:", error);
+        const errorMessage =
+          error instanceof Error
+            ? error.message
+            : "Error al crear la dirección";
+        ErrorsHandler.showError("Error", errorMessage);
+      }
+    },
+    [createAddress]
+  );
 
   // ✅ LOADING STATES
   if (cartLoading || isLoading) {
@@ -196,7 +244,9 @@ export default function CheckoutPage() {
         <Card className="w-full">
           <CardHeader>
             <CardTitle>Error</CardTitle>
-            <CardDescription>No pudimos cargar la información necesaria para el checkout</CardDescription>
+            <CardDescription>
+              No pudimos cargar la información necesaria para el checkout
+            </CardDescription>
           </CardHeader>
           <CardContent>
             <p className="text-destructive">{error}</p>
@@ -205,7 +255,7 @@ export default function CheckoutPage() {
             <Button variant="outline" onClick={() => fetchData()}>
               Reintentar
             </Button>
-            <Button onClick={() => router.push('/cart')}>
+            <Button onClick={() => router.push("/cart")}>
               Volver al carrito
             </Button>
           </CardFooter>
@@ -219,16 +269,12 @@ export default function CheckoutPage() {
       <div className="max-w-7xl mx-auto">
         <div className="mb-6 px-4">
           <h1 className="text-2xl font-bold">Finalizar compra</h1>
-          <p className="text-muted-foreground">
-            Completa tu orden
-          </p>
+          <p className="text-muted-foreground">Completa tu orden</p>
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 px-4">
-
           {/* Información de envío y pago */}
           <div className="lg:col-span-2 space-y-6">
-
             {/* Dirección de envío */}
             <ShippingAddressForm
               addresses={userAddresses}
@@ -245,6 +291,7 @@ export default function CheckoutPage() {
               onPaymentSuccess={handlePaymentSuccess}
               onPaymentError={handlePaymentError}
               disabled={!selectedAddress || isProcessingOrder}
+              userId={userProfile?.id ?? 0}
             />
           </div>
 

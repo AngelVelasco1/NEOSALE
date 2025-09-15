@@ -78,7 +78,8 @@ interface CardPaymentFormProps {
   installments: number;
   onSuccess: (paymentId: string) => void;
   onError: (error: Error) => void;
-  disabled?: boolean; // Para deshabilitar el formulario durante la carga
+  disabled?: boolean; 
+  userId: number
 }
 
 export default function CardPaymentForm({
@@ -87,14 +88,13 @@ export default function CardPaymentForm({
   installments,
   onSuccess,
   onError,
-  disabled = false
+  disabled = false,
+  userId
 }: CardPaymentFormProps) {
   const [isLoading, setIsLoading] = useState(false);
-  const [cardBin, setCardBin] = useState('');
   const [paymentMethods, setPaymentMethods] = useState<any[]>([]);
   const [detectedCardType, setDetectedCardType] = useState<string>('');
   
-  // ✅ Obtener datos del usuario autenticado
   const { userProfile } = useUser();
   const { data: session } = useSession();
   
@@ -117,7 +117,6 @@ export default function CardPaymentForm({
     },
   });
 
-  // ✅ Actualizar valores del formulario cuando se carga el perfil del usuario
   useEffect(() => {
     if (userProfile || session?.user) {
       form.setValue('cardholderName', userProfile?.name || '');
@@ -131,7 +130,7 @@ export default function CardPaymentForm({
   useEffect(() => {
     const loadPaymentMethods = async () => {
       try {
-        const methods = await getPaymentMethods();
+        const methods = await getPaymentMethods(paymentMethods);
         setPaymentMethods(methods);
         console.log('💳 Métodos de pago disponibles:', methods);
       } catch (error) {
@@ -178,7 +177,6 @@ export default function CardPaymentForm({
     setIsLoading(true);
     
     try {
-      // ✅ Validación adicional de campos requeridos
       if (!formData.cardholderName.trim()) {
         throw new Error("El nombre del titular es requerido");
       }
@@ -191,11 +189,10 @@ export default function CardPaymentForm({
         throw new Error("Debe seleccionar un tipo de documento");
       }
       
-      if (!formData.identificationNumber.trim()) {
+      if (!formData?.identificationNumber?.trim()) {
         throw new Error("El número de documento es requerido");
       }
-
-      console.log('🔄 Generando token de tarjeta...');
+      const finaluserId = userId || userProfile?.id;
       
       const token = await createCardToken({
         cardholderName: formData.cardholderName.trim(),
@@ -214,9 +211,9 @@ export default function CardPaymentForm({
         email: formData.email.toLowerCase().trim(),
         installments: installments || 1,
         token: token.id,
+        user_id: finaluserId
       };
 
-      // ✅ Solo agregar datos de identificación si se especificaron
       if (formData.identificationType !== 'none' && formData.identificationNumber?.trim()) {
         paymentData.identificationType = formData.identificationType;
         paymentData.identificationNumber = formData.identificationNumber.trim();
@@ -299,7 +296,6 @@ export default function CardPaymentForm({
     }
   };
 
-  // ✅ FUNCIÓN PARA INTERPRETAR CÓDIGOS DE RECHAZO DE MERCADOPAGO
   const getRejectReason = (statusDetail?: string): string => {
     const rejectionReasons: Record<string, string> = {
       'cc_rejected_insufficient_amount': 'Fondos insuficientes en la tarjeta',

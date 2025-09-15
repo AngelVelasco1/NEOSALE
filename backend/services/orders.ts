@@ -171,7 +171,7 @@ export const createOrderService = async ({
       },
       auto_return: 'approved',
       external_reference: order.id.toString(),
-      notification_url: `https://ba400ebaadda.ngrok-free.app/api/orders/webhook/mercadopago`,
+      notification_url: `https://4de3ca4a2d02.ngrok-free.app/api/orders/webhook/mercadopago`,
       shipments: {
         cost: shippingCost,
         mode: 'not_specified'

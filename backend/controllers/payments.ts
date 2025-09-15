@@ -1,8 +1,7 @@
 import { Request, Response } from 'express';
 import { processCardPayment } from '../services/payments';
 
-import { Request, Response } from 'express';
-import { processCardPayment } from '../services/payments';
+
 
 export const addPayment = {
   async processPayment(req: Request, res: Response) {
@@ -16,15 +15,12 @@ export const addPayment = {
         identificationNumber 
       } = req.body;
       
-      // ✅ Validación completa de datos requeridos
       if (!amount || !email || !token) {
         return res.status(400).json({
           success: false,
           message: 'Faltan datos requeridos para el pago (amount, email, token)'
         });
       }
-
-      // ✅ Validaciones adicionales
       if (amount <= 0) {
         return res.status(400).json({
           success: false,
@@ -39,7 +35,6 @@ export const addPayment = {
         });
       }
 
-      // ✅ Validar datos de identificación si se proporcionan
       if (identificationType && identificationType !== 'none' && !identificationNumber) {
         return res.status(400).json({
           success: false,
@@ -54,7 +49,7 @@ export const addPayment = {
         });
       }
 
-      console.log('🔄 Procesando pago:', {
+      console.log(' Procesando pago:', {
         amount: Number(amount),
         email: email.toLowerCase().trim(),
         installments: installments || 1,
@@ -63,8 +58,8 @@ export const addPayment = {
         hasIdentification: !!(identificationNumber && identificationType !== 'none')
       });
       
-      // ✅ Procesar el pago usando el servicio con datos completos
       const payment = await processCardPayment({
+        user_id: parseInt(req.body.user_id), 
         amount: Number(amount),
         email: email.toLowerCase().trim(),
         installments: installments || 1,
@@ -73,9 +68,7 @@ export const addPayment = {
         identificationNumber: identificationNumber && identificationType !== 'none' ? identificationNumber : undefined
       });
       
-      // ✅ Devolver el resultado con información detallada
        res.status(200).json({
-        success: true,
         payment: {
           id: payment.id,
           status: payment.status,
@@ -85,7 +78,8 @@ export const addPayment = {
           external_reference: payment.external_reference,
           date_created: payment.date_created
         }
-      });
+        }
+      );
       return;
     } catch (error: any) {
       console.error('❌ Error procesando pago:', error);

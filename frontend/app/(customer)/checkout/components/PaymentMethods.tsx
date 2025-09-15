@@ -10,6 +10,7 @@ import CardPaymentForm from './CardPaymentForm';
 interface PaymentMethodsProps {
   amount: number;
   description: string;
+  userId?: number ;
   onPaymentSuccess: (paymentId: string, paymentMethod: string) => void;
   onPaymentError: (error: Error) => void;
   disabled?: boolean;
@@ -22,7 +23,8 @@ export const PaymentMethods = ({
   description,
   onPaymentSuccess,
   onPaymentError,
-  disabled = false
+  disabled,
+  userId
 }: PaymentMethodsProps) => {
   const [selectedPaymentMethod, setSelectedPaymentMethod] = useState<PaymentMethod>('credit_card');
 
@@ -75,6 +77,8 @@ export const PaymentMethods = ({
             installments={1}
             onSuccess={handlePaymentSuccess}
             onError={onPaymentError}
+            disabled={disabled}
+            userId={userId}
           />
         );
       
