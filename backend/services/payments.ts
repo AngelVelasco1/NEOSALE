@@ -25,6 +25,26 @@ const validateMPCredentials = () => {
 
 export const processCardPayment = async (paymentData: PaymentData) => {
   try {
+    console.log("🔄 Iniciando procesamiento de pago:", {
+      amount: paymentData.amount,
+      email: paymentData.email,
+      user_id: paymentData.user_id,
+      hasToken: !!paymentData.token
+    });
+
+    // ✅ Validar datos esenciales
+    if (!paymentData.user_id) {
+      throw new Error('ID de usuario requerido para procesar el pago');
+    }
+
+    if (!paymentData.amount || paymentData.amount <= 0) {
+      throw new Error('Monto inválido para procesar el pago');
+    }
+
+    if (!paymentData.token) {
+      throw new Error('Token de tarjeta requerido para procesar el pago');
+    }
+
     const accessToken = validateMPCredentials();
 
     const client = new MercadoPagoConfig({
@@ -47,12 +67,12 @@ export const processCardPayment = async (paymentData: PaymentData) => {
     
     const payment = new Payment(client);
 
-    const adjustedAmount = paymentData.amount;
+    // ✅ NO manipular el amount - usar directamente
     const paymentPayload: any = {
-      transaction_amount: Math.round(adjustedAmount * 100) / 100, // Redondear a 2 decimales
+      transaction_amount: paymentData.amount, // ✅ Usar amount directamente sin manipulación
       token: paymentData.token,
-      description: `Test NEOCOMMERCE - ${Date.now()}`,
-      installments: 1,
+      description: `Pedido NEOCOMMERCE - ${Date.now()}`,
+      installments: paymentData.installments || 1,
       payer: {
         email: paymentData.email,
       } as any,
@@ -69,6 +89,13 @@ export const processCardPayment = async (paymentData: PaymentData) => {
       capture: true,
     };
 
+    console.log(" AMOUNT DEBUG:", {
+      original_amount: paymentData.amount,
+      amount_type: typeof paymentData.amount,
+      transaction_amount: paymentPayload.transaction_amount,
+      transaction_amount_type: typeof paymentPayload.transaction_amount
+    });
+
     if (paymentData.identificationType && paymentData.identificationNumber) {
       paymentPayload.payer.identification = {
         type: paymentData.identificationType,
@@ -76,11 +103,13 @@ export const processCardPayment = async (paymentData: PaymentData) => {
       };
     }
 
+    console.log("📤 Payload completo a MercadoPago:", JSON.stringify(paymentPayload, null, 2));
+
     const result = await payment.create({
       body: paymentPayload,
     });
 
-    console.log("Respuesta de MercadoPago:", {
+    console.log("✅ Respuesta de MercadoPago:", {
       id: result.id,
       status: result.status,
       status_detail: result.status_detail,

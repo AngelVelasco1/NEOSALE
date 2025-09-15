@@ -11,6 +11,7 @@ export const addPayment = {
         email, 
         installments, 
         token, 
+        user_id,
         identificationType, 
         identificationNumber 
       } = req.body;
@@ -21,6 +22,14 @@ export const addPayment = {
           message: 'Faltan datos requeridos para el pago (amount, email, token)'
         });
       }
+      // ✅ Validaciones adicionales
+      if (!user_id) {
+        return res.status(400).json({
+          success: false,
+          message: 'ID de usuario requerido'
+        });
+      }
+
       if (amount <= 0) {
         return res.status(400).json({
           success: false,
@@ -49,8 +58,9 @@ export const addPayment = {
         });
       }
 
-      console.log(' Procesando pago:', {
+      console.log('Procesando pago:', {
         amount: Number(amount),
+        user_id: Number(user_id),
         email: email.toLowerCase().trim(),
         installments: installments || 1,
         hasToken: !!token,
@@ -59,7 +69,7 @@ export const addPayment = {
       });
       
       const payment = await processCardPayment({
-        user_id: parseInt(req.body.user_id), 
+        user_id: Number(user_id),
         amount: Number(amount),
         email: email.toLowerCase().trim(),
         installments: installments || 1,
@@ -69,6 +79,7 @@ export const addPayment = {
       });
       
        res.status(200).json({
+        success: true,
         payment: {
           id: payment.id,
           status: payment.status,
@@ -78,8 +89,7 @@ export const addPayment = {
           external_reference: payment.external_reference,
           date_created: payment.date_created
         }
-        }
-      );
+      });
       return;
     } catch (error: any) {
       console.error('❌ Error procesando pago:', error);

@@ -94,6 +94,7 @@ export default function CardPaymentForm({
   const [isLoading, setIsLoading] = useState(false);
   const [paymentMethods, setPaymentMethods] = useState<any[]>([]);
   const [detectedCardType, setDetectedCardType] = useState<string>('');
+    const [cardBin, setCardBin] = useState('');
   
   const { userProfile } = useUser();
   const { data: session } = useSession();
@@ -141,7 +142,6 @@ export default function CardPaymentForm({
     loadPaymentMethods();
   }, []);
 
-  // ✅ Detectar tipo de tarjeta cuando cambia el BIN
   useEffect(() => {
     const detectCardType = async () => {
       if (cardBin.length >= 6) {

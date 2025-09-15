@@ -15,7 +15,7 @@ export const processCardPaymentApi = async (data: {
       email: data.email,
       installments: data.installments,
       hasToken: !!data.token,
-      user_id: data.user_id, // ✅ Incluir user_id en el log
+      user_id: data.user_id, 
       identificationType: data.identificationType,
       hasIdentification: !!data.identificationNumber
     });
