@@ -206,6 +206,14 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
       (total, product) => total + product.quantity * product.price,
       0
     );
+  const clearCart = () => {
+    if (userProfile) {
+      setCartProduct([]);
+      return;
+    }
+    setCartProduct([]);
+    localStorage.removeItem("cart");
+  }
 
   return (
     <CartContext.Provider
@@ -216,6 +224,7 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
         deleteProductFromCart,
         getCartProductCount,
         getSubTotal,
+        clearCart,
         isLoading,
       }}
     >

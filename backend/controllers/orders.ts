@@ -3,8 +3,6 @@ import {
   createOrderService,
   getProductWithVariantsService,
   checkVariantAvailabilityService,
-  getUserCartService,
-  addToCartService,
   processPaymentWebhook,
   getOrderByIdService,
   getUserOrdersService,
@@ -121,33 +119,6 @@ export const checkVariantAvailability = async (
   }
 };
 
-// Obtener carrito del usuario
-export const getUserCart = async (
-  req: Request,
-  res: Response,
-  next: NextFunction
-) => {
-  try {
-    const userId = req.user?.id;
-
-    if (!userId) {
-      return res.status(401).json({ 
-        success: false, 
-        message: 'Usuario no autenticado' 
-      });
-    }
-
-    const cart = await getUserCartService(userId);
-
-    res.json({
-      success: true,
-      data: cart
-    });
-
-  } catch (err) {
-    next(err);
-  }
-};
 
 // Webhook de MercadoPago
 export const handlePaymentWebhook = async (
