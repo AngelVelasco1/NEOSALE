@@ -252,6 +252,8 @@ model order_items {
   price      Int
   quantity   Int
   subtotal   Int
+  color_code String    @db.VarChar(7)
+  size       String    @db.VarChar(25)
   product_id Int
   order_id   Int
   created_at DateTime  @default(now()) @db.Timestamp(6)
@@ -345,10 +347,13 @@ model reviews {
 
 enum orders_status_enum {
   pending
+  confirmed
   paid
   processing
   shipped
   delivered
+  cancelled
+  refunded
 }
 
 enum roles_enum {
@@ -381,10 +386,4 @@ enum payment_method_enum {
   credit_card
   debit_card
   mercadopago
-}
-
-enum orders_paymentmethod_enum {
-  paypal
-  nequi
-  efecty
 }

@@ -81,8 +81,6 @@ DO $$ BEGIN
     END IF;
 END $$;
 
-
-
 -- CREACION DE TABLAS 
 
 CREATE TABLE "User" (

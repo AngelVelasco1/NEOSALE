@@ -7,6 +7,7 @@ import { ProductCard } from "../components/ProductCard";
 import { ProductFilter } from "../components/Filters";
 
 
+
 export const ProductsPage = () => {
   const [products, setProducts] = useState<IProduct[]>([]);
   const [filteredProducts, setFilteredProducts] = useState<IProduct[]>([]);

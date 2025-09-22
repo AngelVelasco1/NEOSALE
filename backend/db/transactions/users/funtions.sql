@@ -134,3 +134,37 @@ BEGIN
             RAISE EXCEPTION 'Error al actualizar contraseña en SP: %', SQLERRM;
 END;
 $$;
+
+CREATE OR REPLACE FUNCTION fn_add_favorite(p_user_id INT, p_product_id INT)
+RETURNS BOOLEAN
+LANGUAGE plpgsql
+AS $$
+BEGIN
+    IF NOT EXISTS (SELECT 1 FROM "User" WHERE id = p_user_id) THEN
+        RAISE EXCEPTION 'Usuario no encontrado' USING ERRCODE = 'no_data_found';
+    END IF;
+
+    IF NOT EXISTS (SELECT 1 FROM products WHERE id = p_product_id) THEN
+        RAISE EXCEPTION 'Producto no encontrado' USING ERRCODE = 'no_data_found';
+    END IF;
+
+    IF EXISTS (SELECT 1 FROM favorites WHERE user_id = p_user_id AND product_id = p_product_id) THEN
+        RAISE EXCEPTION 'El producto ya está en favoritos' USING ERRCODE = 'unique_violation';
+    END IF;
+
+    INSERT INTO favorites (user_id, product_id) VALUES (p_user_id, p_product_id);
+    RETURN TRUE;
+    
+    EXCEPTION
+        WHEN unique_violation THEN
+            RAISE EXCEPTION 'Violación de unicidad al agregar favorito: %', SQLERRM;
+        WHEN not_null_violation THEN
+            RAISE EXCEPTION 'Campo obligatorio faltante al agregar favorito: %', SQLERRM;
+        WHEN invalid_text_representation THEN
+            RAISE EXCEPTION 'Formato de texto inválido al agregar favorito: %', SQLERRM;
+        WHEN no_data_found THEN
+            RAISE EXCEPTION 'No se puede agregar favorito: usuario o producto no encontrado';
+        WHEN OTHERS THEN
+            RAISE EXCEPTION 'Error al agregar favorito en FN: %', SQLERRM;
+END;
+$$;

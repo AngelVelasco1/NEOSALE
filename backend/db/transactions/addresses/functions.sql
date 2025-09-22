@@ -1,4 +1,3 @@
--- ✅ CREAR DIRECCIÓN (FUNCTION - retorna el ID)
 CREATE OR REPLACE FUNCTION sp_create_address(
     p_address TEXT, 
     p_country TEXT, 

@@ -143,3 +143,12 @@ export const updatePasswordService = async ({
   await prisma.$executeRaw`CALL sp_update_password(${id}::int, ${hashedPassword}::text)`;
   return { success: true, message: "Contraseña actualizada exitosamente" };
 };
+
+export const addFavoriteService = async (userId: number, productId: number) => {
+  if (!userId || !productId) {
+    throw new Error("ID de usuario y ID de producto son requeridos");
+  }
+
+  await prisma.$executeRaw`SELECT fn_add_favorite(${userId}::int, ${productId}::int)`;
+  return { success: true, message: "Producto agregado a favoritos" };
+};

@@ -1,5 +1,5 @@
 import { Router } from 'express';
-import { registerUser, getUserById, updateUser, updatePassword } from '../controllers/users';
+import { registerUser, getUserById, updateUser, updatePassword, addFavorite } from '../controllers/users';
 
 export const usersRoutes = () => {
     const app = Router();
@@ -7,5 +7,6 @@ export const usersRoutes = () => {
     app.get("/getUser", getUserById)
     app.put("/updateUser", updateUser)
     app.put("/updatePassword", updatePassword)
+    app.post("/addFavorite", addFavorite) 
     return app;
 }

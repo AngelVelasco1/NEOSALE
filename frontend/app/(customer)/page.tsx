@@ -3,7 +3,7 @@ import { Banner } from "../components/Banner";
 import { ProductCard } from "./(products)/components/ProductCard";
 import React, { useEffect, useState } from "react";
 import { getLatestProducts } from "./(products)/services/api";
-import { IProduct } from "./(products)/types";
+import { IProduct } from "./types";
 
 import { useRouter } from "next/navigation";
 import { Testimonials } from "../components/Testimonials";

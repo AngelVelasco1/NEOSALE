@@ -4,6 +4,7 @@ import {
   getUserByIdService,
   updateUserService,
   updatePasswordService,
+  addFavoriteService
 } from "../services/users";
 
 export const registerUser = async (
@@ -86,3 +87,14 @@ export const updatePassword = async (req: Request, res: Response, next: NextFunc
     next(error)
   }
 };
+
+export const addFavorite = async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const { userId, productId } = req.body;
+
+    const result = await addFavoriteService(userId, productId);
+    res.json(result);
+  } catch (error) {
+    next(error);
+  }
+}

@@ -1,9 +1,16 @@
 "use client"
 
+import { addFavoriteApi } from "../../favorites/services/favoritesApi"
 import Image from "next/image"
 import Link from "next/link"
 import { Skeleton } from "@/components/ui/skeleton"
 import { motion } from "framer-motion"
+import type React from "react"
+import { useState } from "react"
+import { toast } from "sonner"
+import { FaHeart } from "react-icons/fa"
+import { useSession } from "next-auth/react"
+
 
 export interface IProduct {
   id: string
@@ -20,10 +27,43 @@ export interface ProductCardProps {
 }
 
 export const ProductCard = ({ data }: ProductCardProps) => {
+  const [isFavorite, setIsFavorite] = useState(false)
+  const [isLoading, setIsLoading] = useState(false)
+  const { data: session } = useSession();
+  const userId = parseInt(session?.user?.id) || null;
+
+  const handleAddToFavorites = async (e: React.MouseEvent) => {
+    e.preventDefault()
+    e.stopPropagation()
+
+    if (!userId) {
+      toast.error("Debes iniciar sesión para añadir favoritos")
+      return
+    }
+
+    if (isLoading) return
+
+    setIsLoading(true)
+    try {
+      await addFavoriteApi({ userId, productId: Number.parseInt(data.id) })
+      setIsFavorite(true)
+      toast.success("Producto añadido a favoritos")
+    } catch (error: any) {
+      if (error.response?.status === 409) {
+        toast.error("El producto ya está en favoritos")
+        setIsFavorite(true)
+      } else {
+        toast.error("Error al añadir a favoritos")
+      }
+    } finally {
+      setIsLoading(false)
+    }
+  }
+
   return (
     <Link href={`/${data.id}`}>
       <motion.div
-        className="group relative overflow-hidden rounded-2xl bg-gradient-to-br from-blue-100 via-purple-100 to-indigo-100 backdrop-blur-sm border-2 border-slate-300/50 shadow-xl hover:shadow-2xl hover:shadow-blue-500/30 transition-all duration-500  hover:from-indigo-200/60 hover:via-slate-200/80 hover:to-purple-200"
+        className="group relative overflow-hidden rounded-2xl bg-gradient-to-br from-blue-100 via-purple-100 to-indigo-100 backdrop-blur-sm border-2 border-slate-300/50 shadow-xl hover:shadow-2xl hover:shadow-blue-500/30 transition-all duration-500 hover:from-indigo-200/60 hover:via-slate-200/80 hover:to-purple-200"
         whileHover={{
           y: -8,
           transition: { type: "spring", stiffness: 400, damping: 25 },
@@ -36,30 +76,11 @@ export const ProductCard = ({ data }: ProductCardProps) => {
           damping: 30,
         }}
       >
-        {/* Enhanced gradient overlay */}
-
-        {/* More prominent glow effect */}
-
-        {/* Content container */}
-        <div className="relative p-4 space-y-5">
-          {/* Image container with stronger borders */}
-          <div className="relative aspect-square overflow-hidden rounded-xl bg-gradient-to-br from-white to-slate-50 border-2 border-slate-200  transition-colors duration-300 shadow-inner">
-            {data.image_url ? (
-              <Image
-                src={data.image_url || "/placeholder.svg"}
-                alt="product"
-                fill
-                sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-                className="object-fit object-center group-hover:scale-110 transition-transform duration-700"
-                priority
-              />
-            ) : (
-              <Skeleton className="w-full h-full rounded-xl bg-gradient-to-br from-slate-100 to-slate-200" />
-            )}
-
-            {/* Enhanced stock badge */}
+        {/* Header section with stock badge and favorites button */}
+        <div className="relative p-4 pb-0">
+          <div className="flex justify-between items-start mb-4">
+            {/* Stock badge moved to top left */}
             <motion.div
-              className="absolute top-3 right-3"
               initial={{ scale: 0.8, opacity: 0 }}
               animate={{ scale: 1, opacity: 1 }}
               transition={{ delay: 0.2, type: "spring", stiffness: 400 }}
@@ -75,78 +96,180 @@ export const ProductCard = ({ data }: ProductCardProps) => {
               </div>
             </motion.div>
 
-            {/* Quick view icon */}
-            <motion.div
-              className="absolute top-3 left-3 opacity-0 group-hover:opacity-100 transition-all duration-300"
-              initial={{ scale: 0.8, opacity: 0 }}
+            {/* Improved Favorite Button */}
+            <motion.button
+              onClick={handleAddToFavorites}
+              className="relative z-10 group/fav"
+              initial={{ scale: 0.8, opacity: 1 }}
               whileHover={{ scale: 1.1 }}
-              transition={{ type: "spring", stiffness: 400, damping: 25 }}
+              whileTap={{ scale: 0.9 }}
+              transition={{ type: "spring", stiffness: 500, damping: 15 }}
+              disabled={isLoading || isFavorite}
             >
-              <div className="w-9 h-9 rounded-full bg-white backdrop-blur-md border-2 border-blue-200 flex items-center justify-center shadow-xl hover:shadow-2xl hover:border-blue-300 transition-all duration-300">
-                <svg className="w-4 h-4 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"
-                  />
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"
-                  />
-                </svg>
-              </div>
-            </motion.div>
+              {/* Glow effect background */}
+              <motion.div
+                className={`absolute inset-0 rounded-full blur-md transition-all duration-500 ${
+                  isFavorite
+                    ? "bg-gradient-to-r from-red-400 to-pink-500 opacity-60"
+                    : "bg-gradient-to-r from-slate-400 to-slate-500 opacity-0 group-hover/fav:opacity-40"
+                }`}
+                animate={{
+                  scale: isFavorite ? [1, 1.3, 1] : 1,
+                }}
+                transition={{
+                  duration: 0.6,
+                  repeat: isFavorite ? 2 : 0,
+                }}
+              />
+              
+              {/* Main button container */}
+              <motion.div
+                className={`relative w-11 h-11 rounded-full backdrop-blur-xl border-2 flex items-center justify-center shadow-lg transition-all duration-500 ${
+                  isFavorite
+                    ? "bg-gradient-to-br from-red-500 via-red-600 to-red-700 border-red-400 shadow-red-500/50"
+                    : "bg-white/90 border-slate-300 shadow-slate-200 hover:border-red-400 hover:shadow-red-200/50"
+                }`}
+                animate={{
+                  boxShadow: isFavorite 
+                    ? [
+                        "0 4px 20px rgba(239, 68, 68, 0.3)",
+                        "0 8px 30px rgba(239, 68, 68, 0.5)",
+                        "0 4px 20px rgba(239, 68, 68, 0.3)"
+                      ] 
+                    : "0 4px 20px rgba(0, 0, 0, 0.1)",
+                }}
+                transition={{
+                  duration: 1.5,
+                  repeat: isFavorite ? Infinity : 0,
+                }}
+              >
+                <motion.div
+                  animate={{
+                    scale: isLoading ? [1, 1.2, 1] : 1,
+                    rotate: isFavorite ? [0, -10, 10, -5, 5, 0] : 0,
+                  }}
+                  transition={{
+                    duration: isLoading ? 0.8 : isFavorite ? 0.8 : 0.3,
+                    repeat: isLoading ? Infinity : isFavorite ? 1 : 0,
+                    ease: "easeInOut",
+                  }}
+                >
+<FaHeart 
+  className={`w-6 h-6 transition-all duration-300 ${
+    isFavorite 
+      ? "text-red-500 fill-current" 
+      : "text-slate-600 fill-none stroke-current stroke-2"
+  }`} 
+/>       
+                </motion.div>
+
+                {/* Sparkle particles effect when favorited */}
+                {isFavorite && (
+                  <>
+                    {[...Array(6)].map((_, i) => (
+                      <motion.div
+                        key={i}
+                        className="absolute w-1 h-1 bg-yellow-400 rounded-full"
+                        initial={{ scale: 0, opacity: 0 }}
+                        animate={{
+                          scale: [0, 1, 0],
+                          opacity: [0, 1, 0],
+                          x: [0, (Math.random() - 0.5) * 40],
+                          y: [0, (Math.random() - 0.5) * 40],
+                        }}
+                        transition={{
+                          duration: 1,
+                          delay: i * 0.1,
+                          ease: "easeOut",
+                        }}
+                      />
+                    ))}
+                  </>
+                )}
+              </motion.div>
+
+              {/* Pulse ring effect */}
+              <motion.div
+                className={`absolute inset-0 rounded-full border-2 ${
+                  isFavorite ? "border-red-400" : "border-slate-300"
+                }`}
+                animate={{
+                  scale: isFavorite ? [1, 1.4, 1.8] : 1,
+                  opacity: isFavorite ? [0.8, 0.4, 0] : 0,
+                }}
+                transition={{
+                  duration: 1.2,
+                  repeat: isFavorite ? 2 : 0,
+                  ease: "easeOut",
+                }}
+              />
+            </motion.button>
           </div>
 
-          <div className="space-y-4">
-            {/* Product name */}
-            <motion.h3
-              className="text-lg font-bold text-slate-800 group-hover:text-transparent group-hover:bg-gradient-to-r group-hover:from-blue-700 group-hover:via-purple-700 group-hover:to-indigo-700 group-hover:bg-clip-text transition-all duration-300 line-clamp-2 leading-relaxed"
-              whileHover={{ scale: 1.02 }}
-              transition={{ type: "spring", stiffness: 400, damping: 25 }}
-            >
-              {data.name}
-            </motion.h3>
+          {/* Product image */}
+          <div className="relative aspect-square overflow-hidden rounded-xl bg-gradient-to-br from-white to-slate-50 border-2 border-slate-200 transition-colors duration-300 shadow-inner">
+            {data.image_url ? (
+              <Image
+                src={data.image_url || "/placeholder.svg"}
+                alt="product"
+                fill
+                sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+                className="object-fit object-center group-hover:scale-110 transition-transform duration-700"
+                priority
+              />
+            ) : (
+              <Skeleton className="w-full h-full rounded-xl bg-gradient-to-br from-slate-100 to-slate-200" />
+            )}
+          </div>
+        </div>
 
-            <div className="flex justify-between items-end">
-              <div className="space-y-2">
-                <motion.p
-                  className="text-2xl font-black bg-gradient-to-r from-blue-700 via-purple-700 to-indigo-700 bg-clip-text text-transparent"
-                  whileHover={{ scale: 1.05 }}
-                  transition={{ type: "spring", stiffness: 400, damping: 25 }}
-                >
-                  ${data.price.toLocaleString()}
-                </motion.p>
-                <p className="text-sm text-slate-600 font-medium">
-                  {data.stock > 0 ? `${data.stock} en stock` : "Sin stock"}
-                </p>
-              </div>
+        {/* Product information */}
+        <div className="p-4 pt-4 space-y-4">
+          {/* Product name */}
+          <motion.h3
+            className="text-lg font-bold text-slate-800 group-hover:text-transparent group-hover:bg-gradient-to-r group-hover:from-blue-700 group-hover:via-purple-700 group-hover:to-indigo-700 group-hover:bg-clip-text transition-all duration-300 line-clamp-2 leading-relaxed"
+            whileHover={{ scale: 1.02 }}
+            transition={{ type: "spring", stiffness: 400, damping: 25 }}
+          >
+            {data.name}
+          </motion.h3>
 
-              {/* Enhanced color indicator */}
-              <div className="flex flex-col items-end space-y-2">
-                <motion.div
-                  className="relative"
-                  whileHover={{ scale: 1.1 }}
-                  transition={{ type: "spring", stiffness: 400, damping: 25 }}
-                >
-                  <div
-                    className="w-8 h-8 rounded-full border-3 border-white shadow-xl ring-2 ring-blue-200 group-hover:ring-blue-300 transition-all duration-300"
-                    style={{ backgroundColor: data.color_code }}
-                    title={data.color}
-                  />
-                  <div className="absolute inset-0 rounded-full bg-gradient-to-br from-white/20 to-transparent" />
-                </motion.div>
-                <span className="text-xs text-slate-500 capitalize font-medium">{data.color}</span>
-              </div>
+          {/* Price and details */}
+          <div className="flex justify-between items-end">
+            <div className="space-y-1">
+              <motion.p
+                className="text-2xl font-black bg-gradient-to-r from-blue-700 via-purple-700 to-indigo-700 bg-clip-text text-transparent"
+                whileHover={{ scale: 1.05 }}
+                transition={{ type: "spring", stiffness: 400, damping: 25 }}
+              >
+                ${data.price.toLocaleString()}
+              </motion.p>
+              <p className="text-sm text-slate-600 font-medium">
+                {data.stock > 0 ? `${data.stock} en stock` : "Sin stock"}
+              </p>
+            </div>
+
+            {/* Color indicator */}
+            <div className="flex flex-col items-end space-y-2">
+              <motion.div
+                className="relative"
+                whileHover={{ scale: 1.1 }}
+                transition={{ type: "spring", stiffness: 400, damping: 25 }}
+              >
+                <div
+                  className="w-8 h-8 rounded-full border-3 border-white shadow-xl ring-2 ring-blue-200 group-hover:ring-blue-300 transition-all duration-300"
+                  style={{ backgroundColor: data.color_code }}
+                  title={data.color}
+                />
+                <div className="absolute inset-0 rounded-full bg-gradient-to-br from-white/20 to-transparent" />
+              </motion.div>
+              <span className="text-xs text-slate-500 capitalize font-medium">{data.color}</span>
             </div>
           </div>
-
-          {/* Enhanced bottom accent line */}
-          <div className="absolute bottom-0 left-0 right-0 h-1.5 bg-gradient-to-r from-blue-600 via-purple-600 to-indigo-600 transform scale-x-0 group-hover:scale-x-100 transition-transform duration-500 origin-left rounded-b-2xl" />
         </div>
+
+        {/* Enhanced bottom accent line */}
+        <div className="absolute bottom-0 left-0 right-0 h-1.5 bg-gradient-to-r from-blue-600 via-purple-600 to-indigo-600 transform scale-x-0 group-hover:scale-x-100 transition-transform duration-500 origin-left rounded-b-2xl" />
 
         {/* Enhanced shine effect */}
         <div className="absolute inset-0 -translate-x-full group-hover:translate-x-full transition-transform duration-1000 bg-gradient-to-r from-transparent via-white/30 to-transparent skew-x-12" />

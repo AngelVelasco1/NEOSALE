@@ -90,9 +90,6 @@ export const getFirstAddress = async (user_id: number): Promise<Address | null> 
   }
 };
 
-
-
-// ✅ FORMATEAR DIRECCIÓN PARA MOSTRAR
 export const formatAddress = (address: Address): string => {
   return `${address.address}, ${address.city}, ${address.department}, ${address.country}`;
 };
