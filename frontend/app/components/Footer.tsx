@@ -4,7 +4,6 @@ import { RiYoutubeFill } from "react-icons/ri";
 import { RiTwitterXFill } from "react-icons/ri";
 import { RiWhatsappFill } from "react-icons/ri";
 
-import { FaPhoneAlt } from "react-icons/fa";
 import Image from "next/image"
 import React from 'react';
 

@@ -14,6 +14,7 @@ import { useState, useEffect } from "react";
 import { toast } from "sonner";
 import { FaHeart } from "react-icons/fa";
 import { useSession } from "next-auth/react";
+import { useFavorites } from "../../favorites/context/useFavorites"; // ✅ Importar el hook
 
 export interface IProduct {
   id: string;
@@ -27,7 +28,7 @@ export interface IProduct {
 
 export interface ProductCardProps {
   data: IProduct;
-  initialIsFavorite?: boolean; // Prop para indicar si ya es favorito
+  initialIsFavorite?: boolean;
 }
 
 export const ProductCard = ({
@@ -38,6 +39,7 @@ export const ProductCard = ({
   const [isLoading, setIsLoading] = useState(false);
   const [hasCheckedFavorite, setHasCheckedFavorite] = useState(false);
   const { data: session } = useSession();
+  const { refreshFavoritesCount } = useFavorites(); // ✅ Usar el hook
   const userId = parseInt(session?.user?.id) || null;
 
   // Verificar favorito solo una vez cuando el usuario está logueado
@@ -80,7 +82,6 @@ export const ProductCard = ({
         // Añadir a favoritos
         await addFavoriteApi({ userId, productId: Number.parseInt(data.id) });
         setIsFavorite(true);
-        toast.success("Producto añadido a favoritos");
       } else {
         // Remover de favoritos
         await removeFavoriteApi({
@@ -88,8 +89,10 @@ export const ProductCard = ({
           productId: Number.parseInt(data.id),
         });
         setIsFavorite(false);
-        toast.success("Producto removido de favoritos");
       }
+
+      // ✅ Actualizar el contador del navbar después de cualquier cambio
+      await refreshFavoritesCount();
     } catch (error: any) {
       console.error("Error al manejar favoritos:", error);
 
@@ -179,23 +182,12 @@ export const ProductCard = ({
                 }}
               />
 
-              {/* Main button container */}
               <motion.div
                 className={`relative w-11 h-11 rounded-full backdrop-blur-xl border-2 flex items-center justify-center shadow-lg transition-all duration-500 ${
                   isFavorite || initialIsFavorite
-                    ? "bg-gradient-to-br from-red-500 via-red-600 to-red-700 border-red-400 shadow-red-500/50"
-                    : "bg-white/90 border-slate-300 shadow-slate-200 hover:border-red-400 hover:shadow-red-200/50"
+                    ? "bg-gradient-to-br from-red-600 via-pink-600 to-red-800 border-red-300 "
+                    : "bg-white/90 border-slate-300 shadow-slate-200 hover:border-red-300 "
                 }`}
-                animate={{
-                  boxShadow:
-                    isFavorite || initialIsFavorite
-                      ? [
-                          "0 4px 20px rgba(239, 68, 68, 0.3)",
-                          "0 8px 30px rgba(239, 68, 68, 0.5)",
-                          "0 4px 20px rgba(239, 68, 68, 0.3)",
-                        ]
-                      : "0 4px 20px rgba(0, 0, 0, 0.1)",
-                }}
                 transition={{
                   duration: 1.5,
                   repeat: isFavorite || initialIsFavorite ? Infinity : 0,
@@ -221,7 +213,6 @@ export const ProductCard = ({
                   />
                 </motion.div>
 
-                {/* Sparkle particles effect when favorited */}
                 {isFavorite && (
                   <>
                     {[...Array(6)].map((_, i) => (

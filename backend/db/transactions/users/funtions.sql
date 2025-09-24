@@ -201,4 +201,3 @@ BEGIN
 END;
 $$;
 
-DELETE FROM favorites;

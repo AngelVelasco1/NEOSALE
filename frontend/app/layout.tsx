@@ -41,14 +41,12 @@ export default function RootLayout({
       <body
         className={`${userFont.variable} ${adminFont.variable} font-montserrat antialiased`}
       >
-        {/* 1. ThemeProvider envuelve a todo para controlar el tema */}
         <ThemeProvider
           attribute="class"
           defaultTheme="system"
           enableSystem
           disableTransitionOnChange
         >
-          {/* 2. RootProviders va DENTRO para dar contexto de sesión a los hijos */}
           <RootProviders>
             {children}
           </RootProviders>

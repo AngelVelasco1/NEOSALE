@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import React, { useState, useEffect } from "react";
 import { useSession } from "next-auth/react";
 import { motion } from "framer-motion";
 import Link from "next/link";
@@ -9,37 +9,42 @@ import { toast } from "sonner";
 import { getUserFavoritesApi, type Favorite } from "./services/favoritesApi";
 import { ProductCard } from "../(products)/components/ProductCard";
 import { Skeleton } from "@/components/ui/skeleton";
+import { useFavorites } from "@/app/(customer)/favorites/context/useFavorites";
 
 export default function Favorites() {
   const [favorites, setFavorites] = useState<Favorite[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const { data: session, status } = useSession();
-  const userId = parseInt(session?.user?.id) || null;
+  const userId = parseInt(session?.user?.id);
+  const { refreshFavoritesCount } = useFavorites();
+
+  const fetchFavorites = async () => {
+    if (status === "loading") return;
+
+    if (!userId) {
+      setIsLoading(false);
+      return;
+    }
+
+    try {
+      const favoritesData = await getUserFavoritesApi(userId);
+      setFavorites(favoritesData);
+      // ✅ Actualizar contador cuando se cargan los favoritos
+      await refreshFavoritesCount();
+    } catch (error) {
+      console.error("Error fetching favorites:", error);
+      toast.error("Error al cargar favoritos");
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   useEffect(() => {
-    const fetchFavorites = async () => {
-      if (status === "loading") return;
-
-      if (!userId) {
-        setIsLoading(false);
-        return;
-      }
-
-      try {
-        const favoritesData = await getUserFavoritesApi(userId);
-        setFavorites(favoritesData);
-      } catch (error) {
-        console.error("Error fetching favorites:", error);
-        toast.error("Error al cargar favoritos");
-      } finally {
-        setIsLoading(false);
-      }
-    };
-
     fetchFavorites();
-  }, [userId, status]);
+  }, [userId, status, favorites]); // ✅ Quitar 'favorites' de las dependencias para evitar loops
 
-  // Loading state
+
+
   if (status === "loading" || isLoading) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100">
@@ -58,7 +63,6 @@ export default function Favorites() {
     );
   }
 
-  // Not authenticated
   if (!session) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100 flex items-center justify-center">
@@ -77,7 +81,7 @@ export default function Favorites() {
             Necesitas iniciar sesión para ver tus productos favoritos
           </p>
           <Link
-            href="/auth/signin"
+            href="/login"
             className="inline-block px-6 py-3 bg-gradient-to-r from-blue-500 to-purple-600 text-white rounded-lg font-semibold hover:from-blue-600 hover:to-purple-700 transition-all duration-300"
           >
             Iniciar Sesión
@@ -90,14 +94,13 @@ export default function Favorites() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100">
       <div className="container mx-auto px-4 py-8">
-        {/* Header */}
         <motion.div
           initial={{ opacity: 0, y: -20 }}
           animate={{ opacity: 1, y: 0 }}
           className="mb-8"
         >
           <div className="flex items-center gap-4 mb-4">
-            <div className="w-12 h-12 bg-gradient-to-br from-red-500 to-pink-600 rounded-xl flex items-center justify-center">
+            <div className="w-12 h-12 bg-gradient-to-br from-red-600 to-pink-600 rounded-full flex items-center justify-center">
               <FaHeart className="w-6 h-6 text-white" />
             </div>
             <div>
@@ -115,9 +118,7 @@ export default function Favorites() {
           </div>
         </motion.div>
 
-        {/* Content */}
         {favorites.length === 0 ? (
-          // Empty state
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
@@ -145,7 +146,6 @@ export default function Favorites() {
             </Link>
           </motion.div>
         ) : (
-          // Products grid
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
@@ -154,7 +154,6 @@ export default function Favorites() {
           >
             {favorites
               .map((favorite, index) => {
-                // Verificar que el producto exista
                 if (!favorite.products) {
                   console.warn("Favorite without product:", favorite);
                   return null;
@@ -178,6 +177,7 @@ export default function Favorites() {
                         image_url: favorite.products.image_url,
                       }}
                       initialIsFavorite={true}
+                      // ✅ Ya no necesitas onToggleFavorite - el ProductCard se encarga
                     />
                   </motion.div>
                 );
@@ -186,7 +186,6 @@ export default function Favorites() {
           </motion.div>
         )}
 
-        {/* Bottom CTA */}
         {favorites.length > 0 && (
           <motion.div
             initial={{ opacity: 0 }}

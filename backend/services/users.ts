@@ -186,7 +186,7 @@ export const getUserFavoritesService = async (userId: number) => {
     where: { 
       user_id: userId,
       products: {
-        active: true // Solo productos activos
+        active: true 
       }
     },
     select: {
@@ -201,7 +201,6 @@ export const getUserFavoritesService = async (userId: number) => {
           price: true,
           stock: true,
           description: true,
-          // Obtener la imagen principal del producto
           images: {
             where: {
               is_primary: true

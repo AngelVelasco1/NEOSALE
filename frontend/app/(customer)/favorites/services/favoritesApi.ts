@@ -48,8 +48,8 @@ export const checkIfFavoriteApi = async (userId: number, productId: number): Pro
 
 export const getUserFavoritesApi = async (userId: number): Promise<Favorite[]> => {
   try {
-    const { data } = await api.get<{ success: boolean; data: Favorite[]; message: string }>(`/api/users/getUserFavorites/${userId}`);
-    return data.data || [];
+    const { data } = await api.get(`/api/users/getUserFavorites/${userId}`);
+    return data;
   } catch (error: any) {
     console.error('Error in getUserFavoritesApi:', error);
     throw error;
