@@ -176,3 +176,70 @@ export const checkIsFavoriteService = async (userId: number, productId: number) 
   });
   return isFavorite ? true : false;
 };
+
+export const getUserFavoritesService = async (userId: number) => {
+  if (!userId) {
+    throw new Error("ID de usuario es requerido");
+  }
+
+  const favorites = await prisma.favorites.findMany({
+    where: { 
+      user_id: userId,
+      products: {
+        active: true // Solo productos activos
+      }
+    },
+    select: {
+      id: true,
+      product_id: true,
+      user_id: true,
+      created_at: true,
+      products: {
+        select: {
+          id: true,
+          name: true,
+          price: true,
+          stock: true,
+          description: true,
+          // Obtener la imagen principal del producto
+          images: {
+            where: {
+              is_primary: true
+            },
+            select: {
+              image_url: true,
+              color: true,
+              color_code: true
+            },
+            take: 1
+          }
+        }
+      },
+    },
+    orderBy: {
+      created_at: 'desc'
+    }
+  });
+
+  const transformedFavorites = favorites.map(favorite => ({
+    id: favorite.id,
+    user_id: favorite.user_id,
+    product_id: favorite.product_id,
+    created_at: favorite.created_at,
+    products: {
+      id: favorite.products.id,
+      name: favorite.products.name,
+      price: favorite.products.price,
+      stock: favorite.products.stock,
+      description: favorite.products.description,
+      // Tomar el color e imagen principal, o valores por defecto
+      color: favorite.products.images[0]?.color || 'Sin especificar',
+      color_code: favorite.products.images[0]?.color_code || '#000000',
+      image_url: favorite.products.images[0]?.image_url || null
+    }
+  }));
+
+ 
+  
+  return transformedFavorites;
+};

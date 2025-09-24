@@ -2,9 +2,19 @@ import { api } from '@/config/api';
 
 export interface Favorite {
   id?: number;
-  userId: number;
-  productId: number;
-  createdAt?: string;
+  user_id: number;
+  product_id: number;
+  created_at?: string;
+  products: {
+    id: number;
+    name: string;
+    price: number;
+    stock: number;
+    description?: string;
+    color: string;
+    color_code: string;
+    image_url?: string | null;
+  };
 }
 
 export interface AddFavoriteData {
@@ -32,6 +42,16 @@ export const checkIfFavoriteApi = async (userId: number, productId: number): Pro
     return data.isFavorite;
   } catch (error: any) {
     if (error.response?.status === 404) return false;
+    throw error;
+  }
+};
+
+export const getUserFavoritesApi = async (userId: number): Promise<Favorite[]> => {
+  try {
+    const { data } = await api.get<{ success: boolean; data: Favorite[]; message: string }>(`/api/users/getUserFavorites/${userId}`);
+    return data.data || [];
+  } catch (error: any) {
+    console.error('Error in getUserFavoritesApi:', error);
     throw error;
   }
 };

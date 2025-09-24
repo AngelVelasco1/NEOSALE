@@ -6,7 +6,8 @@ import {
   updatePasswordService,
   addFavoriteService,
   removeFavoriteService,
-  checkIsFavoriteService
+  checkIsFavoriteService,
+  getUserFavoritesService
 } from "../services/users";
 
 export const registerUser = async (
@@ -119,6 +120,17 @@ export const checkIsFavorite = async (req: Request, res: Response, next: NextFun
 
     const isFavorite = await checkIsFavoriteService(userId, productId);
     res.json({ isFavorite });
+  } catch (error) {
+    next(error);
+  }
+}
+
+export const getUserFavorites = async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const userId = req.params.userId ? Number(req.params.userId) : undefined;
+
+    const favorites = await getUserFavoritesService(userId);
+    res.json(favorites);
   } catch (error) {
     next(error);
   }

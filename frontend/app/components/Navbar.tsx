@@ -186,8 +186,9 @@ export const Navbar = () => {
 
   return (
     <nav
-      className={`w-full py-2 backdrop-blur-2xl bg-white/60 sticky top-0 z-50 transition-all duration-300 ${isScrolled ? "bg-background/80" : "bg-background/60"
-        }`}
+      className={`w-full py-2 backdrop-blur-2xl bg-white/60 sticky top-0 z-50 transition-all duration-300 ${
+        isScrolled ? "bg-background/80" : "bg-background/60"
+      }`}
     >
       <div className="container mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16">
@@ -204,7 +205,10 @@ export const Navbar = () => {
                   <Menu className="h-5 w-5 group-hover:scale-110 transition-transform duration-200" />
                 </Button>
               </SheetTrigger>
-              <SheetContent side="left" className="w-80 backdrop-blur-xl border-r">
+              <SheetContent
+                side="left"
+                className="w-80 backdrop-blur-xl border-r"
+              >
                 <div className="flex flex-col gap-6 mt-8">
                   <Link
                     href="/"
@@ -265,13 +269,17 @@ export const Navbar = () => {
             <NavigationMenuList className="gap-1">
               <NavigationMenuItem>
                 <NavigationMenuLink asChild>
-                  <NavLink href="/" className="px-5">Inicio</NavLink>
+                  <NavLink href="/" className="px-5">
+                    Inicio
+                  </NavLink>
                 </NavigationMenuLink>
               </NavigationMenuItem>
 
               <NavigationMenuItem>
                 <NavigationMenuLink asChild>
-                  <NavLink href="/products" className="px-5">Productos</NavLink>
+                  <NavLink href="/products" className="px-5">
+                    Productos
+                  </NavLink>
                 </NavigationMenuLink>
               </NavigationMenuItem>
 
@@ -340,7 +348,9 @@ export const Navbar = () => {
 
               <NavigationMenuItem>
                 <NavigationMenuLink asChild>
-                  <NavLink href="/nosotros" className="px-5">Nosotros</NavLink>
+                  <NavLink href="/nosotros" className="px-5">
+                    Nosotros
+                  </NavLink>
                 </NavigationMenuLink>
               </NavigationMenuItem>
             </NavigationMenuList>
@@ -348,8 +358,8 @@ export const Navbar = () => {
 
           <div className="flex-1 max-w-fit hidden md:block">
             <div className="relative">
-{/*                   <SearchFilter searchTerm={filters.searchTerm} onSearchChange={(value) => updateFilter("searchTerm", value)} />
- */}            
+              {/*                   <SearchFilter searchTerm={filters.searchTerm} onSearchChange={(value) => updateFilter("searchTerm", value)} />
+               */}
 
               {isSearchFocused && searchQuery.length === 0 && (
                 <div className="absolute top-full left-0 right-0 mt-2 bg-card backdrop-blur-xl rounded-xl shadow-2xl border p-4 z-50">
@@ -377,7 +387,11 @@ export const Navbar = () => {
 
           {/* Actions Section - Mejor espaciado */}
           <div className="flex items-center gap-2">
-            <IconButton variant="heart" className="hidden md:flex w-10 h-10 ms-4">
+            <IconButton
+              variant="heart"
+              className="hidden md:flex w-10 h-10 ms-4"
+              onClick={() => router.push("/favorites")}
+            >
               <Heart className="h-5 w-5" />
             </IconButton>
 
