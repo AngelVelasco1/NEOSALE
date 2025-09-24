@@ -168,3 +168,37 @@ BEGIN
             RAISE EXCEPTION 'Error al agregar favorito en FN: %', SQLERRM;
 END;
 $$;
+
+CREATE OR REPLACE FUNCTION fn_remove_favorite(p_user_id INT, p_product_id INT)
+RETURNS BOOLEAN
+LANGUAGE plpgsql
+AS $$
+BEGIN
+    IF NOT EXISTS (SELECT 1 FROM "User" WHERE id = p_user_id) THEN
+        RAISE EXCEPTION 'Usuario no encontrado' USING ERRCODE = 'no_data_found';
+    END IF;
+
+    IF NOT EXISTS (SELECT 1 FROM products WHERE id = p_product_id) THEN
+        RAISE EXCEPTION 'Producto no encontrado' USING ERRCODE = 'no_data_found';
+    END IF;
+
+    IF NOT EXISTS (SELECT 1 FROM favorites WHERE user_id = p_user_id AND product_id = p_product_id) THEN
+        RAISE EXCEPTION 'El producto no está en favoritos' USING ERRCODE = 'no_data_found';
+    END IF;
+
+    DELETE FROM favorites WHERE user_id = p_user_id AND product_id = p_product_id;
+    RETURN TRUE;
+
+    EXCEPTION
+        WHEN not_null_violation THEN
+            RAISE EXCEPTION 'Campo obligatorio faltante al eliminar favorito: %', SQLERRM;
+        WHEN invalid_text_representation THEN
+            RAISE EXCEPTION 'Formato de texto inválido al eliminar favorito: %', SQLERRM;
+        WHEN no_data_found THEN
+            RAISE EXCEPTION 'No se puede eliminar favorito: usuario o producto no encontrado';
+        WHEN OTHERS THEN
+            RAISE EXCEPTION 'Error al eliminar favorito en FN: %', SQLERRM;
+END;
+$$;
+
+DELETE FROM favorites;

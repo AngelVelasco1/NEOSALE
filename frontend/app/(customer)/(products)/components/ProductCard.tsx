@@ -1,64 +1,121 @@
-"use client"
+"use client";
 
-import { addFavoriteApi } from "../../favorites/services/favoritesApi"
-import Image from "next/image"
-import Link from "next/link"
-import { Skeleton } from "@/components/ui/skeleton"
-import { motion } from "framer-motion"
-import type React from "react"
-import { useState } from "react"
-import { toast } from "sonner"
-import { FaHeart } from "react-icons/fa"
-import { useSession } from "next-auth/react"
-
+import {
+  addFavoriteApi,
+  removeFavoriteApi,
+  checkIfFavoriteApi,
+} from "../../favorites/services/favoritesApi";
+import Image from "next/image";
+import Link from "next/link";
+import { Skeleton } from "@/components/ui/skeleton";
+import { motion } from "framer-motion";
+import type React from "react";
+import { useState, useEffect } from "react";
+import { toast } from "sonner";
+import { FaHeart } from "react-icons/fa";
+import { useSession } from "next-auth/react";
 
 export interface IProduct {
-  id: string
-  name: string
-  price: number
-  stock: number
-  color: string
-  color_code: string
-  image_url?: string
+  id: string;
+  name: string;
+  price: number;
+  stock: number;
+  color: string;
+  color_code: string;
+  image_url?: string;
 }
 
 export interface ProductCardProps {
-  data: IProduct
+  data: IProduct;
+  initialIsFavorite?: boolean; // Prop para indicar si ya es favorito
 }
 
-export const ProductCard = ({ data }: ProductCardProps) => {
-  const [isFavorite, setIsFavorite] = useState(false)
-  const [isLoading, setIsLoading] = useState(false)
+export const ProductCard = ({
+  data,
+  initialIsFavorite = false,
+}: ProductCardProps) => {
+  const [isFavorite, setIsFavorite] = useState(initialIsFavorite);
+  const [isLoading, setIsLoading] = useState(false);
+  const [hasCheckedFavorite, setHasCheckedFavorite] = useState(false);
   const { data: session } = useSession();
   const userId = parseInt(session?.user?.id) || null;
 
+  // Verificar favorito solo una vez cuando el usuario está logueado
+  useEffect(() => {
+    const checkFavoriteStatus = async () => {
+      if (!userId || hasCheckedFavorite) return;
+
+      try {
+        const favorite = await checkIfFavoriteApi(userId, parseInt(data.id));
+        setIsFavorite(favorite);
+      } catch (error) {
+        console.error("Error checking favorite:", error);
+      } finally {
+        setHasCheckedFavorite(true);
+      }
+    };
+
+    checkFavoriteStatus();
+  }, [userId, data.id, hasCheckedFavorite]);
+
+  // Actualizar el estado si cambia la prop inicial
+  useEffect(() => {
+    setIsFavorite(initialIsFavorite);
+  }, [initialIsFavorite]);
+
   const handleAddToFavorites = async (e: React.MouseEvent) => {
-    e.preventDefault()
-    e.stopPropagation()
+    e.preventDefault();
+    e.stopPropagation();
 
     if (!userId) {
-      toast.error("Debes iniciar sesión para añadir favoritos")
-      return
+      toast.error("Debes iniciar sesión para añadir favoritos");
+      return;
     }
 
-    if (isLoading) return
+    if (isLoading) return;
 
-    setIsLoading(true)
+    setIsLoading(true);
     try {
-      await addFavoriteApi({ userId, productId: Number.parseInt(data.id) })
-      setIsFavorite(true)
-      toast.success("Producto añadido a favoritos")
-    } catch (error: any) {
-      if (error.response?.status === 409) {
-        toast.error("El producto ya está en favoritos")
-        setIsFavorite(true)
+      if (!isFavorite) {
+        // Añadir a favoritos
+        await addFavoriteApi({ userId, productId: Number.parseInt(data.id) });
+        setIsFavorite(true);
+        toast.success("Producto añadido a favoritos");
       } else {
-        toast.error("Error al añadir a favoritos")
+        // Remover de favoritos
+        await removeFavoriteApi({
+          userId,
+          productId: Number.parseInt(data.id),
+        });
+        setIsFavorite(false);
+        toast.success("Producto removido de favoritos");
+      }
+    } catch (error: any) {
+      console.error("Error al manejar favoritos:", error);
+
+      if (error.response?.status === 409) {
+        if (!isFavorite) {
+          toast.error("El producto ya está en favoritos");
+          setIsFavorite(true);
+        }
+      } else if (error.response?.status === 404) {
+        if (isFavorite) {
+          toast.error("El producto no está en favoritos");
+          setIsFavorite(false);
+        }
+      } else {
+        toast.error(
+          isFavorite
+            ? "Error al remover de favoritos"
+            : "Error al añadir a favoritos"
+        );
+        // Revertir el estado en caso de error
+        setIsFavorite(!isFavorite);
       }
     } finally {
-      setIsLoading(false)
+      setIsLoading(false);
     }
-  }
+  };
 
   return (
     <Link href={`/${data.id}`}>
@@ -104,7 +161,7 @@ export const ProductCard = ({ data }: ProductCardProps) => {
               whileHover={{ scale: 1.1 }}
               whileTap={{ scale: 0.9 }}
               transition={{ type: "spring", stiffness: 500, damping: 15 }}
-              disabled={isLoading || isFavorite}
+              disabled={isLoading}
             >
               {/* Glow effect background */}
               <motion.div
@@ -114,33 +171,34 @@ export const ProductCard = ({ data }: ProductCardProps) => {
                     : "bg-gradient-to-r from-slate-400 to-slate-500 opacity-0 group-hover/fav:opacity-40"
                 }`}
                 animate={{
-                  scale: isFavorite ? [1, 1.3, 1] : 1,
+                  scale: isFavorite || initialIsFavorite ? [1, 1.3, 1] : 1,
                 }}
                 transition={{
                   duration: 0.6,
                   repeat: isFavorite ? 2 : 0,
                 }}
               />
-              
+
               {/* Main button container */}
               <motion.div
                 className={`relative w-11 h-11 rounded-full backdrop-blur-xl border-2 flex items-center justify-center shadow-lg transition-all duration-500 ${
-                  isFavorite
+                  isFavorite || initialIsFavorite
                     ? "bg-gradient-to-br from-red-500 via-red-600 to-red-700 border-red-400 shadow-red-500/50"
                     : "bg-white/90 border-slate-300 shadow-slate-200 hover:border-red-400 hover:shadow-red-200/50"
                 }`}
                 animate={{
-                  boxShadow: isFavorite 
-                    ? [
-                        "0 4px 20px rgba(239, 68, 68, 0.3)",
-                        "0 8px 30px rgba(239, 68, 68, 0.5)",
-                        "0 4px 20px rgba(239, 68, 68, 0.3)"
-                      ] 
-                    : "0 4px 20px rgba(0, 0, 0, 0.1)",
+                  boxShadow:
+                    isFavorite || initialIsFavorite
+                      ? [
+                          "0 4px 20px rgba(239, 68, 68, 0.3)",
+                          "0 8px 30px rgba(239, 68, 68, 0.5)",
+                          "0 4px 20px rgba(239, 68, 68, 0.3)",
+                        ]
+                      : "0 4px 20px rgba(0, 0, 0, 0.1)",
                 }}
                 transition={{
                   duration: 1.5,
-                  repeat: isFavorite ? Infinity : 0,
+                  repeat: isFavorite || initialIsFavorite ? Infinity : 0,
                 }}
               >
                 <motion.div
@@ -154,13 +212,13 @@ export const ProductCard = ({ data }: ProductCardProps) => {
                     ease: "easeInOut",
                   }}
                 >
-<FaHeart 
-  className={`w-6 h-6 transition-all duration-300 ${
-    isFavorite 
-      ? "text-red-500 fill-current" 
-      : "text-slate-600 fill-none stroke-current stroke-2"
-  }`} 
-/>       
+                  <FaHeart
+                    className={`w-6 h-6 transition-all duration-300 ${
+                      isFavorite
+                        ? "text-white fill-current"
+                        : "text-slate-600 fill-none stroke-current stroke-2"
+                    }`}
+                  />
                 </motion.div>
 
                 {/* Sparkle particles effect when favorited */}
@@ -263,7 +321,9 @@ export const ProductCard = ({ data }: ProductCardProps) => {
                 />
                 <div className="absolute inset-0 rounded-full bg-gradient-to-br from-white/20 to-transparent" />
               </motion.div>
-              <span className="text-xs text-slate-500 capitalize font-medium">{data.color}</span>
+              <span className="text-xs text-slate-500 capitalize font-medium">
+                {data.color}
+              </span>
             </div>
           </div>
         </div>
@@ -279,5 +339,5 @@ export const ProductCard = ({ data }: ProductCardProps) => {
         <div className="absolute -inset-1 rounded-3xl border-2 border-blue-400/0 group-hover:border-blue-400/50 transition-colors duration-500 blur-sm" />
       </motion.div>
     </Link>
-  )
-}
+  );
+};

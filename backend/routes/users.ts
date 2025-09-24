@@ -1,5 +1,5 @@
 import { Router } from 'express';
-import { registerUser, getUserById, updateUser, updatePassword, addFavorite } from '../controllers/users';
+import { registerUser, getUserById, updateUser, updatePassword, addFavorite, removeFavorite, checkIsFavorite } from '../controllers/users';
 
 export const usersRoutes = () => {
     const app = Router();
@@ -8,5 +8,7 @@ export const usersRoutes = () => {
     app.put("/updateUser", updateUser)
     app.put("/updatePassword", updatePassword)
     app.post("/addFavorite", addFavorite) 
+    app.delete("/removeFavorite", removeFavorite)
+    app.get("/checkIsFavorite/:userId/:productId", checkIsFavorite)
     return app;
 }

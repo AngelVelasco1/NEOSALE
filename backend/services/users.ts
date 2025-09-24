@@ -152,3 +152,27 @@ export const addFavoriteService = async (userId: number, productId: number) => {
   await prisma.$executeRaw`SELECT fn_add_favorite(${userId}::int, ${productId}::int)`;
   return { success: true, message: "Producto agregado a favoritos" };
 };
+
+export const removeFavoriteService = async (userId: number, productId: number) => {
+  if (!userId || !productId) {
+    throw new Error("ID de usuario y ID de producto son requeridos");
+  }
+
+  await prisma.$executeRaw`SELECT fn_remove_favorite(${userId}::int, ${productId}::int)`;
+  return { success: true, message: "Producto eliminado de favoritos" };
+};
+
+
+export const checkIsFavoriteService = async (userId: number, productId: number) => {
+  if (!userId || !productId) {
+    throw new Error("ID de usuario y ID de producto son requeridos");
+  }
+
+  const isFavorite = await prisma.favorites.findFirst({
+    where: {
+      user_id: userId,
+      product_id: productId
+    }
+  });
+  return isFavorite ? true : false;
+};
