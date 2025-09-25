@@ -159,7 +159,7 @@ export const Navbar = () => {
   const { getCartProductCount } = useCart();
   const cartProductCount = getCartProductCount();
   const { favoritesCount } = useFavorites();
-   const [isScrolled, setIsScrolled] = useState(false);
+  const [isScrolled, setIsScrolled] = useState(false);
   const { userProfile } = useUserSafe();
   const mounted = useMounted();
   const searchRef = useRef<HTMLInputElement>(null);
@@ -389,42 +389,93 @@ export const Navbar = () => {
           </div>
 
           {/* Actions Section - Mejor espaciado */}
-<div className="flex items-center gap-2">
-  {/* ✅ Agregar relative al contenedor del botón de favoritos */}
-  <div className="relative">
-    <IconButton
-      variant="heart"
-      className="hidden md:flex w-10 h-10 ms-4"
-      onClick={() => router.push("/favorites")}
-    >
-      <Heart className="h-5 w-5" />
-    </IconButton>
-    {/* ✅ Badge fuera del IconButton, dentro del contenedor relativo */}
-    {favoritesCount > 0 && (
-      <Badge className="absolute -top-1 -right-1 h-5 w-5 rounded-full p-0 flex items-center justify-center text-xs bg-gradient-to-r from-pink-500 to-fuchsia-500 text-white shadow-lg ring-2 ring-background/80 font-bold">
-        {favoritesCount}
-      </Badge>
-    )}
-  </div>
+          <div className="flex items-center gap-2">
+            {/* ✅ Agregar relative al contenedor del botón de favoritos */}
+            <div className="relative">
+              <IconButton
+                variant="heart"
+                className="hidden md:flex w-10 h-10 ms-4"
+                onClick={() => router.push("/favorites")}
+              >
+                <Heart className="h-5 w-5" />
+              </IconButton>
+              {/* ✅ Badge fuera del IconButton, dentro del contenedor relativo */}
+              {favoritesCount > 0 && (
+                <Badge className="absolute -top-1 -right-1 h-5 w-5 rounded-full p-0 flex items-center justify-center text-xs bg-gradient-to-r from-pink-500 to-fuchsia-500 text-white shadow-lg ring-2 ring-background/80 font-bold">
+                  {favoritesCount}
+                </Badge>
+              )}
+            </div>
 
-  {/* ✅ Mantener el carrito igual - ya funciona */}
-  <IconButton
-    variant="cart"
-    onClick={() => router.push("/productsCart")}
-    className="relative w-10 h-10"
-  >
-    <ShoppingCart className="h-5 w-5" />   
-    {cartProductCount > 0 && (
-      <Badge className="absolute -top-1.5 -right-1.5 h-5 w-5 rounded-full p-0 flex items-center justify-center text-xs bg-gradient-to-r from-blue-500 to-cyan-500 text-white shadow-lg ring-2 ring-background/80 font-bold">
-        {cartProductCount}
-      </Badge>
-    )}
-  </IconButton>
+            {/* ✅ Mantener el carrito igual - ya funciona */}
+            <IconButton
+              variant="cart"
+              onClick={() => router.push("/productsCart")}
+              className="relative w-10 h-10"
+            >
+              <ShoppingCart className="h-5 w-5" />
+              {cartProductCount > 0 && (
+                <Badge className="absolute -top-1.5 -right-1.5 h-5 w-5 rounded-full p-0 flex items-center justify-center text-xs bg-gradient-to-r from-blue-500 to-cyan-500 text-white shadow-lg ring-2 ring-background/80 font-bold">
+                  {cartProductCount}
+                </Badge>
+              )}
+            </IconButton>
 
-  <div className="ml-2">
-    <ThemeToggle />
-  </div>
-</div>
+            <div className="ml-2">
+              <ThemeToggle />
+            </div>
+
+            {userProfile ? (
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <div className="flex items-center gap-2 h-10 px-3 rounded-xl hover:bg-accent transition-all duration-200 cursor-pointer hover:scale-105 ml-2">
+                    <div className="relative">
+                      <User className="h-4 w-4" />
+                      <div className="absolute -bottom-0.5 -right-0.5 w-2 h-2 bg-green-400 rounded-full border border-background shadow-sm"></div>
+                    </div>
+                    <ChevronDown className="h-3 w-3" />
+                  </div>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent
+                  align="end"
+                  className="w-64 bg-background/95 backdrop-blur-xl shadow-2xl border border-border/50 rounded-xl p-3"
+                >
+                  <div className="p-4 border-b border-border/50">
+                    <div className="flex items-center gap-3">
+                      <div className="w-10 h-10 bg-gradient-to-r from-blue-500 to-cyan-500 rounded-full flex items-center justify-center text-white text-sm font-bold shadow-lg">
+                        {userProfile?.name?.charAt(0).toUpperCase() || "U"}
+                      </div>
+                      <div className="font-bold font-montserrat">
+                        {userProfile?.name}
+                      </div>
+                    </div>
+                  </div>
+                  <DropdownMenuItem
+                    onClick={() => router.push("/profile")}
+                    className="hover:bg-accent hover:text-blue-600 cursor-pointer font-inter rounded-lg p-3 font-medium mt-2"
+                  >
+                    <User className="h-4 w-4 mr-3" />
+                    Mi Perfil
+                  </DropdownMenuItem>
+                  <DropdownMenuItem className="hover:bg-accent hover:text-blue-600 cursor-pointer font-inter rounded-lg p-3 font-medium">
+                    <ShoppingCart className="h-4 w-4 mr-3" />
+                    Mis Pedidos
+                  </DropdownMenuItem>
+                  <DropdownMenuSeparator className="my-2" />
+                  <DropdownMenuItem className="text-red-600 hover:bg-red-50 dark:hover:bg-red-950/20 rounded-lg p-3 font-medium">
+                    <SignOut />
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
+            ) : (
+              <Button
+                onClick={() => router.push("/login")}
+                className="h-10 ml-3 px-5 rounded-xl bg-gradient-to-r from-blue-600 to-indigo-500 text-white transition-all duration-300 hover:from-blue-700 hover:to-indigo-600 hover:shadow-lg hover:shadow-blue-500/25 hover:scale-105 font-inter shadow-md ring-1 ring-white/20 font-medium text-sm"
+              >
+                <span>Iniciar Sesión</span>
+              </Button>
+            )}
+          </div>
         </div>
       </div>
 

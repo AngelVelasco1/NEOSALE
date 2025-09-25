@@ -22,9 +22,7 @@ api.interceptors.request.use(
 );
 
 api.interceptors.response.use(
-  // Función para respuestas exitosas (status 2xx)
   (response) => {
-    // Verificar si el backend devolvió success: false con status 200
     if (response.data?.success === false) {
       console.log('El backend devolvió success false con status 200');
       const error = {
@@ -36,7 +34,6 @@ api.interceptors.response.use(
     return response;
   },
 
-  // Función para respuestas con error (status 4xx, 5xx)
   async (error) => {
     console.error("Error interceptado por Axios:", {
       message: error.message,
@@ -55,7 +52,6 @@ api.interceptors.response.use(
       }
     });
 
-    // Error de red/conexión (sin response)
     if (!error.response) {
       console.error('Error de red/conexión detectado');
       
@@ -107,7 +103,7 @@ api.interceptors.response.use(
         rawData: JSON.stringify(errorData)
       });
 
-      // Verificar si el backend devolvió el formato correcto
+   
       if (errorData?.success === false && errorData?.message && errorData?.code) {
         console.log('Error con formato correcto detectado:', {
           message: errorData.message,

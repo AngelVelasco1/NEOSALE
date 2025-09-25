@@ -14,7 +14,7 @@ import { useState, useEffect } from "react";
 import { toast } from "sonner";
 import { FaHeart } from "react-icons/fa";
 import { useSession } from "next-auth/react";
-import { useFavorites } from "../../favorites/context/useFavorites"; // ✅ Importar el hook
+import { useFavorites } from "../../favorites/context/useFavorites";
 
 export interface IProduct {
   id: string;
@@ -39,10 +39,9 @@ export const ProductCard = ({
   const [isLoading, setIsLoading] = useState(false);
   const [hasCheckedFavorite, setHasCheckedFavorite] = useState(false);
   const { data: session } = useSession();
-  const { refreshFavoritesCount } = useFavorites(); // ✅ Usar el hook
+  const { refreshFavoritesCount } = useFavorites();
   const userId = parseInt(session?.user?.id) || null;
 
-  // Verificar favorito solo una vez cuando el usuario está logueado
   useEffect(() => {
     const checkFavoriteStatus = async () => {
       if (!userId || hasCheckedFavorite) return;
@@ -60,7 +59,6 @@ export const ProductCard = ({
     checkFavoriteStatus();
   }, [userId, data.id, hasCheckedFavorite]);
 
-  // Actualizar el estado si cambia la prop inicial
   useEffect(() => {
     setIsFavorite(initialIsFavorite);
   }, [initialIsFavorite]);
@@ -79,11 +77,9 @@ export const ProductCard = ({
     setIsLoading(true);
     try {
       if (!isFavorite) {
-        // Añadir a favoritos
         await addFavoriteApi({ userId, productId: Number.parseInt(data.id) });
         setIsFavorite(true);
       } else {
-        // Remover de favoritos
         await removeFavoriteApi({
           userId,
           productId: Number.parseInt(data.id),
@@ -91,7 +87,6 @@ export const ProductCard = ({
         setIsFavorite(false);
       }
 
-      // ✅ Actualizar el contador del navbar después de cualquier cambio
       await refreshFavoritesCount();
     } catch (error: any) {
       console.error("Error al manejar favoritos:", error);
@@ -112,7 +107,6 @@ export const ProductCard = ({
             ? "Error al remover de favoritos"
             : "Error al añadir a favoritos"
         );
-        // Revertir el estado en caso de error
         setIsFavorite(!isFavorite);
       }
     } finally {
@@ -136,10 +130,8 @@ export const ProductCard = ({
           damping: 30,
         }}
       >
-        {/* Header section with stock badge and favorites button */}
         <div className="relative p-4 pb-0">
           <div className="flex justify-between items-start mb-4">
-            {/* Stock badge moved to top left */}
             <motion.div
               initial={{ scale: 0.8, opacity: 0 }}
               animate={{ scale: 1, opacity: 1 }}
@@ -156,7 +148,6 @@ export const ProductCard = ({
               </div>
             </motion.div>
 
-            {/* Improved Favorite Button */}
             <motion.button
               onClick={handleAddToFavorites}
               className="relative z-10 group/fav"
@@ -166,7 +157,6 @@ export const ProductCard = ({
               transition={{ type: "spring", stiffness: 500, damping: 15 }}
               disabled={isLoading}
             >
-              {/* Glow effect background */}
               <motion.div
                 className={`absolute inset-0 rounded-full blur-md transition-all duration-500 ${
                   isFavorite
@@ -237,7 +227,6 @@ export const ProductCard = ({
                 )}
               </motion.div>
 
-              {/* Pulse ring effect */}
               <motion.div
                 className={`absolute inset-0 rounded-full border-2 ${
                   isFavorite ? "border-red-400" : "border-slate-300"
@@ -255,7 +244,6 @@ export const ProductCard = ({
             </motion.button>
           </div>
 
-          {/* Product image */}
           <div className="relative aspect-square overflow-hidden rounded-xl bg-gradient-to-br from-white to-slate-50 border-2 border-slate-200 transition-colors duration-300 shadow-inner">
             {data.image_url ? (
               <Image
@@ -272,7 +260,6 @@ export const ProductCard = ({
           </div>
         </div>
 
-        {/* Product information */}
         <div className="p-4 pt-4 space-y-4">
           {/* Product name */}
           <motion.h3
@@ -283,7 +270,6 @@ export const ProductCard = ({
             {data.name}
           </motion.h3>
 
-          {/* Price and details */}
           <div className="flex justify-between items-end">
             <div className="space-y-1">
               <motion.p
@@ -297,8 +283,6 @@ export const ProductCard = ({
                 {data.stock > 0 ? `${data.stock} en stock` : "Sin stock"}
               </p>
             </div>
-
-            {/* Color indicator */}
             <div className="flex flex-col items-end space-y-2">
               <motion.div
                 className="relative"
@@ -319,13 +303,10 @@ export const ProductCard = ({
           </div>
         </div>
 
-        {/* Enhanced bottom accent line */}
         <div className="absolute bottom-0 left-0 right-0 h-1.5 bg-gradient-to-r from-blue-600 via-purple-600 to-indigo-600 transform scale-x-0 group-hover:scale-x-100 transition-transform duration-500 origin-left rounded-b-2xl" />
 
-        {/* Enhanced shine effect */}
         <div className="absolute inset-0 -translate-x-full group-hover:translate-x-full transition-transform duration-1000 bg-gradient-to-r from-transparent via-white/30 to-transparent skew-x-12" />
 
-        {/* Strong border glow on hover */}
         <div className="absolute inset-0 rounded-2xl border-2 border-transparent group-hover:border-blue-300/80 transition-colors duration-500" />
         <div className="absolute -inset-1 rounded-3xl border-2 border-blue-400/0 group-hover:border-blue-400/50 transition-colors duration-500 blur-sm" />
       </motion.div>

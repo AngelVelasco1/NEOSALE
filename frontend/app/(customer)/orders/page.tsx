@@ -1,13 +1,19 @@
 "use client";
 
-import React, { useState, useEffect } from 'react';
-import { useRouter } from 'next/navigation';
-import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
-import { Package, Calendar, CreditCard, MapPin, Eye } from 'lucide-react';
-import { ErrorsHandler } from '@/app/errors/errorsHandler';
-import { useUserSafe } from '../../(auth)/hooks/useUserSafe';
+import React, { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
+import { Button } from "@/components/ui/button";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { Package, Calendar, CreditCard, MapPin, Eye } from "lucide-react";
+import { ErrorsHandler } from "@/app/errors/errorsHandler";
+import { useUserSafe } from "../../(auth)/hooks/useUserSafe";
 
 // Interfaces para las órdenes
 interface OrderItem {
@@ -21,7 +27,7 @@ interface OrderItem {
 
 interface Order {
   id: number;
-  status: 'pending' | 'processing' | 'shipped' | 'delivered' | 'cancelled';
+  status: "pending" | "processing" | "shipped" | "delivered" | "cancelled";
   total: number;
   created_at: string;
   items: OrderItem[];
@@ -31,59 +37,58 @@ interface Order {
 
 // Simulación de API - reemplazar con tu API real
 const getUserOrdersApi = async (): Promise<Order[]> => {
-  // Aquí iría tu llamada real a la API
   return [
     {
       id: 1001,
-      status: 'delivered',
+      status: "delivered",
       total: 150000,
-      created_at: '2024-01-15T10:30:00Z',
+      created_at: "2024-01-15T10:30:00Z",
       items: [
         {
           id: 1,
-          product_name: 'Camiseta Nike Dri-FIT',
+          product_name: "Camiseta Nike Dri-FIT",
           quantity: 2,
           unit_price: 45000,
-          color_code: '#000000',
-          size: 'M'
+          color_code: "#000000",
+          size: "M",
         },
         {
           id: 2,
-          product_name: 'Pantalón Adidas',
+          product_name: "Pantalón Adidas",
           quantity: 1,
           unit_price: 60000,
-          color_code: '#0066CC',
-          size: 'L'
-        }
+          color_code: "#0066CC",
+          size: "L",
+        },
       ],
-      shipping_address: 'Calle 123 #45-67, Bogotá',
-      payment_method: 'Tarjeta de Crédito'
+      shipping_address: "Calle 123 #45-67, Bogotá",
+      payment_method: "Tarjeta de Crédito",
     },
     {
       id: 1002,
-      status: 'shipped',
+      status: "shipped",
       total: 89000,
-      created_at: '2024-01-20T14:15:00Z',
+      created_at: "2024-01-20T14:15:00Z",
       items: [
         {
           id: 3,
-          product_name: 'Zapatillas Puma',
+          product_name: "Zapatillas Puma",
           quantity: 1,
           unit_price: 89000,
-          color_code: '#FFFFFF',
-          size: '42'
-        }
+          color_code: "#FFFFFF",
+          size: "42",
+        },
       ],
-      shipping_address: 'Carrera 50 #30-20, Medellín',
-      payment_method: 'PSE'
-    }
+      shipping_address: "Carrera 50 #30-20, Medellín",
+      payment_method: "PSE",
+    },
   ];
 };
 
 export default function OrdersPage() {
   const router = useRouter();
   const { userProfile } = useUserSafe();
-  
+
   const [orders, setOrders] = useState<Order[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -93,22 +98,22 @@ export default function OrdersPage() {
     const fetchOrders = async () => {
       try {
         setIsLoading(true);
-        
+
         if (!userProfile) {
           ErrorsHandler.showError(
             "Inicia sesión",
             "Debes iniciar sesión para ver tus órdenes"
           );
-          router.push('/auth/login');
+          router.push("/auth/login");
           return;
         }
 
         const userOrders = await getUserOrdersApi();
         setOrders(userOrders);
-        
       } catch (err) {
-        console.error('Error loading orders:', err);
-        const errorMessage = err instanceof Error ? err.message : 'Error al cargar las órdenes';
+        console.error("Error loading orders:", err);
+        const errorMessage =
+          err instanceof Error ? err.message : "Error al cargar las órdenes";
         setError(errorMessage);
         ErrorsHandler.showError("Error", "No pudimos cargar tus órdenes");
       } finally {
@@ -120,13 +125,13 @@ export default function OrdersPage() {
   }, [userProfile, router]);
 
   // Función para obtener el color del badge según el estado
-  const getStatusBadge = (status: Order['status']) => {
+  const getStatusBadge = (status: Order["status"]) => {
     const statusConfig = {
-      pending: { label: 'Pendiente', variant: 'secondary' as const },
-      processing: { label: 'Procesando', variant: 'default' as const },
-      shipped: { label: 'Enviado', variant: 'outline' as const },
-      delivered: { label: 'Entregado', variant: 'default' as const },
-      cancelled: { label: 'Cancelado', variant: 'destructive' as const }
+      pending: { label: "Pendiente", variant: "secondary" as const },
+      processing: { label: "Procesando", variant: "default" as const },
+      shipped: { label: "Enviado", variant: "outline" as const },
+      delivered: { label: "Entregado", variant: "default" as const },
+      cancelled: { label: "Cancelado", variant: "destructive" as const },
     };
 
     const config = statusConfig[status];
@@ -139,12 +144,12 @@ export default function OrdersPage() {
 
   // Función para formatear fecha
   const formatDate = (dateString: string) => {
-    return new Date(dateString).toLocaleDateString('es-CO', {
-      year: 'numeric',
-      month: 'long',
-      day: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit'
+    return new Date(dateString).toLocaleDateString("es-CO", {
+      year: "numeric",
+      month: "long",
+      day: "numeric",
+      hour: "2-digit",
+      minute: "2-digit",
     });
   };
 
@@ -179,7 +184,6 @@ export default function OrdersPage() {
   return (
     <div className="py-6">
       <div className="max-w-7xl mx-auto px-4">
-        
         {/* Header */}
         <div className="mb-8">
           <h1 className="text-3xl font-bold text-gray-900">Mis Órdenes</h1>
@@ -199,15 +203,16 @@ export default function OrdersPage() {
               <p className="text-gray-600 mb-6">
                 Cuando hagas tu primera compra, aparecerá aquí
               </p>
-              <Button onClick={() => router.push('/')}>
-                Ir a la tienda
-              </Button>
+              <Button onClick={() => router.push("/")}>Ir a la tienda</Button>
             </CardContent>
           </Card>
         ) : (
           <div className="space-y-6">
             {orders.map((order) => (
-              <Card key={order.id} className="w-full hover:shadow-md transition-shadow">
+              <Card
+                key={order.id}
+                className="w-full hover:shadow-md transition-shadow"
+              >
                 <CardHeader>
                   <div className="flex items-center justify-between">
                     <div>
@@ -222,34 +227,43 @@ export default function OrdersPage() {
                     <div className="text-right">
                       {getStatusBadge(order.status)}
                       <p className="text-lg font-bold text-gray-900 mt-1">
-                        ${order.total.toLocaleString('es-CO')}
+                        ${order.total.toLocaleString("es-CO")}
                       </p>
                     </div>
                   </div>
                 </CardHeader>
-                
+
                 <CardContent className="space-y-4">
-                  
                   {/* Productos */}
                   <div>
-                    <h4 className="font-medium text-gray-900 mb-2">Productos:</h4>
+                    <h4 className="font-medium text-gray-900 mb-2">
+                      Productos:
+                    </h4>
                     <div className="space-y-2">
                       {order.items.map((item) => (
-                        <div key={item.id} className="flex items-center justify-between bg-gray-50 p-3 rounded-lg">
+                        <div
+                          key={item.id}
+                          className="flex items-center justify-between bg-gray-50 p-3 rounded-lg"
+                        >
                           <div className="flex items-center gap-3">
                             <div
                               className="w-4 h-4 rounded-full border"
                               style={{ backgroundColor: item.color_code }}
                             />
                             <div>
-                              <p className="font-medium text-sm">{item.product_name}</p>
+                              <p className="font-medium text-sm">
+                                {item.product_name}
+                              </p>
                               <p className="text-xs text-gray-600">
                                 Talla: {item.size} | Cantidad: {item.quantity}
                               </p>
                             </div>
                           </div>
                           <p className="font-medium text-sm">
-                            ${(item.unit_price * item.quantity).toLocaleString('es-CO')}
+                            $
+                            {(item.unit_price * item.quantity).toLocaleString(
+                              "es-CO"
+                            )}
                           </p>
                         </div>
                       ))}
@@ -270,22 +284,23 @@ export default function OrdersPage() {
 
                   {/* Acciones */}
                   <div className="flex gap-2 pt-4">
-                    <Button 
-                      variant="outline" 
+                    <Button
+                      variant="outline"
                       size="sm"
                       onClick={() => router.push(`/orders/${order.id}`)}
                     >
                       <Eye className="w-4 h-4 mr-2" />
                       Ver detalles
                     </Button>
-                    
-                    {order.status === 'delivered' && (
+
+                    {order.status === "delivered" && (
                       <Button variant="outline" size="sm">
                         Comprar de nuevo
                       </Button>
                     )}
-                    
-                    {(order.status === 'pending' || order.status === 'processing') && (
+
+                    {(order.status === "pending" ||
+                      order.status === "processing") && (
                       <Button variant="outline" size="sm">
                         Cancelar orden
                       </Button>

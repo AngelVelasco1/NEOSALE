@@ -6,33 +6,35 @@ import {
   processPaymentWebhook,
   getOrderByIdService,
   getUserOrdersService,
-  updateOrderStatusService
+  updateOrderStatusService,
 } from "../services/orders";
 import { Request, Response } from "express";
 
-// Crear una nueva orden y obtener el link de pago
 export const createOrder = async (
   req: Request,
   res: Response,
   next: NextFunction
 ) => {
   try {
-    const { productId, quantity, colorCode, size, shippingAddressId } = req.body;
+    const { productId, quantity, colorCode, size, shippingAddressId } =
+      req.body;
     const userId = req.user?.id;
 
     if (!userId) {
-      return res.status(401).json({ 
-        success: false, 
-        message: 'Usuario no autenticado' 
+      res.status(401).json({
+        success: false,
+        message: "Usuario no autenticado",
       });
+      return;
     }
 
-    // Validaciones básicas
     if (!productId || !quantity || quantity <= 0 || !shippingAddressId) {
-      return res.status(400).json({
+      res.status(400).json({
         success: false,
-        message: 'Datos de orden inválidos. Se requiere productId, quantity > 0 y shippingAddressId'
+        message:
+          "Datos de orden inválidos. Se requiere productId, quantity > 0 y shippingAddressId",
       });
+      return;
     }
 
     const result = await createOrderService({
@@ -41,20 +43,19 @@ export const createOrder = async (
       quantity,
       colorCode,
       size,
-      shippingAddressId
+      shippingAddressId,
     });
 
     res.status(201).json({
       success: true,
-      message: 'Orden creada exitosamente',
+      message: "Orden creada exitosamente",
       data: {
         orderId: result.orderId,
         paymentLink: result.paymentLink,
         preferenceId: result.preferenceId,
-        total: result.total
-      }
+        total: result.total,
+      },
     });
-
   } catch (err) {
     next(err);
   }
@@ -69,19 +70,19 @@ export const getProductWithVariants = async (
     const { productId } = req.params;
 
     if (!productId || isNaN(parseInt(productId))) {
-      return res.status(400).json({
+      res.status(400).json({
         success: false,
-        message: 'ID de producto inválido'
+        message: "ID de producto inválido",
       });
+      return;
     }
 
     const product = await getProductWithVariantsService(parseInt(productId));
 
     res.json({
       success: true,
-      data: product
+      data: product,
     });
-
   } catch (err) {
     next(err);
   }
@@ -99,7 +100,7 @@ export const checkVariantAvailability = async (
     if (!productId || !colorCode || !size) {
       return res.status(400).json({
         success: false,
-        message: 'Parámetros requeridos: productId, colorCode, size'
+        message: "Parámetros requeridos: productId, colorCode, size",
       });
     }
 
@@ -111,14 +112,12 @@ export const checkVariantAvailability = async (
 
     res.json({
       success: true,
-      data: availability
+      data: availability,
     });
-
   } catch (err) {
     next(err);
   }
 };
-
 
 // Webhook de MercadoPago
 export const handlePaymentWebhook = async (
@@ -130,10 +129,10 @@ export const handlePaymentWebhook = async (
     const { type, data } = req.body;
 
     // Verificar que sea un evento de pago
-    if (type !== 'payment') {
+    if (type !== "payment") {
       return res.status(200).json({
         success: true,
-        message: 'Evento no procesado'
+        message: "Evento no procesado",
       });
     }
 
@@ -141,11 +140,10 @@ export const handlePaymentWebhook = async (
 
     res.status(200).json({
       success: true,
-      message: 'Webhook procesado correctamente'
+      message: "Webhook procesado correctamente",
     });
-
   } catch (err) {
-    console.error('Error en webhook de MercadoPago:', err);
+    console.error("Error en webhook de MercadoPago:", err);
     next(err);
   }
 };
@@ -161,27 +159,26 @@ export const getOrderById = async (
     const userId = req.user?.id;
 
     if (!userId) {
-      return res.status(401).json({ 
-        success: false, 
-        message: 'Usuario no autenticado' 
+      return res.status(401).json({
+        success: false,
+        message: "Usuario no autenticado",
       });
     }
 
     const order = await getOrderByIdService(parseInt(orderId));
 
     // Verificar que la orden pertenece al usuario (excepto si es admin)
-    if (order.user_id !== userId && req.user?.role !== 'admin') {
+    if (order.user_id !== userId && req.user?.role !== "admin") {
       return res.status(403).json({
         success: false,
-        message: 'No tienes permisos para ver esta orden'
+        message: "No tienes permisos para ver esta orden",
       });
     }
 
     res.json({
       success: true,
-      data: order
+      data: order,
     });
-
   } catch (err) {
     next(err);
   }
@@ -197,9 +194,9 @@ export const getUserOrders = async (
     const userId = req.user?.id;
 
     if (!userId) {
-      return res.status(401).json({ 
-        success: false, 
-        message: 'Usuario no autenticado' 
+      return res.status(401).json({
+        success: false,
+        message: "Usuario no autenticado",
       });
     }
 
@@ -207,9 +204,8 @@ export const getUserOrders = async (
 
     res.json({
       success: true,
-      data: orders
+      data: orders,
     });
-
   } catch (err) {
     next(err);
   }
@@ -226,10 +222,13 @@ export const updateOrderStatus = async (
     const { status } = req.body;
 
     // Validar que el usuario es admin o que viene de webhook de MercadoPago
-    if (req.user?.role !== 'admin' && req.headers['x-webhook-source'] !== 'mercadopago') {
+    if (
+      req.user?.role !== "admin" &&
+      req.headers["x-webhook-source"] !== "mercadopago"
+    ) {
       return res.status(403).json({
         success: false,
-        message: 'No tienes permisos para actualizar esta orden'
+        message: "No tienes permisos para actualizar esta orden",
       });
     }
 
@@ -237,10 +236,9 @@ export const updateOrderStatus = async (
 
     res.json({
       success: true,
-      message: 'Estado de orden actualizado',
-      data: order
+      message: "Estado de orden actualizado",
+      data: order,
     });
-
   } catch (err) {
     next(err);
   }

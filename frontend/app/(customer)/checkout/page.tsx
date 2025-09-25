@@ -65,7 +65,7 @@ export default function CheckoutPage() {
   }, [cartProducts, cartLoading, router]);
 
   const subtotal = cartProducts && cartProducts.length > 0 ? getSubTotal() : 0;
-  const shipping = subtotal >= 100000 ? 0 : 10000;
+  const shipping = 0;
   const taxes = subtotal * 0.19;
   const total = subtotal + shipping + taxes;
 

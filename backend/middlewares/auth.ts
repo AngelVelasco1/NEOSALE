@@ -26,7 +26,7 @@ export const authMiddleware = {
     if (!token) {
       return res.status(401).json({
         success: false,
-        message: 'Token de acceso requerido'
+        message: 'Token de acceso requerido0'
       });
     }
 
@@ -149,7 +149,6 @@ export const authMiddleware = {
   }
 };
 
-// También mantenemos las exportaciones individuales para compatibilidad con código existente
 export const authenticateToken = authMiddleware.verifyToken;
 export const requireAdmin = authMiddleware.isAdmin;
 export const optionalAuth = authMiddleware.optional;

@@ -225,3 +225,6 @@ UPDATE products SET stock = (
     WHERE pv.product_id = products.id AND pv.active = TRUE
 );
 
+UPDATE products SET price = 50 WHERE name = 'PlayStation 5';
+update products SET description = 'Nueva descripción del Producto D' WHERE name = 'Producto D';
+select * from products;

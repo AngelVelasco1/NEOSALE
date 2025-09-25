@@ -52,12 +52,13 @@ export const getCartService = async (user_id: number) => {
 
     const selectedImage = selectedColorImage || fallbackImage;
 
-    return {
+   return {
       id: item.products.id,
       color_code: item.color_code,
       name: item.products.name,
-      price: item.products.price,
+      price: Number(item.products.price), // Asegurarse que sea número
       quantity: item.quantity,
+      description: item.products.description || `${item.products.name} - Color: ${item.color_code} - Talla: ${item.size}`,
       size: item.size,
       total: item.quantity * item.unit_price, 
       stock: variant?.stock || 0,
@@ -65,6 +66,7 @@ export const getCartService = async (user_id: number) => {
       alt_text: selectedImage?.color_code ? 
         `${item.products.name} color ${selectedImage.color_code}` : 
         item.products.name,
+      category: item.products.categories?.name || 'general' 
     };
   });
 
