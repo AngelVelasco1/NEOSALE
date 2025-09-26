@@ -1,10 +1,10 @@
 import { Request, Response, NextFunction } from "express";
 import {
-  processCardPayment,
-  processWebhook,
-  getPaymentDetails,
-  createPaymentPreference,
-  getPreferenceDetails,
+  processCardPaymentService,
+  processWebhookService,
+  getPaymentDetailsService,
+  createPaymentPreferenceService,
+  getPreferenceDetailsService,
 } from "../services/payments";
 
 export const addPaymentController = async (req: Request, res: Response) => {
@@ -42,27 +42,6 @@ export const addPaymentController = async (req: Request, res: Response) => {
       return;
     }
 
-    if (!email.includes("@")) {
-      res.status(400).json({
-        success: false,
-        message: "Email inválido",
-      });
-      return;
-    }
-
-    if (
-      identificationType &&
-      identificationType !== "none" &&
-      !identificationNumber
-    ) {
-      res.status(400).json({
-        success: false,
-        message:
-          "Si especifica tipo de identificación, debe proporcionar el número",
-      });
-      return;
-    }
-
     if (identificationNumber && identificationNumber.length < 6) {
       res.status(400).json({
         success: false,
@@ -71,7 +50,7 @@ export const addPaymentController = async (req: Request, res: Response) => {
       return;
     }
 
-    const payment = await processCardPayment({
+    const payment = await processCardPaymentService({
       user_id: Number(user_id),
       amount: Number(amount),
       email: email.toLowerCase().trim(),
@@ -113,13 +92,13 @@ export const addPaymentController = async (req: Request, res: Response) => {
 
 export const handleWebhookController = async (req: Request, res: Response) => {
   try {
-    await processWebhook(req.body);
+    await processWebhookService(req.body);
     res.status(200).json({
       success: true,
       message: "Webhook procesado correctamente",
     });
   } catch (error: unknown) {
-    console.error("❌ Error procesando webhook:", error);
+    console.error("Error procesando webhook:", error);
     res.status(500).json({
       success: false,
       message: "Error procesando webhook",
@@ -143,7 +122,7 @@ export const getPaymentStatusController = async (
       return;
     }
 
-    const paymentDetails = await getPaymentDetails(id);
+    const paymentDetails = await getPaymentDetailsService(id);
 
     res.json({
       success: true,
@@ -254,14 +233,14 @@ export const createPreferenceController = async (
       return;
     }
 
-    console.log("📝 Creando preferencia de pago:", {
+    console.log("Creando preferencia de pago:", {
       title,
       quantity: quantity || 1,
       unit_price,
       currency_id,
     });
 
-    const preference = await createPaymentPreference({
+    const preference = await createPaymentPreferenceService({
       title,
       quantity: quantity || 1,
       unit_price: Number(unit_price),
@@ -280,7 +259,7 @@ export const createPreferenceController = async (
       },
     });
   } catch (error: unknown) {
-    console.error("❌ Error creando preferencia:", error);
+    console.error("Error creando preferencia:", error);
     res.status(500).json({
       success: false,
       message: "Error creando preferencia de pago",
@@ -307,7 +286,7 @@ export const getPreferenceController = async (
 
     console.log(`🔍 Consultando preferencia: ${id}`);
 
-    const preference = await getPreferenceDetails(id);
+    const preference = await getPreferenceDetailsService(id);
 
     res.status(200).json({
       success: true,

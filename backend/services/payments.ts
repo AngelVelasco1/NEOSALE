@@ -1,12 +1,12 @@
-import { MercadoPagoConfig, Payment, Preference } from "mercadopago";
+import { Payment, Preference } from "mercadopago";
 import { getCartService } from "./cart";
+import { createMPClient } from "../config/credentials";
 import {
   adjustAmountForTesting,
   analyzePaymentError,
   getPaymentErrorMessage,
 } from "../utils/paymentTestUtils";
 
-// ✅ Interfaces de tipos
 interface PaymentData {
   user_id: number;
   amount: number;
@@ -26,29 +26,26 @@ interface PreferenceData {
   external_reference?: string;
 }
 
-interface PaymentStatusData {
-  payment_id: string;
+interface WebhookData {
+  id: string;
+  live_mode: boolean;
+  type: string;
+  date_created: string;
+  application_id: string;
+  user_id: string;
+  version: string;
+  api_version: string;
+  action: string;
+  data: any;
 }
 
-const validateMPCredentials = () => {
-  const token = process.env.MP_ACCESS_TOKEN;
-
-  if (!token) {
-    throw new Error("Access Token de MercadoPago no configurado");
-  }
-
-  return token;
-};
-
-// ✅ Servicio principal de procesamiento de pagos
-export const processCardPayment = async (
+export const processCardPaymentService = async (
   paymentData: PaymentData
 ): Promise<any> => {
   try {
-    // 🛡️ LIMITE DE PRUEBA: Ajustar montos automáticamente
     const adjustedAmount = adjustAmountForTesting(paymentData.amount);
 
-    console.log("🔄 Iniciando procesamiento de pago con Checkout API:", {
+    console.log("Iniciando proceso de pago:", {
       originalAmount: paymentData.amount,
       adjustedAmount: adjustedAmount,
       email: paymentData.email,
@@ -64,34 +61,20 @@ export const processCardPayment = async (
       isTestEnvironment: process.env.NODE_ENV === "development",
     });
 
-    // ✅ Validar datos esenciales
     if (!paymentData.user_id) {
       throw new Error("ID de usuario requerido para procesar el pago");
     }
-
     if (!paymentData.amount || paymentData.amount <= 0) {
       throw new Error("Monto inválido para procesar el pago");
     }
-
     if (!paymentData.token) {
       throw new Error("Token de tarjeta requerido para procesar el pago");
     }
-
     if (!paymentData.email) {
       throw new Error("Email es requerido para procesar el pago");
     }
 
-    const accessToken = validateMPCredentials();
-
-    const client = new MercadoPagoConfig({
-      accessToken,
-      options: {
-        timeout: 10000,
-        integratorId: "dev_24c65fb163bf11ea96500242ac130004",
-      },
-    });
-
-    // Obtener items del carrito para información adicional
+    const client = createMPClient();
     const cartItems = await getCartService(paymentData.user_id);
     const mpItems = cartItems.map((item: any) => ({
       id: item.id?.toString() || "unknown",
@@ -111,7 +94,6 @@ export const processCardPayment = async (
 
     const payment = new Payment(client);
 
-    // Construir el payload base
     const paymentPayload: any = {
       transaction_amount: adjustedAmount,
       token: paymentData.token,
@@ -130,7 +112,6 @@ export const processCardPayment = async (
       capture: true,
     };
 
-    // ✅ Agregar información de identificación si está disponible
     if (paymentData.identificationType && paymentData.identificationNumber) {
       paymentPayload.payer.identification = {
         type: paymentData.identificationType,
@@ -138,16 +119,11 @@ export const processCardPayment = async (
       };
     }
 
-    console.log(
-      "📤 Payload completo a MercadoPago:",
-      JSON.stringify(paymentPayload, null, 2)
-    );
-
     const result = await payment.create({
       body: paymentPayload,
     });
 
-    console.log("✅ Respuesta de MercadoPago:", {
+    console.log("Respuesta de MercadoPago:", {
       id: result.id,
       status: result.status,
       status_detail: result.status_detail,
@@ -157,7 +133,6 @@ export const processCardPayment = async (
       wasAmountAdjusted: adjustedAmount !== paymentData.amount,
     });
 
-    // 🔍 Analizar error específico si el pago fue rechazado
     if (result.status === "rejected") {
       const errorAnalysis = analyzePaymentError(
         result.status,
@@ -165,21 +140,18 @@ export const processCardPayment = async (
       );
       const userMessage = getPaymentErrorMessage(result.status_detail || "");
 
-      console.warn("❌ Pago rechazado:", {
+      console.warn("Pago rechazado:", {
         status_detail: result.status_detail,
         isRateLimit: errorAnalysis.isRateLimit,
         suggestedAmount: errorAnalysis.suggestedAmount,
         canRetry: errorAnalysis.canRetry,
       });
-
-      // Lanzar error con mensaje específico para el frontend
       throw new Error(userMessage);
     }
 
     return result;
   } catch (error: unknown) {
     console.error("Error en processCardPayment:", error);
-    console.error("Error type:", typeof error);
     console.error(
       "Error keys:",
       error && typeof error === "object" ? Object.keys(error) : "N/A"
@@ -221,23 +193,17 @@ export const processCardPayment = async (
           );
       }
     }
-
-    // Manejo genérico de errores
-    if (error instanceof Error) {
-      throw error;
-    }
-
-    // Último recurso para errores desconocidos
     throw new Error(
       `Error desconocido en el procesamiento del pago: ${String(error)}`
     );
   }
 };
 
-// ✅ Servicio para procesar webhook
-export const processWebhook = async (webhookData: any): Promise<void> => {
+export const processWebhookService = async (
+  webhookData: WebhookData
+): Promise<void> => {
   try {
-    console.log("📬 Procesando webhook de MercadoPago:", {
+    console.log("Procesando webhook de MercadoPago:", {
       id: webhookData.id,
       live_mode: webhookData.live_mode,
       type: webhookData.type,
@@ -249,20 +215,6 @@ export const processWebhook = async (webhookData: any): Promise<void> => {
       action: webhookData.action,
       data: webhookData.data,
     });
-
-    // Aquí puedes agregar lógica para procesar diferentes tipos de webhook
-    switch (webhookData.type) {
-      case "payment":
-        console.log("💳 Webhook de pago recibido");
-        // Procesar actualización de pago
-        break;
-      case "subscription":
-        console.log("� Webhook de suscripción recibido");
-        // Procesar actualización de suscripción
-        break;
-      default:
-        console.log(`📋 Webhook de tipo ${webhookData.type} recibido`);
-    }
   } catch (error: unknown) {
     console.error("Error procesando webhook:", error);
     throw new Error(
@@ -273,28 +225,20 @@ export const processWebhook = async (webhookData: any): Promise<void> => {
   }
 };
 
-// ✅ Servicio para consultar estado de pago
-export const getPaymentDetails = async (paymentId: string): Promise<any> => {
+export const getPaymentDetailsService = async (
+  paymentId: string
+): Promise<any> => {
   try {
-    const accessToken = validateMPCredentials();
-
-    const client = new MercadoPagoConfig({
-      accessToken,
-      options: {
-        timeout: 10000,
-        integratorId: "dev_24c65fb163bf11ea96500242ac130004",
-      },
-    });
-
+    const client = createMPClient();
     const payment = new Payment(client);
 
-    console.log(`🔍 Consultando pago ID: ${paymentId}`);
+    console.log(`Consultando pago ID: ${paymentId}`);
 
     const result = await payment.get({
       id: paymentId,
     });
 
-    console.log("✅ Detalles del pago obtenidos:", {
+    console.log("Detalles del pago obtenidos:", {
       id: result.id,
       status: result.status,
       status_detail: result.status_detail,
@@ -312,24 +256,11 @@ export const getPaymentDetails = async (paymentId: string): Promise<any> => {
   }
 };
 
-// ✅ Servicio para crear preferencias de pago
-export const createPaymentPreference = async (preferenceData: {
-  title: string;
-  quantity: number;
-  unit_price: number;
-  currency_id?: string;
-}): Promise<any> => {
+export const createPaymentPreferenceService = async (
+  preferenceData: PreferenceData
+): Promise<any> => {
   try {
-    const accessToken = validateMPCredentials();
-
-    const client = new MercadoPagoConfig({
-      accessToken,
-      options: {
-        timeout: 10000,
-        integratorId: "dev_24c65fb163bf11ea96500242ac130004",
-      },
-    });
-
+    const client = createMPClient();
     const preference = new Preference(client);
 
     const preferencePayload = {
@@ -342,9 +273,9 @@ export const createPaymentPreference = async (preferenceData: {
           currency_id: preferenceData.currency_id || "COP",
         },
       ],
-      external_reference: `PREF-${Date.now()}-${Math.random()
-        .toString(36)
-        .substr(2, 9)}`,
+      external_reference:
+        preferenceData.external_reference ||
+        `PREF-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
       back_urls: {
         success: `${process.env.BACKEND_URL}/api/payments/success`,
         failure: `${process.env.BACKEND_URL}/api/payments/failure`,
@@ -356,18 +287,18 @@ export const createPaymentPreference = async (preferenceData: {
         excluded_payment_types: [],
         installments: 12,
       },
+      payer: preferenceData.payer_email
+        ? {
+            email: preferenceData.payer_email,
+          }
+        : undefined,
     };
-
-    console.log(
-      "� Creando preferencia de pago:",
-      JSON.stringify(preferencePayload, null, 2)
-    );
 
     const result = await preference.create({
       body: preferencePayload,
     });
 
-    console.log("✅ Preferencia creada:", {
+    console.log("Preferencia creada:", {
       id: result.id,
       init_point: result.init_point,
       sandbox_init_point: result.sandbox_init_point,
@@ -384,28 +315,18 @@ export const createPaymentPreference = async (preferenceData: {
   }
 };
 
-// ✅ Servicio para consultar preferencias de pago
-export const getPreferenceDetails = async (preferenceId: string) => {
+export const getPreferenceDetailsService = async (
+  preferenceId: string
+): Promise<any> => {
   try {
-    const accessToken = validateMPCredentials();
-
-    const client = new MercadoPagoConfig({
-      accessToken,
-      options: {
-        timeout: 10000,
-        integratorId: "dev_24c65fb163bf11ea96500242ac130004",
-      },
-    });
-
+    const client = createMPClient();
     const preference = new Preference(client);
-
-    console.log(`🔍 Consultando preferencia ID: ${preferenceId}`);
 
     const result = await preference.get({
       preferenceId: preferenceId,
     });
 
-    console.log("✅ Detalles de la preferencia obtenidos:", {
+    console.log("Detalles de la preferencia obtenidos:", {
       id: result.id,
       external_reference: result.external_reference,
       items_count: result.items?.length || 0,
