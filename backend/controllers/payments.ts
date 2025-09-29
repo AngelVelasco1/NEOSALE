@@ -4,7 +4,7 @@ import {
   processWebhookService,
   getPaymentDetailsService,
   createPaymentPreferenceService,
-  getPreferenceDetailsService,
+  getPreferenceService,
 } from "../services/payments";
 
 export const addPaymentController = async (req: Request, res: Response) => {
@@ -233,13 +233,6 @@ export const createPreferenceController = async (
       return;
     }
 
-    console.log("Creando preferencia de pago:", {
-      title,
-      quantity: quantity || 1,
-      unit_price,
-      currency_id,
-    });
-
     const preference = await createPaymentPreferenceService({
       title,
       quantity: quantity || 1,
@@ -247,7 +240,7 @@ export const createPreferenceController = async (
       currency_id,
     });
 
-    res.json({
+    res.status(201).json({
       success: true,
       message: "Preferencia de pago creada exitosamente",
       data: {
@@ -283,10 +276,7 @@ export const getPreferenceController = async (
       });
       return;
     }
-
-    console.log(`🔍 Consultando preferencia: ${id}`);
-
-    const preference = await getPreferenceDetailsService(id);
+    const preference = await getPreferenceService(id);
 
     res.status(200).json({
       success: true,

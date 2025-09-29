@@ -24,6 +24,13 @@ interface PreferenceData {
   currency_id?: string;
   payer_email?: string;
   external_reference?: string;
+  items?: Array<{
+    id: string;
+    title: string;
+    description?: string;
+    quantity: number;
+    unit_price: number;
+  }>;
 }
 
 interface WebhookData {
@@ -264,24 +271,38 @@ export const createPaymentPreferenceService = async (
     const preference = new Preference(client);
 
     const preferencePayload = {
-      items: [
+      items: preferenceData.items?.map((item) => ({
+        id: item.id,
+        title: item.title,
+        description: item.description,
+        quantity: item.quantity,
+        currency_id: "COP",
+        unit_price: item.unit_price,
+      })) || [
         {
           id: `item-${Date.now()}`,
           title: preferenceData.title,
           quantity: preferenceData.quantity,
           unit_price: preferenceData.unit_price,
-          currency_id: preferenceData.currency_id || "COP",
+          currency_id: "COP",
         },
       ],
-      external_reference:
-        preferenceData.external_reference ||
-        `PREF-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
       back_urls: {
         success: `${process.env.BACKEND_URL}/api/payments/success`,
         failure: `${process.env.BACKEND_URL}/api/payments/failure`,
         pending: `${process.env.BACKEND_URL}/api/payments/pending`,
       },
       auto_return: "approved",
+      external_reference:
+        preferenceData.external_reference ||
+        `PREF-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
+      notification_url: `${process.env.BACKEND_URL}/api/payments/webhook`,
+      statement_descriptor: "MI TIENDA",
+      expires: true,
+      expiration_date_from: new Date().toISOString(),
+      expiration_date_to: new Date(
+        Date.now() + 24 * 60 * 60 * 1000
+      ).toISOString(),
       payment_methods: {
         excluded_payment_methods: [],
         excluded_payment_types: [],
@@ -315,7 +336,7 @@ export const createPaymentPreferenceService = async (
   }
 };
 
-export const getPreferenceDetailsService = async (
+export const getPreferenceService = async (
   preferenceId: string
 ): Promise<any> => {
   try {
