@@ -1,7 +1,7 @@
 import { NextFunction } from "express-serve-static-core";
 import {
-  createOrderService,
-  getProductWithVariantsService,
+  /*   createOrderService,
+   */ getProductWithVariantsService,
   checkVariantAvailabilityService,
   processPaymentWebhook,
   getOrderByIdService,
@@ -10,7 +10,7 @@ import {
 } from "../services/orders";
 import { Request, Response } from "express";
 
-export const createOrder = async (
+/* export const createOrder = async (
   req: Request,
   res: Response,
   next: NextFunction
@@ -60,7 +60,7 @@ export const createOrder = async (
     next(err);
   }
 };
-
+ */
 export const getProductWithVariants = async (
   req: Request,
   res: Response,

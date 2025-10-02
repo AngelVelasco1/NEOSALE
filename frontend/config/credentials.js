@@ -5,7 +5,7 @@ const {
   NEXT_PUBLIC_HOST = 'localhost',
   NEXT_PUBLIC_PORT = '8000',
   NEXT_PUBLIC_FRONT_PORT = '3000',
-  NEXT_PUBLIC_MP_PUBLIC_KEY = '' // ✅ Solo valor por defecto
+  NEXT_PUBLIC_MP_PUBLIC_KEY = '' 
 } = process.env;
 
 // ✅ Construir API_ORIGIN después de la destructuración

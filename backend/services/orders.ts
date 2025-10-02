@@ -1,6 +1,5 @@
 import { BACK_CONFIG } from "../config/credentials";
 import { prisma } from "../lib/prisma";
-import MercadoPagoConfig, { Preference, Payment } from "mercadopago";
 
 // Tipos específicos para órdenes
 interface CreateOrderRequest {
@@ -19,7 +18,7 @@ interface CreateOrderResponse {
   total: number;
 }
 
-export const createOrderService = async ({
+/* export const createOrderService = async ({
   userId,
   items,
   shippingAddressId
@@ -206,8 +205,7 @@ export const createOrderService = async ({
     console.error('Error in createOrderService:', error);
     throw new Error(error instanceof Error ? error.message : 'Error al crear la orden');
   }
-};
-
+}; */
 
 export const getProductWithVariantsService = async (productId: number) => {
   try {
@@ -217,42 +215,54 @@ export const getProductWithVariantsService = async (productId: number) => {
         brands: true,
         categories: {
           include: {
-            subcategory: true
-          }
+            subcategory: true,
+          },
         },
         product_variants: {
           where: { active: true },
-          orderBy: [
-            { color_code: 'asc' },
-            { size: 'asc' }
-          ]
-        }
-      }
+          orderBy: [{ color_code: "asc" }, { size: "asc" }],
+        },
+      },
     });
 
     if (!product) {
-      throw new Error('Producto no encontrado');
+      throw new Error("Producto no encontrado");
     }
 
     // Calcular precio final con ofertas
     let finalPrice = product.price;
-    if (product.in_offer && product.offer_discount && product.offer_end_date && new Date() < product.offer_end_date) {
-      const discountAmount = product.price * (Number(product.offer_discount) / 100);
+    if (
+      product.in_offer &&
+      product.offer_discount &&
+      product.offer_end_date &&
+      new Date() < product.offer_end_date
+    ) {
+      const discountAmount =
+        product.price * (Number(product.offer_discount) / 100);
       finalPrice = Math.round(product.price - discountAmount);
     }
 
     return {
       ...product,
       finalPrice,
-      hasOffer: product.in_offer && product.offer_end_date && new Date() < product.offer_end_date,
-      availableColors: [...new Set(product.product_variants.map(v => v.color_code))],
-      availableSizes: [...new Set(product.product_variants.map(v => v.size))],
-      totalStock: product.product_variants.reduce((sum, variant) => sum + variant.stock, 0)
+      hasOffer:
+        product.in_offer &&
+        product.offer_end_date &&
+        new Date() < product.offer_end_date,
+      availableColors: [
+        ...new Set(product.product_variants.map((v) => v.color_code)),
+      ],
+      availableSizes: [...new Set(product.product_variants.map((v) => v.size))],
+      totalStock: product.product_variants.reduce(
+        (sum, variant) => sum + variant.stock,
+        0
+      ),
     };
-
   } catch (error) {
-    console.error('Error in getProductWithVariantsService:', error);
-    throw new Error(error instanceof Error ? error.message : 'Error al obtener el producto');
+    console.error("Error in getProductWithVariantsService:", error);
+    throw new Error(
+      error instanceof Error ? error.message : "Error al obtener el producto"
+    );
   }
 };
 
@@ -267,11 +277,11 @@ export const checkVariantAvailabilityService = async (
         product_id: productId,
         color_code: colorCode,
         size: size,
-        active: true
+        active: true,
       },
       include: {
-        products: true
-      }
+        products: true,
+      },
     });
 
     if (!variant) {
@@ -279,7 +289,7 @@ export const checkVariantAvailabilityService = async (
         available: false,
         stock: 0,
         price: null,
-        message: 'Variante no encontrada'
+        message: "Variante no encontrada",
       };
     }
 
@@ -287,8 +297,14 @@ export const checkVariantAvailabilityService = async (
     let finalPrice = variant.price || product.price;
 
     // Aplicar ofertas si están activas
-    if (product.in_offer && product.offer_discount && product.offer_end_date && new Date() < product.offer_end_date) {
-      const discountAmount = finalPrice * (Number(product.offer_discount) / 100);
+    if (
+      product.in_offer &&
+      product.offer_discount &&
+      product.offer_end_date &&
+      new Date() < product.offer_end_date
+    ) {
+      const discountAmount =
+        finalPrice * (Number(product.offer_discount) / 100);
       finalPrice = Math.round(finalPrice - discountAmount);
     }
 
@@ -297,16 +313,21 @@ export const checkVariantAvailabilityService = async (
       stock: variant.stock,
       price: finalPrice,
       originalPrice: variant.price || product.price,
-      hasOffer: product.in_offer && product.offer_end_date && new Date() < product.offer_end_date,
-      message: variant.stock > 0 ? 'Disponible' : 'Sin stock'
+      hasOffer:
+        product.in_offer &&
+        product.offer_end_date &&
+        new Date() < product.offer_end_date,
+      message: variant.stock > 0 ? "Disponible" : "Sin stock",
     };
-
   } catch (error) {
-    console.error('Error in checkVariantAvailabilityService:', error);
-    throw new Error(error instanceof Error ? error.message : 'Error al verificar disponibilidad');
+    console.error("Error in checkVariantAvailabilityService:", error);
+    throw new Error(
+      error instanceof Error
+        ? error.message
+        : "Error al verificar disponibilidad"
+    );
   }
 };
-
 
 export const getOrderByIdService = async (orderId: number) => {
   try {
@@ -318,56 +339,60 @@ export const getOrderByIdService = async (orderId: number) => {
             products: {
               include: {
                 brands: true,
-                categories: true
-              }
-            }
-          }
+                categories: true,
+              },
+            },
+          },
         },
         users: {
-          select: { id: true, name: true, email: true }
+          select: { id: true, name: true, email: true },
         },
-        coupons: true
-      }
+        coupons: true,
+      },
     });
 
     if (!order) {
-      throw new Error('Orden no encontrada');
+      throw new Error("Orden no encontrada");
     }
 
     return order;
-
   } catch (error) {
-    console.error('Error in getOrderByIdService:', error);
-    throw new Error(error instanceof Error ? error.message : 'Error al obtener la orden');
+    console.error("Error in getOrderByIdService:", error);
+    throw new Error(
+      error instanceof Error ? error.message : "Error al obtener la orden"
+    );
   }
 };
 
-export const updateOrderStatusService = async (orderId: number, status: string) => {
+export const updateOrderStatusService = async (
+  orderId: number,
+  status: string
+) => {
   try {
     const order = await prisma.orders.update({
       where: { id: orderId },
-      data: { 
-        status: status as any, 
-        updated_at: new Date()
+      data: {
+        status: status as any,
+        updated_at: new Date(),
       },
       include: {
         order_items: {
           include: {
             products: {
               include: {
-                product_variants: true
-              }
-            }
-          }
+                product_variants: true,
+              },
+            },
+          },
         },
         users: {
-          select: { id: true, name: true, email: true }
-        }
-      }
+          select: { id: true, name: true, email: true },
+        },
+      },
     });
 
     // Si el pago fue aprobado, reducir el stock del producto/variante
-    if (status === 'paid') {
+    if (status === "paid") {
       for (const item of order.order_items) {
         if (item.color_code && item.size) {
           // Reducir stock de la variante específica
@@ -375,13 +400,13 @@ export const updateOrderStatusService = async (orderId: number, status: string) 
             where: {
               product_id: item.product_id,
               color_code: item.color_code,
-              size: item.size
+              size: item.size,
             },
             data: {
               stock: {
-                decrement: item.quantity
-              }
-            }
+                decrement: item.quantity,
+              },
+            },
           });
         } else {
           // Reducir stock del producto general
@@ -389,19 +414,20 @@ export const updateOrderStatusService = async (orderId: number, status: string) 
             where: { id: item.product_id },
             data: {
               stock: {
-                decrement: item.quantity
-              }
-            }
+                decrement: item.quantity,
+              },
+            },
           });
         }
       }
     }
 
     return order;
-
   } catch (error) {
-    console.error('Error in updateOrderStatusService:', error);
-    throw new Error(error instanceof Error ? error.message : 'Error al actualizar la orden');
+    console.error("Error in updateOrderStatusService:", error);
+    throw new Error(
+      error instanceof Error ? error.message : "Error al actualizar la orden"
+    );
   }
 };
 
@@ -415,42 +441,45 @@ export const getUserOrdersService = async (userId: number) => {
             products: {
               include: {
                 brands: true,
-                categories: true
-              }
-            }
-          }
+                categories: true,
+              },
+            },
+          },
         },
-        coupons: true
+        coupons: true,
       },
       orderBy: {
-        created_at: 'desc'
-      }
+        created_at: "desc",
+      },
     });
 
     return orders;
-
   } catch (error) {
-    console.error('Error in getUserOrdersService:', error);
-    throw new Error(error instanceof Error ? error.message : 'Error al obtener las órdenes');
+    console.error("Error in getUserOrdersService:", error);
+    throw new Error(
+      error instanceof Error ? error.message : "Error al obtener las órdenes"
+    );
   }
 };
 
 // Procesar webhook de MercadoPago
-export const processPaymentWebhook = async (paymentId: string): Promise<void> => {
+export const processPaymentWebhook = async (
+  paymentId: string
+): Promise<void> => {
   try {
-    console.log('Processing MercadoPago webhook for payment ID:', paymentId);
-    
+    console.log("Processing MercadoPago webhook for payment ID:", paymentId);
+
     // Configurar MercadoPago
     const mercadopago = new MercadoPagoConfig({
-      accessToken: BACK_CONFIG.mercado_pago_access_token
+      accessToken: BACK_CONFIG.mercado_pago_access_token,
     });
 
     // Consultar el pago en MercadoPago
     const paymentResource = new Payment(mercadopago);
     const payment = await paymentResource.get({ id: paymentId });
-    
+
     if (!payment.external_reference) {
-      console.warn('Payment without external_reference:', paymentId);
+      console.warn("Payment without external_reference:", paymentId);
       return;
     }
 
@@ -458,11 +487,11 @@ export const processPaymentWebhook = async (paymentId: string): Promise<void> =>
 
     // Buscar la orden en la base de datos
     const order = await prisma.orders.findUnique({
-      where: { id: orderId }
+      where: { id: orderId },
     });
 
     if (!order) {
-      console.warn('Order not found for external_reference:', orderId);
+      console.warn("Order not found for external_reference:", orderId);
       return;
     }
 
@@ -471,22 +500,22 @@ export const processPaymentWebhook = async (paymentId: string): Promise<void> =>
     let paymentStatus: string;
 
     switch (payment.status) {
-      case 'approved':
-        orderStatus = 'paid';
-        paymentStatus = 'approved';
+      case "approved":
+        orderStatus = "paid";
+        paymentStatus = "approved";
         break;
-      case 'pending':
-        orderStatus = 'pending';
-        paymentStatus = 'pending';
+      case "pending":
+        orderStatus = "pending";
+        paymentStatus = "pending";
         break;
-      case 'rejected':
-      case 'cancelled':
-        orderStatus = 'pending';
-        paymentStatus = 'rejected';
+      case "rejected":
+      case "cancelled":
+        orderStatus = "pending";
+        paymentStatus = "rejected";
         break;
       default:
         orderStatus = order.status;
-        paymentStatus = payment.status || '';
+        paymentStatus = payment.status || "";
     }
 
     // Actualizar la orden
@@ -498,14 +527,15 @@ export const processPaymentWebhook = async (paymentId: string): Promise<void> =>
       data: {
         payment_status: paymentStatus,
         transaction_id: paymentId,
-        paid_at: payment.status === 'approved' ? new Date() : null
-      }
+        paid_at: payment.status === "approved" ? new Date() : null,
+      },
     });
 
-    console.log(`Order ${orderId} updated with status: ${orderStatus}, payment: ${paymentStatus}`);
-    
+    console.log(
+      `Order ${orderId} updated with status: ${orderStatus}, payment: ${paymentStatus}`
+    );
   } catch (error) {
-    console.error('Error processing payment webhook:', error);
+    console.error("Error processing payment webhook:", error);
     throw error;
   }
 };

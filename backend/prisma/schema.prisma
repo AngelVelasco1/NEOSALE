@@ -1,8 +1,6 @@
 generator client {
   provider      = "prisma-client-js"
   binaryTargets = ["native", "windows"]
-  // Forzar descarga específica
-  engineType    = "binary"
 }
 
 datasource db {

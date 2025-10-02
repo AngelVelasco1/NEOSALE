@@ -1,7 +1,7 @@
 import { Router } from "express";
 import {
-  createOrder,
-  getProductWithVariants,
+  /*   createOrder,
+   */ getProductWithVariants,
   checkVariantAvailability,
   handlePaymentWebhook,
   getOrderById,
@@ -13,8 +13,8 @@ import {
 export const ordersRoutes = () => {
   const app = Router();
 
-  app.post("/create", createOrder);
-
+  /*   app.post("/create", createOrder);
+   */
   app.get("/product/:productId/variants", getProductWithVariants);
 
   app.get(
