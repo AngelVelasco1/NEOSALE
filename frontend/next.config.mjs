@@ -7,7 +7,6 @@ const __dirname = path.dirname(__filename);
 
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  // Permitir orígenes de desarrollo para solicitudes cross-origin
   allowedDevOrigins: [`${FRONT_CONFIG.host}:${FRONT_CONFIG.front_port}`, `${FRONT_CONFIG.api_origin}`],
   
   images: {

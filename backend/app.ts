@@ -16,13 +16,11 @@ app.use(
   })
 );
 
-app.use(express.json({ limit: "10mb" }));
 app.use(express.urlencoded({ extended: true }));
 
 app.get("/", (req, res) => {
   res.json({ 
     message: "API is running",
-    status: "healthy",
     timestamp: new Date().toISOString()
   });
 });
@@ -43,7 +41,6 @@ app.listen(Number(BACK_CONFIG.port), "0.0.0.0", () => {
 });
 
 process.on("SIGINT", async () => {
-  console.log("Cerrando servidor...");
   await prisma.$disconnect();
   console.log("Servidor cerrado correctamente");
   process.exit();

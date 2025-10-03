@@ -200,11 +200,11 @@ INSERT INTO orders (status, subtotal, discount, shipping_cost, taxes, total, pay
 ('pending', 71200, 0, 8000, 11392, 90592, 'pse', 'pending', NULL, NULL, 7, NULL, 7, NULL, 7);
 
 -- 17. ITEMS DE ÓRDENES
-INSERT INTO order_items (price, quantity, subtotal, product_id, order_id) VALUES
-(71200, 1, 71200, 1, 1),
-(320000, 1, 320000, 6, 1),
-(120000, 1, 120000, 4, 2),
-(71200, 1, 71200, 1, 3);
+INSERT INTO order_items (price, quantity, subtotal, color_code, size, product_id, order_id) VALUES
+(71200, 1, 71200, '#000000', 'M', 1, 1),
+(320000, 1, 320000, '#000000', '40', 6, 1),
+(120000, 1, 120000, '#4ECDC4', 'S', 4, 2),
+(71200, 1, 71200, '#000000', 'M', 1, 3);
 
 -- 18. LOGS DE ÓRDENES
 INSERT INTO order_logs (previous_status, new_status, note, order_id, updated_by, user_type) VALUES
@@ -224,7 +224,3 @@ UPDATE products SET stock = (
     FROM product_variants pv
     WHERE pv.product_id = products.id AND pv.active = TRUE
 );
-
-UPDATE products SET price = 50 WHERE name = 'PlayStation 5';
-update products SET description = 'Nueva descripción del Producto D' WHERE name = 'Producto D';
-select * from products;
