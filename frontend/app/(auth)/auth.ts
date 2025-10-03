@@ -8,10 +8,10 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
   ...authConfig,
    session: {
     strategy: "jwt",
-        maxAge: 14400,
+        maxAge: 3600,
   },
   jwt: {
-    maxAge: 14400
+    maxAge: 3600
   },
   callbacks: {
     async jwt({ token, user }) {

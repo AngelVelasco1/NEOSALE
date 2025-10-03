@@ -19,7 +19,7 @@
     "incremental": true,
     "forceConsistentCasingInFileNames": true,
     "allowImportingTsExtensions": true,
-     "baseUrl": ".", // Esto es importante
+     "baseUrl": ".", 
     "paths": {
       "@/*": ["./*"]
     },
