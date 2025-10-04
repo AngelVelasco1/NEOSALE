@@ -2,7 +2,7 @@ import { NextFunction } from "express-serve-static-core";
 import {
   getProductsService,
   getLatestProductsService,
-  getVariantStockService
+  getVariantStockService,
 } from "../services/products.js";
 import { Request, Response } from "express";
 
@@ -20,7 +20,11 @@ export const getProducts = async (
   }
 };
 
-export const getLatestProducts = async (req: Request, res: Response, next: NextFunction) => {
+export const getLatestProducts = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
   try {
     const products = await getLatestProductsService();
     res.status(200).json(products);
@@ -29,15 +33,20 @@ export const getLatestProducts = async (req: Request, res: Response, next: NextF
   }
 };
 
-export const getVariantStock = async (req: Request, res: Response, next: NextFunction) => {
+export const getVariantStock = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
   try {
     const { id, color_code, size } = req.body;
 
     if (!id || !color_code || !size) {
-      return res.status(400).json({
+      res.status(400).json({
         error: "Faltan parámetros requeridos",
         required: ["product_id", "color_code", "size"],
       });
+      return;
     }
 
     const productVariant = await getVariantStockService(id, color_code, size);

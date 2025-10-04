@@ -463,7 +463,7 @@ export const getUserOrdersService = async (userId: number) => {
 };
 
 // Procesar webhook de MercadoPago
-export const processPaymentWebhook = async (
+/* export const processPaymentWebhook = async (
   paymentId: string
 ): Promise<void> => {
   try {
@@ -539,3 +539,4 @@ export const processPaymentWebhook = async (
     throw error;
   }
 };
+ */

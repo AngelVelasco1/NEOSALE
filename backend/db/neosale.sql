@@ -1,5 +1,5 @@
 CREATE DATABASE neosale;
-
+-- Eliminar Tablas y enums
 DROP TABLE IF EXISTS review_images;
 DROP TABLE IF EXISTS favorites;
 DROP TABLE IF EXISTS order_logs;
@@ -9,7 +9,6 @@ DROP TABLE IF EXISTS images;
 DROP TABLE IF EXISTS reviews;
 DROP TABLE IF EXISTS "Account";
 
--- 2. Tablas con dependencias intermedias
 DROP TABLE IF EXISTS product_variants;
 DROP TABLE IF EXISTS orders;
 DROP TABLE IF EXISTS cart;
@@ -18,50 +17,19 @@ DROP TABLE IF EXISTS products;
 DROP TABLE IF EXISTS coupons;
 DROP TABLE IF EXISTS category_subcategory;
 
--- 3. Tablas base (referenciadas por otras)
 DROP TABLE IF EXISTS categories;
 DROP TABLE IF EXISTS subcategories;
 DROP TABLE IF EXISTS brands;
 DROP TABLE IF EXISTS "User";
-
--- 4. Tablas de NextAuth que no se usan en el esquema principal
 DROP TABLE IF EXISTS "verificationtoken";
-
--- TIPOS ENUM
-DO $$ BEGIN
-    IF NOT EXISTS (SELECT 1 FROM pg_type WHERE typname = 'payment_method_enum') THEN
-        CREATE TYPE payment_method_enum AS ENUM ('paypal', 'efecty', 'pse', 'credit_card', 'debit_card', 'mercadopago');
-    END IF;
-
-    IF NOT EXISTS (SELECT 1 FROM pg_type WHERE typname = 'orders_status_enum') THEN
-        CREATE TYPE orders_status_enum AS ENUM ('pending', 'confirmed', 'paid', 'processing', 'shipped', 'delivered', 'cancelled', 'refunded');
-    END IF;
-
-    IF NOT EXISTS (SELECT 1 FROM pg_type WHERE typname = 'roles_enum') THEN
-        CREATE TYPE roles_enum AS ENUM ('user', 'admin');
-    END IF;
-
-    IF NOT EXISTS (SELECT 1 FROM pg_type WHERE typname = 'notification_type_enum') THEN
-        CREATE TYPE notification_type_enum AS ENUM (
-            'order_confirmed',     -- Orden confirmada
-            'order_shipped',       -- Orden enviada
-            'order_delivered',     -- Orden entregada
-            'price_drop',          -- Bajada de precio
-            'back_in_stock',       -- Producto disponible
-            'review_request',      -- Solicitud de review
-            'promotion'            -- Promoción especial
-        );
-    END IF;
-
-    IF NOT EXISTS (SELECT 1 FROM pg_type WHERE typname = 'return_status_enum') THEN
-        CREATE TYPE return_status_enum AS ENUM ('requested', 'approved', 'rejected', 'processed', 'refunded');
-    END IF;
-END $$;
-
 
 DO $$ BEGIN
     IF EXISTS (SELECT 1 FROM pg_type WHERE typname = 'payment_method_enum') THEN
         DROP TYPE payment_method_enum;
+    END IF;
+
+    IF EXISTS (SELECT 1 FROM pg_type WHERE typname = 'payment_status_enum') THEN
+        DROP TYPE payment_status_enum;
     END IF;
 
     IF EXISTS (SELECT 1 FROM pg_type WHERE typname = 'orders_status_enum') THEN
@@ -81,8 +49,56 @@ DO $$ BEGIN
     END IF;
 END $$;
 
--- CREACION DE TABLAS 
+-- TIPOS ENUM
+DO $$ BEGIN
+       CREATE TYPE payment_method_enum AS ENUM (
+            'PSE', 
+            'CARD', 
+            'NEQUI', 
+            'BANCOLOMBIA',
+            'BANCOLOMBIA_TRANSFER'
+        );
+        
+        CREATE TYPE payment_status_enum AS ENUM (
+            'PENDING',    -- Pendiente (inicial)
+            'APPROVED',   -- Aprobada 
+            'DECLINED',   -- Rechazada 
+            'VOIDED',     -- Anulada (solo tarjetas)
+            'ERROR'       -- Error en procesamiento
+        );
 
+       CREATE TYPE orders_status_enum AS ENUM (
+            'pending',      -- Pendiente
+            'paid',         -- Pagada (cuando payment_status = 'APPROVED')
+            'processing',   -- Procesando
+            'shipped',      -- Enviada
+            'delivered',    -- Entregada
+            'cancelled',    -- Cancelada
+            'refunded'      -- Reembolsada
+        );
+
+       CREATE TYPE roles_enum AS ENUM ('user', 'admin');
+  
+       CREATE TYPE notification_type_enum AS ENUM (
+            'order_confirmed',     -- Orden confirmada
+            'order_shipped',       -- Orden enviada
+            'order_delivered',     -- Orden entregada
+            'price_drop',          -- Bajada de precio
+            'back_in_stock',       -- Producto disponible
+            'review_request',      -- Solicitud de review
+            'promotion'            -- Promoción especial
+        );
+
+        CREATE TYPE return_status_enum AS ENUM (
+            'requested', 
+            'approved', 
+            'rejected', 
+            'processed', 
+            'refunded'
+        );
+END $$;
+
+-- Tablas
 CREATE TABLE "User" (
     id SERIAL PRIMARY KEY,
     name VARCHAR(255) NOT NULL,
@@ -223,34 +239,109 @@ CREATE TABLE cart (
     CONSTRAINT chk_cart_user_or_session CHECK (user_id IS NOT NULL OR session_token IS NOT NULL)
 );
 
-CREATE TABLE orders (
+
+
+CREATE TABLE payments (
     id SERIAL PRIMARY KEY,
-    status orders_status_enum NOT NULL,
+    
+    -- Identificadores únicos
+    transaction_id VARCHAR(255) UNIQUE,      -- ID de Wompi
+    reference VARCHAR(255) NOT NULL UNIQUE, -- NEOSALE_202410041234
+    
+    -- Información monetaria (en centavos)
+    amount_in_cents INTEGER NOT NULL,
+    currency VARCHAR(3) DEFAULT 'COP' NOT NULL,
+    
+    -- Estado del pago
+    payment_status payment_status_enum DEFAULT 'PENDING' NOT NULL,
+    status_message VARCHAR(500),
+    processor_response_code VARCHAR(20),
+    
+    -- Método de pago
+    payment_method payment_method_enum NOT NULL,
+    payment_method_details JSONB DEFAULT '{}', -- brand, last_four, installments, etc.
+    
+    -- Tokens y seguridad
+    card_token VARCHAR(255),
+    acceptance_token TEXT,
+    acceptance_token_auth TEXT,
+    signature_used VARCHAR(255),
+    
+    -- URLs
+    redirect_url VARCHAR(500),
+    checkout_url VARCHAR(500),
+    
+    -- Datos del cliente
+    customer_email VARCHAR(255) NOT NULL,
+    customer_phone VARCHAR(20),
+    customer_document_type VARCHAR(10),
+    customer_document_number VARCHAR(20),
+    
+    -- Datos de la compra (para crear la orden después)
+    cart_data JSONB NOT NULL, -- Productos, cantidades, precios
+    shipping_address JSONB NOT NULL, -- Dirección de envío
+    user_id INTEGER NOT NULL REFERENCES "User"(id),
+    
+    -- Timestamps
+    created_at TIMESTAMP(6) DEFAULT CURRENT_TIMESTAMP NOT NULL,
+    updated_at TIMESTAMP(6) DEFAULT CURRENT_TIMESTAMP NOT NULL,
+    approved_at TIMESTAMP(6),
+    failed_at TIMESTAMP(6),
+    
+    -- Auditoría
+    processor_response JSONB DEFAULT '{}',
+    
+    -- Constraints
+    CONSTRAINT chk_payment_amount CHECK (amount_in_cents > 0),
+    CONSTRAINT chk_payment_currency CHECK (currency IN ('COP', 'USD')),
+    CONSTRAINT chk_payment_customer_email CHECK (customer_email ~* '^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}$'),
+    CONSTRAINT chk_payment_phone CHECK (customer_phone ~ '^3\d{9}$' OR customer_phone IS NULL),
+    CONSTRAINT chk_payment_document_type CHECK (customer_document_type IN ('CC', 'CE', 'PP', 'TI', 'NIT', 'DNI', 'RG', 'OTHER') OR customer_document_type IS NULL)
+);
+
+CREATE TABLE orders (
+    id SERIAL PRIMARY KEY,  
+    payment_id INTEGER NOT NULL REFERENCES payments(id) ON DELETE CASCADE, 
+    status orders_status_enum NOT NULL DEFAULT 'pending',  
+    -- Información monetaria (copiada del payment)
     subtotal INTEGER NOT NULL,
     discount INTEGER DEFAULT 0,
     shipping_cost INTEGER NOT NULL,
     taxes INTEGER NOT NULL,
     total INTEGER NOT NULL,
-    payment_method payment_method_enum NOT NULL,
-    payment_status VARCHAR(20) DEFAULT 'pending',
-    transaction_id VARCHAR(255),
-    paid_at TIMESTAMP(6),
-    shipping_address_id INTEGER NOT NULL,
-    user_note VARCHAR(255),
-    created_at TIMESTAMP(6) DEFAULT CURRENT_TIMESTAMP NOT NULL,
+    
+    -- Información de envío
+    shipping_address_id INTEGER NOT NULL REFERENCES addresses(id),
+    user_note VARCHAR(500),
+    admin_notes TEXT,
+    
+    -- Cupones (opcional)
+    coupon_id INTEGER REFERENCES coupons(id) ON DELETE SET NULL,
+    coupon_discount INTEGER DEFAULT 0,
+    
+    -- Logística
+    tracking_number VARCHAR(100),
+    carrier VARCHAR(50),
+    estimated_delivery_date DATE,
+    
+    -- Timestamps de estados
+    created_at TIMESTAMP(6) DEFAULT CURRENT_TIMESTAMP NOT NULL, -- Cuando se aprobó el pago
     updated_at TIMESTAMP(6),
     shipped_at TIMESTAMP(6),
     delivered_at TIMESTAMP(6),
-    updated_by INTEGER NOT NULL,
-    user_id INTEGER NOT NULL REFERENCES "User"(id) ON DELETE NO ACTION,
-    coupon_id INTEGER REFERENCES coupons(id) ON DELETE NO ACTION,
+    cancelled_at TIMESTAMP(6),
     
+    -- Usuario
+    user_id INTEGER NOT NULL REFERENCES "User"(id) ON DELETE NO ACTION,
+    updated_by INTEGER NOT NULL REFERENCES "User"(id),
+    
+    -- Constraints
     CONSTRAINT chk_order_subtotal CHECK (subtotal > 0),
     CONSTRAINT chk_order_discount CHECK (discount >= 0),
     CONSTRAINT chk_order_shipping_cost CHECK (shipping_cost >= 0),
     CONSTRAINT chk_order_taxes CHECK (taxes >= 0),
     CONSTRAINT chk_order_total CHECK (total > 0),
-    CONSTRAINT chk_order_payment_status CHECK (payment_status IN ('pending', 'paid', 'failed'))
+    CONSTRAINT chk_order_coupon_discount CHECK (coupon_discount >= 0)
 );
 
 CREATE TABLE "Account" (

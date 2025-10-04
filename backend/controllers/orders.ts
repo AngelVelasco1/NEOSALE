@@ -3,7 +3,6 @@ import {
   /*   createOrderService,
    */ getProductWithVariantsService,
   checkVariantAvailabilityService,
-  processPaymentWebhook,
   getOrderByIdService,
   getUserOrdersService,
   updateOrderStatusService,
@@ -120,7 +119,7 @@ export const checkVariantAvailability = async (
 };
 
 // Webhook de MercadoPago
-export const handlePaymentWebhook = async (
+/* export const handlePaymentWebhook = async (
   req: Request,
   res: Response,
   next: NextFunction
@@ -147,7 +146,7 @@ export const handlePaymentWebhook = async (
     next(err);
   }
 };
-
+ */
 // Obtener una orden por ID
 export const getOrderById = async (
   req: Request,

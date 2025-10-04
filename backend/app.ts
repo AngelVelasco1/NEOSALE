@@ -10,29 +10,30 @@ const app = express();
 app.use(
   cors({
     origin: BACK_CONFIG.cors_origin,
-    methods: ["GET", "POST", "PUT", "DELETE", "PATCH"], 
+    methods: ["GET", "POST", "PUT", "DELETE", "PATCH"],
     credentials: true,
-    allowedHeaders: ['Content-Type', 'Authorization']
+    allowedHeaders: ["Content-Type", "Authorization"],
   })
 );
 
+app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
 app.get("/", (req, res) => {
-  res.json({ 
+  res.json({
     message: "API is running",
-    timestamp: new Date().toISOString()
+    timestamp: new Date().toISOString(),
   });
 });
 app.use("/api", initRoutes());
 
 app.use((req, res, next) => {
   const error = new Error(`Ruta ${req.originalUrl} no encontrada`);
-  error.name = 'NotFoundError';
+  error.name = "NotFoundError";
   next(error);
 });
 
-app.use(errorsHandler)
+app.use(errorsHandler);
 
 app.listen(Number(BACK_CONFIG.port), "0.0.0.0", () => {
   console.log(

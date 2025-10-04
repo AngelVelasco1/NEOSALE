@@ -19,7 +19,8 @@
     "bcryptjs": "^3.0.2",
     "cors": "^2.8.5",
     "express": "^5.1.0",
-    "mercadopago": "^2.8.0"
+    "mercadopago": "^2.8.0",
+    "router": "^2.2.0"
   },
   "devDependencies": {
     "@types/bcrypt": "^5.0.2",

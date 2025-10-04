@@ -3,8 +3,8 @@ import {
   /*   createOrder,
    */ getProductWithVariants,
   checkVariantAvailability,
-  handlePaymentWebhook,
-  getOrderById,
+  /*   handlePaymentWebhook,
+   */ getOrderById,
   getUserOrders,
   updateOrderStatus,
 } from "../controllers/orders";
@@ -25,8 +25,6 @@ export const ordersRoutes = () => {
   app.get("/user-orders", getUserOrders);
   app.get("/:orderId", getOrderById);
   app.patch("/:orderId/status", updateOrderStatus); // Sin auth para webhooks
-
-  app.post("/webhook/mercadopago", handlePaymentWebhook);
 
   return app;
 };

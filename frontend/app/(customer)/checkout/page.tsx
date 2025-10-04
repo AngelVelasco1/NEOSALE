@@ -151,8 +151,6 @@ export default function CheckoutPage() {
           payment_method: paymentMethod || "card",
         };
 
-        console.log("Creando orden con datos:", orderData);
-
         const order = await createOrderApi(orderData);
 
         // ✅ LIMPIAR CARRITO DESPUÉS DE ORDEN EXITOSA
