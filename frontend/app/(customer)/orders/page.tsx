@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
+import { useSession } from "next-auth/react";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -13,81 +14,11 @@ import {
 import { Badge } from "@/components/ui/badge";
 import { Package, Calendar, CreditCard, MapPin, Eye } from "lucide-react";
 import { ErrorsHandler } from "@/app/errors/errorsHandler";
-import { useUserSafe } from "../../(auth)/hooks/useUserSafe";
-
-// Interfaces para las órdenes
-interface OrderItem {
-  id: number;
-  product_name: string;
-  quantity: number;
-  unit_price: number;
-  color_code: string;
-  size: string;
-}
-
-interface Order {
-  id: number;
-  status: "pending" | "processing" | "shipped" | "delivered" | "cancelled";
-  total: number;
-  created_at: string;
-  items: OrderItem[];
-  shipping_address: string;
-  payment_method: string;
-}
-
-// Simulación de API - reemplazar con tu API real
-const getUserOrdersApi = async (): Promise<Order[]> => {
-  return [
-    {
-      id: 1001,
-      status: "delivered",
-      total: 150000,
-      created_at: "2024-01-15T10:30:00Z",
-      items: [
-        {
-          id: 1,
-          product_name: "Camiseta Nike Dri-FIT",
-          quantity: 2,
-          unit_price: 45000,
-          color_code: "#000000",
-          size: "M",
-        },
-        {
-          id: 2,
-          product_name: "Pantalón Adidas",
-          quantity: 1,
-          unit_price: 60000,
-          color_code: "#0066CC",
-          size: "L",
-        },
-      ],
-      shipping_address: "Calle 123 #45-67, Bogotá",
-      payment_method: "Tarjeta de Crédito",
-    },
-    {
-      id: 1002,
-      status: "shipped",
-      total: 89000,
-      created_at: "2024-01-20T14:15:00Z",
-      items: [
-        {
-          id: 3,
-          product_name: "Zapatillas Puma",
-          quantity: 1,
-          unit_price: 89000,
-          color_code: "#FFFFFF",
-          size: "42",
-        },
-      ],
-      shipping_address: "Carrera 50 #30-20, Medellín",
-      payment_method: "PSE",
-    },
-  ];
-};
+import { getUserOrdersApi, type Order } from "./services/ordersApi";
 
 export default function OrdersPage() {
   const router = useRouter();
-  const { userProfile } = useUserSafe();
+  const { data: session, status } = useSession();
 
   const [orders, setOrders] = useState<Order[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -99,12 +30,16 @@ export default function OrdersPage() {
       try {
         setIsLoading(true);
 
-        if (!userProfile) {
+        if (status === "loading") {
+          return; // Esperar a que se resuelva la sesión
+        }
+
+        if (status === "unauthenticated" || !session) {
           ErrorsHandler.showError(
             "Inicia sesión",
             "Debes iniciar sesión para ver tus órdenes"
           );
-          router.push("/auth/login");
+          router.push("/login");
           return;
         }
 
@@ -122,19 +57,18 @@ export default function OrdersPage() {
     };
 
     fetchOrders();
-  }, [userProfile, router]);
+  }, [session, status, router]);
 
-  // Función para obtener el color del badge según el estado
   const getStatusBadge = (status: Order["status"]) => {
     const statusConfig = {
       pending: { label: "Pendiente", variant: "secondary" as const },
-      processing: { label: "Procesando", variant: "default" as const },
+      confirmed: { label: "Confirmado", variant: "default" as const },
       shipped: { label: "Enviado", variant: "outline" as const },
       delivered: { label: "Entregado", variant: "default" as const },
       cancelled: { label: "Cancelado", variant: "destructive" as const },
     };
 
-    const config = statusConfig[status];
+    const config = status ? statusConfig[status] : statusConfig.pending;
     return (
       <Badge variant={config.variant} className="capitalize">
         {config.label}
@@ -143,7 +77,9 @@ export default function OrdersPage() {
   };
 
   // Función para formatear fecha
-  const formatDate = (dateString: string) => {
+  const formatDate = (dateString?: string) => {
+    if (!dateString) return "Fecha no disponible";
+
     return new Date(dateString).toLocaleDateString("es-CO", {
       year: "numeric",
       month: "long",
@@ -217,7 +153,7 @@ export default function OrdersPage() {
                   <div className="flex items-center justify-between">
                     <div>
                       <CardTitle className="text-lg">
-                        Orden #{order.id}
+                        Orden #{order.id || order.order_id || "N/A"}
                       </CardTitle>
                       <CardDescription className="flex items-center gap-2 mt-1">
                         <Calendar className="w-4 h-4" />
@@ -227,7 +163,12 @@ export default function OrdersPage() {
                     <div className="text-right">
                       {getStatusBadge(order.status)}
                       <p className="text-lg font-bold text-gray-900 mt-1">
-                        ${order.total.toLocaleString("es-CO")}
+                        $
+                        {(
+                          order.total ||
+                          order.total_amount ||
+                          0
+                        ).toLocaleString("es-CO")}
                       </p>
                     </div>
                   </div>
@@ -240,7 +181,7 @@ export default function OrdersPage() {
                       Productos:
                     </h4>
                     <div className="space-y-2">
-                      {order.items.map((item) => (
+                      {order.order_items?.map((item) => (
                         <div
                           key={item.id}
                           className="flex items-center justify-between bg-gray-50 p-3 rounded-lg"
@@ -252,21 +193,26 @@ export default function OrdersPage() {
                             />
                             <div>
                               <p className="font-medium text-sm">
-                                {item.product_name}
+                                {item.products?.name || "Producto"}
                               </p>
                               <p className="text-xs text-gray-600">
+                                {item.products?.brands?.name
+                                  ? `${item.products.brands.name} | `
+                                  : ""}
                                 Talla: {item.size} | Cantidad: {item.quantity}
                               </p>
                             </div>
                           </div>
                           <p className="font-medium text-sm">
                             $
-                            {(item.unit_price * item.quantity).toLocaleString(
-                              "es-CO"
-                            )}
+                            {(
+                              item.subtotal ||
+                              (item.price || item.unit_price || 0) *
+                                item.quantity
+                            ).toLocaleString("es-CO")}
                           </p>
                         </div>
-                      ))}
+                      )) || []}
                     </div>
                   </div>
 
@@ -274,11 +220,14 @@ export default function OrdersPage() {
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pt-4 border-t">
                     <div className="flex items-center gap-2 text-sm text-gray-600">
                       <MapPin className="w-4 h-4" />
-                      <span>Envío a: {order.shipping_address}</span>
+                      <span>ID de Orden: #{order.id}</span>
                     </div>
                     <div className="flex items-center gap-2 text-sm text-gray-600">
                       <CreditCard className="w-4 h-4" />
-                      <span>Pago: {order.payment_method}</span>
+                      <span>
+                        Pago:{" "}
+                        {order.payment?.payment_method || "No especificado"}
+                      </span>
                     </div>
                   </div>
 
@@ -300,7 +249,7 @@ export default function OrdersPage() {
                     )}
 
                     {(order.status === "pending" ||
-                      order.status === "processing") && (
+                      order.status === "confirmed") && (
                       <Button variant="outline" size="sm">
                         Cancelar orden
                       </Button>

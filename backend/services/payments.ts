@@ -45,13 +45,22 @@ interface WompiTransactionData {
   reference: string;
   description?: string;
   redirectUrl?: string;
-  // 💳 NUEVO: Métodos de pago
+  // 💳 Métodos de pago
   payment_method?: {
     type: "CARD";
     installments: number;
     token: string;
   };
   payment_method_type?: "CARD" | "NEQUI" | "PSE";
+  // 🛒 NUEVO: Datos del carrito
+  cartData?: Array<{
+    product_id: number;
+    quantity: number;
+    price: number; // EN PESOS o CENTAVOS
+    name?: string;
+    color_code?: string;
+    size?: string;
+  }>;
 }
 
 // Interface específica para el payload que enviaremos a Wompi API
@@ -574,9 +583,56 @@ export const createPaymentService = async (
 
     // 🗃️ NUEVA FUNCIONALIDAD: Almacenar payment en base de datos usando fn_create_payment
     try {
-      console.log("💾 Almacenando payment en base de datos...");
+      // 🛒 Preparar datos del carrito para la base de datos
+      console.log("🔍 DEBUG - Datos del carrito recibidos:", {
+        hasCartData: !!transactionData.cartData,
+        cartDataType: typeof transactionData.cartData,
+        cartDataContent: transactionData.cartData,
+        hasItems:
+          Array.isArray(transactionData.cartData) &&
+          transactionData.cartData.length > 0,
+        itemsLength: Array.isArray(transactionData.cartData)
+          ? transactionData.cartData.length
+          : 0,
+        fullTransactionData: {
+          reference: transactionData.reference,
+          amount: transactionData.amount,
+          keys: Object.keys(transactionData),
+        },
+      });
 
-      // Usar la función auxiliar createPaymentTransaction
+      let cartDataForDb = null;
+      if (transactionData.cartData && Array.isArray(transactionData.cartData)) {
+        // Convertir los items a formato esperado por la BD (precios en centavos)
+        cartDataForDb = transactionData.cartData.map((item) => {
+          return {
+            product_id: item.product_id,
+            quantity: item.quantity,
+            price:
+              item.price < 1000000
+                ? convertPesosToWompiCentavos(item.price)
+                : item.price, // Convertir si está en pesos
+            color: item.color_code || "",
+            size: item.size || "",
+          };
+        });
+
+        console.log("🛒 Cart data preparado para BD:", {
+          itemsCount: cartDataForDb.length,
+          sampleItem: cartDataForDb[0],
+        });
+      } else {
+        console.log("⚠️  Cart data NO válido - almacenando array vacío:", {
+          hasCartData: !!transactionData.cartData,
+          cartDataStructure: transactionData.cartData,
+          reason: !transactionData.cartData
+            ? "cartData es null/undefined"
+            : !Array.isArray(transactionData.cartData)
+            ? "cartData no es un array"
+            : "estructura desconocida",
+        });
+      }
+
       const paymentDbResult = await createPaymentTransaction({
         transactionId: transactionResult.data?.id,
         reference,
@@ -598,6 +654,7 @@ export const createPaymentService = async (
         shippingAddress: transactionPayload.shipping_address,
         processorResponse: transactionResult.data,
         userId, // NUEVO: Pasar userId a la función
+        cartData: cartDataForDb || undefined, // NUEVO: Pasar datos del carrito
       });
 
       console.log("✅ Payment almacenado en base de datos:", paymentDbResult);
@@ -894,7 +951,8 @@ interface CreatePaymentTransactionParams {
   customerDocumentNumber: string;
   shippingAddress: object;
   processorResponse?: object;
-  userId?: number | null; // Nuevo parámetro requerido
+  userId?: number | null;
+  cartData?: object; // NUEVO: Datos del carrito en formato para la BD
 }
 
 export const createPaymentTransaction = async (
@@ -906,6 +964,7 @@ export const createPaymentTransaction = async (
       reference: params.reference,
       amount: params.amount,
       paymentMethod: params.paymentMethod,
+      hasCartData: !!params.cartData,
     });
 
     const result = await prisma.$queryRaw`
@@ -915,7 +974,7 @@ export const createPaymentTransaction = async (
         ${params.amount}::INTEGER,
         ${params.paymentMethod}::payment_method_enum,
         ${params.customerEmail}::VARCHAR(255),
-        ${JSON.stringify([])}::JSONB,
+        ${JSON.stringify(params.cartData || [])}::JSONB,
         ${JSON.stringify(params.shippingAddress)}::JSONB,
         ${params.userId || null}::INTEGER,
         ${params.currency}::VARCHAR(3),
@@ -1031,6 +1090,126 @@ export const verifyWebhookSignature = (
   } catch (error) {
     console.error("Error verificando firma de webhook:", error);
     return false;
+  }
+};
+
+// 💰 FUNCIÓN PARA CONVERTIR PESOS A CENTAVOS
+export const convertPesosToWompiCentavos = (pesosAmount: number): number => {
+  // Validar que sea un número válido
+  if (
+    typeof pesosAmount !== "number" ||
+    isNaN(pesosAmount) ||
+    pesosAmount < 0
+  ) {
+    throw new Error(`Monto en pesos inválido: ${pesosAmount}`);
+  }
+
+  // Convertir pesos a centavos (multiplicar por 100)
+  const centavos = Math.round(pesosAmount * 100);
+
+  console.log(`💰 Conversión: $${pesosAmount} COP → ${centavos} centavos`, {
+    pesosInput: pesosAmount,
+    centavosOutput: centavos,
+    factor: 100,
+  });
+
+  return centavos;
+};
+
+// 💰 FUNCIÓN PARA CONVERTIR CENTAVOS A PESOS (para mostrar al usuario)
+export const convertWompiCentavosToPesos = (centavosAmount: number): number => {
+  // Validar que sea un número válido
+  if (
+    typeof centavosAmount !== "number" ||
+    isNaN(centavosAmount) ||
+    centavosAmount < 0
+  ) {
+    throw new Error(`Monto en centavos inválido: ${centavosAmount}`);
+  }
+
+  // Convertir centavos a pesos (dividir por 100)
+  const pesos = centavosAmount / 100;
+
+  console.log(`💰 Conversión: ${centavosAmount} centavos → $${pesos} COP`, {
+    centavosInput: centavosAmount,
+    pesosOutput: pesos,
+    factor: 100,
+  });
+
+  return pesos;
+};
+
+// 🧮 FUNCIÓN PARA CALCULAR EL TOTAL DEL CARRITO EN CENTAVOS
+export const calculateCartTotalInCentavos = (
+  cartData: Array<{
+    product_id: number;
+    quantity: number;
+    price: number; // EN PESOS
+    name?: string;
+    color_code?: string;
+    size?: string;
+  }>
+): {
+  subtotalCentavos: number;
+  taxesCentavos: number;
+  shippingCentavos: number;
+  discountCentavos: number;
+  totalCentavos: number;
+  originalPesos: {
+    subtotal: number;
+    taxes: number;
+    shipping: number;
+    discount: number;
+    total: number;
+  };
+} => {
+  try {
+    // Calcular subtotal desde items
+    let subtotalPesos = 0;
+
+    if (cartData && cartData.length > 0) {
+      subtotalPesos = cartData.reduce((sum, item) => {
+        const itemSubtotal = item.price * item.quantity;
+        return sum + itemSubtotal;
+      }, 0);
+    }
+
+    // Valores en pesos (con valores por defecto)
+    const taxesPesos = Math.round(subtotalPesos * 0.19); // IVA 19%
+    const shippingPesos = subtotalPesos >= 100000 ? 0 : 15000; // Envío gratis > $100,000
+    const discountPesos = 0;
+    const totalPesos =
+      subtotalPesos + taxesPesos + shippingPesos - discountPesos;
+
+    // Convertir todo a centavos
+    const result = {
+      subtotalCentavos: convertPesosToWompiCentavos(subtotalPesos),
+      taxesCentavos: convertPesosToWompiCentavos(taxesPesos),
+      shippingCentavos: convertPesosToWompiCentavos(shippingPesos),
+      discountCentavos: convertPesosToWompiCentavos(discountPesos),
+      totalCentavos: convertPesosToWompiCentavos(totalPesos),
+      originalPesos: {
+        subtotal: subtotalPesos,
+        taxes: taxesPesos,
+        shipping: shippingPesos,
+        discount: discountPesos,
+        total: totalPesos,
+      },
+    };
+
+    console.log("🧮 Cálculo completo del carrito:", {
+      itemsCount: cartData?.length || 0,
+      calculated: result,
+    });
+
+    return result;
+  } catch (error) {
+    console.error("❌ Error calculando total del carrito:", error);
+    throw new Error(
+      `Error calculando total del carrito: ${
+        error instanceof Error ? error.message : "Error desconocido"
+      }`
+    );
   }
 };
 

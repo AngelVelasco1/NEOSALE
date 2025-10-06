@@ -8,6 +8,7 @@ import {
   updateOrderStatusService,
   getOrderWithPaymentService,
   processWompiOrderWebhook,
+  getUserOrdersWithPaymentsService,
 } from "../services/orders";
 import { Request, Response } from "express";
 
@@ -120,36 +121,6 @@ export const checkVariantAvailability = async (
   }
 };
 
-// Webhook de MercadoPago
-/* export const handlePaymentWebhook = async (
-  req: Request,
-  res: Response,
-  next: NextFunction
-) => {
-  try {
-    const { type, data } = req.body;
-
-    // Verificar que sea un evento de pago
-    if (type !== "payment") {
-      return res.status(200).json({
-        success: true,
-        message: "Evento no procesado",
-      });
-    }
-
-    await processPaymentWebhook(data.id);
-
-    res.status(200).json({
-      success: true,
-      message: "Webhook procesado correctamente",
-    });
-  } catch (err) {
-    console.error("Error en webhook de MercadoPago:", err);
-    next(err);
-  }
-};
- */
-// Obtener una orden por ID
 export const getOrderById = async (
   req: Request,
   res: Response,
@@ -157,30 +128,46 @@ export const getOrderById = async (
 ) => {
   try {
     const { orderId } = req.params;
-    const userId = req.user?.id;
 
-    if (!userId) {
-      return res.status(401).json({
+    // Obtener user_id desde query params o header X-User-ID
+    const userIdFromQuery = req.query.user_id;
+    const userIdFromHeader = req.headers["x-user-id"];
+    const userId = parseInt((userIdFromQuery || userIdFromHeader) as string);
+
+    if (!userId || isNaN(userId)) {
+      return res.status(400).json({
         success: false,
-        message: "Usuario no autenticado",
+        message: "user_id es requerido como query parameter o X-User-ID header",
       });
     }
 
+    console.log("🔍 Obteniendo orden por ID:", {
+      orderId: parseInt(orderId),
+      userId,
+    });
+
     const order = await getOrderByIdService(parseInt(orderId));
 
-    // Verificar que la orden pertenece al usuario (excepto si es admin)
-    if (order.user_id !== userId && req.user?.role !== "admin") {
+    // Verificar que la orden pertenece al usuario
+    if (order.user_id !== userId) {
       return res.status(403).json({
         success: false,
         message: "No tienes permisos para ver esta orden",
       });
     }
 
+    console.log("✅ Orden obtenida:", {
+      orderId: order.id,
+      userId,
+      status: order.status,
+    });
+
     res.json({
       success: true,
       data: order,
     });
   } catch (err) {
+    console.error("❌ Error en getOrderById:", err);
     next(err);
   }
 };
@@ -208,6 +195,42 @@ export const getUserOrders = async (
       data: orders,
     });
   } catch (err) {
+    next(err);
+  }
+};
+
+export const getUserOrdersWithPayments = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  try {
+    const userIdFromQuery = req.query.user_id;
+    const userIdFromHeader = req.headers["x-user-id"];
+    const userId = parseInt((userIdFromQuery || userIdFromHeader) as string);
+
+    if (!userId || isNaN(userId)) {
+      return res.status(400).json({
+        success: false,
+        message: "user_id es requerido como query parameter o X-User-ID header",
+      });
+    }
+
+    console.log("🔍 Obteniendo órdenes para usuario:", userId);
+
+    const orders = await getUserOrdersWithPaymentsService(userId);
+
+    console.log("✅ Órdenes obtenidas:", {
+      userId,
+      ordersCount: orders.length,
+    });
+
+    res.json({
+      success: true,
+      data: orders,
+    });
+  } catch (err) {
+    console.error("❌ Error en getUserOrdersWithPayments:", err);
     next(err);
   }
 };

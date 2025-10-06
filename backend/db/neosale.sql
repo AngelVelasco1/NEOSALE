@@ -341,6 +341,7 @@ CREATE TABLE orders (
     CONSTRAINT chk_order_total CHECK (total > 0),
     CONSTRAINT chk_order_coupon_discount CHECK (coupon_discount >= 0)
 );
+select * from orders;
 
 CREATE TABLE "Account" (
     user_id INTEGER NOT NULL REFERENCES "User"(id) ON DELETE CASCADE,

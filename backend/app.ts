@@ -13,7 +13,7 @@ app.use(
     origin: BACK_CONFIG.cors_origin,
     methods: ["GET", "POST", "PUT", "DELETE", "PATCH"],
     credentials: true,
-    allowedHeaders: ["Content-Type", "Authorization"],
+    allowedHeaders: ["Content-Type", "Authorization", "X-User-ID"],
   })
 );
 

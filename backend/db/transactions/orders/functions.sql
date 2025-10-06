@@ -17,26 +17,38 @@ DECLARE
     v_new_order_id INTEGER;
     v_cart_item RECORD;
     v_subtotal INTEGER := 0;
-    v_shipping_cost INTEGER;
-    v_taxes INTEGER := 0;
-    v_discount INTEGER := 0;
-    v_coupon_discount INTEGER := 0;
-    v_final_total INTEGER;
     v_available_stock INTEGER;
     v_items_result RECORD;
+    v_cart_items_count INTEGER := 0;
 BEGIN
     SELECT * INTO v_payment 
     FROM payments 
-    WHERE id = p_payment_id AND payment_status = 'APPROVED';
+    WHERE id = p_payment_id;
     
     IF v_payment.id IS NULL THEN
         RETURN QUERY SELECT 
             NULL::INTEGER, p_payment_id, 0,
-            FALSE, 'Payment no encontrado o no está aprobado'::TEXT;
+            FALSE, 'Payment no encontrado'::TEXT;
         RETURN;
     END IF;
 
-    --  Verificar que el usuario existe
+    -- VERIFICAR QUE CART_DATA NO SEA NULL
+    IF v_payment.cart_data IS NULL THEN
+        RETURN QUERY SELECT 
+            NULL::INTEGER, p_payment_id, 0,
+            FALSE, 'Cart data es NULL en el payment'::TEXT;
+        RETURN;
+    END IF;
+
+    -- VERIFICAR QUE CART_DATA SEA UN ARRAY
+    IF jsonb_typeof(v_payment.cart_data) != 'array' THEN
+        RETURN QUERY SELECT 
+            NULL::INTEGER, p_payment_id, 0,
+            FALSE, ('Cart data no es un array, es: ' || jsonb_typeof(v_payment.cart_data))::TEXT;
+        RETURN;
+    END IF;
+
+    -- Verificar que el usuario existe
     IF NOT EXISTS(SELECT 1 FROM "User" WHERE id = v_payment.user_id) THEN
         RETURN QUERY SELECT 
             NULL::INTEGER, p_payment_id, 0,
@@ -60,20 +72,19 @@ BEGIN
                 FALSE, 'Cupón no válido o inactivo'::TEXT;
             RETURN;
         END IF;
-        -- v_coupon_discount := calculate_coupon_discount(p_coupon_id, v_payment.amount_in_cents);
     END IF;
 
-    --  Verificar stock de productos desde cart_data y calcular subtotal
     FOR v_cart_item IN 
         SELECT 
             (item->>'product_id')::INTEGER as product_id,
             (item->>'quantity')::INTEGER as quantity,
             (item->>'price')::INTEGER as price,
-            COALESCE(item->>'color', '') as color_code,
+            COALESCE(item->>'color_code', '') as color_code,
             COALESCE(item->>'size', '') as size
         FROM jsonb_array_elements(v_payment.cart_data) as item
     LOOP
-        -- Verificar que el producto existe
+        v_cart_items_count := v_cart_items_count + 1;
+        
         IF NOT EXISTS(SELECT 1 FROM products WHERE id = v_cart_item.product_id) THEN
             RETURN QUERY SELECT 
                 NULL::INTEGER, p_payment_id, 0,
@@ -110,23 +121,26 @@ BEGIN
             RETURN;
         END IF;
 
-        -- Calcular subtotal
+        -- Solo calcular subtotal para verificación
         v_subtotal := v_subtotal + (v_cart_item.price * v_cart_item.quantity);
     END LOOP;
 
-    -- 7. Calcular totales
-    v_taxes := ROUND(v_subtotal * 0.19); -- IVA 19%
-    v_final_total := v_subtotal + v_shipping_cost + v_taxes - v_coupon_discount;
-
-    -- 8. Verificar que el total coincide con el payment
-    IF v_final_total != v_payment.amount_in_cents THEN
+    -- VERIFICAR QUE SE PROCESARON ITEMS
+    IF v_cart_items_count = 0 THEN
         RETURN QUERY SELECT 
-            NULL::INTEGER, p_payment_id, v_final_total,
-            FALSE, ('Total calculado (' || v_final_total || ') no coincide con payment (' || v_payment.amount_in_cents || ')')::TEXT;
+            NULL::INTEGER, p_payment_id, 0,
+            FALSE, ('No se encontraron items en cart_data. Longitud del array: ' || jsonb_array_length(v_payment.cart_data))::TEXT;
         RETURN;
     END IF;
 
-    -- 9. Crear la orden
+    -- VERIFICAR QUE EL SUBTOTAL NO SEA 0
+    IF v_subtotal = 0 THEN
+        RETURN QUERY SELECT 
+            NULL::INTEGER, p_payment_id, 0,
+            FALSE, ('Subtotal es 0 después de procesar ' || v_cart_items_count || ' items')::TEXT;
+        RETURN;
+    END IF;
+
     INSERT INTO orders (
         payment_id,
         status,
@@ -146,37 +160,38 @@ BEGIN
         p_payment_id,
         'pending'::orders_status_enum,
         v_subtotal,
-        v_discount,
-        v_shipping_cost,
-        v_taxes,
-        v_final_total,
+        0,
+        v_payment.amount_in_cents - v_subtotal - ROUND(v_subtotal * 0.19),
+        ROUND(v_subtotal * 0.19),
+        v_payment.amount_in_cents,
         p_shipping_address_id,
         p_coupon_id,
-        v_coupon_discount,
+        0,
         v_payment.user_id,
-        v_payment.user_id, -- updated_by
+        v_payment.user_id,
         NOW(),
         NOW()
     ) RETURNING id INTO v_new_order_id;
 
-    -- 10. Crear order_items usando la función auxiliar
-    SELECT items_created, success, message
+    SELECT 
+        result.items_created, 
+        result.success, 
+        result.message
     INTO v_items_result
-    FROM create_order_items_from_cart_data(v_new_order_id, v_payment.cart_data);
+    FROM fn_create_order_items(v_new_order_id, v_payment.cart_data) AS result;
     
     IF NOT v_items_result.success THEN
         RETURN QUERY SELECT 
-            v_new_order_id, p_payment_id, v_final_total,
+            v_new_order_id, p_payment_id, v_payment.amount_in_cents,
             FALSE, ('Error creando order items: ' || v_items_result.message)::TEXT;
         RETURN;
     END IF;
 
-    -- 11. Reducir stock de productos
     FOR v_cart_item IN 
         SELECT 
             (item->>'product_id')::INTEGER as product_id,
             (item->>'quantity')::INTEGER as quantity,
-            COALESCE(item->>'color', '') as color_code,
+            COALESCE(item->>'color_code', '') as color_code,
             COALESCE(item->>'size', '') as size
         FROM jsonb_array_elements(v_payment.cart_data) as item
     LOOP
@@ -188,33 +203,31 @@ BEGIN
             AND color_code = v_cart_item.color_code 
             AND size = v_cart_item.size;
             
-            -- Si no se actualizó ninguna fila, actualizar products
             IF NOT FOUND THEN
                 UPDATE products 
                 SET stock = stock - v_cart_item.quantity
                 WHERE id = v_cart_item.product_id;
             END IF;
         ELSE
-            -- Actualizar directamente products si no hay variants
             UPDATE products 
             SET stock = stock - v_cart_item.quantity
             WHERE id = v_cart_item.product_id;
         END IF;
     END LOOP;
 
-    -- 12. Limpiar carrito del usuario si existe
+    -- Limpiar carrito del usuario si existe
     DELETE FROM cart_items 
     WHERE cart_id IN (
         SELECT id FROM cart WHERE user_id = v_payment.user_id
     );
 
-    -- 13. Retornar resultado exitoso
+    -- Retornar resultado exitoso
     RETURN QUERY SELECT 
         v_new_order_id,
         p_payment_id,
-        v_final_total,
+        v_payment.amount_in_cents,
         TRUE,
-        ('Orden creada exitosamente con ' || v_items_result.items_created || ' productos')::TEXT;
+        ('Orden creada exitosamente con ' || v_items_result.items_created || ' productos. Total: ' || v_payment.amount_in_cents || ' centavos')::TEXT;
 
 EXCEPTION
     WHEN foreign_key_violation THEN
@@ -231,7 +244,6 @@ EXCEPTION
             FALSE, ('Error inesperado: ' || SQLERRM)::TEXT;
 END;
 $$;
-
 
 CREATE OR REPLACE FUNCTION fn_create_order_items(
     p_order_id INTEGER,
@@ -254,7 +266,7 @@ BEGIN
             (item->>'product_id')::INTEGER as product_id,
             (item->>'quantity')::INTEGER as quantity,
             (item->>'price')::INTEGER as price,
-            COALESCE(item->>'color', '') as color_code,
+            COALESCE(item->>'color_code', '') as color_code,
             COALESCE(item->>'size', '') as size
         FROM jsonb_array_elements(p_cart_data) as item
     LOOP
@@ -289,3 +301,4 @@ EXCEPTION
 END;
 $$;
 
+select * from orders;

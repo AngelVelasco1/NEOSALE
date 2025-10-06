@@ -23,10 +23,13 @@ import {
 } from "@/components/ui/card";
 import { CreditCard, Shield, Clock, MapPin } from "lucide-react";
 import { ErrorsHandler } from "@/app/errors/errorsHandler";
+import { useCart } from "../../(cart)/hooks/useCart";
+import { CartProductsInfo } from "../../types";
 import {
   getWompiPublicConfigApi,
   processWompiPaymentFlow,
   generatePaymentReference,
+  getWompiTransactionStatusApi,
   WompiPublicConfig,
   WompiTransactionResponse,
 } from "../services/paymentsApi";
@@ -110,6 +113,7 @@ export const WompiCardForm: React.FC<WompiCardFormProps> = ({
   const [wompiConfig, setWompiConfig] = useState<WompiPublicConfig | null>(
     null
   );
+  const { cartProducts } = useCart();
   const [configLoading, setConfigLoading] = useState(true);
 
   const form = useForm<CardFormData>({
@@ -136,26 +140,21 @@ export const WompiCardForm: React.FC<WompiCardFormProps> = ({
     },
   });
 
-  // 🎯 Cargar configuración de Wompi
   useEffect(() => {
     const loadWompiConfig = async () => {
       try {
         setConfigLoading(true);
-        console.log("📡 Cargando configuración de Wompi...");
 
         const result = await getWompiPublicConfigApi();
 
         if (result.success && result.data) {
           setWompiConfig(result.data);
-          console.log("✅ Configuración de Wompi cargada:", {
-            publicKey: result.data.publicKey.substring(0, 20) + "...",
-            environment: result.data.environment,
-          });
+          
         } else {
           throw new Error(result.error || "Error obteniendo configuración");
         }
       } catch (error) {
-        console.error("❌ Error cargando configuración de Wompi:", error);
+        console.error("Error cargando configuración de Wompi:", error);
         ErrorsHandler.showError(
           "Error de configuración",
           "No se pudo cargar la configuración de pagos"
@@ -233,6 +232,17 @@ export const WompiCardForm: React.FC<WompiCardFormProps> = ({
         installments: data.installments,
       };
 
+      // 🛒 Preparar datos del carrito
+      const cartData =
+        cartProducts?.map((product: CartProductsInfo) => ({
+          product_id: product.id,
+          quantity: product.quantity,
+          price: product.price,
+          name: product.name || product.title,
+          color_code: product.color_code || "",
+          size: product.size || "",
+        })) || [];
+
       // Ejecutar el flujo completo de pago CON TARJETA
       const result: WompiTransactionResponse = await processWompiPaymentFlow(
         customerData,
@@ -241,7 +251,8 @@ export const WompiCardForm: React.FC<WompiCardFormProps> = ({
           acceptanceToken: acceptanceTokens.termsAndConditions,
           acceptPersonalAuth: acceptanceTokens.personalDataAuth,
         },
-        cardData // 💳 Pasamos los datos de tarjeta
+        cardData, // 💳 Pasamos los datos de tarjeta
+        cartData // 🛒 Pasamos los datos del carrito
       );
 
       if (result.success && result.data) {
@@ -251,13 +262,65 @@ export const WompiCardForm: React.FC<WompiCardFormProps> = ({
           reference: result.data.reference,
         });
 
-        // Si tenemos checkout URL, redirigir al widget de Wompi
-        if (result.data.checkoutUrl) {
-          console.log("🔗 Redirigiendo al checkout de Wompi...");
-          window.location.href = result.data.checkoutUrl;
-        } else {
-          // Si no hay URL de checkout, consideramos el pago como exitoso
-          onSuccess(result.data.transactionId);
+        // 🔄 NUEVO FLUJO: Consultar estado real de la transacción
+        try {
+          // Esperar un momento para que Wompi procese la transacción
+          await new Promise((resolve) => setTimeout(resolve, 3000));
+
+          // Consultar el estado real desde Wompi
+          const transactionStatus = await getWompiTransactionStatusApi(
+            result.data.transactionId
+          );
+
+          if (transactionStatus.success && transactionStatus.data) {
+            console.log("� Estado real de la transacción:", {
+              transactionId: result.data.transactionId,
+              realStatus: transactionStatus.data.status,
+              amount: transactionStatus.data.amount_in_cents,
+            });
+
+            // Actualizar la base de datos con el estado real
+            try {
+              const updateResponse = await fetch(
+                `/api/payments/update-status`,
+                {
+                  method: "POST",
+                  headers: { "Content-Type": "application/json" },
+                  body: JSON.stringify({
+                    transactionId: result.data.transactionId,
+                    status: transactionStatus.data.status,
+                    wompiResponse: transactionStatus.data,
+                  }),
+                }
+              );
+
+              if (updateResponse.ok) {
+                console.log("✅ Estado de transacción actualizado en BD");
+              }
+            } catch (updateError) {
+              console.warn("⚠️ Error actualizando estado en BD:", updateError);
+            }
+
+            // Redirigir a la página de éxito independientemente del estado
+            // La página de éxito manejará el polling y estado final
+            if (
+              transactionStatus.data.status === "DECLINED" ||
+              transactionStatus.data.status === "ERROR"
+            ) {
+              window.location.href = `/checkout/success?transaction_id=${result.data.transactionId}&status=${transactionStatus.data.status}&error=true`;
+            } else {
+              window.location.href = `/checkout/success?transaction_id=${result.data.transactionId}&status=${transactionStatus.data.status}`;
+            }
+          } else {
+            console.warn(
+              "⚠️ No se pudo consultar el estado real, redirigiendo con estado inicial"
+            );
+            window.location.href = `/checkout/success?transaction_id=${result.data.transactionId}`;
+          }
+        } catch (statusError) {
+          console.warn("⚠️ Error consultando estado real:", statusError);
+          // Continuar con redirección si hay error consultando el estado
+          window.location.href = `/checkout/success?transaction_id=${result.data.transactionId}`;
         }
       } else {
         throw new Error(result.error || "Error creando transacción");

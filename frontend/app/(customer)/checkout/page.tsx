@@ -52,15 +52,12 @@ export default function CheckoutPage() {
     }
   }, [isAuthenticated, router]);
 
-  // ✅ VALIDAR CARRITO
   useEffect(() => {
     if (!cartLoading && (!cartProducts || cartProducts.length === 0)) {
       ErrorsHandler.showError(
         "Carrito vacío",
         "No hay productos en tu carrito"
       );
-      router.replace("/cart");
-      return;
     }
   }, [cartProducts, cartLoading, router]);
 

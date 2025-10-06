@@ -13,8 +13,6 @@ import {
   createOrderFromPaymentController,
 } from "../controllers/payments";
 
-import { authenticateToken } from "../middlewares/auth";
-
 export const paymentsRoutes = () =>
   Router()
     .get("/acceptance-tokens", getAcceptanceTokensController)
@@ -27,4 +25,5 @@ export const paymentsRoutes = () =>
     .post("/validate-data", validateWompiDataController)
     .post("/webhook", handleWompiWebhookController)
     .post("/orders/create-from-payment", createOrderFromPaymentController)
+    .post("/update-status", updatePaymentStatusController)
     .put("/payment/:transactionId/status", updatePaymentStatusController);

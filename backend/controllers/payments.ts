@@ -10,11 +10,13 @@ import {
   updatePaymentFromWebhook,
   verifyWebhookSignature,
   WompiTransactionData,
+  convertPesosToWompiCentavos,
 } from "../services/payments";
 import {
   createOrderService,
   processWompiOrderWebhook,
 } from "../services/orders";
+import { prisma } from "../lib/prisma";
 
 export const getAcceptanceTokensController = async (
   req: Request,
@@ -169,7 +171,6 @@ export const createPaymentController = async (req: Request, res: Response) => {
   try {
     const transactionData: WompiTransactionData = req.body;
 
-    // OBTENER user_id desde query params (enviado por el frontend)
     const user_id = Number(req.query.user_id);
     if (!user_id || isNaN(user_id)) {
       res.status(400).json({
@@ -179,28 +180,77 @@ export const createPaymentController = async (req: Request, res: Response) => {
       return;
     }
 
-    console.log("Solicitud de creación de transacción recibida:", {
+    console.log("Datos originales del carrito (antes de conversión):", {
       reference: transactionData.reference,
-      amount: transactionData.amount,
+      amountRecibido: transactionData.amount,
       currency: transactionData.currency,
       customerEmail: transactionData.customerEmail,
-      customerName: transactionData.customerName,
-      customerPhone: transactionData.customerPhone,
-      customerDocumentType: transactionData.customerDocumentType,
-      customerDocumentNumber: transactionData.customerDocumentNumber,
-      hasAcceptanceToken: !!transactionData.acceptanceToken,
-      hasPersonalAuthToken: !!transactionData.acceptPersonalAuth,
-      shippingAddress: transactionData.shippingAddress,
-      acceptanceTokenLength: transactionData.acceptanceToken?.length || 0,
-      personalAuthLength: transactionData.acceptPersonalAuth?.length || 0,
-      userId: user_id, // Log del usuario desde query params
+      userId: user_id,
+      // 🔍 DEBUG: Información detallada del carrito
+      hasCartData: !!transactionData.cartData,
+      cartDataType: typeof transactionData.cartData,
+      cartDataIsArray: Array.isArray(transactionData.cartData),
+      cartDataKeys: transactionData.cartData
+        ? Object.keys(transactionData.cartData)
+        : [],
+      cartDataContent: transactionData.cartData,
+      cartDataStringified: JSON.stringify(transactionData.cartData),
+      bodyKeys: Object.keys(transactionData),
+      bodySize: JSON.stringify(transactionData).length,
+    });
+
+    // 💰 NUEVA LÓGICA: Si el amount viene en pesos, convertirlo a centavos
+    let amountInCentavos = transactionData.amount;
+
+    // Verificar si el amount parece estar en pesos (valor típicamente < 1,000,000 para órdenes normales)
+    // Si es menor a 1,000,000 asumir que está en pesos y convertir
+    if (transactionData.amount && transactionData.amount < 1000000) {
+      console.log("💰 Detectado monto en PESOS, convirtiendo a centavos...");
+      amountInCentavos = convertPesosToWompiCentavos(transactionData.amount);
+
+      console.log("✅ Conversión completada:", {
+        montoOriginalPesos: transactionData.amount,
+        montoConvertidoCentavos: amountInCentavos,
+        factorConversion: "x100",
+      });
+    } else {
+      console.log(
+        "💰 Monto ya está en centavos (>= 1,000,000), no se convierte"
+      );
+    }
+
+    // Actualizar el amount en transactionData
+    const transactionDataWithCentavos: WompiTransactionData = {
+      ...transactionData,
+      amount: amountInCentavos, // Usar el monto en centavos
+    };
+
+    console.log("Solicitud de creación de transacción procesada:", {
+      reference: transactionDataWithCentavos.reference,
+      amountOriginal: transactionData.amount,
+      amountFinalCentavos: amountInCentavos,
+      currency: transactionDataWithCentavos.currency,
+      customerEmail: transactionDataWithCentavos.customerEmail,
+      customerName: transactionDataWithCentavos.customerName,
+      customerPhone: transactionDataWithCentavos.customerPhone,
+      customerDocumentType: transactionDataWithCentavos.customerDocumentType,
+      customerDocumentNumber:
+        transactionDataWithCentavos.customerDocumentNumber,
+      hasAcceptanceToken: !!transactionDataWithCentavos.acceptanceToken,
+      hasPersonalAuthToken: !!transactionDataWithCentavos.acceptPersonalAuth,
+      shippingAddress: transactionDataWithCentavos.shippingAddress,
+      acceptanceTokenLength:
+        transactionDataWithCentavos.acceptanceToken?.length || 0,
+      personalAuthLength:
+        transactionDataWithCentavos.acceptPersonalAuth?.length || 0,
+      userId: user_id,
     });
 
     // Validar datos requeridos básicos
     if (
-      !transactionData.reference ||
-      !transactionData.amount ||
-      !transactionData.customerEmail
+      !transactionDataWithCentavos.reference ||
+      !transactionDataWithCentavos.amount ||
+      !transactionDataWithCentavos.customerEmail
     ) {
       res.status(400).json({
         success: false,
@@ -210,8 +260,8 @@ export const createPaymentController = async (req: Request, res: Response) => {
     }
 
     if (
-      !transactionData.acceptanceToken ||
-      !transactionData.acceptPersonalAuth
+      !transactionDataWithCentavos.acceptanceToken ||
+      !transactionDataWithCentavos.acceptPersonalAuth
     ) {
       res.status(400).json({
         success: false,
@@ -220,8 +270,11 @@ export const createPaymentController = async (req: Request, res: Response) => {
       return;
     }
 
-    // Pasar el userId desde query params a la función de servicio
-    const result = await createPaymentService(transactionData, user_id);
+    // Pasar el userId desde query params a la función de servicio con amount corregido
+    const result = await createPaymentService(
+      transactionDataWithCentavos,
+      user_id
+    );
 
     if (!result.success) {
       res.status(500).json({
@@ -516,14 +569,22 @@ export const updatePaymentStatusController = async (
   res: Response
 ) => {
   try {
-    const { transactionId } = req.params;
-    const { status, statusMessage, processorResponseCode, processorResponse } =
-      req.body;
+    // Manejar tanto PUT /:transactionId como POST con transactionId en body
+    const transactionId = req.params.transactionId || req.body.transactionId;
+    const {
+      status,
+      statusMessage,
+      processorResponseCode,
+      processorResponse,
+      wompiResponse,
+    } = req.body;
 
     console.log("🔄 Solicitud de actualización de payment:", {
       transactionId,
       status,
       statusMessage,
+      method: req.method,
+      hasWompiResponse: !!wompiResponse,
     });
 
     // Validar parámetros
@@ -555,9 +616,9 @@ export const updatePaymentStatusController = async (
     const result = await updatePaymentStatusService(
       transactionId,
       status,
-      statusMessage,
+      statusMessage || wompiResponse?.status_message,
       processorResponseCode,
-      processorResponse
+      wompiResponse || processorResponse
     );
 
     if (!result.success) {
@@ -742,38 +803,94 @@ export const createOrderFromPaymentController = async (
   res: Response
 ) => {
   try {
-    const { paymentId, shippingAddressId, couponId } = req.body;
+    // Extraer con los nombres que envía el frontend
+    const {
+      payment_id,
+      address_id,
+      couponId,
+      // También permitir los nombres en camelCase por compatibilidad
+      paymentId = payment_id,
+      shippingAddressId = address_id,
+    } = req.body;
 
     console.log("🛒 Solicitud de creación de orden desde payment:", {
+      payment_id,
+      address_id,
       paymentId,
       shippingAddressId,
       couponId,
+      bodyReceived: req.body,
     });
 
+    // Usar payment_id y address_id como valores principales
+    const finalPaymentTransactionId = paymentId || payment_id;
+    const finalShippingAddressId = shippingAddressId || address_id;
+
     // Validar datos requeridos
-    if (!paymentId || !shippingAddressId) {
+    if (!finalPaymentTransactionId || !finalShippingAddressId) {
       res.status(400).json({
         success: false,
-        message: "paymentId y shippingAddressId son requeridos",
+        message: "payment_id y address_id son requeridos",
       });
       return;
     }
 
-    if (
-      typeof paymentId !== "number" ||
-      typeof shippingAddressId !== "number"
-    ) {
-      res.status(400).json({
+    // Buscar el payment por transaction_id para obtener el ID numérico
+    const paymentRecord = await prisma.payments.findUnique({
+      where: {
+        transaction_id: finalPaymentTransactionId as string,
+      },
+      select: {
+        id: true,
+        payment_status: true,
+        transaction_id: true,
+      },
+    });
+
+    if (!paymentRecord) {
+      res.status(404).json({
         success: false,
-        message: "paymentId y shippingAddressId deben ser números",
+        message: `Payment no encontrado para transaction_id: ${finalPaymentTransactionId}`,
       });
       return;
     }
+
+    console.log("✅ Payment encontrado:", {
+      paymentId: paymentRecord.id,
+      transactionId: paymentRecord.transaction_id,
+      status: paymentRecord.payment_status,
+    });
+
+    // Convertir address_id a número y validar
+    const shippingAddressIdNum = Number(finalShippingAddressId);
+    const couponIdNum = couponId ? Number(couponId) : undefined;
+
+    if (isNaN(shippingAddressIdNum)) {
+      res.status(400).json({
+        success: false,
+        message: "address_id debe ser un número válido",
+      });
+      return;
+    }
+
+    if (couponId && isNaN(couponIdNum!)) {
+      res.status(400).json({
+        success: false,
+        message: "couponId debe ser un número válido",
+      });
+      return;
+    }
+
+    console.log("🔄 Llamando a createOrderService con:", {
+      paymentId: paymentRecord.id, // Usar el ID numérico de la BD
+      shippingAddressId: shippingAddressIdNum,
+      couponId: couponIdNum,
+    });
 
     const result = await createOrderService({
-      paymentId,
-      shippingAddressId,
-      couponId,
+      paymentId: paymentRecord.id, // Usar el ID numérico real
+      shippingAddressId: shippingAddressIdNum,
+      couponId: couponIdNum,
     });
 
     res.status(201).json({

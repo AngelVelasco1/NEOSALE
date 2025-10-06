@@ -77,14 +77,6 @@ export const WompiContractsAcceptance: React.FC<
           personalDataAuth:
             tokens.presigned_personal_data_auth?.acceptance_token || "",
         });
-
-        console.log("✅ Configuración de Wompi cargada:", {
-          hasTermsLink: !!links.termsAndConditions?.url,
-          hasDataAuthLink: !!links.personalDataAuth?.url,
-          hasTermsToken: !!tokens.presigned_acceptance?.acceptance_token,
-          hasDataAuthToken:
-            !!tokens.presigned_personal_data_auth?.acceptance_token,
-        });
       } catch (error) {
         console.error("❌ Error obteniendo configuración de Wompi:", error);
         ErrorsHandler.showError(

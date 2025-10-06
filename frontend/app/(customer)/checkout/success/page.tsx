@@ -48,7 +48,7 @@ export default function CheckoutSuccessPage() {
   const [error, setError] = useState<string | null>(null);
 
   // Handler para actualizar el estado cuando el polling detecta cambios
-  const handlePollingStatusUpdate = (
+  const handlePollingStatusUpdate = async (
     newStatus: string,
     pollingTransactionData?: {
       id: string;
@@ -59,7 +59,22 @@ export default function CheckoutSuccessPage() {
       [key: string]: unknown;
     }
   ) => {
-    console.log("🔄 Actualizando estado desde polling:", newStatus);
+    // Actualizar la base de datos con el nuevo estado
+    if (pollingTransactionData?.id) {
+      try {
+        await fetch(`/api/payments/update-status`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            transactionId: pollingTransactionData.id,
+            status: newStatus,
+            wompiResponse: pollingTransactionData,
+          }),
+        });
+      } catch (updateError) {
+        console.warn("⚠️ Error actualizando estado en BD:", updateError);
+      }
+    }
 
     setTransactionData((prev) => ({
       ...prev,
@@ -103,7 +118,6 @@ export default function CheckoutSuccessPage() {
       try {
         setLoading(true);
 
-        // Extraer parámetros de la URL devueltos por Wompi
         const id = searchParams.get("id");
         const status = searchParams.get("status");
         const reference = searchParams.get("reference");
@@ -120,12 +134,6 @@ export default function CheckoutSuccessPage() {
 
         setTransactionData(initialTransactionData);
 
-        console.log(
-          "📄 Datos de transacción recibidos:",
-          initialTransactionData
-        );
-
-        // Si tenemos un ID de transacción, consultar información completa
         if (id) {
           await fetchTransactionDetails(id);
         }
@@ -144,7 +152,6 @@ export default function CheckoutSuccessPage() {
     try {
       console.log("� Consultando detalles de transacción:", transactionId);
 
-      // 1. Consultar estado actualizado de Wompi
       try {
         const wompiResult = await getWompiTransactionStatusApi(transactionId);
         if (wompiResult.success && wompiResult.data) {

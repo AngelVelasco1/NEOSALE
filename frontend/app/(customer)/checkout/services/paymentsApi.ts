@@ -117,6 +117,15 @@ export interface WompiTransactionData {
   // 💳 NUEVO: Método de pago agregado
   payment_method?: WompiCardPaymentMethod; // Por ahora solo CARD
   payment_method_type?: "CARD" | "NEQUI" | "PSE";
+  // 🛒 NUEVO: Datos del carrito para creación de órdenes
+  cartData?: Array<{
+    product_id: number;
+    quantity: number;
+    price: number;
+    name?: string;
+    color_code?: string;
+    size?: string;
+  }>;
 }
 
 export interface WompiTransactionResponse {
@@ -573,7 +582,16 @@ export const processWompiPaymentFlow = async (
     exp_year: string;
     card_holder: string;
     installments: number;
-  }
+  },
+  // 🛒 NUEVO: Datos del carrito para creación de órdenes
+  cartData?: Array<{
+    product_id: number;
+    quantity: number;
+    price: number;
+    name?: string;
+    color_code?: string;
+    size?: string;
+  }>
 ): Promise<WompiTransactionResponse> => {
   try {
     console.log("🎯 Iniciando flujo completo de pago Wompi...");
@@ -599,6 +617,8 @@ export const processWompiPaymentFlow = async (
       reference,
       description: orderData.description || "Compra en NEOSALE",
       redirectUrl: `${window.location.origin}/checkout/success`,
+      // 🛒 NUEVO: Incluir datos del carrito si están disponibles
+      cartData: cartData,
     };
 
     // 💳 Si se proporcionan datos de tarjeta, tokenizar y agregar método de pago
