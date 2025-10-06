@@ -1,10 +1,8 @@
 import { Router } from "express";
 import {
-  /*   createOrder,
-   */ getProductWithVariants,
+  getProductWithVariants,
   checkVariantAvailability,
-  /*   handlePaymentWebhook,
-   */ getOrderById,
+  getOrderById,
   getUserOrders,
   updateOrderStatus,
 } from "../controllers/orders";
@@ -13,18 +11,17 @@ import {
 export const ordersRoutes = () => {
   const app = Router();
 
-  /*   app.post("/create", createOrder);
-   */
+  // Rutas de productos (estas funcionan)
   app.get("/product/:productId/variants", getProductWithVariants);
-
   app.get(
     "/product/:productId/variants/:colorCode/:size",
     checkVariantAvailability
   );
 
+  // Rutas de órdenes básicas (estas funcionan)
   app.get("/user-orders", getUserOrders);
   app.get("/:orderId", getOrderById);
-  app.patch("/:orderId/status", updateOrderStatus); // Sin auth para webhooks
+  app.patch("/:orderId/status", updateOrderStatus);
 
   return app;
 };

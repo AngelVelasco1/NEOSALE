@@ -1,211 +1,234 @@
-import { BACK_CONFIG } from "../config/credentials";
 import { prisma } from "../lib/prisma";
 
-// Tipos específicos para órdenes
-interface CreateOrderRequest {
-  userId: number;
+interface CreateOrderFromPaymentRequest {
+  paymentId: number;
+  shippingAddressId: number;
+  couponId?: number;
+  userNote?: string;
+}
+
+interface CreateOrderFromPaymentResponse {
+  order_id: number;
+  payment_id: number;
+  total_amount: number;
+  success: boolean;
+  message: string;
+}
+
+interface OrderItem {
   productId: number;
   quantity: number;
+  price: number;
   colorCode?: string;
   size?: string;
-  shippingAddressId: number;
+  subtotal: number;
 }
 
-interface CreateOrderResponse {
-  orderId: number;
-  paymentLink: string;
-  preferenceId: string;
-  total: number;
+interface ProcessOrderResult {
+  orderId?: number;
+  success: boolean;
+  message: string;
+  totalAmount?: number;
 }
 
-/* export const createOrderService = async ({
-  userId,
-  items,
-  shippingAddressId
-}: CreateOrderRequest): Promise<CreateOrderResponse> => {
+interface PaymentInfo {
+  id: number;
+  transaction_id: string;
+  payment_status: string;
+  payment_method: string;
+  amount_in_cents: number;
+  currency: string;
+  customer_email: string;
+  created_at: Date;
+  approved_at?: Date;
+}
+
+interface PaymentWithOrder {
+  id: number;
+  transaction_id: string;
+  payment_status: string;
+  amount_in_cents: number;
+  user_id: number;
+  order_id?: number;
+}
+
+export const createOrderService = async ({
+  paymentId,
+  shippingAddressId,
+  couponId,
+}: CreateOrderFromPaymentRequest): Promise<CreateOrderFromPaymentResponse> => {
   try {
-    // 1. Validar usuario
-    const user = await prisma.user.findUnique({
-      where: { id: userId },
-      select: { id: true, name: true, email: true }
-    });
+    const result = (await prisma.$queryRaw`
+      SELECT * FROM fn_create_order(
+        ${paymentId}::INTEGER,
+        ${shippingAddressId}::INTEGER,
+        ${couponId || null}::INTEGER
+      )
+    `) as CreateOrderFromPaymentResponse[];
 
-    if (!user) {
-      throw new Error('Usuario no encontrado');
+    if (!result || result.length === 0) {
+      throw new Error("No se recibió respuesta de fn_create_order");
     }
 
-    // 2. Validar dirección
-    const address = await prisma.addresses.findFirst({
-      where: { 
-        id: shippingAddressId,
-        user_id: userId 
-      }
-    });
+    const orderResult = result[0];
 
-    if (!address) {
-      throw new Error('Dirección de envío no válida');
+    if (!orderResult.success) {
+      throw new Error(orderResult.message || "Error creando orden");
     }
-
-    // 3. Procesar cada item y validar stock
-    const processedItems = [];
-    let subtotal = 0;
-
-    for (const item of items) {
-      const product = await prisma.products.findUnique({
-        where: { id: item.productId },
-        include: {
-          brands: true,
-          categories: true,
-          product_variants: {
-            where: {
-              color_code: item.colorCode || undefined,
-              size: item.size || undefined,
-              active: true
-            }
-          }
-        }
-      });
-
-      if (!product || !product.active) {
-        throw new Error(`Producto ${item.productId} no disponible`);
-      }
-
-      // Determinar precio y stock
-      let unitPrice = product.price;
-      let availableStock = product.stock;
-
-      if (item.colorCode && item.size) {
-        const variant = product.product_variants.find(
-          v => v.color_code === item.colorCode && v.size === item.size
-        );
-
-        if (!variant || !variant.active) {
-          throw new Error(`Variante no disponible: ${item.colorCode} - ${item.size}`);
-        }
-
-        unitPrice = variant.price || product.price;
-        availableStock = variant.stock;
-      }
-
-      // Verificar stock
-      if (availableStock < item.quantity) {
-        throw new Error(`Stock insuficiente para ${product.name}. Disponible: ${availableStock}`);
-      }
-
-      // Aplicar ofertas
-      if (product.in_offer && product.offer_discount && product.offer_end_date && new Date() < product.offer_end_date) {
-        const discountAmount = unitPrice * (Number(product.offer_discount) / 100);
-        unitPrice = Math.round(unitPrice - discountAmount);
-      }
-
-      const itemSubtotal = unitPrice * item.quantity;
-      subtotal += itemSubtotal;
-
-      processedItems.push({
-        productId: item.productId,
-        product,
-        quantity: item.quantity,
-        unitPrice,
-        subtotal: itemSubtotal,
-        colorCode: item.colorCode,
-        size: item.size
-      });
-    }
-
-    // 4. Calcular totales
-    const shippingCost = subtotal >= 100000 ? 0 : 15000;
-    const taxes = Math.round(subtotal * 0.19);
-    const total = subtotal + shippingCost + taxes;
-
-    // 5. Crear orden
-    const order = await prisma.orders.create({
-      data: {
-        user_id: userId,
-        subtotal: subtotal,
-        shipping_cost: shippingCost,
-        taxes: taxes,
-        total: total,
-        status: 'pending',
-        payment_status: 'pending',
-        payment_method: 'mercadopago',
-        shipping_address_id: shippingAddressId,
-        updated_by: userId,
-        order_items: {
-          create: processedItems.map(item => ({
-            product_id: item.productId,
-            quantity: item.quantity,
-            price: item.unitPrice,
-            subtotal: item.subtotal,
-            size: item.size,
-            color_code: item.colorCode,
-          }))
-        }
-      }
-    });
-
-    // 6. Crear preferencia en MercadoPago
-    const mercadopago = new MercadoPagoConfig({
-      accessToken: BACK_CONFIG.mercado_pago_access_token
-    });
-
-    const preference = new Preference(mercadopago);
-
-    const preferenceData = {
-      items: processedItems.map(item => ({
-        id: item.product.id.toString(),
-        title: item.product.name,
-        description: `${item.product.description}${item.colorCode ? ` - Color: ${item.colorCode}` : ''}${item.size ? `, Talla: ${item.size}` : ''}`,
-        unit_price: Number(item.unitPrice),
-        quantity: item.quantity,
-        currency_id: 'COP'
-      })),
-      payer: {
-        name: user.name,
-        email: user.email
-      },
-      back_urls: {
-        success: `${BACK_CONFIG.frontend_url}/checkout/success?order_id=${order.id}`,
-        failure: `${BACK_CONFIG.frontend_url}/checkout/failure?order_id=${order.id}`,
-        pending: `${BACK_CONFIG.frontend_url}/checkout/pending?order_id=${order.id}`
-      },
-      auto_return: 'approved',
-      external_reference: order.id.toString(),
-      notification_url: `https://4de3ca4a2d02.ngrok-free.app/api/orders/webhook/mercadopago`,
-      shipments: {
-        cost: shippingCost,
-        mode: 'not_specified'
-      },
-      // ✅ CONFIGURACIÓN PARA TESTING
-      sandbox_init_point: process.env.NODE_ENV !== 'production'
-    };
-
-    const response = await preference.create({ body: preferenceData });
-    
-    if (!response.id || !response.init_point) {
-      throw new Error('Error al crear la preferencia de pago en MercadoPago');
-    }
-
-    // 7. Actualizar orden con preference_id
-    await prisma.orders.update({
-      where: { id: order.id },
-      data: { 
-        preference_id: response.id,
-        payment_method: 'mercadopago'
-      }
-    });
 
     return {
-      orderId: order.id,
-      paymentLink: response.init_point,
-      preferenceId: response.id,
-      total
+      order_id: orderResult.order_id,
+      payment_id: orderResult.payment_id,
+      total_amount: orderResult.total_amount,
+      success: orderResult.success,
+      message: orderResult.message,
     };
-
   } catch (error) {
-    console.error('Error in createOrderService:', error);
-    throw new Error(error instanceof Error ? error.message : 'Error al crear la orden');
+    console.error("❌ Error en createOrderFromPaymentService:", error);
+    throw new Error(
+      error instanceof Error
+        ? error.message
+        : "Error creando orden desde payment"
+    );
   }
-}; */
+};
+
+export const createOrderItemsService = async (
+  orderId: number,
+  cartData: object
+) => {
+  try {
+    const result = (await prisma.$queryRaw`
+      SELECT * FROM fn_create_order_items(
+        ${orderId}::INTEGER,
+        ${JSON.stringify(cartData)}::JSONB
+      )
+    `) as { items_created: number; success: boolean; message: string }[];
+
+    if (!result || result.length === 0) {
+      throw new Error("No se recibió respuesta de fn_create_order_items");
+    }
+
+    const itemsResult = result[0];
+
+    return {
+      itemsCreated: itemsResult.items_created,
+      success: itemsResult.success,
+      message: itemsResult.message,
+    };
+  } catch (error) {
+    console.error("❌ Error en createOrderItemsService:", error);
+    throw new Error(
+      error instanceof Error ? error.message : "Error creando order items"
+    );
+  }
+};
+
+export const getOrderWithPaymentService = async (orderId: number) => {
+  try {
+    const order = await prisma.orders.findUnique({
+      where: { id: orderId },
+      include: {
+        order_items: {
+          include: {
+            products: {
+              include: {
+                brands: true,
+                categories: true,
+              },
+            },
+          },
+        },
+        users: {
+          select: { id: true, name: true, email: true },
+        },
+        coupons: true,
+      },
+    });
+
+    if (!order) {
+      throw new Error("Orden no encontrada");
+    }
+
+    let payment: PaymentInfo | null = null;
+    const paymentResult = await prisma.$queryRaw<PaymentInfo[]>`
+      SELECT 
+        id, transaction_id, payment_status, payment_method, 
+        amount_in_cents, currency, checkout_url, customer_email,
+        created_at, approved_at
+      FROM payments 
+      WHERE id = (SELECT payment_id FROM orders WHERE id = ${orderId}::INTEGER)
+    `;
+
+    if (paymentResult && paymentResult.length > 0) {
+      payment = paymentResult[0];
+    }
+
+    return {
+      ...order,
+      payment,
+    };
+  } catch (error) {
+    console.error("Error en getOrderWithPaymentService:", error);
+    throw new Error(
+      error instanceof Error ? error.message : "Error al obtener la orden"
+    );
+  }
+};
+
+export const getUserOrdersWithPaymentsService = async (userId: number) => {
+  try {
+    const orders = await prisma.orders.findMany({
+      where: { user_id: userId },
+      include: {
+        order_items: {
+          include: {
+            products: {
+              include: {
+                brands: true,
+                categories: true,
+              },
+            },
+          },
+        },
+        coupons: true,
+      },
+      orderBy: {
+        created_at: "desc",
+      },
+    });
+
+    const ordersWithPayments = await Promise.all(
+      orders.map(async (order) => {
+        let payment: PaymentInfo | null = null;
+        const paymentResult = await prisma.$queryRaw<PaymentInfo[]>`
+          SELECT 
+            id, transaction_id, payment_status, payment_method, 
+            amount_in_cents, currency, customer_email,
+            created_at, approved_at
+          FROM payments 
+          WHERE id = (SELECT payment_id FROM orders WHERE id = ${order.id}::INTEGER)
+        `;
+
+        if (paymentResult && paymentResult.length > 0) {
+          payment = paymentResult[0];
+        }
+
+        return {
+          ...order,
+          payment,
+        };
+      })
+    );
+
+    return ordersWithPayments;
+  } catch (error) {
+    console.error("Error en getUserOrdersWithPaymentsService:", error);
+    throw new Error(
+      error instanceof Error ? error.message : "Error al obtener las órdenes"
+    );
+  }
+};
 
 export const getProductWithVariantsService = async (productId: number) => {
   try {
@@ -366,13 +389,15 @@ export const getOrderByIdService = async (orderId: number) => {
 
 export const updateOrderStatusService = async (
   orderId: number,
-  status: string
+  status: "pending" | "confirmed" | "shipped" | "delivered" | "cancelled"
 ) => {
   try {
+    console.log("🔄 Actualizando estado de orden:", { orderId, status });
+
     const order = await prisma.orders.update({
       where: { id: orderId },
       data: {
-        status: status as any,
+        status: status,
         updated_at: new Date(),
       },
       include: {
@@ -391,40 +416,14 @@ export const updateOrderStatusService = async (
       },
     });
 
-    // Si el pago fue aprobado, reducir el stock del producto/variante
-    if (status === "paid") {
-      for (const item of order.order_items) {
-        if (item.color_code && item.size) {
-          // Reducir stock de la variante específica
-          await prisma.product_variants.updateMany({
-            where: {
-              product_id: item.product_id,
-              color_code: item.color_code,
-              size: item.size,
-            },
-            data: {
-              stock: {
-                decrement: item.quantity,
-              },
-            },
-          });
-        } else {
-          // Reducir stock del producto general
-          await prisma.products.update({
-            where: { id: item.product_id },
-            data: {
-              stock: {
-                decrement: item.quantity,
-              },
-            },
-          });
-        }
-      }
-    }
+    console.log("✅ Estado de orden actualizado:", {
+      orderId: order.id,
+      newStatus: order.status,
+    });
 
     return order;
   } catch (error) {
-    console.error("Error in updateOrderStatusService:", error);
+    console.error("❌ Error en updateOrderStatusService:", error);
     throw new Error(
       error instanceof Error ? error.message : "Error al actualizar la orden"
     );
@@ -433,110 +432,154 @@ export const updateOrderStatusService = async (
 
 export const getUserOrdersService = async (userId: number) => {
   try {
-    const orders = await prisma.orders.findMany({
-      where: { user_id: userId },
-      include: {
-        order_items: {
-          include: {
-            products: {
-              include: {
-                brands: true,
-                categories: true,
-              },
-            },
-          },
-        },
-        coupons: true,
-      },
-      orderBy: {
-        created_at: "desc",
-      },
-    });
-
-    return orders;
+    return await getUserOrdersWithPaymentsService(userId);
   } catch (error) {
-    console.error("Error in getUserOrdersService:", error);
+    console.error("Error en getUserOrdersService:", error);
     throw new Error(
       error instanceof Error ? error.message : "Error al obtener las órdenes"
     );
   }
 };
 
-// Procesar webhook de MercadoPago
-/* export const processPaymentWebhook = async (
-  paymentId: string
-): Promise<void> => {
+export const processWompiOrderWebhook = async (
+  transactionId: string,
+  paymentStatus: "PENDING" | "APPROVED" | "DECLINED" | "VOIDED" | "ERROR"
+): Promise<ProcessOrderResult> => {
   try {
-    console.log("Processing MercadoPago webhook for payment ID:", paymentId);
-
-    // Configurar MercadoPago
-    const mercadopago = new MercadoPagoConfig({
-      accessToken: BACK_CONFIG.mercado_pago_access_token,
+    console.log("🔄 Procesando webhook de Wompi para orden:", {
+      transactionId,
+      paymentStatus,
     });
 
-    // Consultar el pago en MercadoPago
-    const paymentResource = new Payment(mercadopago);
-    const payment = await paymentResource.get({ id: paymentId });
+    // 1. Buscar payment por transaction_id
+    const paymentResult = await prisma.$queryRaw<PaymentWithOrder[]>`
+      SELECT p.id, p.transaction_id, p.payment_status, p.amount_in_cents, p.user_id, o.id as order_id
+      FROM payments p
+      LEFT JOIN orders o ON o.payment_id = p.id
+      WHERE p.transaction_id = ${transactionId}::VARCHAR(255)
+    `;
 
-    if (!payment.external_reference) {
-      console.warn("Payment without external_reference:", paymentId);
-      return;
+    if (!paymentResult || paymentResult.length === 0) {
+      return {
+        success: false,
+        message: `Payment no encontrado para transaction_id: ${transactionId}`,
+      };
     }
 
-    const orderId = parseInt(payment.external_reference);
+    const payment = paymentResult[0];
 
-    // Buscar la orden en la base de datos
-    const order = await prisma.orders.findUnique({
-      where: { id: orderId },
-    });
+    // 2. Si no hay orden y el pago fue aprobado, intentar crear la orden
+    if (!payment.order_id && paymentStatus === "APPROVED") {
+      try {
+        // Crear dirección si no existe
+        const addressId = await findOrCreateAddressFromPayment(payment.id);
 
-    if (!order) {
-      console.warn("Order not found for external_reference:", orderId);
-      return;
+        if (!addressId) {
+          return {
+            success: false,
+            message: "No se pudo crear o encontrar dirección de envío",
+          };
+        }
+
+        // Crear orden usando fn_create_order
+        const orderResult = await createOrderService({
+          paymentId: payment.id,
+          shippingAddressId: addressId,
+          couponId: undefined,
+        });
+
+        return {
+          orderId: orderResult.order_id,
+          success: orderResult.success,
+          message: orderResult.message,
+          totalAmount: orderResult.total_amount,
+        };
+      } catch (orderError) {
+        console.error("Error creando orden desde webhook:", orderError);
+        return {
+          success: false,
+          message: `Error creando orden: ${
+            orderError instanceof Error
+              ? orderError.message
+              : "Error desconocido"
+          }`,
+        };
+      }
     }
 
-    // Mapear estado de MercadoPago a nuestro sistema
-    let orderStatus: string;
-    let paymentStatus: string;
+    // 3. Si ya existe orden, actualizar su estado según el payment status
+    if (payment.order_id) {
+      let newOrderStatus: "pending" | "confirmed" | "cancelled";
 
-    switch (payment.status) {
-      case "approved":
-        orderStatus = "paid";
-        paymentStatus = "approved";
-        break;
-      case "pending":
-        orderStatus = "pending";
-        paymentStatus = "pending";
-        break;
-      case "rejected":
-      case "cancelled":
-        orderStatus = "pending";
-        paymentStatus = "rejected";
-        break;
-      default:
-        orderStatus = order.status;
-        paymentStatus = payment.status || "";
+      switch (paymentStatus) {
+        case "APPROVED":
+          newOrderStatus = "confirmed";
+          break;
+        case "DECLINED":
+        case "ERROR":
+        case "VOIDED":
+          newOrderStatus = "cancelled";
+          break;
+        default:
+          newOrderStatus = "pending";
+      }
+
+      await updateOrderStatusService(payment.order_id, newOrderStatus);
+
+      return {
+        orderId: payment.order_id,
+        success: true,
+        message: `Orden ${payment.order_id} actualizada a ${newOrderStatus}`,
+        totalAmount: payment.amount_in_cents,
+      };
     }
 
-    // Actualizar la orden
-    await updateOrderStatusService(orderId, orderStatus);
-
-    // Actualizar información de pago
-    await prisma.orders.update({
-      where: { id: orderId },
-      data: {
-        payment_status: paymentStatus,
-        transaction_id: paymentId,
-        paid_at: payment.status === "approved" ? new Date() : null,
-      },
-    });
-
-    console.log(
-      `Order ${orderId} updated with status: ${orderStatus}, payment: ${paymentStatus}`
-    );
+    return {
+      success: true,
+      message: `Webhook procesado. Payment status: ${paymentStatus}, no se requieren acciones adicionales`,
+    };
   } catch (error) {
-    console.error("Error processing payment webhook:", error);
-    throw error;
+    console.error("Error procesando webhook de Wompi:", error);
+    return {
+      success: false,
+      message: `Error procesando webhook: ${
+        error instanceof Error ? error.message : "Error desconocido"
+      }`,
+    };
   }
 };
+
+/**
+ * Buscar o crear dirección desde payment usando fn_create_address_from_payment
  */
+const findOrCreateAddressFromPayment = async (
+  paymentId: number
+): Promise<number | null> => {
+  try {
+    const result = await prisma.$queryRaw<
+      { address_id: number; success: boolean; message: string }[]
+    >`
+      SELECT * FROM fn_create_address_from_payment(${paymentId}::INTEGER)
+    `;
+
+    if (!result || result.length === 0) {
+      return null;
+    }
+
+    const addressResult = result[0];
+    return addressResult.success ? addressResult.address_id : null;
+  } catch (error) {
+    console.error("Error creando dirección desde payment:", error);
+    return null;
+  }
+};
+
+// Exportar tipos
+export type {
+  CreateOrderFromPaymentRequest,
+  CreateOrderFromPaymentResponse,
+  OrderItem,
+  ProcessOrderResult,
+  PaymentInfo,
+  PaymentWithOrder,
+};

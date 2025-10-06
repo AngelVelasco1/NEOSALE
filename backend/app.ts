@@ -2,6 +2,7 @@ import express from "express";
 import { initRoutes } from "./routes/router.js";
 import { BACK_CONFIG } from "./config/credentials.js";
 import cors from "cors";
+import cookieParser from "cookie-parser";
 import { prisma } from "./lib/prisma";
 import { errorsHandler } from "./middlewares/errorsHandler";
 
@@ -18,6 +19,7 @@ app.use(
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
+app.use(cookieParser()); // NUEVO: Middleware para parsear cookies
 
 app.get("/", (req, res) => {
   res.json({

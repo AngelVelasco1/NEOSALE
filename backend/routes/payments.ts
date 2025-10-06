@@ -4,12 +4,16 @@ import {
   getPaymentConfigController,
   testWompiConnectionController,
   generateIntegritySignatureController,
-  createWompiTransactionController,
+  createPaymentController,
   validateWompiDataController,
   getTransactionStatusController,
   updatePaymentStatusController,
   getPaymentFromDatabaseController,
+  handleWompiWebhookController,
+  createOrderFromPaymentController,
 } from "../controllers/payments";
+
+import { authenticateToken } from "../middlewares/auth";
 
 export const paymentsRoutes = () =>
   Router()
@@ -19,6 +23,8 @@ export const paymentsRoutes = () =>
     .get("/transaction/:transactionId", getTransactionStatusController)
     .get("/payment/db/:transactionId", getPaymentFromDatabaseController)
     .post("/generate-signature", generateIntegritySignatureController)
-    .post("/create-transaction", createWompiTransactionController)
+    .post("/create-transaction", createPaymentController)
     .post("/validate-data", validateWompiDataController)
+    .post("/webhook", handleWompiWebhookController)
+    .post("/orders/create-from-payment", createOrderFromPaymentController)
     .put("/payment/:transactionId/status", updatePaymentStatusController);

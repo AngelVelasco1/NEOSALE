@@ -114,27 +114,29 @@ model products {
 }
 
 model User {
-  id                  Int          @id @default(autoincrement())
-  name                String       @db.VarChar(255)
-  email               String       @unique @db.VarChar(255)
-  email_verified      DateTime?    @db.Timestamp(6)
-  password            String?      @db.VarChar(255)
-  image               String?      @db.VarChar(255)
-  phone_number        String?      @unique @db.VarChar(20)
-  identification      String?      @unique @db.VarChar(20)
-  identification_type String?      @db.VarChar(10)
-  role                roles_enum   @default(user)
-  active              Boolean      @default(true)
-  email_notifications Boolean      @default(true)
-  created_at          DateTime     @default(now()) @db.Timestamp(6)
-  updated_at          DateTime?    @db.Timestamp(6)
-  Account             Account[]
-  addresses           addresses[]
-  cart                cart[]
-  favorites           favorites[]
-  order_logs          order_logs[]
-  orders              orders[]
-  reviews             reviews[]
+  id                             Int          @id @default(autoincrement())
+  name                           String       @db.VarChar(255)
+  email                          String       @unique @db.VarChar(255)
+  email_verified                 DateTime?    @db.Timestamp(6)
+  password                       String?      @db.VarChar(255)
+  image                          String?      @db.VarChar(255)
+  phone_number                   String?      @unique @db.VarChar(20)
+  identification                 String?      @unique @db.VarChar(20)
+  identification_type            String?      @db.VarChar(10)
+  role                           roles_enum   @default(user)
+  active                         Boolean      @default(true)
+  email_notifications            Boolean      @default(true)
+  created_at                     DateTime     @default(now()) @db.Timestamp(6)
+  updated_at                     DateTime?    @db.Timestamp(6)
+  Account                        Account[]
+  addresses                      addresses[]
+  cart                           cart[]
+  favorites                      favorites[]
+  order_logs                     order_logs[]
+  orders_orders_updated_byToUser orders[]     @relation("orders_updated_byToUser")
+  orders                         orders[]
+  payments                       payments[]
+  reviews                        reviews[]
 
   @@index([active], map: "idx_user_active")
   @@index([email], map: "idx_user_email")
@@ -200,8 +202,7 @@ model addresses {
   user_id    Int
   created_at DateTime @default(now()) @db.Timestamp(6)
   User       User     @relation(fields: [user_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
-
-  @@index([user_id], map: "idx_address_user")
+  orders     orders[]
 }
 
 /// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
@@ -229,8 +230,6 @@ model favorites {
   User       User     @relation(fields: [user_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
 
   @@unique([user_id, product_id], map: "unq_user_product_favorite")
-  @@index([product_id], map: "idx_favorite_product")
-  @@index([user_id], map: "idx_favorite_user")
 }
 
 model images {
@@ -243,8 +242,6 @@ model images {
   variant_id       Int?
   products         products          @relation(fields: [product_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
   product_variants product_variants? @relation(fields: [variant_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
-
-  @@index([product_id], map: "idx_image_product")
 }
 
 /// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
@@ -261,9 +258,6 @@ model order_items {
   updated_at DateTime? @db.Timestamp(6)
   orders     orders    @relation(fields: [order_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
   products   products  @relation(fields: [product_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
-
-  @@index([order_id], map: "idx_order_item_order")
-  @@index([product_id], map: "idx_order_item_product")
 }
 
 /// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
@@ -279,42 +273,42 @@ model order_logs {
   user_type       String?            @default("admin") @db.VarChar(20)
   orders          orders             @relation(fields: [order_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
   User            User               @relation(fields: [updated_by], references: [id], onDelete: NoAction, onUpdate: NoAction)
-
-  @@index([order_id], map: "idx_order_log_order")
-  @@index([new_status], map: "idx_order_log_status")
 }
 
 /// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
 model orders {
-  id                  Int                 @id @default(autoincrement())
-  status              orders_status_enum
-  subtotal            Int
-  discount            Int?                @default(0)
-  shipping_cost       Int
-  taxes               Int
-  total               Int
-  payment_method      payment_method_enum
-  payment_status      String?             @default("pending") @db.VarChar(20)
-  transaction_id      String?             @db.VarChar(255)
-  paid_at             DateTime?           @db.Timestamp(6)
-  shipping_address_id Int
-  user_note           String?             @db.VarChar(255)
-  created_at          DateTime            @default(now()) @db.Timestamp(6)
-  updated_at          DateTime?           @db.Timestamp(6)
-  shipped_at          DateTime?           @db.Timestamp(6)
-  delivered_at        DateTime?           @db.Timestamp(6)
-  updated_by          Int
-  user_id             Int
-  coupon_id           Int?
-  order_items         order_items[]
-  order_logs          order_logs[]
-  coupons             coupons?            @relation(fields: [coupon_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
-  User                User                @relation(fields: [user_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  id                           Int                @id @default(autoincrement())
+  payment_id                   Int
+  status                       orders_status_enum @default(pending)
+  subtotal                     Int
+  discount                     Int?               @default(0)
+  shipping_cost                Int
+  taxes                        Int
+  total                        Int
+  shipping_address_id          Int
+  user_note                    String?            @db.VarChar(500)
+  admin_notes                  String?
+  coupon_id                    Int?
+  coupon_discount              Int?               @default(0)
+  tracking_number              String?            @db.VarChar(100)
+  carrier                      String?            @db.VarChar(50)
+  estimated_delivery_date      DateTime?          @db.Date
+  created_at                   DateTime           @default(now()) @db.Timestamp(6)
+  updated_at                   DateTime?          @db.Timestamp(6)
+  shipped_at                   DateTime?          @db.Timestamp(6)
+  delivered_at                 DateTime?          @db.Timestamp(6)
+  cancelled_at                 DateTime?          @db.Timestamp(6)
+  user_id                      Int
+  updated_by                   Int
+  order_items                  order_items[]
+  order_logs                   order_logs[]
+  coupons                      coupons?           @relation(fields: [coupon_id], references: [id], onUpdate: NoAction)
+  payments                     payments           @relation(fields: [payment_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+  addresses                    addresses          @relation(fields: [shipping_address_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  User_orders_updated_byToUser User               @relation("orders_updated_byToUser", fields: [updated_by], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  User                         User               @relation(fields: [user_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
 
-  @@index([shipping_address_id], map: "idx_order_address")
-  @@index([payment_status], map: "idx_order_payment_status")
   @@index([status], map: "idx_order_status")
-  @@index([updated_at], map: "idx_order_updated")
   @@index([user_id], map: "idx_order_user")
 }
 
@@ -324,8 +318,6 @@ model review_images {
   image_url  String   @db.VarChar(500)
   created_at DateTime @default(now()) @db.Timestamp(6)
   reviews    reviews  @relation(fields: [review_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
-
-  @@index([review_id], map: "idx_review_image_review")
 }
 
 /// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
@@ -340,15 +332,44 @@ model reviews {
   review_images review_images[]
   products      products        @relation(fields: [product_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
   User          User            @relation(fields: [user_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+}
 
-  @@index([product_id], map: "idx_review_product")
-  @@index([rating], map: "idx_review_rating")
-  @@index([user_id], map: "idx_review_user")
+/// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
+model payments {
+  id                       Int                 @id @default(autoincrement())
+  transaction_id           String?             @unique @db.VarChar(255)
+  reference                String              @unique @db.VarChar(255)
+  amount_in_cents          Int
+  currency                 String              @default("COP") @db.VarChar(3)
+  payment_status           payment_status_enum @default(PENDING)
+  status_message           String?             @db.VarChar(500)
+  processor_response_code  String?             @db.VarChar(20)
+  payment_method           payment_method_enum
+  payment_method_details   Json?               @default("{}")
+  card_token               String?             @db.VarChar(255)
+  acceptance_token         String?
+  acceptance_token_auth    String?
+  signature_used           String?             @db.VarChar(255)
+  redirect_url             String?             @db.VarChar(500)
+  checkout_url             String?             @db.VarChar(500)
+  customer_email           String              @db.VarChar(255)
+  customer_phone           String?             @db.VarChar(20)
+  customer_document_type   String?             @db.VarChar(10)
+  customer_document_number String?             @db.VarChar(20)
+  cart_data                Json
+  shipping_address         Json
+  user_id                  Int
+  created_at               DateTime            @default(now()) @db.Timestamp(6)
+  updated_at               DateTime            @default(now()) @db.Timestamp(6)
+  approved_at              DateTime?           @db.Timestamp(6)
+  failed_at                DateTime?           @db.Timestamp(6)
+  processor_response       Json?               @default("{}")
+  orders                   orders[]
+  User                     User                @relation(fields: [user_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
 }
 
 enum orders_status_enum {
   pending
-  confirmed
   paid
   processing
   shipped
@@ -381,11 +402,17 @@ enum notification_type_enum {
 }
 
 enum payment_method_enum {
-  paypal
-  efecty
-  pse
-  credit_card
-  debit_card
-  mercadopago
-  wompi
+  PSE
+  CARD
+  NEQUI
+  BANCOLOMBIA
+  BANCOLOMBIA_TRANSFER
+}
+
+enum payment_status_enum {
+  PENDING
+  APPROVED
+  DECLINED
+  VOIDED
+  ERROR
 }

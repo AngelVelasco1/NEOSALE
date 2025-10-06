@@ -1,4 +1,4 @@
-import { api } from '@/config/api';
+import { api } from "@/config/api";
 
 export interface OrderItem {
   product_id: number;
@@ -26,12 +26,17 @@ export interface Order {
   created_at: string;
 }
 
-export const createOrderApi = async (orderData: CreateOrderData): Promise<Order> => {
+export const createOrderApi = async (
+  orderData: CreateOrderData
+): Promise<Order> => {
   try {
-    const { data } = await api.post('/api/orders/create', orderData);
+    const { data } = await api.post(
+      "api/payments/orders/create-from-payment",
+      orderData
+    );
     return data;
   } catch (error: any) {
-    console.error('Error creating order:', error);
-    throw new Error(error.response?.data?.message || 'Error al crear la orden');
+    console.error("Error creating order:", error);
+    throw new Error(error.response?.data?.message || "Error al crear la orden");
   }
 };

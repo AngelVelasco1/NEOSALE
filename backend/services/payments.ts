@@ -290,7 +290,7 @@ export const generateWompiIntegritySignature = (
 
     return signature;
   } catch (error) {
-    console.error("❌ Error generando firma de integridad:", error);
+    console.error("Error generando firma de integridad:", error);
     throw new Error(
       `Error generando firma de integridad: ${
         error instanceof Error ? error.message : "Error desconocido"
@@ -299,9 +299,9 @@ export const generateWompiIntegritySignature = (
   }
 };
 
-// STEP 5: Función para crear transacción en Wompi
-export const createWompiTransactionService = async (
-  transactionData: WompiTransactionData
+export const createPaymentService = async (
+  transactionData: WompiTransactionData,
+  userId: number
 ) => {
   try {
     const config = getWompiConfig();
@@ -410,7 +410,6 @@ export const createWompiTransactionService = async (
       currency
     );
 
-    // Preparar datos de la transacción según la documentación oficial de Wompi
     const transactionPayload: WompiApiPayload = {
       amount_in_cents: amount,
       currency,
@@ -445,32 +444,20 @@ export const createWompiTransactionService = async (
       acceptance_token_auth: acceptPersonalAuth,
     };
 
-    // 💳 NUEVO: Agregar método de pago si está presente
     if (transactionData.payment_method && transactionData.payment_method_type) {
       transactionPayload.payment_method = transactionData.payment_method;
       transactionPayload.payment_method_type =
         transactionData.payment_method_type;
 
-      console.log("💳 Método de pago incluido:", {
+      console.log("Método de pago incluido:", {
         type: transactionData.payment_method.type,
         installments: transactionData.payment_method.installments,
         hasToken: !!transactionData.payment_method.token,
       });
     }
 
-    console.log("🚀 Creando transacción en Wompi:", {
-      reference,
-      amount,
-      currency,
-      customerEmail,
-      hasSignature: !!integritySignature,
-      hasAcceptanceToken: !!acceptanceToken,
-      payloadSize: JSON.stringify(transactionPayload).length,
-    });
-
-    // Log detallado del payload para debugging
     console.log(
-      "📋 Payload completo enviado a Wompi:",
+      "Payload completo enviado a Wompi:",
       JSON.stringify(transactionPayload, null, 2)
     );
 
@@ -585,45 +572,33 @@ export const createWompiTransactionService = async (
 
     const transactionResult = await response.json();
 
-    console.log("✅ Transacción creada exitosamente:", {
-      transactionId: transactionResult.data?.id,
-      status: transactionResult.data?.status,
-      reference: transactionResult.data?.reference,
-    });
-
-    // 🗃️ NUEVA FUNCIONALIDAD: Almacenar payment en base de datos
+    // 🗃️ NUEVA FUNCIONALIDAD: Almacenar payment en base de datos usando fn_create_payment
     try {
       console.log("💾 Almacenando payment en base de datos...");
 
-      // Determinar el método de pago para la base de datos
-      let dbPaymentMethod = "CARD"; // Por defecto
-      if (transactionData.payment_method) {
-        dbPaymentMethod = transactionData.payment_method.type;
-      }
-
-      const paymentDbResult = await prisma.$queryRaw`
-        SELECT * FROM create_payment_transaction(
-          ${transactionResult.data?.id}::VARCHAR(255),
-          ${reference}::VARCHAR(255),
-          ${1}::INTEGER, -- TODO: Obtener order_id real del contexto
-          ${amount}::INTEGER,
-          ${currency}::VARCHAR(3),
-          ${dbPaymentMethod}::payment_method_enum,
-          ${JSON.stringify(transactionData.payment_method || {})}::JSONB,
-          ${transactionData.payment_method?.token || null}::VARCHAR(255),
-          ${acceptanceToken}::TEXT,
-          ${acceptPersonalAuth}::TEXT,
-          ${integritySignature}::VARCHAR(255),
-          ${redirectUrl}::VARCHAR(500),
-          ${transactionResult.data?.checkout_url || null}::VARCHAR(500),
-          ${customerEmail}::VARCHAR(255),
-          ${customerPhone}::VARCHAR(20),
-          ${customerDocumentType}::VARCHAR(10),
-          ${customerDocumentNumber}::VARCHAR(20),
-          ${JSON.stringify(transactionPayload.shipping_address)}::JSONB,
-          ${JSON.stringify(transactionResult.data)}::JSONB
-        )
-      `;
+      // Usar la función auxiliar createPaymentTransaction
+      const paymentDbResult = await createPaymentTransaction({
+        transactionId: transactionResult.data?.id,
+        reference,
+        orderId: null, // Se manejará automáticamente por la función
+        amount,
+        currency,
+        paymentMethod: transactionData.payment_method_type || "CARD",
+        paymentMethodData: transactionData.payment_method || {},
+        paymentToken: transactionData.payment_method?.token,
+        acceptanceToken,
+        acceptPersonalAuth,
+        integritySignature,
+        redirectUrl,
+        checkoutUrl: transactionResult.data?.checkout_url,
+        customerEmail,
+        customerPhone,
+        customerDocumentType,
+        customerDocumentNumber,
+        shippingAddress: transactionPayload.shipping_address,
+        processorResponse: transactionResult.data,
+        userId, // NUEVO: Pasar userId a la función
+      });
 
       console.log("✅ Payment almacenado en base de datos:", paymentDbResult);
     } catch (dbError) {
@@ -780,6 +755,50 @@ export const getWompiTransactionStatusService = async (
   }
 };
 
+// NUEVA FUNCIÓN: Actualizar payment de manera general (no específico para webhooks)
+export const updatePaymentService = async ({
+  transactionId,
+  newStatus,
+  statusMessage,
+  processorResponse,
+  paymentMethodDetails,
+}: {
+  transactionId: string;
+  newStatus: "PENDING" | "APPROVED" | "DECLINED" | "VOIDED" | "ERROR";
+  statusMessage?: string;
+  processorResponse?: object;
+  paymentMethodDetails?: object;
+}) => {
+  try {
+    console.log("🔄 Ejecutando fn_update_payment:", {
+      transactionId,
+      newStatus,
+    });
+
+    const result = await prisma.$queryRaw`
+      SELECT * FROM fn_update_payment(
+        ${transactionId}::VARCHAR(255),
+        ${newStatus}::payment_status_enum,
+        ${statusMessage || null}::VARCHAR(500),
+        ${processorResponse ? JSON.stringify(processorResponse) : null}::JSONB,
+        ${
+          paymentMethodDetails ? JSON.stringify(paymentMethodDetails) : null
+        }::JSONB
+      )
+    `;
+
+    console.log("✅ fn_update_payment ejecutada exitosamente:", result);
+    return { success: true, data: result };
+  } catch (error) {
+    console.error("❌ Error en updatePaymentService:", error);
+    throw new Error(
+      `Error actualizando payment: ${
+        error instanceof Error ? error.message : "Error desconocido"
+      }`
+    );
+  }
+};
+
 // STEP 7: Actualizar estado de payment en base de datos
 export const updatePaymentStatusService = async (
   transactionId: string,
@@ -795,25 +814,25 @@ export const updatePaymentStatusService = async (
       statusMessage,
     });
 
-    const updateResult = await prisma.$queryRaw`
-      SELECT * FROM update_payment_status(
+    // Usar fn_update_payment para todas las actualizaciones
+    const result = await prisma.$queryRaw`
+      SELECT * FROM fn_update_payment(
         ${transactionId}::VARCHAR(255),
         ${newStatus}::payment_status_enum,
         ${statusMessage || null}::VARCHAR(500),
-        ${processorResponseCode || null}::VARCHAR(20),
         ${processorResponse ? JSON.stringify(processorResponse) : null}::JSONB,
-        ${newStatus === "APPROVED" ? new Date() : null}::TIMESTAMP(6),
-        ${
-          newStatus === "DECLINED" || newStatus === "ERROR" ? new Date() : null
-        }::TIMESTAMP(6)
+        ${null}::JSONB
       )
     `;
 
-    console.log("✅ Estado de payment actualizado:", updateResult);
+    console.log(
+      "✅ Estado de payment actualizado con fn_update_payment:",
+      result
+    );
 
     return {
       success: true,
-      data: updateResult,
+      data: result,
     };
   } catch (error) {
     console.error("❌ Error actualizando estado de payment:", error);
@@ -827,15 +846,14 @@ export const updatePaymentStatusService = async (
   }
 };
 
-// STEP 8: Obtener payment desde base de datos
 export const getPaymentByTransactionIdService = async (
   transactionId: string
 ) => {
   try {
-    console.log("🔍 Consultando payment desde BD:", { transactionId });
+    console.log("Consultando payment desde BD:", { transactionId });
 
     const paymentResult = await prisma.$queryRaw`
-      SELECT * FROM get_payment_by_transaction_id(${transactionId}::VARCHAR(255))
+      SELECT * FROM get_payment_by_transaction_id(${transactionId}::VARCHAR)
     `;
 
     console.log("✅ Payment consultado desde BD:", paymentResult);
@@ -856,6 +874,166 @@ export const getPaymentByTransactionIdService = async (
   }
 };
 
+interface CreatePaymentTransactionParams {
+  transactionId: string;
+  reference: string;
+  orderId?: number | null;
+  amount: number;
+  currency: string;
+  paymentMethod: "CARD" | "PSE" | "NEQUI" | "BANCOLOMBIA";
+  paymentMethodData?: object;
+  paymentToken?: string;
+  acceptanceToken: string;
+  acceptPersonalAuth: string;
+  integritySignature: string;
+  redirectUrl: string;
+  checkoutUrl?: string;
+  customerEmail: string;
+  customerPhone: string;
+  customerDocumentType: string;
+  customerDocumentNumber: string;
+  shippingAddress: object;
+  processorResponse?: object;
+  userId?: number | null; // Nuevo parámetro requerido
+}
+
+export const createPaymentTransaction = async (
+  params: CreatePaymentTransactionParams
+) => {
+  try {
+    console.log("🏗️  Ejecutando fn_create_payment:", {
+      transactionId: params.transactionId,
+      reference: params.reference,
+      amount: params.amount,
+      paymentMethod: params.paymentMethod,
+    });
+
+    const result = await prisma.$queryRaw`
+      SELECT * FROM fn_create_payment(
+        ${params.transactionId}::VARCHAR(255),
+        ${params.reference}::VARCHAR(255),
+        ${params.amount}::INTEGER,
+        ${params.paymentMethod}::payment_method_enum,
+        ${params.customerEmail}::VARCHAR(255),
+        ${JSON.stringify([])}::JSONB,
+        ${JSON.stringify(params.shippingAddress)}::JSONB,
+        ${params.userId || null}::INTEGER,
+        ${params.currency}::VARCHAR(3),
+        ${JSON.stringify(params.paymentMethodData || {})}::JSONB,
+        ${params.paymentToken || null}::VARCHAR(255),
+        ${params.acceptanceToken}::TEXT,
+        ${params.acceptPersonalAuth}::TEXT,
+        ${params.integritySignature}::VARCHAR(255),
+        ${params.redirectUrl}::VARCHAR(500),
+        ${params.checkoutUrl || null}::VARCHAR(500),
+        ${params.customerPhone}::VARCHAR(20),
+        ${params.customerDocumentType}::VARCHAR(10),
+        ${params.customerDocumentNumber}::VARCHAR(20),
+        ${JSON.stringify(params.processorResponse || {})}::JSONB
+      )
+    `;
+
+    console.log("✅ fn_create_payment ejecutada exitosamente:", result);
+    return { success: true, data: result };
+  } catch (error) {
+    console.error("❌ Error en createPaymentTransaction:", error);
+    throw new Error(
+      `Error creando payment: ${
+        error instanceof Error ? error.message : "Error desconocido"
+      }`
+    );
+  }
+};
+
+export const updatePaymentFromWebhook = async (webhookData: {
+  transactionId: string;
+  newStatus: "PENDING" | "APPROVED" | "DECLINED" | "VOIDED" | "ERROR";
+  statusMessage?: string;
+  processorResponseCode?: string;
+  processorResponse: object;
+  signature: string;
+  paymentMethodDetails?: object;
+}) => {
+  try {
+    console.log("🔄 Ejecutando fn_update_payment desde webhook:", {
+      transactionId: webhookData.transactionId,
+      newStatus: webhookData.newStatus,
+    });
+
+    // Verificar firma del webhook antes de procesar
+    const expectedSignature = generateWebhookSignature(
+      webhookData.processorResponse
+    );
+    if (webhookData.signature !== expectedSignature) {
+      throw new Error("Firma de webhook inválida");
+    }
+
+    const result = await prisma.$queryRaw`
+      SELECT * FROM fn_update_payment(
+        ${webhookData.transactionId}::VARCHAR(255),
+        ${webhookData.newStatus}::payment_status_enum,
+        ${webhookData.statusMessage || null}::VARCHAR(500),
+        ${JSON.stringify(webhookData.processorResponse)}::JSONB,
+        ${JSON.stringify(webhookData.paymentMethodDetails || {})}::JSONB
+      )
+    `;
+
+    console.log(
+      "✅ fn_update_payment ejecutada exitosamente desde webhook:",
+      result
+    );
+    return { success: true, data: result };
+  } catch (error) {
+    console.error("Error en updatePaymentFromWebhook:", error);
+    throw new Error(
+      `Error actualizando payment desde webhook: ${
+        error instanceof Error ? error.message : "Error desconocido"
+      }`
+    );
+  }
+};
+
+// NUEVA FUNCIÓN: Generar firma para verificación de webhooks
+export const generateWebhookSignature = (webhookData: object): string => {
+  try {
+    const config = getWompiConfig();
+    const secret = config.eventsSecret;
+
+    if (!secret) {
+      throw new Error("WP_EVENTS no está configurado");
+    }
+
+    // Convertir el objeto a string JSON y generar SHA256
+    const dataString = JSON.stringify(webhookData);
+    const signature = crypto
+      .createHash("sha256")
+      .update(dataString + secret, "utf8")
+      .digest("hex");
+
+    return signature;
+  } catch (error) {
+    console.error("Error generando firma de webhook:", error);
+    throw new Error(
+      `Error generando firma de webhook: ${
+        error instanceof Error ? error.message : "Error desconocido"
+      }`
+    );
+  }
+};
+
+export const verifyWebhookSignature = (
+  receivedSignature: string,
+  webhookData: object
+): boolean => {
+  try {
+    const expectedSignature = generateWebhookSignature(webhookData);
+    return receivedSignature === expectedSignature;
+  } catch (error) {
+    console.error("Error verificando firma de webhook:", error);
+    return false;
+  }
+};
+
 // Exportar tipos
 export type {
   AcceptanceToken,
@@ -863,4 +1041,5 @@ export type {
   WompiConfig,
   WompiTransactionData,
   WompiApiPayload,
+  CreatePaymentTransactionParams,
 };

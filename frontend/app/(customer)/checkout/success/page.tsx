@@ -5,7 +5,20 @@ import { useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { CheckCircle, XCircle, Clock, ArrowLeft, Receipt } from "lucide-react";
+import {
+  CheckCircle,
+  XCircle,
+  Clock,
+  ArrowLeft,
+  Receipt,
+  Package,
+  CreditCard,
+} from "lucide-react";
+import {
+  getWompiTransactionStatusApi,
+  getPaymentFromDatabaseApi,
+} from "../services/paymentsApi";
+import TransactionStatusPolling from "./components/TransactionStatusPolling";
 
 interface TransactionStatus {
   id?: string;
@@ -15,38 +28,174 @@ interface TransactionStatus {
   currency?: string;
 }
 
+interface PaymentInfo {
+  id: number;
+  transaction_id: string;
+  payment_status: string;
+  payment_method: string;
+  amount_in_cents: number;
+  currency: string;
+  customer_email: string;
+  created_at: string;
+  approved_at?: string;
+}
+
 export default function CheckoutSuccessPage() {
   const searchParams = useSearchParams();
   const [transactionData, setTransactionData] = useState<TransactionStatus>({});
+  const [paymentInfo, setPaymentInfo] = useState<PaymentInfo | null>(null);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  // Handler para actualizar el estado cuando el polling detecta cambios
+  const handlePollingStatusUpdate = (
+    newStatus: string,
+    pollingTransactionData?: {
+      id: string;
+      status: string;
+      amount_in_cents: number;
+      currency: string;
+      reference?: string;
+      [key: string]: unknown;
+    }
+  ) => {
+    console.log("🔄 Actualizando estado desde polling:", newStatus);
+
+    setTransactionData((prev) => ({
+      ...prev,
+      status: newStatus,
+      ...(pollingTransactionData && {
+        amount: pollingTransactionData.amount_in_cents
+          ? (pollingTransactionData.amount_in_cents / 100).toString()
+          : prev.amount,
+        currency: pollingTransactionData.currency || prev.currency,
+        reference: pollingTransactionData.reference || prev.reference,
+      }),
+    }));
+
+    // Si el estado cambió a APPROVED, re-consultar payment info para obtener datos actualizados
+    if (newStatus.toUpperCase() === "APPROVED" && pollingTransactionData?.id) {
+      console.log("💰 Pago aprobado, consultando payment actualizado...");
+      fetchPaymentInfo(pollingTransactionData.id);
+    }
+  };
+
+  const fetchPaymentInfo = async (transactionId: string) => {
+    try {
+      const dbResult = await getPaymentFromDatabaseApi(transactionId);
+      if (dbResult.success && dbResult.data) {
+        const paymentData = Array.isArray(dbResult.data)
+          ? dbResult.data[0]
+          : dbResult.data;
+
+        if (paymentData) {
+          setPaymentInfo(paymentData as PaymentInfo);
+          console.log("✅ Payment info actualizado:", paymentData);
+        }
+      }
+    } catch (dbError) {
+      console.warn("⚠️ No se pudo consultar payment desde BD:", dbError);
+    }
+  };
 
   useEffect(() => {
-    // Extraer parámetros de la URL devueltos por Wompi
-    const id = searchParams.get("id");
-    const status = searchParams.get("status");
-    const reference = searchParams.get("reference");
-    const amount = searchParams.get("amount");
-    const currency = searchParams.get("currency");
+    const initializePageData = async () => {
+      try {
+        setLoading(true);
 
-    setTransactionData({
-      id: id || undefined,
-      status: status || undefined,
-      reference: reference || undefined,
-      amount: amount || undefined,
-      currency: currency || undefined,
-    });
+        // Extraer parámetros de la URL devueltos por Wompi
+        const id = searchParams.get("id");
+        const status = searchParams.get("status");
+        const reference = searchParams.get("reference");
+        const amount = searchParams.get("amount");
+        const currency = searchParams.get("currency");
 
-    setLoading(false);
+        const initialTransactionData = {
+          id: id || undefined,
+          status: status || undefined,
+          reference: reference || undefined,
+          amount: amount || undefined,
+          currency: currency || undefined,
+        };
 
-    // Log para debugging
-    console.log("📄 Datos de transacción recibidos:", {
-      id,
-      status,
-      reference,
-      amount,
-      currency,
-    });
+        setTransactionData(initialTransactionData);
+
+        console.log(
+          "📄 Datos de transacción recibidos:",
+          initialTransactionData
+        );
+
+        // Si tenemos un ID de transacción, consultar información completa
+        if (id) {
+          await fetchTransactionDetails(id);
+        }
+      } catch (error) {
+        console.error("❌ Error inicializando página:", error);
+        setError("Error cargando información de la transacción");
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    initializePageData();
   }, [searchParams]);
+
+  const fetchTransactionDetails = async (transactionId: string) => {
+    try {
+      console.log("� Consultando detalles de transacción:", transactionId);
+
+      // 1. Consultar estado actualizado de Wompi
+      try {
+        const wompiResult = await getWompiTransactionStatusApi(transactionId);
+        if (wompiResult.success && wompiResult.data) {
+          // Actualizar datos de transacción con información de Wompi
+          const wompiData = wompiResult.data;
+          setTransactionData((prev) => ({
+            ...prev,
+            status: wompiData.status,
+            amount: wompiData.amount_in_cents
+              ? (wompiData.amount_in_cents / 100).toString()
+              : prev.amount,
+            currency: wompiData.currency || prev.currency,
+            reference: wompiData.reference || prev.reference,
+          }));
+
+          console.log("✅ Estado de Wompi actualizado:", {
+            status: wompiData.status,
+            amount: wompiData.amount_in_cents,
+            reference: wompiData.reference,
+          });
+        }
+      } catch (wompiError) {
+        console.warn("⚠️ No se pudo consultar estado de Wompi:", wompiError);
+        // Continuar con consulta de BD local
+      }
+
+      // 2. Consultar payment y orden desde nuestra base de datos
+      try {
+        const dbResult = await getPaymentFromDatabaseApi(transactionId);
+        if (dbResult.success && dbResult.data) {
+          const paymentData = Array.isArray(dbResult.data)
+            ? dbResult.data[0]
+            : dbResult.data;
+
+          if (paymentData) {
+            setPaymentInfo(paymentData as PaymentInfo);
+            console.log("✅ Payment consultado desde BD:", paymentData);
+
+            // Si el payment tiene orden asociada, obtener información de la orden
+            // Nota: En el nuevo sistema, las órdenes se crean automáticamente por webhook
+            // Aquí podrías hacer una consulta adicional para obtener la orden si la necesitas
+          }
+        }
+      } catch (dbError) {
+        console.warn("⚠️ No se pudo consultar payment desde BD:", dbError);
+      }
+    } catch (error) {
+      console.error("❌ Error consultando detalles de transacción:", error);
+      setError("Error consultando detalles de la transacción");
+    }
+  };
 
   const getStatusInfo = (status?: string) => {
     switch (status?.toUpperCase()) {
@@ -55,7 +204,8 @@ export default function CheckoutSuccessPage() {
         return {
           icon: <CheckCircle className="w-16 h-16 text-green-500" />,
           title: "¡Pago aprobado!",
-          message: "Tu pago ha sido procesado exitosamente.",
+          message:
+            "Tu pago ha sido procesado exitosamente y tu orden será creada automáticamente.",
           bgColor: "bg-green-50",
           borderColor: "border-green-200",
           textColor: "text-green-800",
@@ -65,7 +215,7 @@ export default function CheckoutSuccessPage() {
           icon: <Clock className="w-16 h-16 text-yellow-500" />,
           title: "Pago pendiente",
           message:
-            "Tu pago está siendo procesado. Te notificaremos cuando se complete.",
+            "Tu pago está siendo procesado. Te notificaremos cuando se complete y se genere tu orden.",
           bgColor: "bg-yellow-50",
           borderColor: "border-yellow-200",
           textColor: "text-yellow-800",
@@ -99,7 +249,30 @@ export default function CheckoutSuccessPage() {
       <div className="min-h-screen flex items-center justify-center">
         <div className="text-center">
           <div className="w-8 h-8 border-4 border-primary border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
-          <p>Procesando información del pago...</p>
+          <p>Consultando información del pago y orden...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="min-h-screen bg-gray-50 py-12 px-4">
+        <div className="max-w-2xl mx-auto">
+          <Card className="bg-red-50 border-red-200 border-2">
+            <CardHeader className="text-center">
+              <XCircle className="w-16 h-16 text-red-500 mx-auto mb-4" />
+              <CardTitle className="text-2xl font-bold text-red-800">
+                Error
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="text-center">
+              <p className="text-red-700 mb-6">{error}</p>
+              <Button asChild>
+                <Link href="/">Volver al inicio</Link>
+              </Button>
+            </CardContent>
+          </Card>
         </div>
       </div>
     );
@@ -109,7 +282,20 @@ export default function CheckoutSuccessPage() {
 
   return (
     <div className="min-h-screen bg-gray-50 py-12 px-4">
-      <div className="max-w-2xl mx-auto">
+      <div className="max-w-4xl mx-auto space-y-6">
+        {/* Componente de polling para actualización automática del estado */}
+        {transactionData.id && (
+          <TransactionStatusPolling
+            transactionId={transactionData.id}
+            currentStatus={transactionData.status}
+            onStatusUpdate={handlePollingStatusUpdate}
+            enabled={true}
+            pollingInterval={10000} // 10 segundos
+            maxPollingAttempts={18} // 3 minutos máximo
+          />
+        )}
+
+        {/* Estado principal del pago */}
         <Card
           className={`${statusInfo.bgColor} ${statusInfo.borderColor} border-2`}
         >
@@ -131,7 +317,7 @@ export default function CheckoutSuccessPage() {
             {transactionData.id && (
               <div className="bg-white rounded-lg p-4 space-y-3 border">
                 <h3 className="font-semibold text-gray-900 flex items-center gap-2">
-                  <Receipt className="w-5 h-5" />
+                  <CreditCard className="w-5 h-5" />
                   Detalles de la transacción
                 </h3>
 
@@ -177,16 +363,72 @@ export default function CheckoutSuccessPage() {
               </div>
             )}
 
+            {/* Información del payment desde BD */}
+            {paymentInfo && (
+              <div className="bg-white rounded-lg p-4 space-y-3 border">
+                <h3 className="font-semibold text-gray-900 flex items-center gap-2">
+                  <Receipt className="w-5 h-5" />
+                  Información del payment
+                </h3>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
+                  <div>
+                    <span className="text-gray-600">Payment ID:</span>
+                    <p className="font-mono text-gray-900">#{paymentInfo.id}</p>
+                  </div>
+
+                  <div>
+                    <span className="text-gray-600">Método de pago:</span>
+                    <p className="font-semibold text-gray-900 uppercase">
+                      {paymentInfo.payment_method}
+                    </p>
+                  </div>
+
+                  <div>
+                    <span className="text-gray-600">Email del cliente:</span>
+                    <p className="text-gray-900">
+                      {paymentInfo.customer_email}
+                    </p>
+                  </div>
+
+                  <div>
+                    <span className="text-gray-600">Fecha de creación:</span>
+                    <p className="text-gray-900">
+                      {new Date(paymentInfo.created_at).toLocaleString("es-CO")}
+                    </p>
+                  </div>
+
+                  {paymentInfo.approved_at && (
+                    <div>
+                      <span className="text-gray-600">
+                        Fecha de aprobación:
+                      </span>
+                      <p className="text-gray-900">
+                        {new Date(paymentInfo.approved_at).toLocaleString(
+                          "es-CO"
+                        )}
+                      </p>
+                    </div>
+                  )}
+                </div>
+              </div>
+            )}
+
             {/* Información adicional según el estado */}
             {transactionData.status?.toUpperCase() === "APPROVED" && (
               <div className="bg-green-100 border border-green-200 rounded-lg p-4">
-                <h4 className="font-semibold text-green-800 mb-2">
+                <h4 className="font-semibold text-green-800 mb-2 flex items-center gap-2">
+                  <Package className="w-4 h-4" />
                   ¿Qué sigue ahora?
                 </h4>
                 <ul className="text-green-700 text-sm space-y-1">
+                  <li>
+                    • Tu orden será creada automáticamente por nuestro sistema
+                  </li>
                   <li>• Recibirás un email de confirmación en breve</li>
                   <li>• Tu pedido será procesado en las próximas 24 horas</li>
                   <li>• Te notificaremos cuando sea enviado</li>
+                  <li>• Puedes verificar el estado de tu orden en tu perfil</li>
                 </ul>
               </div>
             )}
@@ -198,6 +440,9 @@ export default function CheckoutSuccessPage() {
                 </h4>
                 <ul className="text-yellow-700 text-sm space-y-1">
                   <li>• El pago puede tardar hasta 24 horas en confirmarse</li>
+                  <li>
+                    • Una vez confirmado, tu orden se creará automáticamente
+                  </li>
                   <li>• Te notificaremos por email cuando se complete</li>
                   <li>• Puedes verificar el estado en tu perfil</li>
                 </ul>
@@ -238,7 +483,7 @@ export default function CheckoutSuccessPage() {
                     href="/orders"
                     className="flex items-center justify-center gap-2"
                   >
-                    <Receipt className="w-4 h-4" />
+                    <Package className="w-4 h-4" />
                     Ver mis pedidos
                   </Link>
                 </Button>
@@ -258,9 +503,13 @@ export default function CheckoutSuccessPage() {
               )}
             </div>
 
-            {/* Nota sobre soporte */}
-            <div className="text-center text-sm text-gray-600">
-              <p>
+            {/* Nota sobre el sistema automático */}
+            <div className="text-center text-sm text-gray-600 border-t pt-4">
+              <p className="flex items-center justify-center gap-2">
+                <Package className="w-4 h-4" />
+                Las órdenes se crean automáticamente cuando el pago es aprobado
+              </p>
+              <p className="mt-2">
                 ¿Necesitas ayuda? Contáctanos en{" "}
                 <a
                   href="mailto:soporte@neosale.com"

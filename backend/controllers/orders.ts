@@ -1,11 +1,13 @@
 import { NextFunction } from "express-serve-static-core";
 import {
-  /*   createOrderService,
-   */ getProductWithVariantsService,
+  createOrderService,
+  getProductWithVariantsService,
   checkVariantAvailabilityService,
   getOrderByIdService,
   getUserOrdersService,
   updateOrderStatusService,
+  getOrderWithPaymentService,
+  processWompiOrderWebhook,
 } from "../services/orders";
 import { Request, Response } from "express";
 
@@ -240,5 +242,104 @@ export const updateOrderStatus = async (
     });
   } catch (err) {
     next(err);
+  }
+};
+
+// 🆕 NUEVO: Crear orden desde payment
+export const createOrderFromPayment = async (req: Request, res: Response) => {
+  try {
+    const { paymentId, shippingAddressId, couponId } = req.body;
+
+    if (!paymentId || !shippingAddressId) {
+      return res.status(400).json({
+        success: false,
+        message: "paymentId y shippingAddressId son requeridos",
+      });
+    }
+
+    const result = await createOrderService({
+      paymentId,
+      shippingAddressId,
+      couponId,
+    });
+
+    res.status(201).json({
+      success: true,
+      message: "Orden creada exitosamente desde payment",
+      data: result,
+    });
+  } catch (error) {
+    console.error("❌ Error en createOrderFromPayment:", error);
+    res.status(500).json({
+      success: false,
+      message: "Error creando orden desde payment",
+      error: error instanceof Error ? error.message : "Error desconocido",
+    });
+  }
+};
+
+// 🆕 NUEVO: Obtener orden con información de payment
+export const getOrderWithPayment = async (req: Request, res: Response) => {
+  try {
+    const { orderId } = req.params;
+    const userId = req.user?.id;
+
+    if (!userId) {
+      return res.status(401).json({
+        success: false,
+        message: "Usuario no autenticado",
+      });
+    }
+
+    const order = await getOrderWithPaymentService(parseInt(orderId));
+
+    // Verificar que la orden pertenece al usuario (excepto si es admin)
+    if (order.user_id !== userId && req.user?.role !== "admin") {
+      return res.status(403).json({
+        success: false,
+        message: "No tienes permisos para ver esta orden",
+      });
+    }
+
+    res.json({
+      success: true,
+      data: order,
+    });
+  } catch (error) {
+    console.error("❌ Error en getOrderWithPayment:", error);
+    res.status(500).json({
+      success: false,
+      message: "Error obteniendo orden con payment",
+      error: error instanceof Error ? error.message : "Error desconocido",
+    });
+  }
+};
+
+// 🎯 NUEVO: Procesar webhook específico para órdenes
+export const handleOrderWebhook = async (req: Request, res: Response) => {
+  try {
+    const { transactionId, paymentStatus } = req.body;
+
+    if (!transactionId || !paymentStatus) {
+      return res.status(400).json({
+        success: false,
+        message: "transactionId y paymentStatus son requeridos",
+      });
+    }
+
+    const result = await processWompiOrderWebhook(transactionId, paymentStatus);
+
+    res.json({
+      success: true,
+      message: "Webhook de orden procesado exitosamente",
+      data: result,
+    });
+  } catch (error) {
+    console.error("❌ Error en handleOrderWebhook:", error);
+    res.status(500).json({
+      success: false,
+      message: "Error procesando webhook de orden",
+      error: error instanceof Error ? error.message : "Error desconocido",
+    });
   }
 };

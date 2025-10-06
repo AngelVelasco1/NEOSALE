@@ -1,4 +1,5 @@
 import { api } from "../../../../config/api";
+// Step 2: Configuración pública./config/api";
 
 // 🎯 INTERFACES PARA WOMPI
 
@@ -13,7 +14,6 @@ export interface WompiMerchantData {
   presigned_acceptance: WompiAcceptanceToken;
   presigned_personal_data_auth: WompiAcceptanceToken;
 }
-
 // Step 2: Configuración pública
 export interface WompiPublicConfig {
   publicKey: string;
@@ -363,7 +363,8 @@ export const generateWompiIntegritySignatureApi = async (
 
 // 🎯 STEP 5: CREAR TRANSACCIÓN EN WOMPI
 export const createWompiTransactionApi = async (
-  transactionData: WompiTransactionData
+  transactionData: WompiTransactionData,
+  userId: string | number // NUEVO: userId obligatorio desde NextAuth
 ): Promise<WompiTransactionResponse> => {
   try {
     console.log("� Creando transacción en Wompi:", {
@@ -375,8 +376,9 @@ export const createWompiTransactionApi = async (
       hasPersonalAuthToken: !!transactionData.acceptPersonalAuth,
     });
 
+    // Pasar userId como query param
     const { data: response } = await api.post<WompiTransactionResponse>(
-      "/api/payments/create-transaction",
+      `/api/payments/create-transaction?user_id=${userId}`,
       transactionData
     );
 
@@ -650,7 +652,10 @@ export const processWompiPaymentFlow = async (
     });
 
     // Crear transacción
-    const result = await createWompiTransactionApi(transactionData);
+    const result = await createWompiTransactionApi(
+      transactionData,
+      orderData.userId || 0
+    );
 
     console.log("🎉 Flujo de pago completado exitosamente:", {
       transactionId: result.data?.transactionId,
@@ -661,5 +666,182 @@ export const processWompiPaymentFlow = async (
   } catch (error) {
     console.error("❌ Error en flujo completo de pago Wompi:", error);
     throw error;
+  }
+};
+
+// 🆕 NUEVO: Obtener estado de transacción por ID
+export const getWompiTransactionStatusApi = async (
+  transactionId: string
+): Promise<
+  WompiApiResponse<{
+    id: string;
+    status: string;
+    amount_in_cents: number;
+    reference: string;
+    customer_email: string;
+    currency: string;
+    payment_method: object;
+    status_message?: string;
+    created_at: string;
+    finalized_at?: string;
+    shipping_address?: object;
+    redirect_url?: string;
+    payment_link_id?: string;
+    fullResponse: object;
+  }>
+> => {
+  try {
+    console.log("🔍 Consultando estado de transacción:", { transactionId });
+
+    const { data: response } = await api.get<
+      WompiApiResponse<{
+        id: string;
+        status: string;
+        amount_in_cents: number;
+        reference: string;
+        customer_email: string;
+        currency: string;
+        payment_method: object;
+        status_message?: string;
+        created_at: string;
+        finalized_at?: string;
+        shipping_address?: object;
+        redirect_url?: string;
+        payment_link_id?: string;
+        fullResponse: object;
+      }>
+    >(`/api/payments/transaction/${transactionId}`);
+
+    if (!response.success) {
+      throw new Error(
+        response.error || "Error consultando estado de transacción"
+      );
+    }
+
+    console.log("✅ Estado de transacción obtenido:", {
+      transactionId,
+      status: response.data?.status,
+      amount: response.data?.amount_in_cents,
+      reference: response.data?.reference,
+    });
+
+    return response;
+  } catch (error: unknown) {
+    console.error("❌ Error en getWompiTransactionStatusApi:", error);
+
+    if (error && typeof error === "object" && "response" in error) {
+      const apiError = error as {
+        response: { data?: WompiApiResponse<unknown> };
+      };
+      if (apiError.response?.data) {
+        throw apiError.response.data;
+      }
+    }
+
+    throw {
+      success: false,
+      error:
+        error instanceof Error
+          ? error.message
+          : "Error desconocido consultando estado",
+    };
+  }
+};
+
+// 🆕 NUEVO: Obtener payment desde base de datos
+export const getPaymentFromDatabaseApi = async (
+  transactionId: string
+): Promise<WompiApiResponse<unknown>> => {
+  try {
+    console.log("📊 Consultando payment desde BD:", { transactionId });
+
+    const { data: response } = await api.get<WompiApiResponse<unknown>>(
+      `/api/payments/payment/db/${transactionId}`
+    );
+
+    if (!response.success) {
+      throw new Error(
+        response.error || "Error consultando payment desde base de datos"
+      );
+    }
+
+    console.log("✅ Payment consultado desde BD:", response.data);
+
+    return response;
+  } catch (error: unknown) {
+    console.error("❌ Error en getPaymentFromDatabaseApi:", error);
+
+    if (error && typeof error === "object" && "response" in error) {
+      const apiError = error as {
+        response: { data?: WompiApiResponse<unknown> };
+      };
+      if (apiError.response?.data) {
+        throw apiError.response.data;
+      }
+    }
+
+    throw {
+      success: false,
+      error:
+        error instanceof Error
+          ? error.message
+          : "Error desconocido consultando payment",
+    };
+  }
+};
+
+// 🆕 NUEVO: Crear orden desde payment
+export const createOrderFromPaymentApi = async (orderData: {
+  paymentId: number;
+  shippingAddressId: number;
+  couponId?: number;
+}): Promise<
+  WompiApiResponse<{
+    order_id: number;
+    payment_id: number;
+    total_amount: number;
+    success: boolean;
+    message: string;
+  }>
+> => {
+  try {
+    console.log("🛒 Creando orden desde payment:", orderData);
+
+    const { data: response } = await api.post<
+      WompiApiResponse<{
+        order_id: number;
+        payment_id: number;
+        total_amount: number;
+        success: boolean;
+        message: string;
+      }>
+    >("/api/payments/orders/create-from-payment", orderData);
+
+    if (!response.success) {
+      throw new Error(response.error || "Error creando orden desde payment");
+    }
+
+    console.log("✅ Orden creada desde payment:", response.data);
+
+    return response;
+  } catch (error: unknown) {
+    console.error("❌ Error en createOrderFromPaymentApi:", error);
+
+    if (error && typeof error === "object" && "response" in error) {
+      const apiError = error as {
+        response: { data?: WompiApiResponse<unknown> };
+      };
+      if (apiError.response?.data) {
+        throw apiError.response.data;
+      }
+    }
+
+    throw {
+      success: false,
+      error:
+        error instanceof Error
+          ? error.message
+          : "Error desconocido creando orden",
+    };
   }
 };

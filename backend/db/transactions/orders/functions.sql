@@ -1,9 +1,7 @@
--- Función principal para crear orden desde payment aprobado
 CREATE OR REPLACE FUNCTION fn_create_order(
     p_payment_id INTEGER,
     p_shipping_address_id INTEGER,
-    p_coupon_id INTEGER DEFAULT NULL,
-    p_user_note VARCHAR(500) DEFAULT NULL
+    p_coupon_id INTEGER DEFAULT NULL
 )
 RETURNS TABLE(
     order_id INTEGER,
@@ -138,7 +136,6 @@ BEGIN
         taxes,
         total,
         shipping_address_id,
-        user_note,
         coupon_id,
         coupon_discount,
         user_id,
@@ -154,7 +151,6 @@ BEGIN
         v_taxes,
         v_final_total,
         p_shipping_address_id,
-        p_user_note,
         p_coupon_id,
         v_coupon_discount,
         v_payment.user_id,
@@ -236,7 +232,7 @@ EXCEPTION
 END;
 $$;
 
--- Función especializada para crear order_items desde payment cart_data
+
 CREATE OR REPLACE FUNCTION fn_create_order_items(
     p_order_id INTEGER,
     p_cart_data JSONB
@@ -292,3 +288,4 @@ EXCEPTION
         RETURN QUERY SELECT 0, FALSE, ('Error creando order items: ' || SQLERRM)::TEXT;
 END;
 $$;
+

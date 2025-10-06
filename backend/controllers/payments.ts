@@ -3,14 +3,19 @@ import {
   getWompiAcceptanceTokensService,
   getWompiPublicConfigService,
   generateWompiIntegritySignature,
-  createWompiTransactionService,
+  createPaymentService,
   getWompiTransactionStatusService,
   updatePaymentStatusService,
   getPaymentByTransactionIdService,
+  updatePaymentFromWebhook,
+  verifyWebhookSignature,
   WompiTransactionData,
 } from "../services/payments";
+import {
+  createOrderService,
+  processWompiOrderWebhook,
+} from "../services/orders";
 
-// 🎯 PASO 1: Obtener tokens de aceptación prefirmados
 export const getAcceptanceTokensController = async (
   req: Request,
   res: Response
@@ -77,7 +82,6 @@ export const getPaymentConfigController = async (
   }
 };
 
-// 🎯 Endpoint de prueba para verificar configuración
 export const testWompiConnectionController = async (
   req: Request,
   res: Response
@@ -105,7 +109,6 @@ export const testWompiConnectionController = async (
   }
 };
 
-// 🎯 PASO 4: Generar firma de integridad
 export const generateIntegritySignatureController = async (
   req: Request,
   res: Response
@@ -162,15 +165,21 @@ export const generateIntegritySignatureController = async (
   }
 };
 
-// 🎯 PASO 5: Crear transacción en Wompi
-export const createWompiTransactionController = async (
-  req: Request,
-  res: Response
-) => {
+export const createPaymentController = async (req: Request, res: Response) => {
   try {
     const transactionData: WompiTransactionData = req.body;
 
-    console.log("📥 Solicitud de creación de transacción recibida:", {
+    // OBTENER user_id desde query params (enviado por el frontend)
+    const user_id = Number(req.query.user_id);
+    if (!user_id || isNaN(user_id)) {
+      res.status(400).json({
+        success: false,
+        message: "user_id es requerido en query params para crear pagos.",
+      });
+      return;
+    }
+
+    console.log("Solicitud de creación de transacción recibida:", {
       reference: transactionData.reference,
       amount: transactionData.amount,
       currency: transactionData.currency,
@@ -184,6 +193,7 @@ export const createWompiTransactionController = async (
       shippingAddress: transactionData.shippingAddress,
       acceptanceTokenLength: transactionData.acceptanceToken?.length || 0,
       personalAuthLength: transactionData.acceptPersonalAuth?.length || 0,
+      userId: user_id, // Log del usuario desde query params
     });
 
     // Validar datos requeridos básicos
@@ -210,7 +220,8 @@ export const createWompiTransactionController = async (
       return;
     }
 
-    const result = await createWompiTransactionService(transactionData);
+    // Pasar el userId desde query params a la función de servicio
+    const result = await createPaymentService(transactionData, user_id);
 
     if (!result.success) {
       res.status(500).json({
@@ -612,6 +623,169 @@ export const getPaymentFromDatabaseController = async (
     res.status(500).json({
       success: false,
       message: "Error interno del servidor",
+      error: error instanceof Error ? error.message : "Error desconocido",
+    });
+  }
+};
+
+// 🔗 NUEVO: Webhook de Wompi para procesar eventos de pago
+export const handleWompiWebhookController = async (
+  req: Request,
+  res: Response
+) => {
+  try {
+    console.log("🎯 Webhook de Wompi recibido:", {
+      headers: req.headers,
+      body: req.body,
+      timestamp: new Date().toISOString(),
+    });
+
+    const { data, timestamp, signature } = req.body;
+
+    // Validar que los datos requeridos estén presentes
+    if (!data || !timestamp || !signature) {
+      res.status(400).json({
+        success: false,
+        message: "Webhook incompleto: faltan data, timestamp o signature",
+      });
+      return;
+    }
+
+    const { transaction } = data;
+
+    if (!transaction || !transaction.id) {
+      res.status(400).json({
+        success: false,
+        message: "Datos de transacción incompletos en webhook",
+      });
+      return;
+    }
+
+    // Verificar la firma del webhook
+    const isValidSignature = verifyWebhookSignature(signature, req.body);
+
+    if (!isValidSignature) {
+      console.error("❌ Firma de webhook inválida");
+      res.status(401).json({
+        success: false,
+        message: "Firma de webhook inválida",
+      });
+      return;
+    }
+
+    console.log("✅ Firma de webhook verificada correctamente");
+
+    // Actualizar el payment en la base de datos
+    try {
+      const updateResult = await updatePaymentFromWebhook({
+        transactionId: transaction.id,
+        newStatus: transaction.status,
+        statusMessage: transaction.status_message,
+        processorResponseCode: transaction.processor_response_code,
+        processorResponse: transaction,
+        signature,
+        paymentMethodDetails: transaction.payment_method,
+      });
+
+      console.log("✅ Payment actualizado desde webhook:", updateResult);
+    } catch (updateError) {
+      console.error(
+        "❌ Error actualizando payment desde webhook:",
+        updateError
+      );
+      res.status(500).json({
+        success: false,
+        message: "Error actualizando payment",
+        error:
+          updateError instanceof Error
+            ? updateError.message
+            : "Error desconocido",
+      });
+      return;
+    }
+
+    // Procesar orden si el pago fue aprobado
+    const orderResult = await processWompiOrderWebhook(
+      transaction.id,
+      transaction.status
+    );
+
+    console.log("✅ Webhook procesado exitosamente:", {
+      transactionId: transaction.id,
+      status: transaction.status,
+      orderCreated: orderResult.orderId || "N/A",
+      orderSuccess: orderResult.success,
+    });
+
+    res.status(200).json({
+      success: true,
+      message: "Webhook procesado exitosamente",
+      data: {
+        transactionId: transaction.id,
+        paymentStatus: transaction.status,
+        orderResult,
+      },
+    });
+  } catch (error) {
+    console.error("❌ Error en handleWompiWebhookController:", error);
+    res.status(500).json({
+      success: false,
+      message: "Error procesando webhook",
+      error: error instanceof Error ? error.message : "Error desconocido",
+    });
+  }
+};
+
+// 🆕 NUEVO: Crear orden desde payment aprobado
+export const createOrderFromPaymentController = async (
+  req: Request,
+  res: Response
+) => {
+  try {
+    const { paymentId, shippingAddressId, couponId } = req.body;
+
+    console.log("🛒 Solicitud de creación de orden desde payment:", {
+      paymentId,
+      shippingAddressId,
+      couponId,
+    });
+
+    // Validar datos requeridos
+    if (!paymentId || !shippingAddressId) {
+      res.status(400).json({
+        success: false,
+        message: "paymentId y shippingAddressId son requeridos",
+      });
+      return;
+    }
+
+    if (
+      typeof paymentId !== "number" ||
+      typeof shippingAddressId !== "number"
+    ) {
+      res.status(400).json({
+        success: false,
+        message: "paymentId y shippingAddressId deben ser números",
+      });
+      return;
+    }
+
+    const result = await createOrderService({
+      paymentId,
+      shippingAddressId,
+      couponId,
+    });
+
+    res.status(201).json({
+      success: true,
+      message: "Orden creada exitosamente desde payment",
+      data: result,
+    });
+  } catch (error) {
+    console.error("❌ Error en createOrderFromPaymentController:", error);
+    res.status(500).json({
+      success: false,
+      message: "Error creando orden desde payment",
       error: error instanceof Error ? error.message : "Error desconocido",
     });
   }

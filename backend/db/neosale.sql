@@ -239,64 +239,62 @@ CREATE TABLE cart (
     CONSTRAINT chk_cart_user_or_session CHECK (user_id IS NOT NULL OR session_token IS NOT NULL)
 );
 
-
-
 CREATE TABLE payments (
     id SERIAL PRIMARY KEY,
     
-    -- Identificadores únicos
     transaction_id VARCHAR(255) UNIQUE,      -- ID de Wompi
     reference VARCHAR(255) NOT NULL UNIQUE, -- NEOSALE_202410041234
     
-    -- Información monetaria (en centavos)
     amount_in_cents INTEGER NOT NULL,
     currency VARCHAR(3) DEFAULT 'COP' NOT NULL,
     
-    -- Estado del pago
     payment_status payment_status_enum DEFAULT 'PENDING' NOT NULL,
     status_message VARCHAR(500),
     processor_response_code VARCHAR(20),
     
-    -- Método de pago
     payment_method payment_method_enum NOT NULL,
     payment_method_details JSONB DEFAULT '{}', -- brand, last_four, installments, etc.
     
-    -- Tokens y seguridad
     card_token VARCHAR(255),
     acceptance_token TEXT,
     acceptance_token_auth TEXT,
     signature_used VARCHAR(255),
     
-    -- URLs
     redirect_url VARCHAR(500),
     checkout_url VARCHAR(500),
     
-    -- Datos del cliente
     customer_email VARCHAR(255) NOT NULL,
     customer_phone VARCHAR(20),
     customer_document_type VARCHAR(10),
     customer_document_number VARCHAR(20),
     
-    -- Datos de la compra (para crear la orden después)
     cart_data JSONB NOT NULL, -- Productos, cantidades, precios
     shipping_address JSONB NOT NULL, -- Dirección de envío
     user_id INTEGER NOT NULL REFERENCES "User"(id),
     
-    -- Timestamps
     created_at TIMESTAMP(6) DEFAULT CURRENT_TIMESTAMP NOT NULL,
     updated_at TIMESTAMP(6) DEFAULT CURRENT_TIMESTAMP NOT NULL,
     approved_at TIMESTAMP(6),
     failed_at TIMESTAMP(6),
     
-    -- Auditoría
     processor_response JSONB DEFAULT '{}',
     
-    -- Constraints
     CONSTRAINT chk_payment_amount CHECK (amount_in_cents > 0),
     CONSTRAINT chk_payment_currency CHECK (currency IN ('COP', 'USD')),
     CONSTRAINT chk_payment_customer_email CHECK (customer_email ~* '^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}$'),
     CONSTRAINT chk_payment_phone CHECK (customer_phone ~ '^3\d{9}$' OR customer_phone IS NULL),
     CONSTRAINT chk_payment_document_type CHECK (customer_document_type IN ('CC', 'CE', 'PP', 'TI', 'NIT', 'DNI', 'RG', 'OTHER') OR customer_document_type IS NULL)
+);
+
+CREATE TABLE addresses (
+    id SERIAL PRIMARY KEY,
+    address VARCHAR(255) NOT NULL,
+    country VARCHAR(255) NOT NULL,
+    city VARCHAR(255) NOT NULL,
+    department VARCHAR(255) NOT NULL,
+    is_default BOOLEAN NOT NULL,
+    user_id INTEGER NOT NULL REFERENCES "User"(id) ON DELETE NO ACTION,
+    created_at TIMESTAMP(6) DEFAULT CURRENT_TIMESTAMP NOT NULL
 );
 
 CREATE TABLE orders (
@@ -361,16 +359,7 @@ CREATE TABLE "Account" (
     PRIMARY KEY (provider, provider_account_id)
 );
 
-CREATE TABLE addresses (
-    id SERIAL PRIMARY KEY,
-    address VARCHAR(255) NOT NULL,
-    country VARCHAR(255) NOT NULL,
-    city VARCHAR(255) NOT NULL,
-    department VARCHAR(255) NOT NULL,
-    is_default BOOLEAN NOT NULL,
-    user_id INTEGER NOT NULL REFERENCES "User"(id) ON DELETE NO ACTION,
-    created_at TIMESTAMP(6) DEFAULT CURRENT_TIMESTAMP NOT NULL
-);
+
 
 CREATE TABLE cart_items (
     id SERIAL PRIMARY KEY,
@@ -528,7 +517,6 @@ CREATE INDEX idx_cart_item_product ON cart_items(product_id);
 -- Órdenes
 CREATE INDEX idx_order_user ON orders(user_id);
 CREATE INDEX idx_order_status ON orders(status);
-CREATE INDEX idx_order_payment_status ON orders(payment_status);
 CREATE INDEX idx_order_updated ON orders(updated_at);
 CREATE INDEX idx_order_address ON orders(shipping_address_id);
 
