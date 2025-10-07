@@ -7,11 +7,7 @@
     "dev": "tsx app.ts",
     "back": "npm run dev",
     "build": "tsc",
-    "start": "node dist/app.js",
-    "prisma:generate": "prisma generate --schema=../prisma/schema.prisma",
-    "prisma:pull": "prisma db pull --schema=../prisma/schema.prisma",
-    "prisma:push": "prisma db push --schema=../prisma/schema.prisma",
-    "prisma:migrate": "prisma migrate dev --schema=../prisma/schema.prisma --env-file=./.env"
+    "start": "node dist/app.js"
   },
   "dependencies": {
     "@prisma/client": "^6.16.2",
@@ -20,9 +16,7 @@
     "cookie-parser": "^1.4.7",
     "cors": "^2.8.5",
     "express": "^5.1.0",
-    "jose": "^6.1.0",
-    "jsonwebtoken": "^9.0.2",
-    "mercadopago": "^2.8.0",
+    "redis": "^5.8.3",
     "router": "^2.2.0"
   },
   "devDependencies": {
@@ -30,8 +24,8 @@
     "@types/cookie-parser": "^1.4.9",
     "@types/cors": "^2.8.19",
     "@types/express": "^5.0.3",
-    "@types/jsonwebtoken": "^9.0.10",
     "@types/node": "^24.0.3",
+    "@types/redis": "^4.0.10",
     "prisma": "^6.10.1",
     "tsx": "^4.20.3",
     "typescript": "^5.8.3"

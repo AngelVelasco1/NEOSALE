@@ -1,4 +1,4 @@
-CREATE OR REPLACE FUNCTION sp_create_address(
+CREATE OR REPLACE FUNCTION fn_create_address(
     p_address TEXT, 
     p_country TEXT, 
     p_city TEXT, 
@@ -35,7 +35,6 @@ EXCEPTION
 END; 
 $$;
 
--- ✅ ACTUALIZAR DIRECCIÓN (PROCEDURE - con validación de propietario)
 CREATE OR REPLACE PROCEDURE sp_update_address(
     p_id INT,
     p_address TEXT, 
@@ -43,7 +42,7 @@ CREATE OR REPLACE PROCEDURE sp_update_address(
     p_city TEXT, 
     p_department TEXT,
     p_is_default BOOLEAN DEFAULT NULL,
-    p_user_id INT DEFAULT NULL  -- Para validar que le pertenece al usuario
+    p_user_id INT DEFAULT NULL
 )
 LANGUAGE plpgsql
 AS $$
@@ -59,7 +58,7 @@ BEGIN
         RAISE EXCEPTION 'Dirección no encontrada' USING ERRCODE = 'no_data_found';
     END IF;
 
-    -- Validar que le pertenece al usuario (si se proporciona user_id)
+    -- Validar que le pertenece al usuario 
     IF p_user_id IS NOT NULL AND v_current_user_id != p_user_id THEN
         RAISE EXCEPTION 'No tienes permisos para modificar esta dirección' USING ERRCODE = 'insufficient_privilege';
     END IF;
@@ -91,10 +90,9 @@ EXCEPTION
 END;
 $$;
 
--- ✅ ELIMINAR DIRECCIÓN (PROCEDURE - con validación de propietario)
 CREATE OR REPLACE PROCEDURE sp_delete_address(
     p_id INT,
-    p_user_id INT DEFAULT NULL  -- Para validar que le pertenece al usuario
+    p_user_id INT DEFAULT NULL  
 )
 LANGUAGE plpgsql
 AS $$
@@ -112,7 +110,7 @@ BEGIN
         RAISE EXCEPTION 'Dirección no encontrada' USING ERRCODE = 'no_data_found';
     END IF;
 
-    -- Validar que le pertenece al usuario (si se proporciona user_id)
+    -- Validar que le pertenece al usuario 
     IF p_user_id IS NOT NULL AND v_current_user_id != p_user_id THEN
         RAISE EXCEPTION 'No tienes permisos para eliminar esta dirección' USING ERRCODE = 'insufficient_privilege';
     END IF;
@@ -153,7 +151,6 @@ EXCEPTION
 END;
 $$;
 
--- ✅ ESTABLECER DIRECCIÓN COMO DEFAULT (PROCEDURE)
 CREATE OR REPLACE PROCEDURE sp_set_default_address(
     p_id INT,
     p_user_id INT
@@ -194,89 +191,5 @@ EXCEPTION
         RAISE EXCEPTION 'No tienes permisos para modificar esta dirección';
     WHEN OTHERS THEN
         RAISE EXCEPTION 'Error inesperado al establecer dirección predeterminada: %', SQLERRM;
-END;
-$$;
-
--- ✅ OBTENER DIRECCIONES DE UN USUARIO (FUNCTION)
-CREATE OR REPLACE FUNCTION sp_get_user_addresses(p_user_id INT)
-RETURNS TABLE (
-    id INT,
-    address VARCHAR(255),
-    country VARCHAR(255),
-    city VARCHAR(255),
-    department VARCHAR(255),
-    is_default BOOLEAN,
-    created_at TIMESTAMP
-)
-LANGUAGE plpgsql
-AS $$
-BEGIN
-    IF p_user_id IS NULL THEN
-        RAISE EXCEPTION 'El ID de usuario es obligatorio' USING ERRCODE = 'not_null_violation';
-    END IF;
-
-    RETURN QUERY
-    SELECT 
-        a.id,
-        a.address,
-        a.country,
-        a.city,
-        a.department,
-        a.is_default,
-        a.created_at
-    FROM addresses a
-    WHERE a.user_id = p_user_id
-    ORDER BY a.is_default DESC;
-
-EXCEPTION
-    WHEN not_null_violation THEN
-        RAISE EXCEPTION 'ID de usuario requerido';
-    WHEN OTHERS THEN
-        RAISE EXCEPTION 'Error inesperado al obtener direcciones: %', SQLERRM;
-END;
-$$;
-
--- ✅ OBTENER UNA DIRECCIÓN ESPECÍFICA (FUNCTION)
-CREATE OR REPLACE FUNCTION sp_get_address_by_id(p_id INT, p_user_id INT)
-RETURNS TABLE (
-    id INT,
-    address VARCHAR(255),
-    country VARCHAR(255),
-    city VARCHAR(255),
-    department VARCHAR(255),
-    is_default BOOLEAN,
-    created_at TIMESTAMP
-)
-LANGUAGE plpgsql
-AS $$
-BEGIN
-    IF p_id IS NULL OR p_user_id IS NULL THEN
-        RAISE EXCEPTION 'ID de dirección y usuario son obligatorios' USING ERRCODE = 'not_null_violation';
-    END IF;
-
-    RETURN QUERY
-    SELECT 
-        a.id,
-        a.address,
-        a.country,
-        a.city,
-        a.department,
-        a.is_default,
-        a.created_at
-    FROM addresses a
-    WHERE a.id = p_id AND a.user_id = p_user_id;
-
-    -- Verificar si se encontró la dirección
-    IF NOT FOUND THEN
-        RAISE EXCEPTION 'Dirección no encontrada o no pertenece al usuario' USING ERRCODE = 'no_data_found';
-    END IF;
-
-EXCEPTION
-    WHEN not_null_violation THEN
-        RAISE EXCEPTION 'ID de dirección y usuario requeridos';
-    WHEN no_data_found THEN
-        RAISE EXCEPTION 'Dirección no encontrada o no pertenece al usuario';
-    WHEN OTHERS THEN
-        RAISE EXCEPTION 'Error inesperado al obtener dirección: %', SQLERRM;
 END;
 $$;

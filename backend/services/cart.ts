@@ -1,8 +1,32 @@
 import { prisma } from "../lib/prisma";
 
-export const getCartService = async (user_id: number) => {
+export interface CartItem {
+  id: number;
+  color_code: string;
+  name: string;
+  price: number;
+  quantity: number;
+  description: string;
+  size: string;
+  total: number;
+  stock: number;
+  image_url: string | null;
+  alt_text: string;
+  category: string;
+}
+
+export interface CartResponse {
+  items: CartItem[];
+  total_items: number;
+  total_amount: number;
+  cart_id: number;
+}
+
+export const getCartService = async (
+  user_id: string
+): Promise<CartResponse> => {
   const cart = await prisma.cart.findFirst({
-    where: { user_id: user_id },
+    where: { user_id: parseInt(user_id) },
     include: {
       cart_items: {
         include: {
@@ -10,11 +34,15 @@ export const getCartService = async (user_id: number) => {
             include: {
               categories: true,
               product_variants: {
+                where: {
+                  color_code: { not: undefined },
+                  size: { not: undefined },
+                },
                 select: {
                   size: true,
                   color_code: true,
                   stock: true,
-                }
+                },
               },
               images: {
                 select: {
@@ -23,101 +51,155 @@ export const getCartService = async (user_id: number) => {
                   color_code: true,
                 },
                 orderBy: {
-                  is_primary: 'desc',
-                }
-              }
+                  is_primary: "desc",
+                },
+              },
             },
           },
         },
       },
     },
   });
-  
-  if (!cart) {
-    return [];
+
+  if (!cart || cart.cart_items.length === 0) {
+    return {
+      items: [],
+      total_items: 0,
+      total_amount: 0,
+      cart_id: cart?.id || 0,
+    };
   }
-  
-  const cartProducts = cart.cart_items.map((item) => {
-    const variant = item.products.product_variants.find((variant) => 
-        variant.color_code === item.color_code &&
-        variant.size === item.size
+
+  const cartItems: CartItem[] = cart.cart_items.map((item) => {
+    const variant = item.products.product_variants.find(
+      (v) => v.color_code === item.color_code && v.size === item.size
     );
 
-    const selectedColorImage = item.products.images.find(img => 
-      img.color_code === item.color_code
+    const colorImage = item.products.images.find(
+      (img) => img.color_code === item.color_code
     );
+    const primaryImage = item.products.images.find((img) => img.is_primary);
+    const fallbackImage = item.products.images[0];
 
-    const fallbackImage = item.products.images.find(img => img.is_primary) 
-                         || item.products.images[0];
+    const selectedImage = colorImage || primaryImage || fallbackImage;
 
-    const selectedImage = selectedColorImage || fallbackImage;
-
-   return {
+    return {
       id: item.products.id,
       color_code: item.color_code,
       name: item.products.name,
-      price: Number(item.products.price), // Asegurarse que sea número
+      price: Number(item.products.price),
       quantity: item.quantity,
-      description: item.products.description || `${item.products.name} - Color: ${item.color_code} - Talla: ${item.size}`,
+      description:
+        item.products.description ||
+        `${item.products.name} - Color: ${item.color_code} - Talla: ${item.size}`,
       size: item.size,
-      total: item.quantity * item.unit_price, 
+      total: item.quantity * item.unit_price,
       stock: variant?.stock || 0,
       image_url: selectedImage?.image_url || null,
-      alt_text: selectedImage?.color_code ? 
-        `${item.products.name} color ${selectedImage.color_code}` : 
-        item.products.name,
-      category: item.products.categories?.name || 'general' 
+      alt_text: selectedImage?.color_code
+        ? `${item.products.name} color ${selectedImage.color_code}`
+        : item.products.name,
+      category: item.products.categories?.name || "general",
     };
   });
 
-  return cartProducts;
+  return {
+    items: cartItems,
+    total_items: cartItems.reduce((sum, item) => sum + item.quantity, 0),
+    total_amount: cartItems.reduce((sum, item) => sum + item.total, 0),
+    cart_id: cart.id,
+  };
 };
 
 export const addProductToCartService = async (
-  user_id: number,
+  user_id: string,
   product_id: number,
-  quantity: number,
   color_code: string,
   size: string,
-) => {
-  if (!user_id || !product_id || !quantity || quantity <= 0) {
+  quantity: number
+): Promise<CartResponse> => {
+  if (!user_id || !product_id || quantity <= 0 || !color_code || !size) {
     throw new Error("Parámetros inválidos");
   }
 
-  const cart = await prisma.cart.findFirst({
-    where: { user_id: user_id },
-  });
-
-  if (!cart) {
-    await prisma.$executeRaw`CALL sp_create_cart(${user_id}::integer)`;
-  }
-
   await prisma.$executeRaw`CALL sp_add_product_to_cart(${user_id}::integer, ${product_id}::integer, ${quantity}::integer, ${color_code}::varchar, ${size}::varchar)`;
+
+  return await getCartService(user_id);
 };
 
-export const deleteProductFromCartService = async (
-  user_id: number,
+export const updateCartItemService = async (
+  user_id: string,
+  product_id: number,
+  quantity: number,
+  color_code: string,
+  size: string
+): Promise<CartResponse> => {
+  if (!user_id || !product_id || quantity < 0 || !color_code || !size) {
+    throw new Error("Parámetros inválidos");
+  }
+
+  if (quantity === 0) {
+    return await removeCartItemService(user_id, product_id, color_code, size);
+  }
+
+  await prisma.$queryRaw`
+    CALL sp_update_cart_quantity(${user_id}::integer, ${product_id}::integer, ${quantity}::integer, ${color_code}::varchar, ${size}::varchar)
+  `;
+
+  return await getCartService(user_id);
+};
+
+export const removeCartItemService = async (
+  user_id: string,
   product_id: number,
   color_code: string,
-  size: string,
-) => {
+  size: string
+): Promise<CartResponse> => {
   if (!user_id || !product_id || !color_code || !size) {
     throw new Error("Parámetros inválidos");
   }
 
   await prisma.$executeRaw`CALL sp_delete_product_from_cart(${user_id}::integer, ${product_id}::integer, ${color_code}::varchar, ${size}::varchar)`;
+
+  return await getCartService(user_id);
 };
 
-export const updateProductQuantityService = async (
-  user_id: number,
+export const getCartItemIdService = async (
+  user_id: string,
   product_id: number,
-  new_quantity: number,
   color_code: string,
-  size: string,
-) => {
-  if (!user_id || !product_id || new_quantity < 0 || !color_code || !size) {
-    throw new Error("Parámetros inválidos");
+  size: string
+): Promise<number | null> => {
+  try {
+    const cartItem = await prisma.cart_items.findFirst({
+      where: {
+        cart: { user_id: parseInt(user_id) },
+        product_id,
+        color_code,
+        size,
+      },
+      select: { id: true },
+    });
+
+    return cartItem?.id || null;
+  } catch (error) {
+    return null;
+  }
+};
+
+export const clearCartService = async (
+  user_id: string
+): Promise<CartResponse> => {
+  if (!user_id) {
+    throw new Error("ID de usuario requerido");
   }
 
-  await prisma.$executeRaw`CALL sp_update_cart_quantity(${user_id}::integer, ${product_id}::integer, ${new_quantity}::integer, ${color_code}::varchar, ${size}::varchar)`;
-}
+  await prisma.$queryRaw`CALL ClearCart(${user_id})`;
+
+  return {
+    items: [],
+    total_items: 0,
+    total_amount: 0,
+    cart_id: 0,
+  };
+};

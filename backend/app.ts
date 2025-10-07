@@ -19,11 +19,11 @@ app.use(
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
-app.use(cookieParser()); // NUEVO: Middleware para parsear cookies
+app.use(cookieParser());
 
 app.get("/", (req, res) => {
   res.json({
-    message: "API is running",
+    message: "Servidor Corriendo",
     timestamp: new Date().toISOString(),
   });
 });
@@ -37,7 +37,7 @@ app.use((req, res, next) => {
 
 app.use(errorsHandler);
 
-app.listen(Number(BACK_CONFIG.port), "0.0.0.0", () => {
+app.listen(Number(BACK_CONFIG.port), "0.0.0.0", async () => {
   console.log(
     `Servidor corriendo en http://${BACK_CONFIG.host}:${BACK_CONFIG.port}`
   );

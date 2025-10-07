@@ -457,7 +457,10 @@ export const Navbar = () => {
                     <User className="h-4 w-4 mr-3" />
                     Mi Perfil
                   </DropdownMenuItem>
-                  <DropdownMenuItem className="hover:bg-accent hover:text-blue-600 cursor-pointer font-inter rounded-lg p-3 font-medium">
+                  <DropdownMenuItem
+                    onClick={() => router.push("/orders")}
+                    className="hover:bg-accent hover:text-blue-600 cursor-pointer font-inter rounded-lg p-3 font-medium"
+                  >
                     <ShoppingCart className="h-4 w-4 mr-3" />
                     Mis Pedidos
                   </DropdownMenuItem>
