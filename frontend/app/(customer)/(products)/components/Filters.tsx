@@ -1,8 +1,9 @@
 "use client"
+import React from "react"
 import { useProductFilters } from "../hooks/useFilter"
 import { DesktopFilter } from "./DesktopFilter"
 import { MobileFilter } from "./MobileFilter"
-import type { FilterProps } from "../types"
+import type { FilterProps } from "../../types"
 
 export const ProductFilter = ({ products, setFilteredProducts }: FilterProps) => {
   const {
@@ -11,10 +12,12 @@ export const ProductFilter = ({ products, setFilteredProducts }: FilterProps) =>
     updateFilter,
     handleColorToggle,
     handleCategoryToggle,
+    handleSubcategoryToggle,
     clearAllFilters,
     activeFiltersCount,
     getColorCount,
     getCategoryCount,
+    getSubcategoryCount,
   } = useProductFilters(products, setFilteredProducts)
 
   const commonProps = {
@@ -25,9 +28,11 @@ export const ProductFilter = ({ products, setFilteredProducts }: FilterProps) =>
     updateFilter,
     handleColorToggle,
     handleCategoryToggle,
+    handleSubcategoryToggle,
     clearAllFilters,
     getColorCount,
     getCategoryCount,
+    getSubcategoryCount,
   }
 
   return (

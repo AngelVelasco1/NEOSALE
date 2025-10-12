@@ -6,6 +6,7 @@ import { addressesRoutes } from "./addresses";
 import { reviewsRoutes } from "./reviews";
 import { paymentsRoutes } from "./payments";
 import { ordersRoutes } from "./orders";
+import { categoriesRoutes } from "./categories";
 
 export const initRoutes = () => {
   const app = Router();
@@ -16,6 +17,7 @@ export const initRoutes = () => {
   app.use("/addresses", addressesRoutes());
   app.use("/reviews", reviewsRoutes());
   app.use("/payments", paymentsRoutes());
+  app.use("/categories", categoriesRoutes());
 
   return app;
 };

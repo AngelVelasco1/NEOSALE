@@ -4,6 +4,8 @@ import {
   removeCartItemService,
   updateCartItemService,
   clearCartService,
+  getCartItemCountService,
+  getCartSummaryService,
 } from "../services/cart";
 import { NextFunction, Request, Response } from "express";
 

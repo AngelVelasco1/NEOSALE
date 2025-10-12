@@ -118,3 +118,19 @@ BEGIN
         AND COALESCE(size, '') = COALESCE(p_size, '');
 END;
 $$;
+
+CREATE OR REPLACE FUNCTION fn_clear_cart(p_user_id INT)
+RETURNS VOID
+LANGUAGE plpgsql
+AS $$
+DECLARE
+    v_cart_id INT;
+BEGIN
+    SELECT id INTO v_cart_id FROM cart WHERE user_id = p_user_id;
+    IF v_cart_id IS NULL THEN
+        RAISE EXCEPTION 'El usuario no tiene carrito';
+    END IF;
+
+    DELETE FROM cart_items WHERE cart_id = v_cart_id;
+END;
+$$;

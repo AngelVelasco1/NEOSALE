@@ -9,7 +9,7 @@ import { ColorFilter } from "./filters/ColorFilter"
 import { CategoryFilter } from "./filters/CategoryFilter"
 import { SortFilter } from "./filters/SortFilter"
 import { ActiveFilters } from "./filters/ActiveFilters"
-import type { FilterState } from "../types"
+import type { FilterState, CategoryWithSubcategories, IProduct } from "../../types"
 import React from "react"
 
 interface Color {
@@ -19,7 +19,7 @@ interface Color {
 
 interface UniqueData {
   colors: Color[]
-  categories: string[]
+  categories: CategoryWithSubcategories[]
   priceRange: { min: number; max: number }
 }
 
@@ -27,13 +27,15 @@ interface DesktopFilterProps {
   filters: FilterState
   uniqueData: UniqueData
   activeFiltersCount: number
-  products: unknown[]
+  products: IProduct[]
   updateFilter: (key: keyof FilterState, value: unknown) => void
   handleColorToggle: (colorCode: string) => void
   handleCategoryToggle: (category: string) => void
+  handleSubcategoryToggle: (subcategory: string) => void
   clearAllFilters: () => void
   getColorCount: (colorCode: string) => number
   getCategoryCount: (category: string) => number
+  getSubcategoryCount: (subcategory: string) => number
 }
 
 export const DesktopFilter = ({
@@ -44,9 +46,11 @@ export const DesktopFilter = ({
   updateFilter,
   handleColorToggle,
   handleCategoryToggle,
+  handleSubcategoryToggle,
   clearAllFilters,
   getColorCount,
   getCategoryCount,
+  getSubcategoryCount,
 }: DesktopFilterProps) => {
   return (
     <div className="hidden lg:block space-y-6 bg-white/80 backdrop-blur-sm rounded-xl shadow-lg border border-blue-100 p-6 sticky top-4">
@@ -93,8 +97,11 @@ export const DesktopFilter = ({
       <CategoryFilter
         categories={uniqueData.categories}
         selectedCategories={filters.selectedCategories}
+        selectedSubcategories={filters.selectedSubcategories}
         onCategoryToggle={handleCategoryToggle}
+        onSubcategoryToggle={handleSubcategoryToggle}
         getCategoryCount={getCategoryCount}
+        getSubcategoryCount={getSubcategoryCount}
       />
 
       <Separator className="bg-gradient-to-r from-blue-100 to-indigo-100" />

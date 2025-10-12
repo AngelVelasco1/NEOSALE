@@ -13,13 +13,17 @@ export const getProducts = async (
 ) => {
   try {
     const id = req.query.id ? Number(req.query.id) : undefined;
-    const products = await getProductsService(id);
+    const category = req.query.category as string | undefined;
+    const subcategory = req.query.subcategory as string | undefined;
+
+    const products = await getProductsService(id, category, subcategory);
+
     res.status(200).json(products);
   } catch (err) {
+    console.error("❌ Error en controller:", err);
     next(err);
   }
 };
-
 export const getLatestProducts = async (
   req: Request,
   res: Response,
