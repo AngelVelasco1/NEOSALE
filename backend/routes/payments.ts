@@ -11,6 +11,9 @@ import {
   getPaymentFromDatabaseController,
   handleWompiWebhookController,
   createOrderFromPaymentController,
+  // 🏦 PSE CONTROLLERS
+  getFinancialInstitutionsController,
+  createPSEPaymentController,
 } from "../controllers/payments";
 
 export const paymentsRoutes = () =>
@@ -20,6 +23,10 @@ export const paymentsRoutes = () =>
     .get("/test-connection", testWompiConnectionController)
     .get("/transaction/:transactionId", getTransactionStatusController)
     .get("/payment/db/:transactionId", getPaymentFromDatabaseController)
+    // 🏦 PSE ROUTES
+    .get("/pse/financial-institutions", getFinancialInstitutionsController)
+    .post("/pse/create-transaction", createPSEPaymentController)
+    // 💳 CARD & GENERAL ROUTES
     .post("/generate-signature", generateIntegritySignatureController)
     .post("/create-transaction", createPaymentController)
     .post("/validate-data", validateWompiDataController)

@@ -180,6 +180,8 @@ INSERT INTO images (image_url, color_code, color, is_primary, product_id, varian
 ('https://via.placeholder.com/500x500/CD853F/FFFFFF?text=IKEA+Bed', '#CD853F', 'Café', TRUE, 15, 19),
 ('https://via.placeholder.com/500x500/808080/FFFFFF?text=Discontinued+Product', '#808080', 'Gris', TRUE, 16, 20);
 
+
+
 -- DIRECCIONES DE USUARIOS
 INSERT INTO addresses (address, country, city, department, is_default, user_id) VALUES 
 ('Carrera 27 #34-56, Cabecera', 'Colombia', 'Bucaramanga', 'Santander', TRUE, 1),

@@ -212,6 +212,7 @@ CREATE TABLE product_variants (
     id SERIAL PRIMARY KEY,
     product_id INTEGER NOT NULL REFERENCES products(id) ON DELETE CASCADE,
     color_code VARCHAR(7) NOT NULL,
+    color VARCHAR(255) NOT NULL,
     size VARCHAR(25) NOT NULL,
     stock INTEGER NOT NULL,
     sku VARCHAR(100), 
@@ -296,6 +297,9 @@ CREATE TABLE addresses (
     user_id INTEGER NOT NULL REFERENCES "User"(id) ON DELETE NO ACTION,
     created_at TIMESTAMP(6) DEFAULT CURRENT_TIMESTAMP NOT NULL
 );
+
+GRANT SELECT, INSERT, UPDATE ON neosale.* 
+TO 'app_user'@'%' IDENTIFIED BY 'claveSegura';
 
 CREATE TABLE orders (
     id SERIAL PRIMARY KEY,  

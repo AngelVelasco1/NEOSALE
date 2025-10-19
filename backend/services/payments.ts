@@ -22,48 +22,20 @@ interface WompiConfig {
   baseUrl: string;
 }
 
-// Interface para datos que recibimos del frontend
-interface WompiTransactionData {
-  acceptanceToken: string;
-  acceptPersonalAuth: string;
-  customerEmail: string;
-  customerName: string;
-  customerPhone: string;
-  customerDocumentType: string;
-  customerDocumentNumber: string;
-  shippingAddress: {
-    line1: string;
-    line2?: string;
-    city: string;
-    state: string;
-    country: string;
-    postalCode: string;
-    name?: string;
-  };
-  amount: number;
-  currency: string;
-  reference: string;
-  description?: string;
-  redirectUrl?: string;
-  // 💳 Métodos de pago
-  payment_method?: {
-    type: "CARD";
-    installments: number;
-    token: string;
-  };
-  payment_method_type?: "CARD" | "NEQUI" | "PSE";
-  // 🛒 NUEVO: Datos del carrito
-  cartData?: Array<{
-    product_id: number;
-    quantity: number;
-    price: number; // EN PESOS o CENTAVOS
-    name?: string;
-    color_code?: string;
-    size?: string;
-  }>;
+interface PSEFinancialInstitution {
+  financial_institution_code: string;
+  financial_institution_name: string;
 }
 
-// Interface específica para el payload que enviaremos a Wompi API
+interface PSEPaymentMethod {
+  type: "PSE";
+  user_type: 0 | 1; // 0: Natural, 1: Jurídica
+  user_legal_id_type: "CC" | "CE" | "NIT" | "PP";
+  user_legal_id: string;
+  financial_institution_code: string;
+  payment_description: string;
+}
+
 interface WompiApiPayload {
   amount_in_cents: number;
   currency: string;
@@ -99,7 +71,77 @@ interface WompiApiPayload {
   payment_method_type?: "CARD" | "NEQUI" | "PSE";
 }
 
-// Configuración de Wompi
+interface WompiTransactionData {
+  acceptanceToken: string;
+  acceptPersonalAuth: string;
+  customerEmail: string;
+  customerName: string;
+  customerPhone: string;
+  customerDocumentType: string;
+  customerDocumentNumber: string;
+  shippingAddress: {
+    line1: string;
+    line2?: string;
+    city: string;
+    state: string;
+    country: string;
+    postalCode: string;
+    name?: string;
+  };
+  amount: number;
+  currency: string;
+  reference: string;
+  description?: string;
+  redirectUrl?: string;
+  payment_method?: {
+    type: "CARD";
+    installments: number;
+    token: string;
+  };
+  payment_method_type?: "CARD" | "NEQUI" | "PSE";
+  cartData?: Array<{
+    product_id: number;
+    quantity: number;
+    price: number;
+    name?: string;
+    color_code?: string;
+    size?: string;
+  }>;
+}
+
+interface PSETransactionData {
+  amount: number;
+  currency: string;
+  customerEmail: string;
+  reference: string;
+  pseDetails: Omit<PSEPaymentMethod, "type">;
+  customerData: {
+    phone_number: string;
+    full_name: string;
+  };
+  shippingAddress?: {
+    address_line_1: string;
+    address_line_2?: string;
+    city: string;
+    region: string;
+    country: string;
+    postal_code: string;
+    phone_number: string;
+    name?: string;
+  };
+
+  userId?: number;
+  clientIP?: string;
+  cartData?: Array<{
+    product_id: number;
+    quantity: number;
+    price: number;
+    name?: string;
+    color_code?: string;
+    size?: string;
+  }>;
+}
+
 const getWompiConfig = (): WompiConfig => {
   const environment =
     process.env.NODE_ENV === "production" ? "production" : "sandbox";
@@ -199,14 +241,9 @@ export const getWompiAcceptanceTokensService = async () => {
   }
 };
 
-// 🎯 PASO 2: Obtener configuración pública (incluye tokens y links)
 export const getWompiPublicConfigService = async () => {
   try {
     const config = getWompiConfig();
-
-    console.log("📡 Obteniendo configuración pública de Wompi...");
-
-    // Obtener tokens de aceptación
     const tokensResult = await getWompiAcceptanceTokensService();
 
     if (!tokensResult.success) {
@@ -221,7 +258,6 @@ export const getWompiPublicConfigService = async () => {
       checkoutUrl: "https://checkout.wompi.co/p/",
       widgetUrl: "https://checkout.wompi.co/widget.js",
       acceptanceTokens: tokensResult.data,
-      // 🎯 PASO 2: Links de contratos para mostrar al usuario
       contractLinks: {
         termsAndConditions: {
           url: tokensResult.data?.presigned_acceptance.permalink,
@@ -235,20 +271,12 @@ export const getWompiPublicConfigService = async () => {
         },
       },
     };
-
-    console.log("✅ Configuración pública de Wompi obtenida:", {
-      publicKey: config.publicKey.substring(0, 20) + "...",
-      environment: config.environment,
-      hasTokens: !!tokensResult.data,
-      contractLinksCount: Object.keys(publicConfig.contractLinks).length,
-    });
-
     return {
       success: true,
       data: publicConfig,
     };
   } catch (error) {
-    console.error("❌ Error en getWompiPublicConfigService:", error);
+    console.error("Error en getWompiPublicConfigService:", error);
     return {
       success: false,
       error:
@@ -259,7 +287,6 @@ export const getWompiPublicConfigService = async () => {
   }
 };
 
-// STEP 4: Función para generar la firma de integridad SHA256
 export const generateWompiIntegritySignature = (
   reference: string,
   amount: number,
@@ -308,6 +335,323 @@ export const generateWompiIntegritySignature = (
   }
 };
 
+export const getFinancialInstitutions = async (): Promise<
+  PSEFinancialInstitution[]
+> => {
+  try {
+    const config = getWompiConfig();
+
+    console.log("🏛️ Obteniendo instituciones financieras de PSE...");
+
+    const response = await fetch(
+      `${config.baseUrl}/pse/financial_institutions`,
+      {
+        method: "GET",
+        headers: {
+          Authorization: `Bearer ${config.publicKey}`,
+          "Content-Type": "application/json",
+        },
+      }
+    );
+
+    if (!response.ok) {
+      const errorData = await response.text();
+      console.error("❌ Error obteniendo instituciones financieras:", {
+        status: response.status,
+        error: errorData,
+      });
+      throw new Error(
+        `Error fetching financial institutions: ${response.status} - ${errorData}`
+      );
+    }
+
+    const data = await response.json();
+
+    return data.data || [];
+  } catch (error) {
+    console.error("❌ Error getting financial institutions:", error);
+    throw error;
+  }
+};
+
+export const createPSETransaction = async (
+  pseTransactionData: PSETransactionData
+): Promise<any> => {
+  try {
+    const config = getWompiConfig();
+
+    const {
+      amount,
+      currency,
+      customerEmail,
+      reference,
+      pseDetails,
+      customerData,
+      shippingAddress,
+      userId,
+      clientIP,
+    } = pseTransactionData;
+
+    // 🔐 OBTENER TOKENS DE ACEPTACIÓN (como en pagos con tarjeta)
+    const tokensResult = await getWompiAcceptanceTokensService();
+
+    if (!tokensResult.success || !tokensResult.data) {
+      throw new Error(
+        `Error obteniendo tokens de aceptación: ${tokensResult.error}`
+      );
+    }
+
+    const acceptanceToken =
+      tokensResult.data.presigned_acceptance.acceptance_token;
+    const acceptPersonalAuth =
+      tokensResult.data.presigned_personal_data_auth.acceptance_token;
+
+    // 🔐 GENERAR INTEGRITY SIGNATURE (OBLIGATORIO PARA WOMPI)
+    const integritySignature = generateWompiIntegritySignature(
+      reference,
+      amount,
+      currency
+    );
+
+    // 🌐 CONFIGURAR URL DE REDIRECCIÓN
+    const frontendUrl = process.env.FRONTEND_URL || "http://localhost:3000";
+    const redirectUrl = `${frontendUrl}/checkout/payment/pse-result`;
+
+    try {
+      new URL(redirectUrl);
+    } catch {
+      throw new Error(`URL de redirect inválida: ${redirectUrl}`);
+    }
+
+    // 🛡️ CAMPOS ANTI-FRAUDE PARA SERVICIOS FINANCIEROS
+    const finalClientIP = clientIP || "192.168.1.1"; // ✅ USAR IP REAL DEL CLIENTE
+    const productOpeningDate = new Date()
+      .toISOString()
+      .slice(0, 10)
+      .replace(/-/g, ""); // YYYYMMDD
+    const beneficiaryDocument = pseDetails.user_legal_id; // Documento del beneficiario
+
+    // 📦 ESTRUCTURA COMPLETA PARA PSE SEGÚN DOCUMENTACIÓN WOMPI
+    const transactionData = {
+      // 🔐 CAMPOS OBLIGATORIOS PARA CUALQUIER TRANSACCIÓN WOMPI
+      amount_in_cents: amount,
+      currency,
+      customer_email: customerEmail,
+      reference,
+      public_key: config.publicKey,
+      signature: integritySignature,
+      redirect_url: redirectUrl,
+      acceptance_token: acceptanceToken,
+      acceptance_token_auth: acceptPersonalAuth,
+
+      // 🏦 CAMPOS ESPECÍFICOS PARA PSE CON ANTI-FRAUDE
+      payment_method: {
+        type: "PSE" as const,
+        user_type: pseDetails.user_type,
+        user_legal_id_type: pseDetails.user_legal_id_type,
+        user_legal_id: pseDetails.user_legal_id,
+        financial_institution_code: pseDetails.financial_institution_code,
+        payment_description: pseDetails.payment_description,
+        // ✅ CAMPOS ANTI-FRAUDE OBLIGATORIOS PARA SERVICIOS FINANCIEROS
+        reference_one: finalClientIP, // ✅ IP del cliente
+        reference_two: productOpeningDate, // Fecha apertura producto (YYYYMMDD)
+        reference_three: beneficiaryDocument, // Documento del beneficiario
+      },
+
+      // 👤 DATOS DEL CLIENTE (OBLIGATORIOS PARA PSE)
+      customer_data: {
+        phone_number: customerData.phone_number,
+        full_name: customerData.full_name,
+      },
+
+      // 📦 DIRECCIÓN DE ENVÍO (OPCIONAL PARA PSE, PERO REQUERIDA SI SE ENVÍA)
+      ...(shippingAddress && {
+        shipping_address: shippingAddress,
+      }),
+    };
+
+    console.log("📤 Datos enviados a Wompi PSE:", {
+      amount_in_cents: transactionData.amount_in_cents,
+      currency: transactionData.currency,
+      customer_email: transactionData.customer_email,
+      public_key: transactionData.public_key?.substring(0, 20) + "...",
+      payment_method: {
+        ...transactionData.payment_method,
+        reference_one: transactionData.payment_method.reference_one,
+        reference_two: transactionData.payment_method.reference_two,
+        reference_three: "***masked***",
+      },
+      customer_data: transactionData.customer_data,
+      redirect_url: transactionData.redirect_url,
+      reference: transactionData.reference,
+      has_shipping_address: !!(transactionData as Record<string, unknown>)
+        .shipping_address,
+      // 🔐 Información de seguridad
+      has_signature: !!transactionData.signature,
+      has_acceptance_token: !!transactionData.acceptance_token,
+      has_acceptance_token_auth: !!transactionData.acceptance_token_auth,
+    });
+
+    // 🚀 ENVIAR TRANSACCIÓN A WOMPI
+    const response = await fetch(`${config.baseUrl}/transactions`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${config.privateKey}`,
+      },
+      body: JSON.stringify(transactionData),
+    });
+
+    if (!response.ok) {
+      const errorData = await response.json();
+      console.error("❌ Error creando transacción PSE:", {
+        status: response.status,
+        error: errorData,
+      });
+      throw new Error(
+        `Wompi PSE transaction failed: ${JSON.stringify(errorData)}`
+      );
+    }
+
+    const result = await response.json();
+    const transactionId = result.data?.id;
+
+    console.log("✅ Transacción PSE creada:", {
+      id: transactionId,
+      status: result.data?.status,
+      payment_method: result.data?.payment_method?.type,
+    });
+
+    // 🔄 POLLING PARA OBTENER async_payment_url
+    let asyncPaymentUrl = result.data?.payment_method?.extra?.async_payment_url;
+    let pollAttempts = 0;
+    const maxPollAttempts = 12; // 2 minutos máximo (10 segundos * 12)
+
+    console.log("🔄 Iniciando polling para obtener async_payment_url...");
+
+    while (!asyncPaymentUrl && pollAttempts < maxPollAttempts) {
+      pollAttempts++;
+      console.log(`🔄 Polling intento ${pollAttempts}/${maxPollAttempts}...`);
+
+      // Esperar 10 segundos antes del siguiente intento
+      await new Promise((resolve) => setTimeout(resolve, 10000));
+
+      try {
+        // Consultar estado de la transacción
+        const statusResponse = await fetch(
+          `${config.baseUrl}/transactions/${transactionId}`,
+          {
+            method: "GET",
+            headers: {
+              Authorization: `Bearer ${config.publicKey}`,
+            },
+          }
+        );
+
+        if (statusResponse.ok) {
+          const statusResult = await statusResponse.json();
+          asyncPaymentUrl =
+            statusResult.data?.payment_method?.extra?.async_payment_url;
+
+          if (asyncPaymentUrl) {
+            console.log("✅ async_payment_url obtenida:", asyncPaymentUrl);
+            break;
+          }
+        }
+      } catch (pollError) {
+        console.error(
+          `⚠️ Error en polling intento ${pollAttempts}:`,
+          pollError
+        );
+      }
+    }
+
+    if (!asyncPaymentUrl) {
+      console.warn(
+        "⚠️ No se pudo obtener async_payment_url después del polling"
+      );
+    }
+
+    try {
+      let cartDataForDb = null;
+      if (
+        pseTransactionData.cartData &&
+        Array.isArray(pseTransactionData.cartData)
+      ) {
+        // Convertir los items a formato esperado por la BD (precios en centavos)
+        cartDataForDb = pseTransactionData.cartData.map((item) => {
+          return {
+            product_id: item.product_id,
+            quantity: item.quantity,
+            price:
+              item.price < 1000000
+                ? convertPesosToWompiCentavos(item.price)
+                : item.price, // Convertir si está en pesos
+            color: item.color_code || "",
+            size: item.size || "",
+          };
+        });
+
+        console.log("🛒 Cart data preparado para BD (PSE):", {
+          itemsCount: cartDataForDb.length,
+          sampleItem: cartDataForDb[0],
+        });
+      }
+
+      const paymentDbResult = await createPaymentTransaction({
+        transactionId: result.data?.id,
+        reference,
+        orderId: null,
+        amount,
+        currency,
+        paymentMethod: "PSE",
+        paymentMethodData: result.data?.payment_method || {},
+        acceptanceToken,
+        acceptPersonalAuth,
+        integritySignature,
+        redirectUrl,
+        checkoutUrl: asyncPaymentUrl || result.data?.payment_link_id, // URL del banco
+        customerEmail,
+        customerPhone: customerData.phone_number,
+        customerDocumentType: pseDetails.user_legal_id_type,
+        customerDocumentNumber: pseDetails.user_legal_id,
+        shippingAddress: shippingAddress || {},
+        processorResponse: result.data,
+        userId,
+        cartData: cartDataForDb || undefined,
+      });
+
+      console.log(
+        "✅ Payment PSE almacenado en base de datos:",
+        paymentDbResult
+      );
+    } catch (dbError) {
+      console.error(
+        "⚠️ Error almacenando payment PSE en BD (no crítico):",
+        dbError
+      );
+    }
+
+    return {
+      success: true,
+      data: {
+        transactionId: result.data?.id,
+        status: result.data?.status,
+        reference: result.data?.reference,
+        paymentMethod: result.data?.payment_method,
+        async_payment_url: asyncPaymentUrl,
+        payment_link_id: result.data?.payment_link_id,
+        redirect_url: result.data?.redirect_url,
+        createdAt: result.data?.created_at,
+        fullResponse: result.data,
+      },
+    };
+  } catch (error) {
+    console.error("❌ Error creating PSE transaction:", error);
+    throw error;
+  }
+};
+
 export const createPaymentService = async (
   transactionData: WompiTransactionData,
   userId: number
@@ -335,7 +679,6 @@ export const createPaymentService = async (
       throw new Error("Claves de Wompi no configuradas");
     }
 
-    // Validar datos requeridos
     if (!acceptanceToken || !acceptPersonalAuth) {
       throw new Error("Tokens de aceptación requeridos");
     }
@@ -359,10 +702,6 @@ export const createPaymentService = async (
       throw new Error("Datos del cliente y referencia son requeridos");
     }
 
-    if (!amount || amount <= 0) {
-      throw new Error("El monto debe ser mayor a 0");
-    }
-
     // Validaciones adicionales específicas de Wompi
     if (!customerPhone || customerPhone.length < 10) {
       throw new Error("Teléfono del cliente requerido (mínimo 10 dígitos)");
@@ -370,15 +709,6 @@ export const createPaymentService = async (
 
     if (!customerDocumentNumber || customerDocumentNumber.length < 6) {
       throw new Error("Número de documento requerido (mínimo 6 caracteres)");
-    }
-
-    if (
-      !customerDocumentType ||
-      !["CC", "CE", "NIT", "PP"].includes(customerDocumentType)
-    ) {
-      throw new Error(
-        "Tipo de documento inválido. Debe ser: CC, CE, NIT, o PP"
-      );
     }
 
     if (!shippingAddress.line1 || shippingAddress.line1.length < 5) {
@@ -412,7 +742,6 @@ export const createPaymentService = async (
       throw new Error("El monto debe estar en centavos (número entero)");
     }
 
-    // Generar firma de integridad
     const integritySignature = generateWompiIntegritySignature(
       reference,
       amount,
@@ -581,26 +910,7 @@ export const createPaymentService = async (
 
     const transactionResult = await response.json();
 
-    // 🗃️ NUEVA FUNCIONALIDAD: Almacenar payment en base de datos usando fn_create_payment
     try {
-      // 🛒 Preparar datos del carrito para la base de datos
-      console.log("🔍 DEBUG - Datos del carrito recibidos:", {
-        hasCartData: !!transactionData.cartData,
-        cartDataType: typeof transactionData.cartData,
-        cartDataContent: transactionData.cartData,
-        hasItems:
-          Array.isArray(transactionData.cartData) &&
-          transactionData.cartData.length > 0,
-        itemsLength: Array.isArray(transactionData.cartData)
-          ? transactionData.cartData.length
-          : 0,
-        fullTransactionData: {
-          reference: transactionData.reference,
-          amount: transactionData.amount,
-          keys: Object.keys(transactionData),
-        },
-      });
-
       let cartDataForDb = null;
       if (transactionData.cartData && Array.isArray(transactionData.cartData)) {
         // Convertir los items a formato esperado por la BD (precios en centavos)
@@ -636,7 +946,7 @@ export const createPaymentService = async (
       const paymentDbResult = await createPaymentTransaction({
         transactionId: transactionResult.data?.id,
         reference,
-        orderId: null, // Se manejará automáticamente por la función
+        orderId: null,
         amount,
         currency,
         paymentMethod: transactionData.payment_method_type || "CARD",
@@ -653,7 +963,7 @@ export const createPaymentService = async (
         customerDocumentNumber,
         shippingAddress: transactionPayload.shipping_address,
         processorResponse: transactionResult.data,
-        userId, // NUEVO: Pasar userId a la función
+        userId,
         cartData: cartDataForDb || undefined, // NUEVO: Pasar datos del carrito
       });
 
@@ -663,7 +973,6 @@ export const createPaymentService = async (
         "⚠️  Error almacenando payment en BD (no crítico):",
         dbError
       );
-      // No fallar la transacción principal por error de BD
     }
 
     return {
@@ -959,14 +1268,6 @@ export const createPaymentTransaction = async (
   params: CreatePaymentTransactionParams
 ) => {
   try {
-    console.log("🏗️  Ejecutando fn_create_payment:", {
-      transactionId: params.transactionId,
-      reference: params.reference,
-      amount: params.amount,
-      paymentMethod: params.paymentMethod,
-      hasCartData: !!params.cartData,
-    });
-
     const result = await prisma.$queryRaw`
       SELECT * FROM fn_create_payment(
         ${params.transactionId}::VARCHAR(255),
@@ -992,7 +1293,6 @@ export const createPaymentTransaction = async (
       )
     `;
 
-    console.log("✅ fn_create_payment ejecutada exitosamente:", result);
     return { success: true, data: result };
   } catch (error) {
     console.error("❌ Error en createPaymentTransaction:", error);

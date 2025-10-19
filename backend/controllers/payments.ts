@@ -11,6 +11,9 @@ import {
   verifyWebhookSignature,
   WompiTransactionData,
   convertPesosToWompiCentavos,
+  // 🏦 PSE IMPORTS
+  getFinancialInstitutions,
+  createPSETransaction,
 } from "../services/payments";
 import {
   createOrderService,
@@ -903,6 +906,235 @@ export const createOrderFromPaymentController = async (
     res.status(500).json({
       success: false,
       message: "Error creando orden desde payment",
+      error: error instanceof Error ? error.message : "Error desconocido",
+    });
+  }
+};
+
+// 🏦 CONTROLADORES PSE
+export const getFinancialInstitutionsController = async (
+  req: Request,
+  res: Response
+) => {
+  try {
+    console.log("🏛️ Solicitud de instituciones financieras PSE recibida");
+
+    const institutions = await getFinancialInstitutions();
+
+    res.status(200).json({
+      success: true,
+      message: "Instituciones financieras obtenidas exitosamente",
+      data: institutions,
+    });
+  } catch (error) {
+    console.error("❌ Error en getFinancialInstitutionsController:", error);
+    res.status(500).json({
+      success: false,
+      message: "Error obteniendo instituciones financieras",
+      error: error instanceof Error ? error.message : "Error desconocido",
+    });
+  }
+};
+
+// 🔧 FUNCIÓN PARA OBTENER IP DEL CLIENTE
+const getClientIP = (req: Request): string => {
+  const forwarded = req.headers["x-forwarded-for"] as string;
+  const realIP = req.headers["x-real-ip"] as string;
+  const clientIP = req.connection?.remoteAddress || req.socket?.remoteAddress;
+
+  // Prioridad: x-forwarded-for > x-real-ip > connection IP
+  if (forwarded) {
+    return forwarded.split(",")[0].trim();
+  }
+  if (realIP) {
+    return realIP;
+  }
+  if (clientIP) {
+    return clientIP.replace("::ffff:", ""); // IPv4 mapped IPv6
+  }
+
+  return "127.0.0.1"; // Fallback para desarrollo local
+};
+
+export const createPSEPaymentController = async (
+  req: Request,
+  res: Response
+) => {
+  try {
+    const { user_id } = req.query;
+    const requestBody = req.body;
+
+    console.log(
+      "📦 Request body completo recibido:",
+      JSON.stringify(requestBody, null, 2)
+    );
+
+    // ✅ EXTRAER DATOS SEGÚN LA ESTRUCTURA QUE ENVÍA EL FRONTEND
+    const {
+      amount,
+      currency = "COP",
+      customerEmail,
+      customer_data,
+      user_type,
+      user_legal_id_type,
+      user_legal_id,
+      financial_institution_code,
+      payment_description,
+      shipping_address,
+      cartData,
+    } = requestBody;
+
+    // Validaciones básicas
+    if (!user_id) {
+      return res.status(400).json({
+        success: false,
+        message: "user_id es requerido",
+      });
+    }
+
+    if (!amount || !customerEmail || !customer_data) {
+      return res.status(400).json({
+        success: false,
+        message:
+          "Datos incompletos: amount, customerEmail, customer_data son requeridos",
+        received: {
+          hasAmount: !!amount,
+          hasCustomerEmail: !!customerEmail,
+          hasCustomerData: !!customer_data,
+        },
+      });
+    }
+
+    // Validar datos específicos de PSE
+    if (!customer_data.full_name || !customer_data.phone_number) {
+      return res.status(400).json({
+        success: false,
+        message:
+          "customer_data.full_name y customer_data.phone_number son requeridos para PSE",
+        received: {
+          hasFullName: !!customer_data.full_name,
+          hasPhoneNumber: !!customer_data.phone_number,
+          customerData: customer_data,
+        },
+      });
+    }
+
+    // ✅ VALIDAR CAMPOS PSE (campos directos en el body)
+    if (!user_type && user_type !== 0) {
+      // 0 es válido (Natural)
+      return res.status(400).json({
+        success: false,
+        message: "user_type es requerido (0 = Natural, 1 = Jurídica)",
+        received: { user_type },
+      });
+    }
+
+    if (!user_legal_id_type) {
+      return res.status(400).json({
+        success: false,
+        message: "user_legal_id_type es requerido (CC, CE, NIT, PP)",
+        received: { user_legal_id_type },
+      });
+    }
+
+    if (!user_legal_id) {
+      return res.status(400).json({
+        success: false,
+        message: "user_legal_id es requerido",
+        received: { user_legal_id },
+      });
+    }
+
+    if (!financial_institution_code) {
+      return res.status(400).json({
+        success: false,
+        message: "financial_institution_code es requerido",
+        received: { financial_institution_code },
+      });
+    }
+
+    const amountInCents = amount;
+    const reference = `PSE-${Date.now()}-${Math.random()
+      .toString(36)
+      .substr(2, 9)}`;
+
+    // 🛡️ OBTENER IP DEL CLIENTE PARA ANTI-FRAUDE
+    const clientIP = getClientIP(req);
+
+    console.log("🏦 Procesando pago PSE:", {
+      userId: user_id,
+      amountInCents,
+      currency,
+      customerEmail,
+      financial_institution: financial_institution_code,
+      user_type: user_type === 0 ? "Natural" : "Jurídica",
+      document_type: user_legal_id_type,
+      reference,
+      clientIP,
+    });
+
+    // 📦 PREPARAR DATOS PARA PSE TRANSACTION
+    const pseTransactionData: PSETransactionData = {
+      amount: amountInCents,
+      currency,
+      customerEmail,
+      reference,
+      pseDetails: {
+        user_type,
+        user_legal_id_type,
+        user_legal_id,
+        financial_institution_code,
+        payment_description: payment_description || "Pago en NEOSALE",
+      },
+      customerData: {
+        phone_number: customer_data.phone_number,
+        full_name: customer_data.full_name,
+      },
+      ...(shipping_address && { shippingAddress: shipping_address }),
+      ...(cartData && { cartData }),
+      userId: parseInt(user_id as string),
+      clientIP,
+    };
+
+    console.log("📦 Datos preparados para createPSETransaction:", {
+      amount: pseTransactionData.amount,
+      currency: pseTransactionData.currency,
+      customerEmail: pseTransactionData.customerEmail,
+      reference: pseTransactionData.reference,
+      pseDetails: pseTransactionData.pseDetails,
+      customerData: pseTransactionData.customerData,
+      hasShippingAddress: !!pseTransactionData.shippingAddress,
+      hasCartData: !!pseTransactionData.cartData,
+      userId: pseTransactionData.userId,
+      clientIP: pseTransactionData.clientIP,
+    });
+
+    // 🚀 CREAR TRANSACCIÓN PSE
+    const result = await createPSETransaction(pseTransactionData);
+
+    if (result.success) {
+      res.status(200).json({
+        success: true,
+        data: {
+          transactionId: result.data.transactionId,
+          status: result.data.status,
+          reference: result.data.reference,
+          // 🔗 RETORNAR async_payment_url PARA REDIRECCIÓN AL BANCO
+          payment_link:
+            result.data.async_payment_url || result.data.payment_link_id,
+          async_payment_url: result.data.async_payment_url,
+          redirect_url: result.data.redirect_url,
+          message: "Transacción PSE creada exitosamente",
+        },
+      });
+    } else {
+      throw new Error(result.error || "Error creando transacción PSE");
+    }
+  } catch (error) {
+    console.error("❌ Error en createPSEPaymentController:", error);
+    res.status(500).json({
+      success: false,
+      message: "Error creando transacción PSE",
       error: error instanceof Error ? error.message : "Error desconocido",
     });
   }

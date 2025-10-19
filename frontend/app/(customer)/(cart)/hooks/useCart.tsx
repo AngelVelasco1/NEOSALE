@@ -8,7 +8,6 @@ import React, {
   useEffect,
   ReactNode,
   useMemo,
-  useRef
 } from "react";
 import { CartProductsContext, CartProductsInfo } from "../../types";
 import { useUserSafe } from "../../../(auth)/hooks/useUserSafe";
@@ -30,9 +29,6 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  // ===================================
-  // FUNCIONES DEL CARRITO EN EL LOCALSTORAGE
-  // ===================================
 
   const getLocalCart = (): CartProductsInfo[] => {
     if (typeof window === "undefined") return [];
@@ -59,9 +55,6 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
     localStorage.removeItem("cart");
   };
 
-  // ===================================
-  // FUNCIONES DE MANEJO DE ERRORES
-  // ===================================
 
   const showError = (title: string, message: string) => {
     setError(message);
@@ -69,11 +62,6 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
   };
 
   const clearError = () => setError(null);
-
-  // ===================================
-  // SINCRONIZACIÓN CARRITO LOCAL A SERVIDOR
-  // ===================================
-
   const syncLocalCartToServer = async () => {
     if (!userProfile) return;
 
@@ -96,9 +84,6 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
     }
   };
 
-  // ===================================
-  // MÉTRICAS DEL CARRITO
-  // ===================================
 
   const cartMetrics = useMemo(() => {
     const safeCartProducts = Array.isArray(cartProducts) ? cartProducts : [];
@@ -346,9 +331,6 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
     }
   }, [userProfile]);
 
-  // ===================================
-  // FUNCIONES DE CONVENIENCIA PARA CANTIDAD
-  // ===================================
 
   const incrementQuantity = useCallback(async (
     id: number,
@@ -370,9 +352,6 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
     }
   }, [getProductQuantity, updateQuantity]);
 
-  // ===================================
-  // CONTEXT VALUE
-  // ===================================
 
   const contextValue = useMemo((): CartProductsContext => ({
     cartProducts: Array.isArray(cartProducts) ? cartProducts : [], // ✅ Protección simple

@@ -35,7 +35,7 @@ export interface CartProductsInfo {
   title?: string; // Opcional para compatibilidad
   description: string;
   color_code: string;
-  color?: string; // Nombre del color
+  color: string;
   size: string;
   quantity: number;
   price: number;

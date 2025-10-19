@@ -52,6 +52,7 @@ export const getCartService = async (
                 select: {
                   size: true,
                   color_code: true,
+                  color: true,
                   stock: true,
                 },
               },

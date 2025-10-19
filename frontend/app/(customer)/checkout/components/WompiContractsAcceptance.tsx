@@ -2,8 +2,9 @@
 
 import React, { useState, useEffect } from "react";
 import { Checkbox } from "@/components/ui/checkbox";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { ExternalLink, FileText, Shield } from "lucide-react";
+
+
+import { ExternalLink, FileText, Shield, CheckCircle2, AlertCircle, Lock } from "lucide-react";
 import { ErrorsHandler } from "@/app/errors/errorsHandler";
 
 interface ContractLink {
@@ -39,16 +40,15 @@ export const WompiContractsAcceptance: React.FC<
     personalDataAuth: false,
   });
   const [isLoading, setIsLoading] = useState(true);
+  const [hoveredContract, setHoveredContract] = useState<string | null>(null);
 
-  // 🎯 Obtener configuración de Wompi al montar el componente
   useEffect(() => {
     const fetchWompiConfig = async () => {
       try {
         setIsLoading(true);
 
         const response = await fetch(
-          `${
-            process.env.NEXT_PUBLIC_BACKEND_URL || "http://localhost:8000"
+          `${process.env.NEXT_PUBLIC_BACKEND_URL || "http://localhost:8000"
           }/api/payments/config`
         );
 
@@ -70,7 +70,6 @@ export const WompiContractsAcceptance: React.FC<
 
         setContractLinks(links);
 
-        // Extraer tokens de los contratos
         setAcceptanceTokens({
           termsAndConditions:
             tokens.presigned_acceptance?.acceptance_token || "",
@@ -91,7 +90,6 @@ export const WompiContractsAcceptance: React.FC<
     fetchWompiConfig();
   }, []);
 
-  // 🎯 Manejar cambios en los checkboxes
   const handleContractAcceptance = (
     contractType: keyof typeof acceptedContracts,
     accepted: boolean
@@ -103,10 +101,8 @@ export const WompiContractsAcceptance: React.FC<
 
     setAcceptedContracts(newAcceptedContracts);
 
-    // Verificar si todos los contratos están aceptados
     const allAccepted = Object.values(newAcceptedContracts).every(Boolean);
 
-    // Notificar al componente padre
     onAcceptanceChange(allAccepted, acceptanceTokens);
 
     console.log("📋 Estado de aceptación de contratos:", {
@@ -116,7 +112,6 @@ export const WompiContractsAcceptance: React.FC<
     });
   };
 
-  // 🎯 Abrir contrato en nueva ventana
   const openContract = (url: string, title: string) => {
     window.open(url, "_blank", "noopener,noreferrer");
     console.log(`📄 Abriendo contrato: ${title}`);
@@ -124,166 +119,225 @@ export const WompiContractsAcceptance: React.FC<
 
   if (isLoading) {
     return (
-      <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <FileText className="w-5 h-5" />
-            Términos y Condiciones
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="flex items-center justify-center py-6">
-            <div className="w-6 h-6 border-2 border-primary border-t-transparent rounded-full animate-spin"></div>
-            <span className="ml-2 text-muted-foreground">
-              Cargando términos...
-            </span>
+      <div className="bg-white/80 backdrop-blur-sm rounded-3xl shadow-xl border border-purple-100/50 overflow-hidden animate-in fade-in duration-500">
+        <div className="p-8">
+          <div className="flex items-center justify-center py-12">
+            <div className="text-center space-y-4">
+              <div className="relative w-16 h-16 mx-auto">
+                <div className="absolute inset-0 border-4 border-purple-100 rounded-full"></div>
+                <div className="absolute inset-0 border-4 border-t-purple-500 rounded-full animate-spin"></div>
+              </div>
+              <p className="text-lg font-medium text-gray-700">Cargando términos y condiciones...</p>
+            </div>
           </div>
-        </CardContent>
-      </Card>
+        </div>
+      </div>
     );
   }
 
   if (!contractLinks) {
     return (
-      <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <FileText className="w-5 h-5" />
-            Términos y Condiciones
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="text-center py-6 text-muted-foreground">
-            <FileText className="w-12 h-12 mx-auto mb-2 opacity-50" />
-            <p>No se pudieron cargar los términos y condiciones.</p>
-            <p className="text-sm">Intenta recargar la página.</p>
+      <div className="bg-white/80 backdrop-blur-sm rounded-3xl shadow-xl border border-red-100/50 overflow-hidden animate-in fade-in duration-500">
+        <div className="p-8">
+          <div className="text-center py-12 space-y-4">
+            <div className="w-16 h-16 mx-auto rounded-2xl bg-red-50 flex items-center justify-center">
+              <AlertCircle className="w-8 h-8 text-red-500" />
+            </div>
+            <div>
+              <p className="text-lg font-medium text-gray-900 mb-2">No se pudieron cargar los términos</p>
+              <p className="text-sm text-gray-600">Intenta recargar la página</p>
+            </div>
           </div>
-        </CardContent>
-      </Card>
+        </div>
+      </div>
     );
   }
 
+  const allAccepted = Object.values(acceptedContracts).every(Boolean);
+
   return (
-    <Card>
-      <CardHeader>
-        <CardTitle className="flex items-center gap-2">
-          <FileText className="w-5 h-5" />
-          Aceptación de Términos y Condiciones
-        </CardTitle>
-      </CardHeader>
-      <CardContent className="space-y-4">
-        {/* 🎯 PASO 3: Términos y Condiciones de Uso */}
-        <div className="border rounded-lg p-4 space-y-3">
-          <div className="flex items-start gap-3">
-            <Checkbox
-              id="terms-conditions"
-              checked={acceptedContracts.termsAndConditions}
-              onCheckedChange={(checked) =>
-                handleContractAcceptance(
-                  "termsAndConditions",
-                  checked as boolean
-                )
-              }
-              disabled={disabled}
-              className="mt-1"
-            />
-            <div className="flex-1">
-              <label
-                htmlFor="terms-conditions"
-                className="text-sm font-medium leading-relaxed cursor-pointer"
-              >
-                He leído y acepto los{" "}
-                <button
-                  type="button"
-                  onClick={() =>
-                    openContract(
-                      contractLinks.termsAndConditions.url,
-                      contractLinks.termsAndConditions.title
-                    )
-                  }
-                  className="text-primary hover:text-primary/80 underline inline-flex items-center gap-1"
-                  disabled={disabled}
-                >
-                  {contractLinks.termsAndConditions.title}
-                  <ExternalLink className="w-3 h-3" />
-                </button>
-              </label>
-              <p className="text-xs text-muted-foreground mt-1">
-                Términos y condiciones de uso de la plataforma de pagos
-              </p>
-            </div>
+    <div className="bg-white/80 backdrop-blur-sm rounded-2xl shadow-xl border border-purple-100/50 overflow-hidden animate-in fade-in slide-in-from-bottom duration-700">
+      <div className="p-8 space-y-4">
+        <div className="flex items-center gap-4 pb-4 border-b border-gray-100">
+          <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-purple-500 to-blue-500 flex items-center justify-center shadow-lg">
+            <Shield className="w-6 h-6 text-white" />
+          </div>
+          <div>
+            <h2 className="text-2xl font-bold text-gray-900">Términos y Condiciones</h2>
           </div>
         </div>
 
-        {/* 🎯 PASO 3: Autorización de Datos Personales */}
-        <div className="border rounded-lg p-4 space-y-3">
-          <div className="flex items-start gap-3">
-            <Checkbox
-              id="personal-data-auth"
-              checked={acceptedContracts.personalDataAuth}
-              onCheckedChange={(checked) =>
-                handleContractAcceptance("personalDataAuth", checked as boolean)
-              }
-              disabled={disabled}
-              className="mt-1"
-            />
-            <div className="flex-1">
-              <label
-                htmlFor="personal-data-auth"
-                className="text-sm font-medium leading-relaxed cursor-pointer"
-              >
-                Autorizo el tratamiento de mis datos personales según la{" "}
-                <button
-                  type="button"
-                  onClick={() =>
-                    openContract(
-                      contractLinks.personalDataAuth.url,
-                      contractLinks.personalDataAuth.title
-                    )
-                  }
-                  className="text-primary hover:text-primary/80 underline inline-flex items-center gap-1"
-                  disabled={disabled}
-                >
-                  {contractLinks.personalDataAuth.title}
-                  <ExternalLink className="w-3 h-3" />
-                </button>
-              </label>
-              <p className="text-xs text-muted-foreground mt-1">
-                Autorización para el manejo y administración de datos personales
-              </p>
+        <div className="space-y-3">
+          <div
+            className={`group relative rounded-2xl border-2 transition-all duration-300 ${acceptedContracts.termsAndConditions
+              ? "border-blue-500 bg-gradient-to-br from-blue-50 to-cyan-50 shadow-lg"
+              : "border-gray-200 bg-gray-50 hover:border-blue-300 hover:bg-blue-50/30"
+              }`}
+            onMouseEnter={() => setHoveredContract("terms")}
+            onMouseLeave={() => setHoveredContract(null)}
+          >
+            <div className="p-4 space-y-4">
+              <div className="flex items-start gap-4">
+                <div className="relative flex-shrink-0 mt-1">
+                  <Checkbox
+                    id="terms-conditions"
+                    checked={acceptedContracts.termsAndConditions}
+                    onCheckedChange={(checked) =>
+                      handleContractAcceptance(
+                        "termsAndConditions",
+                        checked as boolean
+                      )
+                    }
+                    disabled={disabled}
+                    className={`w-6 h-6 rounded-lg transition-all ${acceptedContracts.termsAndConditions
+                      ? "bg-blue-600/85 border-blue-600/85"
+                      : ""
+                      }`}
+                  />
+                </div>
+                <div className="flex-1 space-y-2">
+                  <div>
+                    <label
+                      htmlFor="terms-conditions"
+                      className="block text-base font-medium text-gray-900 cursor-pointer leading-relaxed"
+                    >
+                      He leído y acepto los términos de uso
+                    </label>
+
+                    <p className="text-sm text-gray-600">
+                      Términos y condiciones de uso de la plataforma de pagos
+                    </p>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() =>
+                      openContract(
+                        contractLinks.termsAndConditions.url,
+                        contractLinks.termsAndConditions.title
+                      )
+                    }
+                    className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-white border border-blue-200 hover:border-blue-400 hover:bg-blue-50 text-blue-700 font-medium text-sm transition-all duration-300 shadow-sm hover:shadow-md"
+                    disabled={disabled}
+                  >
+                    <FileText className="w-4 h-4" />
+                    <span>{contractLinks.termsAndConditions.title}</span>
+                    <ExternalLink className="w-4 h-4" />
+                  </button>
+                </div>
+              </div>
             </div>
+            {acceptedContracts.termsAndConditions && (
+              <div className="absolute top-4 right-4">
+                <div className="w-8 h-8 rounded-full bg-blue-600/85 flex items-center justify-center shadow-lg animate-in zoom-in duration-300">
+                  <CheckCircle2 className="w-5 h-5 text-white" />
+                </div>
+              </div>
+            )}
+          </div>
+
+          <div
+            className={`group relative rounded-2xl border-2 transition-all duration-300 ${acceptedContracts.personalDataAuth
+              ? "border-blue-500 bg-gradient-to-br from-blue-50 to-cyan-50 shadow-lg"
+              : "border-gray-200 bg-gray-50 hover:border-blue-300 hover:bg-blue-50/30"
+              }`}
+            onMouseEnter={() => setHoveredContract("data")}
+            onMouseLeave={() => setHoveredContract(null)}
+          >
+            <div className="p-4 space-y-4">
+              <div className="flex items-start gap-4">
+                <div className="relative flex-shrink-0 mt-1">
+                  <Checkbox
+                    id="personal-data-auth"
+                    checked={acceptedContracts.personalDataAuth}
+                    onCheckedChange={(checked) =>
+                      handleContractAcceptance("personalDataAuth", checked as boolean)
+                    }
+                    disabled={disabled}
+                    className={`w-6 h-6 rounded-lg transition-all ${acceptedContracts.personalDataAuth
+                      ? "bg-blue-600/85 border-blue-600"
+                      : ""
+                      }`}
+                  />
+                </div>
+                <div className="flex-1 space-y-2">
+                  <div>
+                    <label
+                      htmlFor="personal-data-auth"
+                      className="block text-base font-medium text-gray-900 cursor-pointer leading-relaxed"
+                    >
+                      Autorizo el tratamiento de mis datos personales
+                    </label>
+
+                    <p className="text-sm text-gray-600">
+                      Autorización para el manejo y administración de datos personales
+                    </p>
+                  </div>
+
+                  <div>
+                    <button
+                      type="button"
+                      onClick={() =>
+                        openContract(
+                          contractLinks.personalDataAuth.url,
+                          contractLinks.personalDataAuth.title
+                        )
+                      }
+                      className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-white border border-blue-200 hover:border-blue-400 hover:bg-blue-50 text-blue-700 font-medium text-sm transition-all duration-300 shadow-sm hover:shadow-md"
+                      disabled={disabled}
+                    >
+                      <Lock className="w-4 h-4" />
+                      <span>{contractLinks.personalDataAuth.title}</span>
+                      <ExternalLink className="w-4 h-4" />
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+            {acceptedContracts.personalDataAuth && (
+              <div className="absolute top-4 right-4">
+                <div className="w-8 h-8 rounded-full bg-blue-600/85 flex items-center justify-center shadow-lg animate-in zoom-in duration-300">
+                  <CheckCircle2 className="w-5 h-5 text-white" />
+                </div>
+              </div>
+            )}
           </div>
         </div>
 
-        {/* 🎯 Indicador de estado */}
-        <div className="flex items-center gap-2 p-3 bg-muted/50 rounded-lg">
-          <Shield
-            className={`w-5 h-5 ${
-              Object.values(acceptedContracts).every(Boolean)
-                ? "text-green-600"
-                : "text-muted-foreground"
-            }`}
-          />
-          <span className="text-sm">
-            {Object.values(acceptedContracts).every(Boolean)
-              ? "✅ Todos los términos han sido aceptados"
-              : "⏳ Debes aceptar todos los términos para continuar"}
-          </span>
-        </div>
+        {
+          allAccepted ? "" : <div
+            className={`rounded-2xl p-4 transition-all duration-500
+               bg-gradient-to-br from-amber-50 to-orange-50 border-2 border-amber-200
+              }`}
+          >
+            <div className="flex items-start gap-4">
+              <div
+                className={`w-12 h-12 rounded-xl flex items-center justify-center flex-shrink-0 bg-amber-500
+                  }`}
+              >
+                {allAccepted ? (
+                  <CheckCircle2 className="w-6 h-6 text-white" />
+                ) : (
+                  <AlertCircle className="w-6 h-6 text-white" />
+                )}
+              </div>
+              <div className="flex-1">
+                <p className={`font-semibold text-lg  text-amber-900
+                  }`}>
+                  Debes aceptar todos los términos para continuar
+                </p>
+                <p className={`text-sm  text-amber-700
+                  }`}>
 
-        {/* 🎯 Información adicional */}
-        <div className="text-xs text-muted-foreground space-y-1">
-          <p>• Los contratos se abren en una nueva ventana</p>
-          <p>
-            • Es obligatorio aceptar ambos términos para proceder con el pago
-          </p>
-          <p>
-            • Los datos se procesan de acuerdo con la normativa de protección de
-            datos
-          </p>
-        </div>
-      </CardContent>
-    </Card>
+                  Lee y acepta ambos documentos para habilitar el pago
+                </p>
+              </div>
+            </div>
+          </div>
+        }
+
+
+      </div>
+    </div>
   );
 };
 
