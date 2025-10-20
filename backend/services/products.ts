@@ -6,12 +6,7 @@ export const getProductsService = async (
   subcategory?: string
 ) => {
   if (!id) {
-    console.log("🔍 Búsqueda de productos:", { category, subcategory });
-
     if (subcategory) {
-      // Para subcategorías, buscar directamente en la tabla de subcategorías
-      console.log("🎯 Buscando por subcategoría:", subcategory);
-
       const products = await prisma.products.findMany({
         where: {
           categories: {
@@ -62,9 +57,6 @@ export const getProductsService = async (
         images: p.images,
       }));
     } else if (category) {
-      // Para categorías
-      console.log("📂 Buscando por categoría:", category);
-
       const products = await prisma.products.findMany({
         where: {
           categories: {
@@ -88,7 +80,6 @@ export const getProductsService = async (
         },
       });
 
-      console.log(`📊 Productos por categoría encontrados: ${products.length}`);
       return products.map((p) => ({
         id: p.id,
         name: p.name,
@@ -124,7 +115,6 @@ export const getProductsService = async (
       },
     });
 
-    console.log(`📊 Todos los productos: ${products.length}`);
     return products.map((p) => ({
       id: p.id,
       name: p.name,

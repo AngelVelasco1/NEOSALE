@@ -150,6 +150,23 @@ export const getOrderWithPaymentService = async (orderId: number) => {
       throw new Error("Orden no encontrada");
     }
 
+    // Obtener la dirección completa usando shipping_address_id
+    let address = null;
+    if (order.shipping_address_id) {
+      address = await prisma.addresses.findUnique({
+        where: { id: order.shipping_address_id },
+        select: {
+          id: true,
+          address: true,
+          country: true,
+          city: true,
+          department: true,
+          is_default: true,
+          created_at: true,
+        },
+      });
+    }
+
     let payment: PaymentInfo | null = null;
     const paymentResult = await prisma.$queryRaw<PaymentInfo[]>`
       SELECT 
@@ -191,6 +208,7 @@ export const getUserOrdersWithPaymentsService = async (userId: number) => {
             },
           },
         },
+
         coupons: true,
       },
       orderBy: {
@@ -214,8 +232,26 @@ export const getUserOrdersWithPaymentsService = async (userId: number) => {
           payment = paymentResult[0];
         }
 
+        // Obtener la dirección completa usando shipping_address_id
+        let address = null;
+        if (order.shipping_address_id) {
+          address = await prisma.addresses.findUnique({
+            where: { id: order.shipping_address_id },
+            select: {
+              id: true,
+              address: true,
+              country: true,
+              city: true,
+              department: true,
+              is_default: true,
+              created_at: true,
+            },
+          });
+        }
+
         return {
           ...order,
+          addresses: address,
           payment,
         };
       })
@@ -378,7 +414,27 @@ export const getOrderByIdService = async (orderId: number) => {
       throw new Error("Orden no encontrada");
     }
 
-    return order;
+    // Obtener la dirección completa usando shipping_address_id
+    let address = null;
+    if (order.shipping_address_id) {
+      address = await prisma.addresses.findUnique({
+        where: { id: order.shipping_address_id },
+        select: {
+          id: true,
+          address: true,
+          country: true,
+          city: true,
+          department: true,
+          is_default: true,
+          created_at: true,
+        },
+      });
+    }
+
+    return {
+      ...order,
+      addresses: address,
+    };
   } catch (error) {
     console.error("Error in getOrderByIdService:", error);
     throw new Error(
@@ -389,15 +445,19 @@ export const getOrderByIdService = async (orderId: number) => {
 
 export const updateOrderStatusService = async (
   orderId: number,
-  status: "pending" | "confirmed" | "shipped" | "delivered" | "cancelled"
+  status:
+    | "pending"
+    | "paid"
+    | "confirmed"
+    | "shipped"
+    | "delivered"
+    | "cancelled"
 ) => {
   try {
-    console.log("🔄 Actualizando estado de orden:", { orderId, status });
-
     const order = await prisma.orders.update({
       where: { id: orderId },
       data: {
-        status: status,
+        status: status as any, // Type assertion para evitar errores de TypeScript
         updated_at: new Date(),
       },
       include: {
@@ -416,7 +476,7 @@ export const updateOrderStatusService = async (
       },
     });
 
-    console.log("✅ Estado de orden actualizado:", {
+    console.log("Estado de orden actualizado:", {
       orderId: order.id,
       newStatus: order.status,
     });
@@ -446,11 +506,6 @@ export const processWompiOrderWebhook = async (
   paymentStatus: "PENDING" | "APPROVED" | "DECLINED" | "VOIDED" | "ERROR"
 ): Promise<ProcessOrderResult> => {
   try {
-    console.log("🔄 Procesando webhook de Wompi para orden:", {
-      transactionId,
-      paymentStatus,
-    });
-
     // 1. Buscar payment por transaction_id
     const paymentResult = await prisma.$queryRaw<PaymentWithOrder[]>`
       SELECT p.id, p.transaction_id, p.payment_status, p.amount_in_cents, p.user_id, o.id as order_id
@@ -509,11 +564,11 @@ export const processWompiOrderWebhook = async (
 
     // 3. Si ya existe orden, actualizar su estado según el payment status
     if (payment.order_id) {
-      let newOrderStatus: "pending" | "confirmed" | "cancelled";
+      let newOrderStatus: "pending" | "paid" | "confirmed" | "cancelled";
 
       switch (paymentStatus) {
         case "APPROVED":
-          newOrderStatus = "confirmed";
+          newOrderStatus = "paid";
           break;
         case "DECLINED":
         case "ERROR":

@@ -27,7 +27,7 @@ export const useAddresses = () => {
   const createAddress = useCallback(
     async (addressData: addressApi.CreateAddressData) => {
       if (!userId) throw new Error("Usuario no autenticado");
-      return addressApi.createAddress(addressData, userId);
+      return addressApi.createAddressApi(addressData, userId);
     },
     [userId]
   );

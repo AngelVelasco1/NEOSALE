@@ -139,21 +139,11 @@ export default function CheckoutPage() {
           throw new Error("La dirección seleccionada no es válida");
         }
 
+        // Crear la orden usando la API correcta
         const orderData = {
-          payment_id: paymentId,
-          address_id: selectedAddress.id,
-          items: cartProducts.map((item) => ({
-            product_id: item.id,
-            quantity: item.quantity,
-            unit_price: item.price,
-            color_code: item.color_code,
-            size: item.size,
-          })),
-          subtotal,
-          taxes,
-          shipping,
-          total,
-          payment_method: paymentMethod || "card",
+          paymentId: paymentId, // Usar paymentId directamente como transaction_id
+          shippingAddressId: selectedAddress.id,
+          couponId: undefined,
         };
 
         const order = await createOrderApi(orderData);
@@ -165,12 +155,12 @@ export default function CheckoutPage() {
 
         ErrorsHandler.showSuccess(
           "¡Orden completada!",
-          `Tu orden #${order.id} ha sido procesada exitosamente`
+          `Tu orden #${order.order_id || order.id} ha sido procesada exitosamente`
         );
 
         // Redirect after showing confirmation
         setTimeout(() => {
-          router.push(`/checkout/success?order_id=${order.id}`);
+          router.push(`/orders/${order.order_id || order.id}`);
         }, 3000);
       } catch (error) {
         console.error("Error creating order:", error);
@@ -308,7 +298,7 @@ export default function CheckoutPage() {
             <Button variant="outline" onClick={() => fetchData()}>
               Reintentar
             </Button>
-            <Button onClick={() => router.push("/cart")}>
+            <Button onClick={() => router.push("/productsCart")}>
               Volver al carrito
             </Button>
           </CardFooter>
@@ -337,12 +327,12 @@ export default function CheckoutPage() {
                 damping: 20,
                 delay: 0.1
               }}
-              className="p-4 rounded-xl bg-gradient-to-br from-slate-700 via-slate-800 to-slate-900 shadow-lg shadow-slate-900/30 ring-1 ring-slate-700/50"
+              className="p-4 rounded-xl bg-gradient-to-br from-blue-700 via-blue-800 to-blue-900 shadow-lg shadow-blue-900/30 ring-1 ring-blue-700/50"
             >
               <ShoppingCart className="w-8 h-8 text-slate-100" />
             </motion.div>
             <div>
-              <h1 className="text-4xl font-bold text-slate-900 dark:text-slate-100">
+              <h1 className="text-4xl font-bold text-blue-800 dark:text-slate-100">
                 Finalizar compra
               </h1>
               <p className="text-slate-600 dark:text-slate-400 mt-1 text-base">
@@ -408,10 +398,10 @@ export default function CheckoutPage() {
 
                           <StepIcon
                             className={`w-7 h-7 relative z-10 transition-colors ${step.completed
-                                ? 'text-white'
-                                : step.active
-                                  ? 'text-slate-100'
-                                  : 'text-slate-400 dark:text-slate-500'
+                              ? 'text-white'
+                              : step.active
+                                ? 'text-slate-100'
+                                : 'text-slate-400 dark:text-slate-500'
                               }`}
                           />
                         </div>
@@ -439,10 +429,10 @@ export default function CheckoutPage() {
                       >
                         <p
                           className={`text-sm font-semibold transition-colors ${step.active
-                              ? 'text-slate-900 dark:text-slate-100'
-                              : step.completed
-                                ? 'text-emerald-600 dark:text-emerald-500'
-                                : 'text-slate-500 dark:text-slate-400'
+                            ? 'text-slate-900 dark:text-slate-100'
+                            : step.completed
+                              ? 'text-emerald-600 dark:text-emerald-500'
+                              : 'text-slate-500 dark:text-slate-400'
                             }`}
                         >
                           {step.title}
@@ -526,7 +516,8 @@ export default function CheckoutPage() {
                   >
                     <Button
                       variant="outline"
-                      onClick={() => router.push("/cart")}
+                      onClick={() => router.push("/productsCart")}
+                      className="bg-slate-800 text-white p-4 py-6 rounded-xl border-none text-sm font-semibold"
                     >
                       <ArrowLeft className="w-4 h-4 mr-2" />
                       Volver al carrito
@@ -534,7 +525,7 @@ export default function CheckoutPage() {
                     <Button
                       onClick={handleNextStep}
                       disabled={!selectedAddress}
-                      className="bg-gradient-to-r from-slate-700 to-slate-900 hover:from-slate-800 hover:to-slate-950 text-white shadow-md"
+                      className="p-4 py-6 text-sm font-semibold  rounded-xl bg-gradient-to-r from-blue-700 to-blue-900 hover:from-blue-800 hover:to-blue-950 text-white shadow-md"
                     >
                       Continuar al pago
                       <ArrowRight className="w-4 h-4 ml-2" />

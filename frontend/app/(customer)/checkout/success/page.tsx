@@ -90,7 +90,6 @@ export default function CheckoutSuccessPage() {
 
     // Si el estado cambió a APPROVED, re-consultar payment info para obtener datos actualizados
     if (newStatus.toUpperCase() === "APPROVED" && pollingTransactionData?.id) {
-      console.log("💰 Pago aprobado, consultando payment actualizado...");
       fetchPaymentInfo(pollingTransactionData.id);
     }
   };
@@ -105,11 +104,11 @@ export default function CheckoutSuccessPage() {
 
         if (paymentData) {
           setPaymentInfo(paymentData as PaymentInfo);
-          console.log("✅ Payment info actualizado:", paymentData);
+          console.log("Payment info actualizado:", paymentData);
         }
       }
     } catch (dbError) {
-      console.warn("⚠️ No se pudo consultar payment desde BD:", dbError);
+      console.warn("No se pudo consultar payment desde BD:", dbError);
     }
   };
 
@@ -150,7 +149,6 @@ export default function CheckoutSuccessPage() {
 
   const fetchTransactionDetails = async (transactionId: string) => {
     try {
-      console.log("� Consultando detalles de transacción:", transactionId);
 
       try {
         const wompiResult = await getWompiTransactionStatusApi(transactionId);
@@ -167,14 +165,14 @@ export default function CheckoutSuccessPage() {
             reference: wompiData.reference || prev.reference,
           }));
 
-          console.log("✅ Estado de Wompi actualizado:", {
+          console.log(" Estado de Wompi actualizado:", {
             status: wompiData.status,
             amount: wompiData.amount_in_cents,
             reference: wompiData.reference,
           });
         }
       } catch (wompiError) {
-        console.warn("⚠️ No se pudo consultar estado de Wompi:", wompiError);
+        console.warn("No se pudo consultar estado de Wompi:", wompiError);
         // Continuar con consulta de BD local
       }
 
@@ -188,8 +186,6 @@ export default function CheckoutSuccessPage() {
 
           if (paymentData) {
             setPaymentInfo(paymentData as PaymentInfo);
-            console.log("✅ Payment consultado desde BD:", paymentData);
-
             // Si el payment tiene orden asociada, obtener información de la orden
             // Nota: En el nuevo sistema, las órdenes se crean automáticamente por webhook
             // Aquí podrías hacer una consulta adicional para obtener la orden si la necesitas
@@ -459,18 +455,18 @@ export default function CheckoutSuccessPage() {
             {(transactionData.status?.toUpperCase() === "DECLINED" ||
               transactionData.status?.toUpperCase() === "ERROR" ||
               transactionData.status?.toUpperCase() === "FAILED") && (
-              <div className="bg-red-100 border border-red-200 rounded-lg p-4">
-                <h4 className="font-semibold text-red-800 mb-2">
-                  ¿Qué puedes hacer?
-                </h4>
-                <ul className="text-red-700 text-sm space-y-1">
-                  <li>• Verifica que tus datos de pago sean correctos</li>
-                  <li>• Asegúrate de tener fondos suficientes</li>
-                  <li>• Intenta con otro método de pago</li>
-                  <li>• Contacta a tu banco si el problema persiste</li>
-                </ul>
-              </div>
-            )}
+                <div className="bg-red-100 border border-red-200 rounded-lg p-4">
+                  <h4 className="font-semibold text-red-800 mb-2">
+                    ¿Qué puedes hacer?
+                  </h4>
+                  <ul className="text-red-700 text-sm space-y-1">
+                    <li>• Verifica que tus datos de pago sean correctos</li>
+                    <li>• Asegúrate de tener fondos suficientes</li>
+                    <li>• Intenta con otro método de pago</li>
+                    <li>• Contacta a tu banco si el problema persiste</li>
+                  </ul>
+                </div>
+              )}
 
             {/* Botones de acción */}
             <div className="flex flex-col md:flex-row gap-4">
@@ -499,15 +495,15 @@ export default function CheckoutSuccessPage() {
               {(transactionData.status?.toUpperCase() === "DECLINED" ||
                 transactionData.status?.toUpperCase() === "ERROR" ||
                 transactionData.status?.toUpperCase() === "FAILED") && (
-                <Button asChild variant="outline" className="flex-1">
-                  <Link
-                    href="/checkout"
-                    className="flex items-center justify-center gap-2"
-                  >
-                    Intentar de nuevo
-                  </Link>
-                </Button>
-              )}
+                  <Button asChild variant="outline" className="flex-1">
+                    <Link
+                      href="/checkout"
+                      className="flex items-center justify-center gap-2"
+                    >
+                      Intentar de nuevo
+                    </Link>
+                  </Button>
+                )}
             </div>
 
             {/* Nota sobre el sistema automático */}

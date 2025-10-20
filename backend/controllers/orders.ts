@@ -141,11 +141,6 @@ export const getOrderById = async (
       });
     }
 
-    console.log("🔍 Obteniendo orden por ID:", {
-      orderId: parseInt(orderId),
-      userId,
-    });
-
     const order = await getOrderByIdService(parseInt(orderId));
 
     // Verificar que la orden pertenece al usuario
@@ -156,7 +151,7 @@ export const getOrderById = async (
       });
     }
 
-    console.log("✅ Orden obtenida:", {
+    console.log("Orden obtenida:", {
       orderId: order.id,
       userId,
       status: order.status,
@@ -216,14 +211,8 @@ export const getUserOrdersWithPayments = async (
       });
     }
 
-    console.log("🔍 Obteniendo órdenes para usuario:", userId);
 
     const orders = await getUserOrdersWithPaymentsService(userId);
-
-    console.log("✅ Órdenes obtenidas:", {
-      userId,
-      ordersCount: orders.length,
-    });
 
     res.json({
       success: true,

@@ -11,9 +11,9 @@ import {
   verifyWebhookSignature,
   WompiTransactionData,
   convertPesosToWompiCentavos,
-  // 🏦 PSE IMPORTS
   getFinancialInstitutions,
   createPSETransaction,
+  PSETransactionData,
 } from "../services/payments";
 import {
   createOrderService,
@@ -26,8 +26,6 @@ export const getAcceptanceTokensController = async (
   res: Response
 ) => {
   try {
-    console.log("Solicitud de tokens de aceptación recibida");
-
     const result = await getWompiAcceptanceTokensService();
 
     if (!result.success) {
@@ -59,8 +57,6 @@ export const getPaymentConfigController = async (
   res: Response
 ) => {
   try {
-    console.log("Solicitud de configuración de pagos recibida");
-
     const result = await getWompiPublicConfigService();
 
     if (!result.success) {
@@ -138,12 +134,6 @@ export const generateIntegritySignatureController = async (
       return;
     }
 
-    console.log("Generando firma de integridad:", {
-      reference,
-      amount,
-      currency,
-    });
-
     const signature = generateWompiIntegritySignature(
       reference,
       amount,
@@ -183,73 +173,17 @@ export const createPaymentController = async (req: Request, res: Response) => {
       return;
     }
 
-    console.log("Datos originales del carrito (antes de conversión):", {
-      reference: transactionData.reference,
-      amountRecibido: transactionData.amount,
-      currency: transactionData.currency,
-      customerEmail: transactionData.customerEmail,
-      userId: user_id,
-      // 🔍 DEBUG: Información detallada del carrito
-      hasCartData: !!transactionData.cartData,
-      cartDataType: typeof transactionData.cartData,
-      cartDataIsArray: Array.isArray(transactionData.cartData),
-      cartDataKeys: transactionData.cartData
-        ? Object.keys(transactionData.cartData)
-        : [],
-      cartDataContent: transactionData.cartData,
-      cartDataStringified: JSON.stringify(transactionData.cartData),
-      bodyKeys: Object.keys(transactionData),
-      bodySize: JSON.stringify(transactionData).length,
-    });
-
-    // 💰 NUEVA LÓGICA: Si el amount viene en pesos, convertirlo a centavos
     let amountInCentavos = transactionData.amount;
 
-    // Verificar si el amount parece estar en pesos (valor típicamente < 1,000,000 para órdenes normales)
-    // Si es menor a 1,000,000 asumir que está en pesos y convertir
     if (transactionData.amount && transactionData.amount < 1000000) {
-      console.log("💰 Detectado monto en PESOS, convirtiendo a centavos...");
       amountInCentavos = convertPesosToWompiCentavos(transactionData.amount);
-
-      console.log("✅ Conversión completada:", {
-        montoOriginalPesos: transactionData.amount,
-        montoConvertidoCentavos: amountInCentavos,
-        factorConversion: "x100",
-      });
-    } else {
-      console.log(
-        "💰 Monto ya está en centavos (>= 1,000,000), no se convierte"
-      );
     }
 
-    // Actualizar el amount en transactionData
     const transactionDataWithCentavos: WompiTransactionData = {
       ...transactionData,
       amount: amountInCentavos, // Usar el monto en centavos
     };
 
-    console.log("Solicitud de creación de transacción procesada:", {
-      reference: transactionDataWithCentavos.reference,
-      amountOriginal: transactionData.amount,
-      amountFinalCentavos: amountInCentavos,
-      currency: transactionDataWithCentavos.currency,
-      customerEmail: transactionDataWithCentavos.customerEmail,
-      customerName: transactionDataWithCentavos.customerName,
-      customerPhone: transactionDataWithCentavos.customerPhone,
-      customerDocumentType: transactionDataWithCentavos.customerDocumentType,
-      customerDocumentNumber:
-        transactionDataWithCentavos.customerDocumentNumber,
-      hasAcceptanceToken: !!transactionDataWithCentavos.acceptanceToken,
-      hasPersonalAuthToken: !!transactionDataWithCentavos.acceptPersonalAuth,
-      shippingAddress: transactionDataWithCentavos.shippingAddress,
-      acceptanceTokenLength:
-        transactionDataWithCentavos.acceptanceToken?.length || 0,
-      personalAuthLength:
-        transactionDataWithCentavos.acceptPersonalAuth?.length || 0,
-      userId: user_id,
-    });
-
-    // Validar datos requeridos básicos
     if (
       !transactionDataWithCentavos.reference ||
       !transactionDataWithCentavos.amount ||
@@ -273,7 +207,6 @@ export const createPaymentController = async (req: Request, res: Response) => {
       return;
     }
 
-    // Pasar el userId desde query params a la función de servicio con amount corregido
     const result = await createPaymentService(
       transactionDataWithCentavos,
       user_id
@@ -294,7 +227,7 @@ export const createPaymentController = async (req: Request, res: Response) => {
       data: result.data,
     });
   } catch (error) {
-    console.error("❌ Error en createWompiTransactionController:", error);
+    console.error("Error en createWompiTransactionController:", error);
     res.status(500).json({
       success: false,
       message: "Error interno del servidor",
@@ -310,8 +243,6 @@ export const getTransactionStatusController = async (
 ) => {
   try {
     const { transactionId } = req.params;
-
-    console.log("🔍 Solicitud de estado de transacción:", { transactionId });
 
     // Validar ID de transacción
     if (!transactionId || transactionId.trim().length === 0) {
@@ -358,8 +289,6 @@ export const validateWompiDataController = async (
 ) => {
   try {
     const transactionData = req.body; // Usar any para recibir la estructura nueva
-
-    console.log("🔍 Validando datos para Wompi:", transactionData);
 
     // Realizar todas las validaciones con la nueva estructura
     const issues: string[] = [];
@@ -538,12 +467,6 @@ export const validateWompiDataController = async (
       signatureGenerated,
     };
 
-    console.log("✅ Resultado validación:", {
-      isValid,
-      issuesCount: issues.length,
-      dataReceived,
-    });
-
     res.status(200).json({
       success: true,
       message: "Validación completada",
@@ -581,14 +504,6 @@ export const updatePaymentStatusController = async (
       processorResponse,
       wompiResponse,
     } = req.body;
-
-    console.log("🔄 Solicitud de actualización de payment:", {
-      transactionId,
-      status,
-      statusMessage,
-      method: req.method,
-      hasWompiResponse: !!wompiResponse,
-    });
 
     // Validar parámetros
     if (!transactionId || !status) {
@@ -656,8 +571,6 @@ export const getPaymentFromDatabaseController = async (
   try {
     const { transactionId } = req.params;
 
-    console.log("📊 Solicitud de payment desde BD:", { transactionId });
-
     if (!transactionId) {
       res.status(400).json({
         success: false,
@@ -698,12 +611,6 @@ export const handleWompiWebhookController = async (
   res: Response
 ) => {
   try {
-    console.log("🎯 Webhook de Wompi recibido:", {
-      headers: req.headers,
-      body: req.body,
-      timestamp: new Date().toISOString(),
-    });
-
     const { data, timestamp, signature } = req.body;
 
     // Validar que los datos requeridos estén presentes
@@ -737,11 +644,8 @@ export const handleWompiWebhookController = async (
       return;
     }
 
-    console.log("✅ Firma de webhook verificada correctamente");
-
-    // Actualizar el payment en la base de datos
     try {
-      const updateResult = await updatePaymentFromWebhook({
+      await updatePaymentFromWebhook({
         transactionId: transaction.id,
         newStatus: transaction.status,
         statusMessage: transaction.status_message,
@@ -750,13 +654,8 @@ export const handleWompiWebhookController = async (
         signature,
         paymentMethodDetails: transaction.payment_method,
       });
-
-      console.log("✅ Payment actualizado desde webhook:", updateResult);
     } catch (updateError) {
-      console.error(
-        "❌ Error actualizando payment desde webhook:",
-        updateError
-      );
+      console.error("Error actualizando payment desde webhook:", updateError);
       res.status(500).json({
         success: false,
         message: "Error actualizando payment",
@@ -773,13 +672,6 @@ export const handleWompiWebhookController = async (
       transaction.id,
       transaction.status
     );
-
-    console.log("✅ Webhook procesado exitosamente:", {
-      transactionId: transaction.id,
-      status: transaction.status,
-      orderCreated: orderResult.orderId || "N/A",
-      orderSuccess: orderResult.success,
-    });
 
     res.status(200).json({
       success: true,
@@ -816,15 +708,6 @@ export const createOrderFromPaymentController = async (
       shippingAddressId = address_id,
     } = req.body;
 
-    console.log("🛒 Solicitud de creación de orden desde payment:", {
-      payment_id,
-      address_id,
-      paymentId,
-      shippingAddressId,
-      couponId,
-      bodyReceived: req.body,
-    });
-
     // Usar payment_id y address_id como valores principales
     const finalPaymentTransactionId = paymentId || payment_id;
     const finalShippingAddressId = shippingAddressId || address_id;
@@ -839,6 +722,11 @@ export const createOrderFromPaymentController = async (
     }
 
     // Buscar el payment por transaction_id para obtener el ID numérico
+    console.log(
+      "Buscando payment con transaction_id:",
+      finalPaymentTransactionId
+    );
+
     const paymentRecord = await prisma.payments.findUnique({
       where: {
         transaction_id: finalPaymentTransactionId as string,
@@ -850,19 +738,41 @@ export const createOrderFromPaymentController = async (
       },
     });
 
+    console.log("Payment encontrado:", paymentRecord);
+
     if (!paymentRecord) {
+      // Buscar todos los payments para debug
+      const allPayments = await prisma.payments.findMany({
+        select: {
+          id: true,
+          transaction_id: true,
+          payment_status: true,
+          created_at: true,
+        },
+        orderBy: {
+          created_at: "desc",
+        },
+        take: 10,
+      });
+
+      console.log("Últimos 10 payments en BD:", allPayments);
+
       res.status(404).json({
         success: false,
         message: `Payment no encontrado para transaction_id: ${finalPaymentTransactionId}`,
+        debug: {
+          searchedTransactionId: finalPaymentTransactionId,
+          totalPaymentsInDb: allPayments.length,
+          recentPayments: allPayments.map((p) => ({
+            id: p.id,
+            transaction_id: p.transaction_id,
+            status: p.payment_status,
+            created_at: p.created_at,
+          })),
+        },
       });
       return;
     }
-
-    console.log("✅ Payment encontrado:", {
-      paymentId: paymentRecord.id,
-      transactionId: paymentRecord.transaction_id,
-      status: paymentRecord.payment_status,
-    });
 
     // Convertir address_id a número y validar
     const shippingAddressIdNum = Number(finalShippingAddressId);
@@ -883,12 +793,6 @@ export const createOrderFromPaymentController = async (
       });
       return;
     }
-
-    console.log("🔄 Llamando a createOrderService con:", {
-      paymentId: paymentRecord.id, // Usar el ID numérico de la BD
-      shippingAddressId: shippingAddressIdNum,
-      couponId: couponIdNum,
-    });
 
     const result = await createOrderService({
       paymentId: paymentRecord.id, // Usar el ID numérico real
@@ -917,8 +821,6 @@ export const getFinancialInstitutionsController = async (
   res: Response
 ) => {
   try {
-    console.log("🏛️ Solicitud de instituciones financieras PSE recibida");
-
     const institutions = await getFinancialInstitutions();
 
     res.status(200).json({
@@ -1058,20 +960,7 @@ export const createPSEPaymentController = async (
       .toString(36)
       .substr(2, 9)}`;
 
-    // 🛡️ OBTENER IP DEL CLIENTE PARA ANTI-FRAUDE
     const clientIP = getClientIP(req);
-
-    console.log("🏦 Procesando pago PSE:", {
-      userId: user_id,
-      amountInCents,
-      currency,
-      customerEmail,
-      financial_institution: financial_institution_code,
-      user_type: user_type === 0 ? "Natural" : "Jurídica",
-      document_type: user_legal_id_type,
-      reference,
-      clientIP,
-    });
 
     // 📦 PREPARAR DATOS PARA PSE TRANSACTION
     const pseTransactionData: PSETransactionData = {
@@ -1096,20 +985,6 @@ export const createPSEPaymentController = async (
       clientIP,
     };
 
-    console.log("📦 Datos preparados para createPSETransaction:", {
-      amount: pseTransactionData.amount,
-      currency: pseTransactionData.currency,
-      customerEmail: pseTransactionData.customerEmail,
-      reference: pseTransactionData.reference,
-      pseDetails: pseTransactionData.pseDetails,
-      customerData: pseTransactionData.customerData,
-      hasShippingAddress: !!pseTransactionData.shippingAddress,
-      hasCartData: !!pseTransactionData.cartData,
-      userId: pseTransactionData.userId,
-      clientIP: pseTransactionData.clientIP,
-    });
-
-    // 🚀 CREAR TRANSACCIÓN PSE
     const result = await createPSETransaction(pseTransactionData);
 
     if (result.success) {

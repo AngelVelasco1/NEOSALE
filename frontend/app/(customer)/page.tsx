@@ -27,70 +27,102 @@ export default function Home() {
 
   return (
     <>
-      <div className="mx-auto flex flex-col gap-y-16 ">
+      <div className="mx-auto flex flex-col  ">
         <Banner />
 
-        <h2 className="text-4xl lg:text-5xl text-center font-black leading-tight relative mb-6">
-          <motion.span
-            className="bg-gradient-to-r from-blue-950 via-blue-700 to-blue-950 bg-clip-text text-transparent"
-            animate={{
-              backgroundPosition: ["0% 50%", "100% 50%", "0% 50%"],
-            }}
-            transition={{
-              duration: 8,
-              repeat: Number.POSITIVE_INFINITY,
-              ease: "easeInOut",
-            }}
-            style={{
-              backgroundSize: "200% 200%",
-            }}
-          >
-            Últimos Productos
-          </motion.span>
-        </h2>
+        {/* Latest Products Section */}
+        <section className="relative py-20 bg-gradient-to-br from-slate-900 via-slate-900 to-slate-950 overflow-hidden">
+          {/* Background Effects */}
+          <div className="absolute inset-0">
+            <div className="absolute top-1/4 right-1/4 w-96 h-96 bg-blue-500/3 rounded-full blur-3xl"></div>
+            <div className="absolute bottom-1/4 left-1/4 w-96 h-96 bg-purple-500/3 rounded-full blur-3xl"></div>
+          </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-4 gap-6 px-20">
-          {products.map((product) => {
-            return <ProductCard key={product.id} data={product} />;
-          })}
-        </div>
+          <div className="container mx-auto px-4 relative z-10">
+            {/* Header */}
+            <div className="text-center mb-16">
+              <div className="inline-flex items-center gap-3 bg-white/10 backdrop-blur-md border border-white/20 rounded-full px-6 py-3 mb-6">
+                <div className="w-2 h-2 bg-gradient-to-r from-blue-400 to-purple-400 rounded-full animate-pulse"></div>
+                <span className="text-white text-sm font-medium tracking-wider uppercase">
+                  Productos Destacados
+                </span>
+                <div className="w-2 h-2 bg-gradient-to-r from-purple-400 to-cyan-400 rounded-full animate-pulse"></div>
+              </div>
+              <h2 className="text-5xl md:text-6xl font-bold mb-6">
+                <span className="bg-gradient-to-r from-white via-blue-100 to-purple-100 bg-clip-text text-transparent">
+                  Últimos Productos
+                </span>
+              </h2>
+              <p className="text-gray-300 text-xl max-w-3xl mx-auto leading-relaxed">
+                Descubre nuestra colección más reciente de productos premium.
+                Tecnología de vanguardia, diseño excepcional y calidad garantizada.
+              </p>
+            </div>
 
-        <div className="flex justify-center items-center">
-          <button
-            onClick={() => router.push("/products")}
-            className="group relative inline-flex items-center justify-center gap-3 px-8 py-4 
-                     bg-gradient-to-r from-blue-600 via-blue-700 to-indigo-700 
-                     hover:from-blue-700 hover:via-blue-800 hover:to-indigo-800
-                     text-white font-semibold text-lg rounded-2xl
-                     shadow-xl shadow-blue-500/25 hover:shadow-2xl hover:shadow-blue-600/40
-                     transform transition-all duration-200 ease-in-out
-                     hover:scale-105 hover:-translate-y-1
-                     focus:outline-none 
-                    overflow-hidden cursor-pointer"
-          >
-            <div
-              className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent 
-                          translate-x-[-100%] group-hover:translate-x-[100%] 
-                          transition-transform duration-1000 ease-in-out"
-            />
+            {/* Products Grid */}
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8 max-w-7xl mx-auto mb-16">
+              {products.map((product, index) => (
+                <motion.div
+                  key={product.id}
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.6, delay: index * 0.1 }}
+                  className="group"
+                >
+                  <ProductCard data={product} />
+                </motion.div>
+              ))}
+            </div>
 
-            <Sparkles className="h-6 w-6 text-white animate-pulse" />
+            {/* CTA Button */}
+            <div className="text-center">
+              <motion.button
+                onClick={() => router.push("/products")}
+                className="group relative inline-flex items-center justify-center gap-4 px-10 py-5
+                         bg-gradient-to-r from-blue-600 via-purple-600 to-cyan-600
+                         hover:from-blue-700 hover:via-purple-700 hover:to-cyan-700
+                         text-white font-bold text-xl rounded-3xl
+                         shadow-2xl shadow-blue-500/25 hover:shadow-3xl hover:shadow-blue-600/40
+                         transform transition-all duration-300 ease-out
+                         hover:scale-110 hover:-translate-y-2
+                         focus:outline-none focus:ring-4 focus:ring-blue-500/50
+                         overflow-hidden cursor-pointer"
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+              >
+                {/* Animated background */}
+                <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-1000 ease-in-out"></div>
 
-            {/* Texto */}
-            <span className="relative z-10 tracking-wide">
-              Ver Todos los Productos
-            </span>
+                {/* Shimmer effect */}
+                <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/30 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-1000 skew-x-12"></div>
 
-            {/* Flecha animada */}
-            <ArrowRight className="h-5 w-5 group-hover:translate-x-1 transition-transform duration-300" />
-          </button>
-        </div>
+                {/* Glow effect */}
+                <div className="absolute -inset-1 bg-gradient-to-r from-blue-500 to-purple-500 rounded-3xl blur opacity-0 group-hover:opacity-40 transition-opacity duration-500"></div>
 
-        <div className="mt-16 mb-4">
+                {/* Content */}
+                <div className="relative z-10 flex items-center gap-4">
+                  <Sparkles className="h-7 w-7 text-white animate-pulse group-hover:animate-bounce" />
+
+                  <span className="tracking-wide font-bold">
+                    Ver Todos los Productos
+                  </span>
+
+                  <ArrowRight className="h-6 w-6 group-hover:translate-x-2 transition-transform duration-300" />
+                </div>
+
+                {/* Floating particles */}
+                <div className="absolute -top-2 -right-2 w-3 h-3 bg-gradient-to-r from-blue-400 to-purple-400 rounded-full opacity-0 group-hover:opacity-100 animate-ping"></div>
+                <div className="absolute -bottom-1 -left-1 w-2 h-2 bg-gradient-to-r from-purple-400 to-cyan-400 rounded-full opacity-0 group-hover:opacity-100 animate-ping" style={{ animationDelay: '0.2s' }}></div>
+              </motion.button>
+            </div>
+          </div>
+        </section>
+
+        <div className="">
           <BenefitsList />
         </div>
 
-        <div className="mt-16 mb-4">
+        <div className="">
           <Pricing />
         </div>
 

@@ -74,7 +74,7 @@ const plans = [
   },
 ]
 
-export const Pricing= () => {
+export const Pricing = () => {
   const [isYearly, setIsYearly] = useState(false)
 
   const getPrice = (plan: any) => {
@@ -90,63 +90,47 @@ export const Pricing= () => {
   }
 
   return (
-    <section className="py-16 bg-gradient-to-br from-slate-50 via-white to-blue-50">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
- <h2 className="text-4xl lg:text-5xl font-black leading-tight relative">
-                <motion.span
-                  className="bg-gradient-to-r from-slate-900 via-purple-900 to-slate-800 bg-clip-text text-transparent"
-                  animate={{
-                    backgroundPosition: ["0% 50%", "100% 50%", "0% 50%"],
-                  }}
-                  transition={{
-                    duration: 8,
-                    repeat: Number.POSITIVE_INFINITY,
-                    ease: "easeInOut",
-                  }}
-                  style={{
-                    backgroundSize: "200% 200%",
-                  }}
-                >
-                  Planes que se
-                </motion.span>
-                <br />
-                <motion.span
-                  className="bg-gradient-to-r from-blue-600 via-purple-600 to-indigo-600 bg-clip-text text-transparent relative"
-                  animate={{
-                    backgroundPosition: ["100% 50%", "0% 50%", "100% 50%"],
-                  }}
-                  transition={{
-                    duration: 8,
-                    repeat: Number.POSITIVE_INFINITY,
-                    ease: "easeInOut",
-                    delay: 0.5,
-                  }}
-                  style={{
-                    backgroundSize: "200% 200%",
-                  }}
-                >
-                  adaptan a ti
-                  <motion.div
-                    className="absolute -inset-1 bg-gradient-to-r from-blue-400/20 via-purple-400/20 to-indigo-400/20 blur-xl -z-10"
-                    animate={{
-                      opacity: [0.3, 0.6, 0.3],
-                      scale: [0.95, 1.05, 0.95],
-                    }}
-                    transition={{
-                      duration: 4,
-                      repeat: Number.POSITIVE_INFINITY,
-                      ease: "easeInOut",
-                    }}
-                  />
-                </motion.span>
-              </h2>        {/* Header */}
+    <section className="py-20 bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950 relative overflow-hidden">
+      {/* Background Effects */}
+      <div className="absolute inset-0">
+        <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-blue-500/3 rounded-full blur-3xl"></div>
+        <div className="absolute bottom-1/4 right-1/4 w-96 h-96 bg-purple-500/3 rounded-full blur-3xl"></div>
+        <div className="absolute top-1/2 left-1/2 w-96 h-96 bg-cyan-500/2 rounded-full blur-3xl"></div>
+      </div>
+
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+        {/* Header */}
+        <div className="text-center mb-16">
+          <div className="inline-flex items-center gap-3 bg-white/10 backdrop-blur-md border border-white/20 rounded-full px-6 py-3 mb-6">
+            <div className="w-2 h-2 bg-gradient-to-r from-blue-400 to-purple-400 rounded-full animate-pulse"></div>
+            <span className="text-white text-sm font-medium tracking-wider uppercase">
+              Planes de Precios
+            </span>
+            <div className="w-2 h-2 bg-gradient-to-r from-purple-400 to-cyan-400 rounded-full animate-pulse"></div>
+          </div>
+          <h2 className="text-5xl md:text-6xl font-bold mb-6">
+            <span className="bg-gradient-to-r from-white via-blue-100 to-purple-100 bg-clip-text text-transparent">
+              Planes que se
+            </span>
+            <br />
+            <span className="bg-gradient-to-r from-blue-300 via-purple-300 to-cyan-300 bg-clip-text text-transparent">
+              adaptan a ti
+            </span>
+          </h2>
+          <p className="text-gray-300 text-xl max-w-3xl mx-auto leading-relaxed">
+            Elige el plan perfecto para tu negocio. Todos nuestros planes incluyen soporte técnico,
+            actualizaciones gratuitas y la mejor experiencia de usuario.
+          </p>
+        </div>
+
+        {/* Header */}
         <div className="flex flex-col lg:flex-row lg:items-center justify-center px-4 mb-16">
-        
+
           {/* Enhanced Billing Toggle with Framer Motion */}
           <div className="flex items-center gap-6">
-          
 
-            <div className="flex items-center bg-white rounded-full p-1.5 shadow-lg border border-gray-200 relative ">
+
+            <div className="flex items-center bg-white/10 backdrop-blur-md rounded-full p-1.5 shadow-lg border border-white/20 relative">
               {/* Animated Background Slider with matching gradient */}
               <motion.div
                 className="absolute top-1.5 bottom-1.5 bg-gradient-to-br from-slate-900 via-purple-900 to-slate-800 rounded-full shadow-lg shadow-purple-900/30"
@@ -163,9 +147,8 @@ export const Pricing= () => {
 
               <motion.button
                 onClick={() => setIsYearly(false)}
-                className={`relative z-10 px-6 py-2.5 rounded-full text-sm font-semibold ${
-                  !isYearly ? "text-white" : "text-gray-600"
-                }`}
+                className={`relative z-10 px-6 py-2.5 rounded-full text-sm font-semibold ${!isYearly ? "text-gray-100" : "text-gray-300"
+                  }`}
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
                 transition={{ type: "spring", stiffness: 400, damping: 17 }}
@@ -175,9 +158,8 @@ export const Pricing= () => {
 
               <motion.button
                 onClick={() => setIsYearly(true)}
-                className={`relative z-10 px-6 py-2.5 rounded-full text-sm font-semibold ${
-                  isYearly ? "text-white" : "text-gray-600"
-                }`}
+                className={`relative z-10 px-6 py-2.5 rounded-full text-sm font-semibold ${isYearly ? "text-whitex" : "text-gray-300"
+                  }`}
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
                 transition={{ type: "spring", stiffness: 400, damping: 17 }}
@@ -219,11 +201,10 @@ export const Pricing= () => {
             >
               {/* Enhanced Card */}
               <div
-                className={`relative h-full rounded-2xl p-8 backdrop-blur-sm ${
-                  plan.gradientBg
-                    ? "bg-gradient-to-br from-slate-900 via-purple-900 to-slate-800 text-white shadow-2xl shadow-purple-500/20 border border-purple-500/20"
-                    : `bg-white/80 backdrop-blur-sm ${plan.borderColor} border ${plan.shadowColor} shadow-lg ${plan.hoverShadow} ${plan.hoverBorder} hover:shadow-xl hover:bg-white`
-                }`}
+                className={`relative h-full rounded-2xl p-6 backdrop-blur-sm ${plan.gradientBg
+                  ? "bg-gradient-to-br from-slate-900 via-purple-900 to-slate-800 text-white shadow-2xl shadow-purple-500/20 border border-purple-500/20"
+                  : `bg-white/5 backdrop-blur-lg border border-white/10 shadow-xl hover:bg-white/10 hover:border-white/20 hover:shadow-2xl`
+                  }`}
               >
                 {/* Badge */}
                 <motion.div
@@ -233,16 +214,15 @@ export const Pricing= () => {
                   transition={{ delay: index * 0.1 + 0.2, type: "spring", stiffness: 300 }}
                 >
                   <span
-                    className={`inline-flex items-center px-4 py-2 rounded-full text-sm font-medium backdrop-blur-sm ${
-                      plan.gradientBg ? "bg-white/10 text-white border border-white/20" : plan.badgeColor
-                    }`}
+                    className={`inline-flex items-center px-4 py-2 rounded-full text-sm font-medium backdrop-blur-sm ${plan.gradientBg ? "bg-white/10 text-white border border-white/20" : "bg-white/10 text-white border border-white/20"
+                      }`}
                   >
                     {plan.badge}
                   </span>
                 </motion.div>
 
                 {/* Animated Price */}
-                <div className="mb-8">
+                <div className="mb-6">
                   <div className="flex items-baseline gap-3">
                     <AnimatePresence mode="wait">
                       <motion.div
@@ -256,15 +236,14 @@ export const Pricing= () => {
                           damping: 30,
                           duration: 0.3,
                         }}
-                        className={`text-6xl font-black tracking-tight ${
-                          plan.gradientBg ? "text-white" : "text-slate-900"
-                        }`}
+                        className={`text-6xl font-black tracking-tight ${plan.gradientBg ? "text-white" : "text-white"
+                          }`}
                       >
                         ${getPrice(plan)}
                       </motion.div>
                     </AnimatePresence>
                     <motion.span
-                      className={`text-lg font-medium ${plan.gradientBg ? "text-white/70" : "text-slate-500"}`}
+                      className={`text-lg font-medium ${plan.gradientBg ? "text-white/70" : "text-gray-300"}`}
                       animate={{ opacity: [0.7, 1, 0.7] }}
                       transition={{ duration: 2, repeat: Number.POSITIVE_INFINITY }}
                     >
@@ -291,11 +270,10 @@ export const Pricing= () => {
                           initial={{ scale: 0.8 }}
                           animate={{ scale: 1 }}
                           transition={{ delay: 0.1, type: "spring", stiffness: 400 }}
-                          className={`inline-flex items-center px-3 py-1 rounded-full text-sm font-semibold ${
-                            plan.gradientBg
-                              ? "bg-white/20 text-white border border-white/30"
-                              : "bg-green-100 text-green-700 border border-green-200"
-                          }`}
+                          className={`inline-flex items-center px-3 py-1 rounded-full text-sm font-semibold ${plan.gradientBg
+                            ? "bg-white/20 text-white border border-white/30"
+                            : "bg-green-100 text-green-700 border border-green-200"
+                            }`}
                         >
                           <motion.span initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.2 }}>
                             Ahorras ${getSavings(plan.monthlyPrice, plan.yearlyPrice)} al año
@@ -307,12 +285,12 @@ export const Pricing= () => {
                 </div>
 
                 {/* Plan Name & Description */}
-    
+
                 <motion.p
                   initial={{ opacity: 0 }}
                   animate={{ opacity: 1 }}
                   transition={{ delay: index * 0.1 + 0.4 }}
-                  className={`mb-8 leading-relaxed ${plan.gradientBg ? "text-white/90" : "text-gray-600"}`}
+                  className={`mb-6 leading-relaxed text-sm ${plan.gradientBg ? "text-white/90" : "text-gray-300"}`}
                 >
                   {plan.description}
                 </motion.p>
@@ -322,11 +300,11 @@ export const Pricing= () => {
                   initial={{ scaleX: 0 }}
                   animate={{ scaleX: 1 }}
                   transition={{ delay: index * 0.1 + 0.5, duration: 0.3 }}
-                  className={`w-full border-t mb-6 origin-left ${plan.gradientBg ? "border-white/30" : "border-gray-200"}`}
+                  className={`w-full border-t mb-6 origin-left ${plan.gradientBg ? "border-white/30" : "border-white/20"}`}
                 />
 
                 {/* Features */}
-                <ul className="space-y-5 mb-10">
+                <ul className="space-y-3 mb-8">
                   {plan.features.map((feature, featureIndex) => (
                     <motion.li
                       key={featureIndex}
@@ -347,16 +325,15 @@ export const Pricing= () => {
                       <motion.div
                         whileHover={{ scale: 1.1 }}
                         transition={{ type: "spring", stiffness: 400, damping: 25 }}
-                        className={`flex-shrink-0 w-5 h-5 rounded-full flex items-center justify-center mt-1 ${
-                          plan.gradientBg ? "bg-white/20" : "bg-slate-100"
-                        }`}
+                        className={`flex-shrink-0 w-5 h-5 rounded-full flex items-center justify-center mt-1 ${plan.gradientBg ? "bg-white/20" : "bg-white/10"
+                          }`}
                       >
                         <Check
                           className={`w-3 h-3 stroke-[2.5] ${plan.gradientBg ? "text-white" : "text-slate-600"}`}
                         />
                       </motion.div>
                       <span
-                        className={`text-base leading-relaxed ${plan.gradientBg ? "text-white/90" : "text-slate-700"}`}
+                        className={`text-sm leading-relaxed ${plan.gradientBg ? "text-white/90" : "text-gray-300"}`}
                       >
                         {feature}
                       </span>
@@ -368,23 +345,26 @@ export const Pricing= () => {
                 <motion.div
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: index * 0.1 + 1 }}
+                  transition={{ delay: index * 0.1 + 0.8 }}
                 >
                   <Button
                     size="lg"
-                    className="w-full bg-slate-900 hover:bg-slate-800 text-white font-semibold py-4 px-6 rounded-xl shadow-lg shadow-slate-900/25 hover:shadow-xl hover:shadow-slate-900/40 border border-slate-800"
+                    className={`w-full font-bold py-4 px-6 rounded-xl shadow-lg transition-all duration-300 ${plan.gradientBg
+                      ? "bg-gradient-to-r from-blue-600 via-purple-600 to-cyan-600 hover:from-blue-700 hover:via-purple-700 hover:to-cyan-700 text-white shadow-blue-500/25 hover:shadow-blue-600/40"
+                      : "bg-white/10 backdrop-blur-md border border-white/20 text-white hover:bg-white/20 hover:border-white/30"
+                      }`}
                     asChild
                   >
                     <motion.button
-                      whileHover={{ scale: 1.02 }}
-                      whileTap={{ scale: 0.98 }}
+                      whileHover={{ scale: 1.05 }}
+                      whileTap={{ scale: 0.95 }}
                       transition={{ type: "spring", stiffness: 400, damping: 25 }}
                     >
-                      {plan.name === "Starter"
+                      {plan.badge === "Básico"
                         ? "Comenzar Ahora"
-                        : plan.name === "Professional"
+                        : plan.badge === "Profesional"
                           ? "Obtener Profesional"
-                          : "Obtener Avanzado"}
+                          : "Obtener Premium"}
                     </motion.button>
                   </Button>
                 </motion.div>
@@ -393,7 +373,7 @@ export const Pricing= () => {
           ))}
         </div>
 
-     
+
       </div>
     </section>
   )

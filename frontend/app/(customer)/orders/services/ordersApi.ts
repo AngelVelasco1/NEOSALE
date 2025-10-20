@@ -34,7 +34,7 @@ export interface PaymentInfo {
 }
 
 export interface CreateOrderData {
-  paymentId: number;
+  paymentId: string | number;
   shippingAddressId: number;
   couponId?: number;
 }
@@ -56,6 +56,16 @@ export interface Order {
   };
   success?: boolean;
   message?: string;
+  user_id?: number;
+  addresses: {
+    id: number;
+    address: string;
+    country: string;
+    city: string;
+    department: string;
+    is_default: boolean;
+    created_at: string;
+  };
 }
 
 export const createOrderApi = async (
@@ -95,8 +105,6 @@ export const createOrderApi = async (
  */
 export const getUserOrdersApi = async (): Promise<Order[]> => {
   try {
-    console.log("🔍 Obteniendo órdenes del usuario...");
-
     // Obtener la sesión para extraer el user_id
     const sessionResponse = await fetch("/api/auth/session");
     const session = await sessionResponse.json();
@@ -142,10 +150,6 @@ export const getUserOrdersApi = async (): Promise<Order[]> => {
       throw new Error(result.message || "Error obteniendo órdenes");
     }
 
-    console.log("✅ Órdenes obtenidas exitosamente:", {
-      count: result.data?.length || 0,
-    });
-
     return result.data || [];
   } catch (error) {
     console.error("❌ Error en getUserOrdersApi:", error);
@@ -158,8 +162,6 @@ export const getUserOrdersApi = async (): Promise<Order[]> => {
  */
 export const getOrderByIdApi = async (orderId: number): Promise<Order> => {
   try {
-    console.log("🔍 Obteniendo orden por ID:", orderId);
-
     // Obtener la sesión para extraer el user_id
     const sessionResponse = await fetch("/api/auth/session");
     const session = await sessionResponse.json();
@@ -205,11 +207,6 @@ export const getOrderByIdApi = async (orderId: number): Promise<Order> => {
     if (!result.success) {
       throw new Error(result.message || "Error obteniendo orden");
     }
-
-    console.log("✅ Orden obtenida exitosamente:", {
-      orderId: result.data?.id,
-      status: result.data?.status,
-    });
 
     return result.data;
   } catch (error) {

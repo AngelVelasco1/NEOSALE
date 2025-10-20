@@ -305,24 +305,11 @@ export const generateWompiIntegritySignature = (
     // Concatenar: reference + amount + currency + secret
     const concatenatedString = `${reference}${amount}${currency}${secret}`;
 
-    console.log("🔐 Generando firma de integridad:", {
-      reference,
-      amount,
-      currency,
-      concatenatedLength: concatenatedString.length,
-      secretPresent: !!secret,
-    });
-
     // Generar hash SHA256
     const signature = crypto
       .createHash("sha256")
       .update(concatenatedString, "utf8")
       .digest("hex");
-
-    console.log(
-      "✅ Firma de integridad generada:",
-      signature.substring(0, 20) + "..."
-    );
 
     return signature;
   } catch (error) {
@@ -340,8 +327,6 @@ export const getFinancialInstitutions = async (): Promise<
 > => {
   try {
     const config = getWompiConfig();
-
-    console.log("🏛️ Obteniendo instituciones financieras de PSE...");
 
     const response = await fetch(
       `${config.baseUrl}/pse/financial_institutions`,
@@ -470,29 +455,7 @@ export const createPSETransaction = async (
       }),
     };
 
-    console.log("📤 Datos enviados a Wompi PSE:", {
-      amount_in_cents: transactionData.amount_in_cents,
-      currency: transactionData.currency,
-      customer_email: transactionData.customer_email,
-      public_key: transactionData.public_key?.substring(0, 20) + "...",
-      payment_method: {
-        ...transactionData.payment_method,
-        reference_one: transactionData.payment_method.reference_one,
-        reference_two: transactionData.payment_method.reference_two,
-        reference_three: "***masked***",
-      },
-      customer_data: transactionData.customer_data,
-      redirect_url: transactionData.redirect_url,
-      reference: transactionData.reference,
-      has_shipping_address: !!(transactionData as Record<string, unknown>)
-        .shipping_address,
-      // 🔐 Información de seguridad
-      has_signature: !!transactionData.signature,
-      has_acceptance_token: !!transactionData.acceptance_token,
-      has_acceptance_token_auth: !!transactionData.acceptance_token_auth,
-    });
-
-    // 🚀 ENVIAR TRANSACCIÓN A WOMPI
+    // 🚀 ENVIAR TRANSACIÓN A WOMPI
     const response = await fetch(`${config.baseUrl}/transactions`, {
       method: "POST",
       headers: {
@@ -516,22 +479,13 @@ export const createPSETransaction = async (
     const result = await response.json();
     const transactionId = result.data?.id;
 
-    console.log("✅ Transacción PSE creada:", {
-      id: transactionId,
-      status: result.data?.status,
-      payment_method: result.data?.payment_method?.type,
-    });
-
-    // 🔄 POLLING PARA OBTENER async_payment_url
     let asyncPaymentUrl = result.data?.payment_method?.extra?.async_payment_url;
     let pollAttempts = 0;
     const maxPollAttempts = 12; // 2 minutos máximo (10 segundos * 12)
 
-    console.log("🔄 Iniciando polling para obtener async_payment_url...");
-
     while (!asyncPaymentUrl && pollAttempts < maxPollAttempts) {
       pollAttempts++;
-      console.log(`🔄 Polling intento ${pollAttempts}/${maxPollAttempts}...`);
+      console.log(`Polling intento ${pollAttempts}/${maxPollAttempts}...`);
 
       // Esperar 10 segundos antes del siguiente intento
       await new Promise((resolve) => setTimeout(resolve, 10000));
@@ -554,7 +508,7 @@ export const createPSETransaction = async (
             statusResult.data?.payment_method?.extra?.async_payment_url;
 
           if (asyncPaymentUrl) {
-            console.log("✅ async_payment_url obtenida:", asyncPaymentUrl);
+            console.log(" async_payment_url obtenida:", asyncPaymentUrl);
             break;
           }
         }
@@ -590,11 +544,6 @@ export const createPSETransaction = async (
             color: item.color_code || "",
             size: item.size || "",
           };
-        });
-
-        console.log("🛒 Cart data preparado para BD (PSE):", {
-          itemsCount: cartDataForDb.length,
-          sampleItem: cartDataForDb[0],
         });
       }
 
@@ -910,41 +859,41 @@ export const createPaymentService = async (
 
     const transactionResult = await response.json();
 
+    // Validar que tenemos el transactionId antes de guardar
+    if (!transactionResult.data?.id) {
+      throw new Error("No se recibió transactionId de Wompi");
+    }
+
+    let cartDataForDb = null;
+    if (transactionData.cartData && Array.isArray(transactionData.cartData)) {
+      // Convertir los items a formato esperado por la BD (precios en centavos)
+      cartDataForDb = transactionData.cartData.map((item) => {
+        return {
+          product_id: item.product_id,
+          quantity: item.quantity,
+          price:
+            item.price < 1000000
+              ? convertPesosToWompiCentavos(item.price)
+              : item.price, // Convertir si está en pesos
+          color: item.color_code || "",
+          size: item.size || "",
+        };
+      });
+    } else {
+      console.log("Cart data NO válido - almacenando array vacío:", {
+        hasCartData: !!transactionData.cartData,
+        cartDataStructure: transactionData.cartData,
+        reason: !transactionData.cartData
+          ? "cartData es null/undefined"
+          : !Array.isArray(transactionData.cartData)
+          ? "cartData no es un array"
+          : "estructura desconocida",
+      });
+    }
+
     try {
-      let cartDataForDb = null;
-      if (transactionData.cartData && Array.isArray(transactionData.cartData)) {
-        // Convertir los items a formato esperado por la BD (precios en centavos)
-        cartDataForDb = transactionData.cartData.map((item) => {
-          return {
-            product_id: item.product_id,
-            quantity: item.quantity,
-            price:
-              item.price < 1000000
-                ? convertPesosToWompiCentavos(item.price)
-                : item.price, // Convertir si está en pesos
-            color: item.color_code || "",
-            size: item.size || "",
-          };
-        });
-
-        console.log("🛒 Cart data preparado para BD:", {
-          itemsCount: cartDataForDb.length,
-          sampleItem: cartDataForDb[0],
-        });
-      } else {
-        console.log("⚠️  Cart data NO válido - almacenando array vacío:", {
-          hasCartData: !!transactionData.cartData,
-          cartDataStructure: transactionData.cartData,
-          reason: !transactionData.cartData
-            ? "cartData es null/undefined"
-            : !Array.isArray(transactionData.cartData)
-            ? "cartData no es un array"
-            : "estructura desconocida",
-        });
-      }
-
       const paymentDbResult = await createPaymentTransaction({
-        transactionId: transactionResult.data?.id,
+        transactionId: transactionResult.data.id, // Ya validado que existe
         reference,
         orderId: null,
         amount,
@@ -967,11 +916,13 @@ export const createPaymentService = async (
         cartData: cartDataForDb || undefined, // NUEVO: Pasar datos del carrito
       });
 
-      console.log("✅ Payment almacenado en base de datos:", paymentDbResult);
+      console.log("✅ Payment guardado exitosamente en BD:", paymentDbResult);
     } catch (dbError) {
-      console.error(
-        "⚠️  Error almacenando payment en BD (no crítico):",
-        dbError
+      console.error("❌ Error CRÍTICO almacenando payment en BD:", dbError);
+      throw new Error(
+        `Error guardando payment en base de datos: ${
+          dbError instanceof Error ? dbError.message : "Error desconocido"
+        }`
       );
     }
 
@@ -1017,12 +968,6 @@ export const getWompiTransactionStatusService = async (
       throw new Error("ID de transacción requerido");
     }
 
-    console.log("🔍 Consultando estado de transacción:", {
-      transactionId,
-      environment: config.environment,
-      baseUrl: config.baseUrl,
-    });
-
     const url = `${config.baseUrl}/transactions/${transactionId}`;
 
     const response = await fetch(url, {
@@ -1066,7 +1011,7 @@ export const getWompiTransactionStatusService = async (
 
     const transactionData = await response.json();
 
-    console.log("✅ Estado de transacción obtenido:", {
+    console.log(" Estado de transacción obtenido:", {
       transactionId,
       status: transactionData.data?.status,
       amount: transactionData.data?.amount_in_cents,
@@ -1083,7 +1028,6 @@ export const getWompiTransactionStatusService = async (
           transactionData.data?.processor_response_code,
           transactionData.data
         );
-        console.log("✅ Estado sincronizado con base de datos");
       } catch (dbError) {
         console.error("⚠️  Error sincronizando estado con BD:", dbError);
         // No fallar la consulta por error de sincronización
@@ -1136,11 +1080,6 @@ export const updatePaymentService = async ({
   paymentMethodDetails?: object;
 }) => {
   try {
-    console.log("🔄 Ejecutando fn_update_payment:", {
-      transactionId,
-      newStatus,
-    });
-
     const result = await prisma.$queryRaw`
       SELECT * FROM fn_update_payment(
         ${transactionId}::VARCHAR(255),
@@ -1153,7 +1092,6 @@ export const updatePaymentService = async ({
       )
     `;
 
-    console.log("✅ fn_update_payment ejecutada exitosamente:", result);
     return { success: true, data: result };
   } catch (error) {
     console.error("❌ Error en updatePaymentService:", error);
@@ -1174,12 +1112,6 @@ export const updatePaymentStatusService = async (
   processorResponse?: Record<string, unknown>
 ) => {
   try {
-    console.log("🔄 Actualizando estado de payment:", {
-      transactionId,
-      newStatus,
-      statusMessage,
-    });
-
     // Usar fn_update_payment para todas las actualizaciones
     const result = await prisma.$queryRaw`
       SELECT * FROM fn_update_payment(
@@ -1222,7 +1154,7 @@ export const getPaymentByTransactionIdService = async (
       SELECT * FROM get_payment_by_transaction_id(${transactionId}::VARCHAR)
     `;
 
-    console.log("✅ Payment consultado desde BD:", paymentResult);
+    console.log(" Payment consultado desde BD:", paymentResult);
 
     return {
       success: true,
@@ -1268,6 +1200,30 @@ export const createPaymentTransaction = async (
   params: CreatePaymentTransactionParams
 ) => {
   try {
+    console.log("🔍 Llamando fn_create_payment con params:", {
+      transactionId: params.transactionId,
+      reference: params.reference,
+      amount: params.amount,
+      paymentMethod: params.paymentMethod,
+      customerEmail: params.customerEmail,
+      hasCartData: !!params.cartData,
+      cartDataLength: Array.isArray(params.cartData)
+        ? params.cartData.length
+        : 0,
+      userId: params.userId,
+      currency: params.currency,
+      hasShippingAddress: !!params.shippingAddress,
+      acceptanceToken: params.acceptanceToken
+        ? params.acceptanceToken.substring(0, 20) + "..."
+        : null,
+      acceptPersonalAuth: params.acceptPersonalAuth
+        ? params.acceptPersonalAuth.substring(0, 20) + "..."
+        : null,
+      integritySignature: params.integritySignature
+        ? params.integritySignature.substring(0, 20) + "..."
+        : null,
+    });
+
     const result = await prisma.$queryRaw`
       SELECT * FROM fn_create_payment(
         ${params.transactionId}::VARCHAR(255),
@@ -1293,6 +1249,8 @@ export const createPaymentTransaction = async (
       )
     `;
 
+    console.log("✅ fn_create_payment ejecutada exitosamente:", result);
+
     return { success: true, data: result };
   } catch (error) {
     console.error("❌ Error en createPaymentTransaction:", error);
@@ -1314,11 +1272,6 @@ export const updatePaymentFromWebhook = async (webhookData: {
   paymentMethodDetails?: object;
 }) => {
   try {
-    console.log("🔄 Ejecutando fn_update_payment desde webhook:", {
-      transactionId: webhookData.transactionId,
-      newStatus: webhookData.newStatus,
-    });
-
     // Verificar firma del webhook antes de procesar
     const expectedSignature = generateWebhookSignature(
       webhookData.processorResponse
@@ -1407,12 +1360,6 @@ export const convertPesosToWompiCentavos = (pesosAmount: number): number => {
   // Convertir pesos a centavos (multiplicar por 100)
   const centavos = Math.round(pesosAmount * 100);
 
-  console.log(`💰 Conversión: $${pesosAmount} COP → ${centavos} centavos`, {
-    pesosInput: pesosAmount,
-    centavosOutput: centavos,
-    factor: 100,
-  });
-
   return centavos;
 };
 
@@ -1429,12 +1376,6 @@ export const convertWompiCentavosToPesos = (centavosAmount: number): number => {
 
   // Convertir centavos a pesos (dividir por 100)
   const pesos = centavosAmount / 100;
-
-  console.log(`💰 Conversión: ${centavosAmount} centavos → $${pesos} COP`, {
-    centavosInput: centavosAmount,
-    pesosOutput: pesos,
-    factor: 100,
-  });
 
   return pesos;
 };
@@ -1497,11 +1438,6 @@ export const calculateCartTotalInCentavos = (
       },
     };
 
-    console.log("🧮 Cálculo completo del carrito:", {
-      itemsCount: cartData?.length || 0,
-      calculated: result,
-    });
-
     return result;
   } catch (error) {
     console.error("❌ Error calculando total del carrito:", error);
@@ -1519,6 +1455,6 @@ export type {
   WompiMerchantData,
   WompiConfig,
   WompiTransactionData,
-  WompiApiPayload,
   CreatePaymentTransactionParams,
+  PSETransactionData,
 };

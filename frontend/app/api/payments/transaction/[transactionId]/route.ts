@@ -19,8 +19,6 @@ export async function GET(
       );
     }
 
-    console.log("🔍 Consultando estado de transacción:", { transactionId });
-
     // Hacer petición al backend
     const response = await fetch(
       `${BACKEND_URL}/api/payments/transaction/${transactionId}`,
@@ -54,7 +52,7 @@ export async function GET(
 
     const result = await response.json();
 
-    console.log("✅ Estado de transacción obtenido:", {
+    console.log("Estado de transacción obtenido:", {
       transactionId,
       status: result.data?.status,
       success: result.success,

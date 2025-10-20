@@ -105,16 +105,10 @@ export const WompiContractsAcceptance: React.FC<
 
     onAcceptanceChange(allAccepted, acceptanceTokens);
 
-    console.log("📋 Estado de aceptación de contratos:", {
-      termsAndConditions: newAcceptedContracts.termsAndConditions,
-      personalDataAuth: newAcceptedContracts.personalDataAuth,
-      allAccepted,
-    });
   };
 
   const openContract = (url: string, title: string) => {
     window.open(url, "_blank", "noopener,noreferrer");
-    console.log(`📄 Abriendo contrato: ${title}`);
   };
 
   if (isLoading) {
@@ -156,7 +150,7 @@ export const WompiContractsAcceptance: React.FC<
   const allAccepted = Object.values(acceptedContracts).every(Boolean);
 
   return (
-    <div className="bg-white/80 backdrop-blur-sm rounded-2xl shadow-xl border border-purple-100/50 overflow-hidden animate-in fade-in slide-in-from-bottom duration-700">
+    <div className="bg-white/80 backdrop-blur-sm rounded-2xl shadow-xl border border-purple-100/50 overflow-hidden animate-in fade-in slide-in-from-bottom duration-700 max-w-full m-auto">
       <div className="p-8 space-y-4">
         <div className="flex items-center gap-4 pb-4 border-b border-gray-100">
           <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-purple-500 to-blue-500 flex items-center justify-center shadow-lg">

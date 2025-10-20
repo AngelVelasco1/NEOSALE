@@ -76,7 +76,7 @@ DO $$ BEGIN
             'cancelled',    -- Cancelada
             'refunded'      -- Reembolsada
         );
-
+select * from orders;
        CREATE TYPE roles_enum AS ENUM ('user', 'admin');
   
        CREATE TYPE notification_type_enum AS ENUM (

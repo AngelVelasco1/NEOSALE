@@ -17,12 +17,6 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    console.log("🔄 Actualizando estado de transacción:", {
-      transactionId,
-      status,
-      hasWompiResponse: !!wompiResponse,
-    });
-
     // Hacer petición al backend para actualizar el estado
     const response = await fetch(`${BACKEND_URL}/api/payments/update-status`, {
       method: "POST",
@@ -57,12 +51,6 @@ export async function POST(request: NextRequest) {
     }
 
     const result = await response.json();
-
-    console.log("✅ Estado de transacción actualizado:", {
-      transactionId,
-      status,
-      success: result.success,
-    });
 
     return NextResponse.json(result);
   } catch (error) {

@@ -165,8 +165,6 @@ export const getWompiAcceptanceTokensApi = async (): Promise<
   WompiApiResponse<WompiMerchantData>
 > => {
   try {
-    console.log("📡 Obteniendo tokens de aceptación de Wompi...");
-
     const { data: response } = await api.get<
       WompiApiResponse<WompiMerchantData>
     >("/api/payments/acceptance-tokens");
@@ -176,13 +174,6 @@ export const getWompiAcceptanceTokensApi = async (): Promise<
         response.error || "Error obteniendo tokens de aceptación"
       );
     }
-
-    console.log("✅ Tokens de aceptación obtenidos:", {
-      hasPresignedAcceptance:
-        !!response.data?.presigned_acceptance?.acceptance_token,
-      hasPersonalDataAuth:
-        !!response.data?.presigned_personal_data_auth?.acceptance_token,
-    });
 
     return response;
   } catch (error: unknown) {
@@ -212,8 +203,6 @@ export const getWompiPublicConfigApi = async (): Promise<
   WompiApiResponse<WompiPublicConfig>
 > => {
   try {
-    console.log("📡 Obteniendo configuración pública de Wompi...");
-
     const { data: response } = await api.get<
       WompiApiResponse<WompiPublicConfig>
     >("/api/payments/config");
@@ -223,14 +212,6 @@ export const getWompiPublicConfigApi = async (): Promise<
         response.error || "Error obteniendo configuración pública"
       );
     }
-
-    console.log("✅ Configuración pública obtenida:", {
-      publicKey: response.data?.publicKey?.substring(0, 20) + "...",
-      environment: response.data?.environment,
-      hasTokens: !!response.data?.acceptanceTokens,
-      contractLinksCount: Object.keys(response.data?.contractLinks || {})
-        .length,
-    });
 
     return response;
   } catch (error: unknown) {
@@ -261,13 +242,6 @@ export const tokenizeCardApi = async (
   publicKey: string
 ): Promise<WompiApiResponse<WompiCardTokenizationResponse["data"]>> => {
   try {
-    console.log("💳 Tokenizando tarjeta de crédito/débito...", {
-      cardHolder: cardData.card_holder,
-      lastFour: cardData.number.slice(-4),
-      expMonth: cardData.exp_month,
-      expYear: cardData.exp_year,
-    });
-
     // Llamar directamente a Wompi (no a nuestro backend)
     const wompiResponse = await fetch(
       "https://sandbox.wompi.co/v1/tokens/cards",
@@ -298,13 +272,6 @@ export const tokenizeCardApi = async (
       throw new Error("Token de tarjeta no fue creado correctamente");
     }
 
-    console.log("✅ Tarjeta tokenizada exitosamente:", {
-      tokenId: result.data.id,
-      brand: result.data.brand,
-      lastFour: result.data.last_four,
-      expiresAt: result.data.expires_at,
-    });
-
     return {
       success: true,
       data: result.data,
@@ -327,12 +294,6 @@ export const generateWompiIntegritySignatureApi = async (
   signatureData: WompiIntegritySignatureRequest
 ): Promise<WompiIntegritySignatureResponse> => {
   try {
-    console.log("🔐 Generando firma de integridad:", {
-      reference: signatureData.reference,
-      amount: signatureData.amount,
-      currency: signatureData.currency || "COP",
-    });
-
     const { data: response } = await api.post<WompiIntegritySignatureResponse>(
       "/api/payments/generate-signature",
       signatureData
@@ -341,11 +302,6 @@ export const generateWompiIntegritySignatureApi = async (
     if (!response.success) {
       throw new Error(response.error || "Error generando firma de integridad");
     }
-
-    console.log("✅ Firma de integridad generada:", {
-      signature: response.data?.signature?.substring(0, 20) + "...",
-      reference: response.data?.reference,
-    });
 
     return response;
   } catch (error: unknown) {
@@ -376,15 +332,6 @@ export const createWompiTransactionApi = async (
   userId: string | number // NUEVO: userId obligatorio desde NextAuth
 ): Promise<WompiTransactionResponse> => {
   try {
-    console.log("� Creando transacción en Wompi:", {
-      reference: transactionData.reference,
-      amount: transactionData.amount,
-      currency: transactionData.currency,
-      customerEmail: transactionData.customerEmail,
-      hasAcceptanceToken: !!transactionData.acceptanceToken,
-      hasPersonalAuthToken: !!transactionData.acceptPersonalAuth,
-    });
-
     // Pasar userId como query param
     const { data: response } = await api.post<WompiTransactionResponse>(
       `/api/payments/create-transaction?user_id=${userId}`,
@@ -395,7 +342,7 @@ export const createWompiTransactionApi = async (
       throw new Error(response.error || "Error creando transacción");
     }
 
-    console.log("✅ Transacción creada exitosamente:", {
+    console.log("Transacción creada exitosamente:", {
       transactionId: response.data?.transactionId,
       status: response.data?.status,
       reference: response.data?.reference,
@@ -462,8 +409,6 @@ export const validateWompiDataApi = async (
   }>
 > => {
   try {
-    console.log("🔍 Validando datos para Wompi:", transactionData);
-
     const { data: response } = await api.post<
       WompiApiResponse<{
         isValid: boolean;
@@ -483,11 +428,6 @@ export const validateWompiDataApi = async (
     if (!response.success) {
       throw new Error(response.error || "Error validando datos");
     }
-
-    console.log("✅ Validación completada:", {
-      isValid: response.data?.isValid,
-      issuesCount: response.data?.issues?.length || 0,
-    });
 
     return response;
   } catch (error: unknown) {
@@ -515,17 +455,13 @@ export const testWompiConnectionApi = async (): Promise<
   WompiApiResponse<WompiConnectionTest>
 > => {
   try {
-    console.log("🔍 Probando conexión con Wompi...");
-
     const { data: response } = await api.get<
       WompiApiResponse<WompiConnectionTest>
     >("/api/payments/test-connection");
 
-    console.log("📊 Resultado de prueba de conexión:", response);
-
     return response;
   } catch (error: unknown) {
-    console.error("❌ Error probando conexión con Wompi:", error);
+    console.error("Error probando conexión con Wompi:", error);
 
     if (error && typeof error === "object" && "response" in error) {
       const apiError = error as {
@@ -594,8 +530,6 @@ export const processWompiPaymentFlow = async (
   }>
 ): Promise<WompiTransactionResponse> => {
   try {
-    console.log("🎯 Iniciando flujo completo de pago Wompi...");
-
     // Generar referencia única
     const reference = generatePaymentReference(orderData.userId);
 
@@ -623,8 +557,6 @@ export const processWompiPaymentFlow = async (
 
     // 💳 Si se proporcionan datos de tarjeta, tokenizar y agregar método de pago
     if (cardData) {
-      console.log("💳 Procesando pago con tarjeta de crédito/débito...");
-
       // Obtener configuración pública para la llave pública
       const configResult = await getWompiPublicConfigApi();
       if (!configResult.success || !configResult.data) {
@@ -654,33 +586,13 @@ export const processWompiPaymentFlow = async (
         token: tokenResult.data.id,
       };
       transactionData.payment_method_type = "CARD";
-
-      console.log("✅ Tarjeta tokenizada y método de pago configurado:", {
-        tokenId: tokenResult.data.id,
-        brand: tokenResult.data.brand,
-        installments: cardData.installments,
-      });
     }
-
-    console.log("📋 Datos de transacción preparados:", {
-      reference,
-      amountInCents,
-      currency: transactionData.currency,
-      customerEmail: customerData.email,
-      hasPaymentMethod: !!transactionData.payment_method,
-      paymentMethodType: transactionData.payment_method_type,
-    });
 
     // Crear transacción
     const result = await createWompiTransactionApi(
       transactionData,
       orderData.userId || 0
     );
-
-    console.log("🎉 Flujo de pago completado exitosamente:", {
-      transactionId: result.data?.transactionId,
-      status: result.data?.status,
-    });
 
     return result;
   } catch (error) {
@@ -711,8 +623,6 @@ export const getWompiTransactionStatusApi = async (
   }>
 > => {
   try {
-    console.log("🔍 Consultando estado de transacción:", { transactionId });
-
     const { data: response } = await api.get<
       WompiApiResponse<{
         id: string;
@@ -738,7 +648,7 @@ export const getWompiTransactionStatusApi = async (
       );
     }
 
-    console.log("✅ Estado de transacción obtenido:", {
+    console.log("Estado de transacción obtenido:", {
       transactionId,
       status: response.data?.status,
       amount: response.data?.amount_in_cents,
@@ -773,8 +683,6 @@ export const getPaymentFromDatabaseApi = async (
   transactionId: string
 ): Promise<WompiApiResponse<unknown>> => {
   try {
-    console.log("📊 Consultando payment desde BD:", { transactionId });
-
     const { data: response } = await api.get<WompiApiResponse<unknown>>(
       `/api/payments/payment/db/${transactionId}`
     );
@@ -784,8 +692,6 @@ export const getPaymentFromDatabaseApi = async (
         response.error || "Error consultando payment desde base de datos"
       );
     }
-
-    console.log("✅ Payment consultado desde BD:", response.data);
 
     return response;
   } catch (error: unknown) {
@@ -825,8 +731,6 @@ export const createOrderFromPaymentApi = async (orderData: {
   }>
 > => {
   try {
-    console.log("🛒 Creando orden desde payment:", orderData);
-
     const { data: response } = await api.post<
       WompiApiResponse<{
         order_id: number;
@@ -841,7 +745,7 @@ export const createOrderFromPaymentApi = async (orderData: {
       throw new Error(response.error || "Error creando orden desde payment");
     }
 
-    console.log("✅ Orden creada desde payment:", response.data);
+    console.log("Orden creada desde payment:", response.data);
 
     return response;
   } catch (error: unknown) {
@@ -920,8 +824,6 @@ export const getPSEFinancialInstitutionsApi = async (): Promise<
   WompiApiResponse<PSEFinancialInstitution[]>
 > => {
   try {
-    console.log("🏛️ Obteniendo instituciones financieras PSE...");
-
     const { data: response } = await api.get<
       WompiApiResponse<PSEFinancialInstitution[]>
     >("/api/payments/pse/financial-institutions");
@@ -931,14 +833,6 @@ export const getPSEFinancialInstitutionsApi = async (): Promise<
         response.error || "Error obteniendo instituciones financieras PSE"
       );
     }
-
-    console.log("✅ Instituciones financieras PSE obtenidas:", {
-      count: response.data?.length || 0,
-      sample:
-        response.data
-          ?.slice(0, 3)
-          ?.map((inst) => inst.financial_institution_name) || [],
-    });
 
     return response;
   } catch (error: unknown) {
@@ -968,21 +862,13 @@ export const createPSETransactionApi = async (
   userId: number
 ): Promise<WompiApiResponse<PSETransactionResponse>> => {
   try {
-    console.log("🏦 Llamando API para crear transacción PSE:", {
-      user_type: pseData.user_type === 0 ? "Natural" : "Jurídica",
-      document_type: pseData.user_legal_id_type,
-      financial_institution: pseData.financial_institution_code,
-      customerEmail: pseData.customerEmail,
-      userId,
-    });
-
     const response = await api.post(
       `/api/payments/pse/create-transaction?user_id=${userId}`,
       pseData
     );
 
     if (response.data?.success) {
-      console.log("✅ Transacción PSE creada exitosamente:", {
+      console.log("Transacción PSE creada exitosamente:", {
         transactionId: response.data.data?.transactionId,
         async_payment_url: response.data.data?.async_payment_url,
         payment_link: response.data.data?.payment_link_id,
@@ -1088,25 +974,9 @@ export const processPSEPaymentFlow = async (
       ...(cartData && { cartData }),
     };
 
-    console.log("📦 Datos preparados para PSE:", {
-      amount: psePayload.amount,
-      currency: psePayload.currency,
-      customerEmail: psePayload.customerEmail,
-      user_type: psePayload.user_type === 0 ? "Natural" : "Jurídica",
-      document_type: psePayload.user_legal_id_type,
-      financial_institution: psePayload.financial_institution_code,
-      userId,
-    });
-
     const result = await createPSETransactionApi(psePayload, userId);
 
     if (result.success && result.data?.async_payment_url) {
-      console.log("✅ Flujo PSE completado exitosamente:", {
-        transactionId: result.data.transactionId,
-        async_payment_url: result.data.async_payment_url,
-      });
-
-      // ✅ REDIRECCIONAR AL BANCO USANDO async_payment_url
       window.location.href = result.data.async_payment_url;
 
       return result;
@@ -1133,13 +1003,6 @@ export const validatePSEDataApi = async (
   }>
 > => {
   try {
-    console.log("🔍 Validando datos PSE:", {
-      user_type: pseData.user_type === 0 ? "Natural" : "Jurídica",
-      legal_id_type: pseData.user_legal_id_type,
-      financial_institution: pseData.financial_institution_code,
-      amount: pseData.amount,
-    });
-
     const issues: string[] = [];
     const recommendations: string[] = [];
 
@@ -1191,12 +1054,6 @@ export const validatePSEDataApi = async (
     }
 
     const isValid = issues.length === 0;
-
-    console.log("✅ Validación PSE completada:", {
-      isValid,
-      issuesCount: issues.length,
-      recommendationsCount: recommendations.length,
-    });
 
     return {
       success: true,

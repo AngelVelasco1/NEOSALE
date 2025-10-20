@@ -52,8 +52,8 @@ export const getCartService = async (
                 select: {
                   size: true,
                   color_code: true,
-                  color: true,
-                  stock: true,
+                  /*                   color: true,
+                   */ stock: true,
                 },
               },
               images: {
@@ -213,8 +213,9 @@ export const clearCartService = async (
   if (!user_id) {
     throw new Error("ID de usuario requerido");
   }
+  const userId = parseInt(user_id);
 
-  await prisma.$executeRaw`CALL fn_clear_cart(${user_id})`;
+  await prisma.$executeRaw`SELECT fn_clear_cart(${userId}::integer)`;
 
   return {
     items: [],

@@ -158,7 +158,10 @@ BEGIN
         updated_at
     ) VALUES (
         p_payment_id,
-        'pending'::orders_status_enum,
+        CASE
+            WHEN v_payment.payment_status = 'APPROVED' THEN 'paid'::orders_status_enum
+            ELSE 'pending'::orders_status_enum
+        END,
         v_subtotal,
         0,
         v_payment.amount_in_cents - v_subtotal - ROUND(v_subtotal * 0.19),
@@ -301,4 +304,3 @@ EXCEPTION
 END;
 $$;
 
-select * from orders;

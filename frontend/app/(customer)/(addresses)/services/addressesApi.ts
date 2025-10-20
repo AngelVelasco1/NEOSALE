@@ -82,14 +82,12 @@ export const createAddressApi = async (
       user_id: user_id,
     };
 
-    console.log("🚀 Enviando datos de dirección:", dataWithUserId);
-
     const { data } = await api.post<ApiResponse<Address>>(
       `/api/addresses/createAddress`,
       dataWithUserId
     );
 
-    console.log("✅ Respuesta del servidor:", data);
+    console.log("Respuesta del servidor:", data);
     return data;
   } catch (error: any) {
     console.error("❌ Error en createAddress:", error);
@@ -118,14 +116,11 @@ export const updateAddress = async (
       user_id: user_id,
     };
 
-    console.log("🚀 Actualizando dirección:", { address_id, dataWithUserId });
-
     const { data } = await api.put<ApiResponse<Address>>(
       `/api/addresses/updateAddress/${address_id}`,
       dataWithUserId
     );
 
-    console.log("✅ Dirección actualizada:", data);
     return data;
   } catch (error: any) {
     console.error("❌ Error en updateAddress:", error);

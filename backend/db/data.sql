@@ -19,6 +19,7 @@ DELETE FROM subcategories;
 DELETE FROM brands;
 DELETE FROM "User";
 
+select * from orders;
 -- REINICIAR SECUENCIAS
 ALTER SEQUENCE subcategories_id_seq RESTART WITH 1;
 ALTER SEQUENCE categories_id_seq RESTART WITH 1;

@@ -19,7 +19,7 @@ export default function CheckoutPage({
   const router = useRouter();
 
   const handlePaymentSuccess = (paymentId: string) => {
-    console.log("✅ Pago exitoso:", paymentId);
+    console.log("Pago exitoso:", paymentId);
     toast.success("¡Pago procesado exitosamente!");
 
     // Redirigir a página de éxito o donde corresponda

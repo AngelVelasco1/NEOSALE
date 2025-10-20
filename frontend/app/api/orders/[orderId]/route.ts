@@ -33,11 +33,6 @@ export async function GET(
       );
     }
 
-    console.log("🔍 Obteniendo orden:", {
-      orderId: parseInt(orderId),
-      userId: session.user.id,
-    });
-
     // Hacer petición al backend
     const response = await fetch(
       `${BACKEND_URL}/api/orders/${orderId}?user_id=${session.user.id}`,
@@ -73,7 +68,7 @@ export async function GET(
 
     const result = await response.json();
 
-    console.log("✅ Orden obtenida:", {
+    console.log("Orden obtenida:", {
       orderId: parseInt(orderId),
       userId: session.user.id,
       orderStatus: result.data?.status,

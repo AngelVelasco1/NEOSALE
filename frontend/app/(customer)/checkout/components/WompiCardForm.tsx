@@ -211,7 +211,7 @@ export const WompiCardForm: React.FC<WompiCardFormProps> = ({
       )
 
       if (result.success && result.data) {
-        console.log("✅ Transacción creada exitosamente:", {
+        console.log("Transacción creada exitosamente:", {
           transactionId: result.data.transactionId,
           status: result.data.status,
           reference: result.data.reference,
@@ -223,7 +223,7 @@ export const WompiCardForm: React.FC<WompiCardFormProps> = ({
           const transactionStatus = await getWompiTransactionStatusApi(result.data.transactionId)
 
           if (transactionStatus.success && transactionStatus.data) {
-            console.log("📊 Estado real de la transacción:", {
+            console.log("Estado real de la transacción:", {
               transactionId: result.data.transactionId,
               realStatus: transactionStatus.data.status,
               amount: transactionStatus.data.amount_in_cents,
@@ -241,7 +241,7 @@ export const WompiCardForm: React.FC<WompiCardFormProps> = ({
               })
 
               if (updateResponse.ok) {
-                console.log("✅ Estado de transacción actualizado en BD")
+                console.log("Estado de transacción actualizado en BD")
               }
             } catch (updateError) {
               console.warn("⚠️ Error actualizando estado en BD:", updateError)
@@ -250,7 +250,8 @@ export const WompiCardForm: React.FC<WompiCardFormProps> = ({
             if (transactionStatus.data.status === "DECLINED" || transactionStatus.data.status === "ERROR") {
               window.location.href = `/checkout/success?transaction_id=${result.data.transactionId}&status=${transactionStatus.data.status}&error=true`
             } else {
-              window.location.href = `/checkout/success?transaction_id=${result.data.transactionId}&status=${transactionStatus.data.status}`
+              // Llamar onSuccess para crear la orden antes de redirigir
+              onSuccess(result.data.transactionId);
             }
           } else {
             console.warn("⚠️ No se pudo consultar el estado real, redirigiendo con estado inicial")

@@ -117,9 +117,9 @@ export const ProductCard = ({
   return (
     <Link href={`/${data.id}`}>
       <motion.div
-        className="group relative overflow-hidden rounded-2xl bg-gradient-to-br from-blue-100 via-purple-100 to-indigo-100 backdrop-blur-sm border-2 border-slate-300/50 shadow-xl hover:shadow-2xl hover:shadow-blue-500/30 transition-all duration-500 hover:from-indigo-200/60 hover:via-slate-200/80 hover:to-purple-200"
+        className="group relative overflow-hidden rounded-3xl bg-white/5 backdrop-blur-lg border border-white/10 shadow-2xl hover:shadow-3xl hover:shadow-blue-500/20 transition-all duration-500 hover:bg-white/10 hover:border-white/20"
         whileHover={{
-          y: -8,
+          y: -12,
           transition: { type: "spring", stiffness: 400, damping: 25 },
         }}
         initial={{ opacity: 0, y: 20 }}
@@ -138,11 +138,10 @@ export const ProductCard = ({
               transition={{ delay: 0.2, type: "spring", stiffness: 400 }}
             >
               <div
-                className={`px-3 py-1.5 rounded-full text-xs font-semibold backdrop-blur-md border-2 shadow-xl ${
-                  data.stock > 0
-                    ? "bg-gradient-to-r from-emerald-500 to-green-600 text-white border-emerald-300"
-                    : "bg-gradient-to-r from-red-500 to-pink-600 text-white border-red-300"
-                }`}
+                className={`px-4 py-2 rounded-full text-xs font-semibold backdrop-blur-md border shadow-xl ${data.stock > 0
+                  ? "bg-gradient-to-r from-emerald-400 to-green-500 text-white border-emerald-300/50"
+                  : "bg-gradient-to-r from-red-400 to-pink-500 text-white border-red-300/50"
+                  }`}
               >
                 {data.stock > 0 ? "Disponible" : "Agotado"}
               </div>
@@ -158,11 +157,10 @@ export const ProductCard = ({
               disabled={isLoading}
             >
               <motion.div
-                className={`absolute inset-0 rounded-full blur-md transition-all duration-500 ${
-                  isFavorite
-                    ? "bg-gradient-to-r from-red-400 to-pink-500 opacity-60"
-                    : "bg-gradient-to-r from-slate-400 to-slate-500 opacity-0 group-hover/fav:opacity-40"
-                }`}
+                className={`absolute inset-0 rounded-full blur-md transition-all duration-500 ${isFavorite
+                  ? "bg-gradient-to-r from-red-400 to-pink-500 opacity-60"
+                  : "bg-gradient-to-r from-blue-400 to-purple-500 opacity-0 group-hover/fav:opacity-40"
+                  }`}
                 animate={{
                   scale: isFavorite || initialIsFavorite ? [1, 1.3, 1] : 1,
                 }}
@@ -173,11 +171,10 @@ export const ProductCard = ({
               />
 
               <motion.div
-                className={`relative w-11 h-11 rounded-full backdrop-blur-xl border-2 flex items-center justify-center shadow-lg transition-all duration-500 ${
-                  isFavorite || initialIsFavorite
-                    ? "bg-gradient-to-br from-red-600 via-pink-600 to-red-800 border-red-300 "
-                    : "bg-white/90 border-slate-300 shadow-slate-200 hover:border-red-300 "
-                }`}
+                className={`relative w-12 h-12 rounded-full backdrop-blur-xl border-2 flex items-center justify-center shadow-lg transition-all duration-500 ${isFavorite || initialIsFavorite
+                  ? "bg-gradient-to-br from-red-500 via-pink-500 to-red-700 border-red-300/50 "
+                  : "bg-white/10 border-white/30 shadow-white/20 hover:border-red-300/50 "
+                  }`}
                 transition={{
                   duration: 1.5,
                   repeat: isFavorite || initialIsFavorite ? Infinity : 0,
@@ -195,11 +192,10 @@ export const ProductCard = ({
                   }}
                 >
                   <FaHeart
-                    className={`w-6 h-6 transition-all duration-300 ${
-                      isFavorite
-                        ? "text-white fill-current"
-                        : "text-slate-600 fill-none stroke-current stroke-2"
-                    }`}
+                    className={`w-6 h-6 transition-all duration-300 ${isFavorite
+                      ? "text-white "
+                      : "text-white fill-none stroke-2 stroke-white"
+                      }`}
                   />
                 </motion.div>
 
@@ -228,9 +224,8 @@ export const ProductCard = ({
               </motion.div>
 
               <motion.div
-                className={`absolute inset-0 rounded-full border-2 ${
-                  isFavorite ? "border-red-400" : "border-slate-300"
-                }`}
+                className={`absolute inset-0 rounded-full border-2 ${isFavorite ? "border-red-400" : "border-slate-300"
+                  }`}
                 animate={{
                   scale: isFavorite ? [1, 1.4, 1.8] : 1,
                   opacity: isFavorite ? [0.8, 0.4, 0] : 0,
@@ -244,7 +239,7 @@ export const ProductCard = ({
             </motion.button>
           </div>
 
-          <div className="relative aspect-square overflow-hidden rounded-xl bg-gradient-to-br from-white to-slate-50 border-2 border-slate-200 transition-colors duration-300 shadow-inner">
+          <div className="relative aspect-square overflow-hidden rounded-2xl bg-gradient-to-br from-white/10 to-slate-50/20 border border-white/20 transition-all duration-500 shadow-inner group-hover:shadow-2xl group-hover:shadow-blue-500/20">
             {data.image_url ? (
               <Image
                 src={data.image_url || "/placeholder.svg"}
@@ -255,15 +250,18 @@ export const ProductCard = ({
                 priority
               />
             ) : (
-              <Skeleton className="w-full h-full rounded-xl bg-gradient-to-br from-slate-100 to-slate-200" />
+              <Skeleton className="w-full h-full rounded-2xl bg-gradient-to-br from-white/10 to-slate-50/30" />
             )}
+
+            {/* Gradient overlay on hover */}
+            <div className="absolute inset-0 bg-gradient-to-t from-black/20 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 rounded-2xl"></div>
           </div>
         </div>
 
         <div className="p-4 pt-4 space-y-4">
           {/* Product name */}
           <motion.h3
-            className="text-lg font-bold text-slate-800 group-hover:text-transparent group-hover:bg-gradient-to-r group-hover:from-blue-700 group-hover:via-purple-700 group-hover:to-indigo-700 group-hover:bg-clip-text transition-all duration-300 line-clamp-2 leading-relaxed"
+            className="text-xl font-bold text-white group-hover:text-transparent group-hover:bg-gradient-to-r group-hover:from-blue-300 group-hover:via-purple-300 group-hover:to-cyan-300 group-hover:bg-clip-text transition-all duration-300 line-clamp-2 leading-relaxed"
             whileHover={{ scale: 1.02 }}
             transition={{ type: "spring", stiffness: 400, damping: 25 }}
           >
@@ -273,13 +271,13 @@ export const ProductCard = ({
           <div className="flex justify-between items-end">
             <div className="space-y-1">
               <motion.p
-                className="text-2xl font-black bg-gradient-to-r from-blue-700 via-purple-700 to-indigo-700 bg-clip-text text-transparent"
+                className="text-3xl font-black bg-gradient-to-r from-blue-300 via-purple-300 to-cyan-300 bg-clip-text text-transparent"
                 whileHover={{ scale: 1.05 }}
                 transition={{ type: "spring", stiffness: 400, damping: 25 }}
               >
                 ${data.price.toLocaleString()}
               </motion.p>
-              <p className="text-sm text-slate-600 font-medium">
+              <p className="text-sm text-gray-300 font-medium">
                 {data.stock > 0 ? `${data.stock} en stock` : "Sin stock"}
               </p>
             </div>
@@ -290,26 +288,27 @@ export const ProductCard = ({
                 transition={{ type: "spring", stiffness: 400, damping: 25 }}
               >
                 <div
-                  className="w-8 h-8 rounded-full border-3 border-white shadow-xl ring-2 ring-blue-200 group-hover:ring-blue-300 transition-all duration-300"
+                  className="w-10 h-10 rounded-full border-2 border-white/30 shadow-xl ring-2 ring-white/20 group-hover:ring-white/40 transition-all duration-300"
                   style={{ backgroundColor: data.color_code }}
                   title={data.color}
                 />
                 <div className="absolute inset-0 rounded-full bg-gradient-to-br from-white/20 to-transparent" />
               </motion.div>
-              <span className="text-xs text-slate-500 capitalize font-medium">
+              <span className="text-xs text-gray-300 capitalize font-medium">
                 {data.color}
               </span>
             </div>
           </div>
         </div>
 
-        <div className="absolute bottom-0 left-0 right-0 h-1.5 bg-gradient-to-r from-blue-600 via-purple-600 to-indigo-600 transform scale-x-0 group-hover:scale-x-100 transition-transform duration-500 origin-left rounded-b-2xl" />
+        <div className="absolute bottom-0 left-0 right-0 h-2 bg-gradient-to-r from-blue-400 via-purple-400 to-cyan-400 transform scale-x-0 group-hover:scale-x-100 transition-transform duration-500 origin-left rounded-b-3xl" />
 
-        <div className="absolute inset-0 -translate-x-full group-hover:translate-x-full transition-transform duration-1000 bg-gradient-to-r from-transparent via-white/30 to-transparent skew-x-12" />
+        <div className="absolute inset-0 -translate-x-full group-hover:translate-x-full transition-transform duration-1000 bg-gradient-to-r from-transparent via-white/10 to-transparent skew-x-12" />
 
-        <div className="absolute inset-0 rounded-2xl border-2 border-transparent group-hover:border-blue-300/80 transition-colors duration-500" />
-        <div className="absolute -inset-1 rounded-3xl border-2 border-blue-400/0 group-hover:border-blue-400/50 transition-colors duration-500 blur-sm" />
+        <div className="absolute inset-0 rounded-3xl border-2 border-transparent group-hover:border-white/30 transition-colors duration-500" />
+        <div className="absolute -inset-1 rounded-3xl border-2 border-blue-400/0 group-hover:border-blue-400/30 transition-colors duration-500 blur-sm" />
       </motion.div>
     </Link>
   );
 };
+

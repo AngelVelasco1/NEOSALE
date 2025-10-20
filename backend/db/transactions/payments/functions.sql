@@ -174,7 +174,7 @@ DECLARE
     v_shipping_data JSONB;
 BEGIN
     SELECT * INTO v_payment FROM payments WHERE id = p_payment_id;
-    
+
     IF v_payment.id IS NULL THEN
         RETURN QUERY SELECT NULL::INTEGER, FALSE, 'Payment no encontrado'::TEXT;
         RETURN;
@@ -184,12 +184,12 @@ BEGIN
 
     -- Mapear los campos del frontend a la estructura real de la tabla addresses
     SELECT id INTO v_address_id
-    FROM addresses 
+    FROM addresses
     WHERE user_id = v_payment.user_id
     AND address = COALESCE(
-        v_shipping_data->>'street', 
-        v_shipping_data->>'line1', 
-        v_shipping_data->>'address_line_1', 
+        v_shipping_data->>'street',
+        v_shipping_data->>'line1',
+        v_shipping_data->>'address_line_1',
         'Sin dirección'
     )
     AND city = COALESCE(v_shipping_data->>'city', 'Sin ciudad')
@@ -207,19 +207,19 @@ BEGIN
         ) VALUES (
             v_payment.user_id,
             COALESCE(
-                v_shipping_data->>'street', 
-                v_shipping_data->>'line1', 
-                v_shipping_data->>'address_line_1', 
+                v_shipping_data->>'street',
+                v_shipping_data->>'line1',
+                v_shipping_data->>'address_line_1',
                 'Sin dirección'
             ),
             COALESCE(v_shipping_data->>'city', 'Sin ciudad'),
             COALESCE(
-                v_shipping_data->>'state', 
-                v_shipping_data->>'region', 
+                v_shipping_data->>'state',
+                v_shipping_data->>'region',
                 'Sin departamento'
             ),
             COALESCE(
-                v_shipping_data->>'country', 
+                v_shipping_data->>'country',
                 CASE WHEN v_shipping_data->>'country' = 'CO' THEN 'Colombia' ELSE 'Colombia' END
             ),
             FALSE,
@@ -235,7 +235,162 @@ EXCEPTION
 END;
 $$;
 
+-- ✅ FUNCIÓN COMPLETA fn_create_payment
+CREATE OR REPLACE FUNCTION fn_create_payment(
+	p_transaction_id character varying,
+	p_reference character varying,
+	p_amount_in_cents integer,
+	p_payment_method payment_method_enum,
+	p_customer_email character varying,
+	p_cart_data jsonb,
+	p_shipping_address jsonb,
+	p_user_id integer,
+	p_currency character varying DEFAULT 'COP'::character varying,
+	p_payment_method_details jsonb DEFAULT '{}'::jsonb,
+	p_card_token character varying DEFAULT NULL::character varying,
+	p_acceptance_token text DEFAULT NULL::text,
+	p_acceptance_token_auth text DEFAULT NULL::text,
+	p_signature_used character varying DEFAULT NULL::character varying,
+	p_redirect_url character varying DEFAULT NULL::character varying,
+	p_checkout_url character varying DEFAULT NULL::character varying,
+	p_customer_phone character varying DEFAULT NULL::character varying,
+	p_customer_document_type character varying DEFAULT NULL::character varying,
+	p_customer_document_number character varying DEFAULT NULL::character varying,
+	p_processor_response jsonb DEFAULT '{}'::jsonb)
+    RETURNS TABLE(payment_id integer, transaction_id character varying, reference character varying, checkout_url character varying, success boolean, message text)
+    LANGUAGE plpgsql
+    COST 100
+    VOLATILE PARALLEL UNSAFE
+    ROWS 1000
+
+AS $BODY$
+DECLARE
+    v_payment_id INTEGER;
+    v_final_checkout_url VARCHAR(500);
+BEGIN
+    -- 🔍 DEBUG: Log de los datos recibidos
+    RAISE NOTICE '🏗️  fn_create_payment ejecutada con: transaction_id=%, cart_data=%, cart_data_type=%',
+        p_transaction_id, p_cart_data, jsonb_typeof(p_cart_data);
+    RAISE NOTICE '🛒 Cart data length: %', jsonb_array_length(p_cart_data);
+
+    -- ✅ VALIDACIONES POR MÉTODO DE PAGO
+    CASE p_payment_method
+        WHEN 'CARD' THEN
+            IF p_acceptance_token IS NULL OR p_acceptance_token_auth IS NULL THEN
+                RETURN QUERY SELECT
+                    NULL::INTEGER, p_transaction_id, p_reference, NULL::VARCHAR(500),
+                    FALSE, 'Para pagos con tarjeta se requieren acceptance_token y acceptance_token_auth'::TEXT;
+                RETURN;
+            END IF;
+
+        WHEN 'PSE' THEN
+            IF p_customer_document_type IS NULL OR p_customer_document_number IS NULL THEN
+                RETURN QUERY SELECT
+                    NULL::INTEGER, p_transaction_id, p_reference, NULL::VARCHAR(500),
+                    FALSE, 'Para PSE se requiere documento de identidad'::TEXT;
+                RETURN;
+            END IF;
+
+        WHEN 'NEQUI' THEN
+            IF p_customer_phone IS NULL THEN
+                RETURN QUERY SELECT
+                    NULL::INTEGER, p_transaction_id, p_reference, NULL::VARCHAR(500),
+                    FALSE, 'Para Nequi se requiere número de teléfono'::TEXT;
+                RETURN;
+            END IF;
+
+        WHEN 'BANCOLOMBIA', 'BANCOLOMBIA_TRANSFER' THEN
+            IF p_customer_document_type IS NULL OR p_customer_document_number IS NULL THEN
+                RETURN QUERY SELECT
+                    NULL::INTEGER, p_transaction_id, p_reference, NULL::VARCHAR(500),
+                    FALSE, 'Para Bancolombia se requiere documento de identidad'::TEXT;
+                RETURN;
+            END IF;
+    END CASE;
+
+    -- ✅ VALIDACIÓN: Evitar duplicados por transaction_id
+    IF p_transaction_id IS NOT NULL AND EXISTS(SELECT 1 FROM payments p WHERE p.transaction_id = p_transaction_id) THEN
+        RETURN QUERY SELECT
+            NULL::INTEGER, p_transaction_id, p_reference, NULL::VARCHAR(500),
+            FALSE, 'Ya existe un payment con este transaction_id'::TEXT;
+        RETURN;
+    END IF;
+
+    -- ✅ INSERTAR PAYMENT
+    INSERT INTO payments (
+        transaction_id,
+        reference,
+        amount_in_cents,
+        currency,
+        payment_status,
+        payment_method,
+        payment_method_details,
+        card_token,
+        acceptance_token,
+        acceptance_token_auth,
+        signature_used,
+        redirect_url,
+        checkout_url,
+        customer_email,
+        customer_phone,
+        customer_document_type,
+        customer_document_number,
+        cart_data,
+        shipping_address,
+        user_id,
+        processor_response,
+        created_at,
+        updated_at
+    ) VALUES (
+        p_transaction_id,
+        p_reference,
+        p_amount_in_cents,
+        p_currency,
+        'PENDING'::payment_status_enum,
+        p_payment_method,
+        p_payment_method_details,
+        p_card_token,
+        p_acceptance_token,
+        p_acceptance_token_auth,
+        p_signature_used,
+        p_redirect_url,
+        p_checkout_url,
+        p_customer_email,
+        p_customer_phone,
+        p_customer_document_type,
+        p_customer_document_number,
+        p_cart_data,
+        p_shipping_address,
+        p_user_id,
+        p_processor_response,
+        NOW(),
+        NOW()
+    ) RETURNING payments.id, payments.checkout_url INTO v_payment_id, v_final_checkout_url;
+
+    -- 🔍 DEBUG: Log del payment creado
+    RAISE NOTICE '✅ Payment creado: id=%, cart_data guardado=%', v_payment_id, p_cart_data;
+
+    RETURN QUERY SELECT
+        v_payment_id,
+        p_transaction_id,
+        p_reference,
+        v_final_checkout_url,
+        TRUE,
+        'Payment creado exitosamente'::TEXT;
+
+EXCEPTION
+    WHEN OTHERS THEN
+        RAISE NOTICE '❌ Error en fn_create_payment: %', SQLERRM;
+        RETURN QUERY SELECT
+            NULL::INTEGER,
+            p_transaction_id,
+            p_reference,
+            NULL::VARCHAR(500),
+            FALSE,
+            ('Error creando payment: ' || SQLERRM)::TEXT;
+END;
+$BODY$;
 
 
 
-select * from payments;
+

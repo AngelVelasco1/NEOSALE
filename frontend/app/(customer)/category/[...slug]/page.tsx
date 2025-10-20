@@ -59,7 +59,6 @@ export default function CategoriaPage() {
                     setDisplayName(searchName);
                     setIsSubcategory(false);
 
-                    console.log("🔍 Frontend: Buscando categoría:", searchName);
                     data = await getProductsByCategory(searchName);
                 } else if (slugs.length === 2) {
                     // Categoría + Subcategoría: /categoria/accesorios-deportivos/accesorios-fitness
@@ -67,11 +66,9 @@ export default function CategoriaPage() {
                     setDisplayName(searchName);
                     setIsSubcategory(true);
 
-                    console.log("🎯 Frontend: Buscando subcategoría:", searchName);
                     data = await getProductsBySubcategory(searchName);
                 }
 
-                console.log("📦 Frontend: Productos recibidos:", data.length);
 
                 // Convertir number id a string para compatibilidad con ProductCard
                 const formattedData = data.map((product: { id: number; name: string; price: number; stock: number; color: string; color_code: string; image_url?: string }) => ({

@@ -1,7 +1,7 @@
 "use client"
 
 import { Button } from "@/components/ui/button"
-import React,{ useEffect, useState } from "react"
+import React, { useEffect, useState } from "react"
 
 export const Banner = () => {
   const [isLoaded, setIsLoaded] = useState(false)
@@ -12,13 +12,13 @@ export const Banner = () => {
   }, [])
 
   return (
-    <section className="relative min-h-screen w-full overflow-hidden bg-gradient-to-br from-gray-50 via-white to-blue-50/30">
+    <section className="relative min-h-screen w-full overflow-hidden bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950">
       {/* Fondo animado con efectos más notables */}
       <div className="absolute inset-0">
         {/* Gradiente principal con parallax más pronunciado */}
         <div
           className="absolute inset-0  transition-transform duration-700 ease-out"
-         
+
         />
 
         {/* Formas geométricas con animaciones más dinámicas */}
@@ -60,21 +60,19 @@ export const Banner = () => {
         <div className="text-center space-y-12 max-w-6xl mx-auto">
           {/* Badge flotante con efecto más dramático */}
           <div
-            className={`inline-flex items-center gap-3 bg-white/90 backdrop-blur-md border border-gray-200/60 rounded-full px-8 py-4 shadow-xl transition-all duration-1200 ${
-              isLoaded ? "animate-slide-bounce opacity-100" : "opacity-0 -translate-y-10"
-            }`}
+            className={`inline-flex items-center gap-3 bg-white/15 backdrop-blur-md border border-white/20 rounded-full px-8 py-4 shadow-xl transition-all duration-1200 ${isLoaded ? "animate-slide-bounce opacity-100" : "opacity-0 -translate-y-10"
+              }`}
           >
-            <div className="w-3 h-3 bg-gradient-to-r from-blue-500 to-purple-500 rounded-full animate-pulse-glow" />
-            <span className="text-gray-700 text-sm font-semibold tracking-wider uppercase animate-text-shimmer">
+            <div className="w-3 h-3 bg-gradient-to-r from-blue-400 to-purple-400 rounded-full animate-pulse-glow" />
+            <span className="text-white text-sm font-semibold tracking-wider uppercase animate-text-shimmer">
               Transforma tu negocio
             </span>
-            <div className="w-3 h-3 bg-gradient-to-r from-purple-500 to-cyan-500 rounded-full animate-pulse-glow-delayed" />
+            <div className="w-3 h-3 bg-gradient-to-r from-purple-400 to-cyan-400 rounded-full animate-pulse-glow-delayed" />
           </div>
 
           <div
-            className={`space-y-6 transition-all duration-1000 delay-300 ${
-              isLoaded ? "animate-scale-bounce opacity-100" : "opacity-0 scale-90"
-            }`}
+            className={`space-y-6 transition-all duration-1000 delay-300 ${isLoaded ? "animate-scale-bounce opacity-100" : "opacity-0 scale-90"
+              }`}
           >
             <h1 className="text-6xl md:text-7xl lg:text-8xl xl:text-9xl font-black tracking-normal leading-none">
               <span className="relative inline-block animate-text-reveal-left">
@@ -107,9 +105,8 @@ export const Banner = () => {
 
           {/* Botones CTA con efectos más llamativos */}
           <div
-            className={`space-y-8 pt-4 transition-all duration-1200 delay-600 ${
-              isLoaded ? "animate-slide-up-bounce opacity-100" : "opacity-0 translate-y-10"
-            }`}
+            className={`space-y-8 pt-4 transition-all duration-1200 delay-600 ${isLoaded ? "animate-slide-up-bounce opacity-100" : "opacity-0 translate-y-10"
+              }`}
           >
             <div className="flex flex-col sm:flex-row items-center justify-center gap-6">
               <Button
@@ -125,7 +122,7 @@ export const Banner = () => {
               <Button
                 variant="outline"
                 size="lg"
-                className="group bg-white/90 backdrop-blur-md border-2 border-gray-300 text-gray-700 hover:bg-white hover:border-blue-500 hover:text-blue-600 px-12 py-7 text-lg font-semibold rounded-2xl transition-all duration-400 hover:scale-105 shadow-xl hover:shadow-2xl animate-button-float-intense-delayed"
+                className="group bg-white/15 backdrop-blur-md border-2 border-white/30 text-white hover:bg-white/25 hover:border-blue-400 hover:text-blue-300 px-12 py-7 text-lg font-semibold rounded-2xl transition-all duration-400 hover:scale-105 shadow-xl hover:shadow-2xl animate-button-float-intense-delayed"
               >
                 <span className="animate-text-bounce-delayed">Ver Demo</span>
                 <div className="ml-2 transition-transform group-hover:translate-x-2 animate-arrow-dance">→</div>
@@ -135,38 +132,37 @@ export const Banner = () => {
             {/* Estadísticas con animaciones de contador */}
             <div className="flex items-center justify-center gap-16 pt-10">
               <div className="text-center animate-counter-up-bounce">
-                <div className="text-4xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent animate-number-pulse">
+                <div className="text-4xl font-bold bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-transparent animate-number-pulse">
                   10K+
                 </div>
-                <div className="text-gray-500 text-sm font-medium animate-fade-in-delayed">Usuarios activos</div>
+                <div className="text-gray-300 text-sm font-medium animate-fade-in-delayed">Usuarios activos</div>
               </div>
-              <div className="w-px h-10 bg-gradient-to-b from-transparent via-gray-400 to-transparent animate-line-glow" />
+              <div className="w-px h-10 bg-gradient-to-b from-transparent via-gray-300 to-transparent animate-line-glow" />
               <div className="text-center animate-counter-up-bounce-delayed">
-                <div className="text-4xl font-bold bg-gradient-to-r from-purple-600 to-cyan-600 bg-clip-text text-transparent animate-number-pulse-delayed">
+                <div className="text-4xl font-bold bg-gradient-to-r from-purple-400 to-cyan-400 bg-clip-text text-transparent animate-number-pulse-delayed">
                   99.9%
                 </div>
-                <div className="text-gray-500 text-sm font-medium animate-fade-in-delayed-2">Uptime</div>
+                <div className="text-gray-300 text-sm font-medium animate-fade-in-delayed-2">Uptime</div>
               </div>
-              <div className="w-px h-10 bg-gradient-to-b from-transparent via-gray-400 to-transparent animate-line-glow-delayed" />
+              <div className="w-px h-10 bg-gradient-to-b from-transparent via-gray-300 to-transparent animate-line-glow-delayed" />
               <div className="text-center animate-counter-up-bounce-delayed-2">
-                <div className="text-4xl font-bold bg-gradient-to-r from-cyan-600 to-blue-600 bg-clip-text text-transparent animate-number-pulse-delayed-2">
+                <div className="text-4xl font-bold bg-gradient-to-r from-cyan-400 to-blue-400 bg-clip-text text-transparent animate-number-pulse-delayed-2">
                   24/7
                 </div>
-                <div className="text-gray-500 text-sm font-medium animate-fade-in-delayed-3">Soporte</div>
+                <div className="text-gray-300 text-sm font-medium animate-fade-in-delayed-3">Soporte</div>
               </div>
             </div>
           </div>
 
           {/* Indicador de scroll con animación más llamativa */}
           <div
-            className={`pt-16 transition-all duration-1500 delay-1000 ${
-              isLoaded ? "animate-bounce-in-scale opacity-100" : "opacity-0 scale-90"
-            }`}
+            className={`pt-16 transition-all duration-1500 delay-1000 ${isLoaded ? "animate-bounce-in-scale opacity-100" : "opacity-0 scale-90"
+              }`}
           >
             <div className="flex flex-col items-center gap-4 animate-float-gentle-intense">
-              <div className="text-gray-400 text-sm font-medium animate-text-pulse">Descubre más</div>
-              <div className="w-6 h-10 border-2 border-gray-400 rounded-full flex justify-center animate-border-pulse-glow">
-                <div className="w-1 h-3 bg-gradient-to-b from-blue-500 to-purple-500 rounded-full mt-2 animate-scroll-indicator-bounce" />
+              <div className="text-gray-300 text-sm font-medium animate-text-pulse">Descubre más</div>
+              <div className="w-6 h-10 border-2 border-gray-300 rounded-full flex justify-center animate-border-pulse-glow">
+                <div className="w-1 h-3 bg-gradient-to-b from-blue-400 to-purple-400 rounded-full mt-2 animate-scroll-indicator-bounce" />
               </div>
             </div>
           </div>
