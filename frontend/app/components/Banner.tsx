@@ -48,16 +48,16 @@ export const Banner = () => {
           >
             <h1 className="text-6xl md:text-7xl lg:text-8xl xl:text-[9rem] font-black tracking-tight leading-none">
               <span className="relative inline-block">
-                <span className="bg-gradient-to-r from-blue-500 via-purple-500 to-cyan-500 bg-clip-text text-transparent bg-[length:200%_auto] animate-gradient-flow">
+                <span className="bg-gradient-to-r from-blue-500 via-purple-500 to-indigo-600 bg-clip-text text-transparent bg-[length:200%_auto] animate-gradient-flow">
                   NEO
                 </span>
-                <div className="absolute -inset-4 bg-gradient-to-r from-blue-500/50 via-purple-500/50 to-cyan-500/50 blur-2xl -z-10 animate-glow-smooth" />
+                <div className="absolute -inset-4 bg-gradient-to-r from-blue-600/50 via-purple-600/50 to-indigo-600/50 blur-2xl -z-10 animate-glow-smooth" />
               </span>
               <span className="relative inline-block ml-4">
-                <span className="bg-gradient-to-r from-purple-500 via-pink-500 via-indigo-500 to-blue-500 bg-clip-text text-transparent bg-[length:200%_auto] animate-gradient-flow-reverse">
+                <span className="bg-gradient-to-r from-purple-500  via-indigo-500 to-blue-500 bg-clip-text text-transparent bg-[length:200%_auto] animate-gradient-flow-reverse">
                   $ALE
                 </span>
-                <div className="absolute -inset-4 bg-gradient-to-r from-purple-500/50 via-pink-500/50 to-blue-500/50 blur-2xl -z-10 animate-glow-smooth-delayed" />
+                <div className="absolute -inset-4 bg-gradient-to-r from-purple-600/50  to-blue-600/50 blur-2xl -z-10 animate-glow-smooth-delayed" />
               </span>
             </h1>
 
