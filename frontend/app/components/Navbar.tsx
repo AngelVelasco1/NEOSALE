@@ -130,13 +130,16 @@ export const Navbar = () => {
     setIsSearching(true);
     try {
       const allProducts = await getProducts();
-      const filtered = allProducts.filter((product: IProduct) =>
-        product.name.toLowerCase().includes(query.toLowerCase()) ||
-        product.category.toLowerCase().includes(query.toLowerCase())
-      ).slice(0, 5);
+      const filtered = allProducts
+        .filter(
+          (product: IProduct) =>
+            product.name.toLowerCase().includes(query.toLowerCase()) ||
+            product.category.toLowerCase().includes(query.toLowerCase())
+        )
+        .slice(0, 5);
       setSearchResults(filtered);
     } catch (error) {
-      console.error('Error searching products:', error);
+      console.error("Error searching products:", error);
       setSearchResults([]);
     } finally {
       setIsSearching(false);
@@ -167,7 +170,7 @@ export const Navbar = () => {
   };
 
   const handleProductClick = (product: IProduct) => {
-    router.push(`/products/${product.id}`);
+    router.push(`/${product.id}`);
     setIsSearchFocused(false);
     setSearchResults([]);
     setSearchQuery("");
@@ -186,15 +189,20 @@ export const Navbar = () => {
   }
 
   // Función para crear URLs amigables para categorías y subcategorías
-  const createCategoryUrl = (categoryName: string, subcategoryName?: string) => {
-    const baseSlug = categoryName.toLowerCase()
+  const createCategoryUrl = (
+    categoryName: string,
+    subcategoryName?: string
+  ) => {
+    const baseSlug = categoryName
+      .toLowerCase()
       .normalize("NFD")
       .replace(/[\u0300-\u036f]/g, "")
       .replace(/[^a-z0-9\s]/gi, "")
       .replace(/\s+/g, "-");
 
     if (subcategoryName) {
-      const subSlug = subcategoryName.toLowerCase()
+      const subSlug = subcategoryName
+        .toLowerCase()
         .normalize("NFD")
         .replace(/[\u0300-\u036f]/g, "")
         .replace(/[^a-z0-9\s]/gi, "")
@@ -333,23 +341,29 @@ export const Navbar = () => {
                               </Link>
 
                               <div className="pl-11 space-y-1">
-                                {category.subcategories.slice(0, 3).map((sub) => (
-                                  <Link
-                                    key={sub.id}
-                                    href={createCategoryUrl(category.name, sub.name)}
-                                    className="block text-sm text-slate-300 hover:text-white py-2 px-3 rounded hover:bg-white/5 transition-colors"
-                                    onClick={() => setIsMobileMenuOpen(false)}
-                                  >
-                                    {sub.name}
-                                  </Link>
-                                ))}
+                                {category.subcategories
+                                  .slice(0, 3)
+                                  .map((sub) => (
+                                    <Link
+                                      key={sub.id}
+                                      href={createCategoryUrl(
+                                        category.name,
+                                        sub.name
+                                      )}
+                                      className="block text-sm text-slate-300 hover:text-white py-2 px-3 rounded hover:bg-white/5 transition-colors"
+                                      onClick={() => setIsMobileMenuOpen(false)}
+                                    >
+                                      {sub.name}
+                                    </Link>
+                                  ))}
                                 {category.subcategories.length > 3 && (
                                   <Link
                                     href={createCategoryUrl(category.name)}
                                     className="block text-sm text-blue-400 hover:text-blue-300 py-2 px-3 rounded hover:bg-blue-500/10 transition-colors font-medium"
                                     onClick={() => setIsMobileMenuOpen(false)}
                                   >
-                                    Ver todas +{category.subcategories.length - 3}
+                                    Ver todas +
+                                    {category.subcategories.length - 3}
                                   </Link>
                                 )}
                               </div>
@@ -382,7 +396,10 @@ export const Navbar = () => {
             <NavigationMenuList className="gap-2 [&>li]:!bg-transparent [&>li]:!border-none [&>li]:!shadow-none">
               <NavigationMenuItem>
                 <NavigationMenuLink asChild>
-                  <NavLink href="/" className="px-6 text-white hover:text-white hover:bg-white/10">
+                  <NavLink
+                    href="/"
+                    className="px-6 text-white hover:text-white hover:bg-white/10"
+                  >
                     Inicio
                   </NavLink>
                 </NavigationMenuLink>
@@ -390,7 +407,10 @@ export const Navbar = () => {
 
               <NavigationMenuItem>
                 <NavigationMenuLink asChild>
-                  <NavLink href="/products" className="px-6 text-white hover:text-white hover:bg-white/10">
+                  <NavLink
+                    href="/products"
+                    className="px-6 text-white hover:text-white hover:bg-white/10"
+                  >
                     Productos
                   </NavLink>
                 </NavigationMenuLink>
@@ -427,7 +447,9 @@ export const Navbar = () => {
                       <div className="flex items-center justify-center py-16">
                         <div className="text-center">
                           <Package className="h-12 w-12 text-slate-400 mx-auto mb-4" />
-                          <p className="text-slate-300 font-medium">No hay categorías disponibles</p>
+                          <p className="text-slate-300 font-medium">
+                            No hay categorías disponibles
+                          </p>
                         </div>
                       </div>
                     ) : (
@@ -457,7 +479,10 @@ export const Navbar = () => {
                               {category.subcategories.slice(0, 5).map((sub) => (
                                 <Link
                                   key={sub.id}
-                                  href={createCategoryUrl(category.name, sub.name)}
+                                  href={createCategoryUrl(
+                                    category.name,
+                                    sub.name
+                                  )}
                                   className="block text-sm text-slate-300 hover:text-white py-2.5 px-3 rounded-lg hover:bg-white/5 transition-colors font-medium"
                                 >
                                   {sub.name}
@@ -494,8 +519,6 @@ export const Navbar = () => {
             </NavigationMenuList>
           </NavigationMenu>
 
-
-
           {/* Actions Section */}
           <div className="flex items-center gap-3">
             {/* Search Bar - Desktop */}
@@ -508,7 +531,9 @@ export const Navbar = () => {
                   value={searchQuery}
                   onChange={(e) => handleSearchChange(e.target.value)}
                   onFocus={() => setIsSearchFocused(true)}
-                  onBlur={() => setTimeout(() => setIsSearchFocused(false), 200)}
+                  onBlur={() =>
+                    setTimeout(() => setIsSearchFocused(false), 200)
+                  }
                   className="pl-12 pr-4 w-full h-10 rounded-xl border-slate-600 bg-white/10 text-white placeholder:text-slate-400 focus:border-blue-400 transition-colors backdrop-blur-sm"
                 />
 
@@ -522,7 +547,9 @@ export const Navbar = () => {
                       </div>
                     ) : searchResults.length > 0 ? (
                       <div className="p-2">
-                        <div className="text-xs text-slate-500 mb-2 px-2">Resultados de búsqueda:</div>
+                        <div className="text-xs text-slate-500 mb-2 px-2">
+                          Resultados de búsqueda:
+                        </div>
                         {searchResults.map((product) => (
                           <button
                             key={product.id}
@@ -532,7 +559,11 @@ export const Navbar = () => {
                             <div className="flex items-center gap-3">
                               <div className="w-10 h-10 bg-slate-700 rounded-lg flex items-center justify-center overflow-hidden">
                                 <Image
-                                  src={product.image_url || product.images?.[0]?.image_url || '/imgs/person.png'}
+                                  src={
+                                    product.image_url ||
+                                    product.images?.[0]?.image_url ||
+                                    "/imgs/person.png"
+                                  }
                                   alt={product.name}
                                   width={40}
                                   height={40}
@@ -721,7 +752,9 @@ export const Navbar = () => {
                 </div>
               ) : searchResults.length > 0 ? (
                 <div className="p-2">
-                  <div className="text-xs text-slate-500 mb-2 px-2">Resultados de búsqueda:</div>
+                  <div className="text-xs text-slate-500 mb-2 px-2">
+                    Resultados de búsqueda:
+                  </div>
                   {searchResults.map((product) => (
                     <button
                       key={product.id}
@@ -731,7 +764,11 @@ export const Navbar = () => {
                       <div className="flex items-center gap-3">
                         <div className="w-10 h-10 bg-slate-700 rounded-lg flex items-center justify-center overflow-hidden">
                           <Image
-                            src={product.image_url || product.images?.[0]?.image_url || '/imgs/person.png'}
+                            src={
+                              product.image_url ||
+                              product.images?.[0]?.image_url ||
+                              "/imgs/person.png"
+                            }
                             alt={product.name}
                             width={40}
                             height={40}
@@ -743,7 +780,8 @@ export const Navbar = () => {
                             {product.name}
                           </div>
                           <div className="text-xs text-slate-400">
-                            {product.category} • ${product.price.toLocaleString('es-CO')}
+                            {product.category} • $
+                            {product.price.toLocaleString("es-CO")}
                           </div>
                         </div>
                       </div>
@@ -790,6 +828,6 @@ export const Navbar = () => {
           )}
         </form>
       </div>
-    </nav >
+    </nav>
   );
 };

@@ -27,8 +27,9 @@ export default function Home() {
 
   return (
     <>
-      <div className="mx-auto flex flex-col from-slate-800 via-slate-900 to-slate-900  bg-gradient-to-br">
+      <div className="relative mx-auto flex flex-col from-slate-900  via-slate-900 to-slate-900  bg-gradient-to-br">
         <Banner />
+        <div className="absolute inset-0 bg-[linear-gradient(rgba(71,85,105,0.12)_1px,transparent_1px),linear-gradient(90deg,rgba(71,85,105,0.12)_1px,transparent_1px)] bg-[size:80px_80px]" />
 
         {/* Latest Products Section */}
         <section className="relative py-20  overflow-hidden">
@@ -55,7 +56,8 @@ export default function Home() {
               </h2>
               <p className="text-gray-300 text-xl max-w-3xl mx-auto leading-relaxed">
                 Descubre nuestra colección más reciente de productos premium.
-                Tecnología de vanguardia, diseño excepcional y calidad garantizada.
+                Tecnología de vanguardia, diseño excepcional y calidad
+                garantizada.
               </p>
             </div>
 
@@ -112,7 +114,10 @@ export default function Home() {
 
                 {/* Floating particles */}
                 <div className="absolute -top-2 -right-2 w-3 h-3 bg-gradient-to-r from-blue-400 to-purple-400 rounded-full opacity-0 group-hover:opacity-100 animate-ping"></div>
-                <div className="absolute -bottom-1 -left-1 w-2 h-2 bg-gradient-to-r from-purple-400 to-cyan-400 rounded-full opacity-0 group-hover:opacity-100 animate-ping" style={{ animationDelay: '0.2s' }}></div>
+                <div
+                  className="absolute -bottom-1 -left-1 w-2 h-2 bg-gradient-to-r from-purple-400 to-cyan-400 rounded-full opacity-0 group-hover:opacity-100 animate-ping"
+                  style={{ animationDelay: "0.2s" }}
+                ></div>
               </motion.button>
             </div>
           </div>

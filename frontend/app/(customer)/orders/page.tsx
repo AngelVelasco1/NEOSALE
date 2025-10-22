@@ -12,7 +12,19 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Package, Calendar, CreditCard, MapPin, Eye, ShoppingBag, Truck, CheckCircle2, XCircle, Clock, TrendingUp, ChevronRight } from "lucide-react";
+import {
+  Package,
+  Calendar,
+  CreditCard,
+  MapPin,
+  Eye,
+  ShoppingBag,
+  Truck,
+  CheckCircle2,
+  XCircle,
+  Clock,
+  ChevronRight,
+} from "lucide-react";
 import { ErrorsHandler } from "@/app/errors/errorsHandler";
 import { getUserOrdersApi, type Order } from "./services/ordersApi";
 import { motion, AnimatePresence } from "framer-motion";
@@ -63,33 +75,35 @@ export default function OrdersPage() {
     const statusConfig = {
       pending: {
         label: "Pendiente",
-        className: "bg-amber-50 text-amber-700 border border-amber-200",
-        icon: Clock
+        className: "bg-amber-500/20 text-amber-300 border border-amber-500/40",
+        icon: Clock,
       },
       paid: {
         label: "Pagado",
-        className: "bg-blue-50 text-blue-700 border border-blue-200",
-        icon: CreditCard
+        className: "bg-blue-500/20 text-blue-300 border border-blue-500/40",
+        icon: CreditCard,
       },
       confirmed: {
         label: "Confirmado",
-        className: "bg-indigo-50 text-indigo-700 border border-indigo-200",
-        icon: CheckCircle2
+        className:
+          "bg-purple-500/20 text-purple-300 border border-purple-500/40",
+        icon: CheckCircle2,
       },
       shipped: {
         label: "Enviado",
-        className: "bg-cyan-50 text-cyan-700 border border-cyan-200",
-        icon: Truck
+        className: "bg-cyan-500/20 text-cyan-300 border border-cyan-500/40",
+        icon: Truck,
       },
       delivered: {
         label: "Entregado",
-        className: "bg-emerald-50 text-emerald-700 border border-emerald-200",
-        icon: CheckCircle2
+        className:
+          "bg-emerald-500/20 text-emerald-300 border border-emerald-500/40",
+        icon: CheckCircle2,
       },
       cancelled: {
         label: "Cancelado",
-        className: "bg-red-50 text-red-700 border border-red-200",
-        icon: XCircle
+        className: "bg-red-500/20 text-red-300 border border-red-500/40",
+        icon: XCircle,
       },
     };
 
@@ -97,7 +111,9 @@ export default function OrdersPage() {
     const StatusIcon = config.icon;
 
     return (
-      <Badge className={`${config.className} font-medium flex items-center gap-1.5 px-3 py-1.5 text-xs`}>
+      <Badge
+        className={`${config.className} font-medium flex items-center gap-1.5 px-3 py-1.5 text-xs`}
+      >
         <StatusIcon className="w-3.5 h-3.5" />
         {config.label}
       </Badge>
@@ -118,17 +134,19 @@ export default function OrdersPage() {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50/30 to-cyan-50/20 flex items-center justify-center p-4">
+      <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 flex items-center justify-center p-4">
         <motion.div
           initial={{ opacity: 0, scale: 0.9 }}
           animate={{ opacity: 1, scale: 1 }}
           className="text-center space-y-6"
         >
           <div className="relative w-20 h-20 mx-auto">
-            <div className="absolute inset-0 border-4 border-blue-100 rounded-full"></div>
-            <div className="absolute inset-0 border-4 border-t-blue-600 rounded-full animate-spin"></div>
+            <div className="absolute inset-0 border-4 border-purple-500/20 rounded-full"></div>
+            <div className="absolute inset-0 border-4 border-t-purple-500 rounded-full animate-spin"></div>
           </div>
-          <p className="text-lg font-semibold text-gray-700">Cargando tus órdenes...</p>
+          <p className="text-lg font-semibold text-purple-200">
+            Cargando tus órdenes...
+          </p>
         </motion.div>
       </div>
     );
@@ -136,26 +154,30 @@ export default function OrdersPage() {
 
   if (error) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50/30 to-cyan-50/20 p-4">
+      <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 p-4">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           className="max-w-2xl mx-auto mt-20"
         >
-          <Card className="border-red-200 bg-white shadow-xl">
+          <Card className="border-red-500/30 bg-slate-800/60 backdrop-blur-md shadow-xl">
             <CardHeader>
               <div className="flex items-center gap-3">
-                <div className="w-12 h-12 rounded-xl bg-red-50 flex items-center justify-center">
-                  <XCircle className="w-6 h-6 text-red-600" />
+                <div className="w-12 h-12 rounded-xl bg-red-500/20 flex items-center justify-center">
+                  <XCircle className="w-6 h-6 text-red-400" />
                 </div>
                 <div>
-                  <CardTitle className="text-red-900">Error al cargar</CardTitle>
-                  <CardDescription className="text-red-600">No pudimos cargar tus órdenes</CardDescription>
+                  <CardTitle className="text-red-200">
+                    Error al cargar
+                  </CardTitle>
+                  <CardDescription className="text-red-300">
+                    No pudimos cargar tus órdenes
+                  </CardDescription>
                 </div>
               </div>
             </CardHeader>
             <CardContent>
-              <p className="text-gray-700">{error}</p>
+              <p className="text-slate-300">{error}</p>
             </CardContent>
           </Card>
         </motion.div>
@@ -164,9 +186,26 @@ export default function OrdersPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50/30 to-cyan-50/20 py-8 md:py-12">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 py-8 md:py-12 relative overflow-hidden">
+      {/* Animated background particles */}
+      <div className="absolute inset-0 overflow-hidden pointer-events-none">
+        {[...Array(15)].map((_, i) => (
+          <div
+            key={i}
+            className="absolute rounded-full bg-purple-500/10 animate-pulse"
+            style={{
+              width: Math.random() * 6 + 2 + "px",
+              height: Math.random() * 6 + 2 + "px",
+              left: Math.random() * 100 + "%",
+              top: Math.random() * 100 + "%",
+              animationDelay: Math.random() * 3 + "s",
+              animationDuration: Math.random() * 3 + 2 + "s",
+            }}
+          />
+        ))}
+      </div>
 
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
         {/* Header Section */}
         <motion.div
           initial={{ opacity: 0, y: -20 }}
@@ -174,22 +213,27 @@ export default function OrdersPage() {
           transition={{ duration: 0.6 }}
           className="mb-8"
         >
-          <div className="bg-white rounded-3xl shadow-lg border border-blue-100/50 p-8">
+          <div className="bg-slate-800/60 backdrop-blur-md rounded-3xl shadow-2xl border border-purple-500/20 p-8">
             <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-6">
               <div className="flex items-start gap-5">
                 <motion.div
                   initial={{ scale: 0, rotate: -180 }}
                   animate={{ scale: 1, rotate: 0 }}
-                  transition={{ type: "spring", stiffness: 200, damping: 20, delay: 0.1 }}
-                  className="w-16 h-16 rounded-2xl bg-gradient-to-br from-blue-500 to-cyan-500 flex items-center justify-center shadow-lg"
+                  transition={{
+                    type: "spring",
+                    stiffness: 200,
+                    damping: 20,
+                    delay: 0.1,
+                  }}
+                  className="w-16 h-16 rounded-2xl bg-gradient-to-br from-purple-500 to-pink-500 flex items-center justify-center shadow-lg"
                 >
                   <ShoppingBag className="w-8 h-8 text-white" />
                 </motion.div>
                 <div>
-                  <h1 className="text-3xl md:text-4xl font-bold text-gray-900 mb-2">
+                  <h1 className="text-3xl md:text-4xl font-bold bg-gradient-to-r from-purple-300 via-pink-300 to-purple-300 bg-clip-text text-transparent mb-2">
                     Mis Órdenes
                   </h1>
-                  <p className="text-gray-600 text-sm md:text-base">
+                  <p className="text-slate-400 text-sm md:text-base">
                     Gestiona y revisa el estado de tus compras
                   </p>
                 </div>
@@ -203,14 +247,25 @@ export default function OrdersPage() {
                   className="flex items-center gap-4"
                 >
                   <div className="text-right">
-                    <p className="text-sm text-gray-500 mb-1">Total órdenes</p>
-                    <p className="text-2xl font-bold text-gray-900">{orders.length}</p>
+                    <p className="text-sm text-slate-400 mb-1">Total órdenes</p>
+                    <p className="text-2xl font-bold text-purple-200">
+                      {orders.length}
+                    </p>
                   </div>
-                  <div className="w-px h-12 bg-gray-200"></div>
+                  <div className="w-px h-12 bg-purple-500/30"></div>
                   <div className="text-right">
-                    <p className="text-sm text-gray-500 mb-1">Total invertido</p>
-                    <p className="text-2xl font-bold bg-gradient-to-r from-blue-600 to-cyan-600 bg-clip-text text-transparent">
-                      ${orders.reduce((sum, order) => sum + (order.total || order.total_amount || 0), 0).toLocaleString("es-CO")}
+                    <p className="text-sm text-slate-400 mb-1">
+                      Total invertido
+                    </p>
+                    <p className="text-2xl font-bold bg-gradient-to-r from-purple-300 to-pink-300 bg-clip-text text-transparent">
+                      $
+                      {orders
+                        .reduce(
+                          (sum, order) =>
+                            sum + (order.total || order.total_amount || 0),
+                          0
+                        )
+                        .toLocaleString("es-CO")}
                     </p>
                   </div>
                 </motion.div>
@@ -223,25 +278,59 @@ export default function OrdersPage() {
                 initial={{ opacity: 0, y: 10 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.4 }}
-                className="grid grid-cols-2 lg:grid-cols-4 gap-4 mt-8 pt-8 border-t border-gray-100"
+                className="grid grid-cols-2 lg:grid-cols-4 gap-4 mt-8 pt-8 border-t border-purple-500/20"
               >
                 {[
-                  { label: 'Entregadas', count: orders.filter(o => o.status === 'delivered').length, color: 'emerald', bgColor: 'from-emerald-500 to-green-500' },
-                  { label: 'En tránsito', count: orders.filter(o => o.status === 'shipped').length, color: 'cyan', bgColor: 'from-cyan-500 to-blue-500' },
-                  { label: 'Confirmadas', count: orders.filter(o => o.status === 'confirmed' || o.status === 'paid').length, color: 'indigo', bgColor: 'from-indigo-500 to-blue-600' },
-                  { label: 'Pendientes', count: orders.filter(o => o.status === 'pending').length, color: 'amber', bgColor: 'from-amber-500 to-orange-500' },
+                  {
+                    label: "Entregadas",
+                    count: orders.filter((o) => o.status === "delivered")
+                      .length,
+                    color: "emerald",
+                    bgColor: "from-emerald-500/20 to-green-500/20",
+                    borderColor: "border-emerald-500/30",
+                    textColor: "text-emerald-300",
+                  },
+                  {
+                    label: "En tránsito",
+                    count: orders.filter((o) => o.status === "shipped").length,
+                    color: "cyan",
+                    bgColor: "from-cyan-500/20 to-blue-500/20",
+                    borderColor: "border-cyan-500/30",
+                    textColor: "text-cyan-300",
+                  },
+                  {
+                    label: "Confirmadas",
+                    count: orders.filter(
+                      (o) => o.status === "confirmed" || o.status === "paid"
+                    ).length,
+                    color: "purple",
+                    bgColor: "from-purple-500/20 to-pink-500/20",
+                    borderColor: "border-purple-500/30",
+                    textColor: "text-purple-300",
+                  },
+                  {
+                    label: "Pendientes",
+                    count: orders.filter((o) => o.status === "pending").length,
+                    color: "amber",
+                    bgColor: "from-amber-500/20 to-orange-500/20",
+                    borderColor: "border-amber-500/30",
+                    textColor: "text-amber-300",
+                  },
                 ].map((stat, idx) => (
                   <motion.div
                     key={stat.label}
                     initial={{ opacity: 0, scale: 0.9 }}
                     animate={{ opacity: 1, scale: 1 }}
                     transition={{ delay: 0.5 + idx * 0.1 }}
-                    className="relative overflow-hidden bg-white border border-gray-100 rounded-2xl p-5 hover:shadow-lg transition-all duration-300 group"
+                    className={`relative overflow-hidden bg-gradient-to-br ${stat.bgColor} backdrop-blur-sm border ${stat.borderColor} rounded-2xl p-5 hover:scale-105 transition-all duration-300 group`}
                   >
-                    <div className={`absolute top-0 right-0 w-24 h-24 bg-gradient-to-br ${stat.bgColor} opacity-5 rounded-full -mr-12 -mt-12 group-hover:scale-150 transition-transform duration-500`}></div>
                     <div className="relative">
-                      <p className="text-xs font-medium text-gray-500 uppercase tracking-wider mb-2">{stat.label}</p>
-                      <p className={`text-3xl font-bold text-${stat.color}-600`}>{stat.count}</p>
+                      <p className="text-xs font-medium text-slate-400 uppercase tracking-wider mb-2">
+                        {stat.label}
+                      </p>
+                      <p className={`text-3xl font-bold ${stat.textColor}`}>
+                        {stat.count}
+                      </p>
                     </div>
                   </motion.div>
                 ))}
@@ -257,16 +346,21 @@ export default function OrdersPage() {
             animate={{ opacity: 1, scale: 1 }}
             transition={{ duration: 0.5 }}
           >
-            <Card className="bg-white border border-blue-100/50 shadow-xl rounded-3xl overflow-hidden">
+            <Card className="bg-slate-800/60 backdrop-blur-md border border-purple-500/20 shadow-2xl rounded-3xl overflow-hidden">
               <CardContent className="text-center py-20 px-4">
                 <motion.div
                   initial={{ scale: 0 }}
                   animate={{ scale: 1 }}
-                  transition={{ type: "spring", stiffness: 200, damping: 15, delay: 0.2 }}
+                  transition={{
+                    type: "spring",
+                    stiffness: 200,
+                    damping: 15,
+                    delay: 0.2,
+                  }}
                   className="relative w-32 h-32 mx-auto mb-8"
                 >
-                  <div className="absolute inset-0 bg-gradient-to-br from-blue-100 to-cyan-100 rounded-3xl flex items-center justify-center shadow-xl">
-                    <Package className="w-16 h-16 text-blue-500" />
+                  <div className="absolute inset-0 bg-gradient-to-br from-purple-500/30 to-pink-500/30 rounded-3xl flex items-center justify-center shadow-xl backdrop-blur-sm">
+                    <Package className="w-16 h-16 text-purple-300" />
                   </div>
                 </motion.div>
 
@@ -274,7 +368,7 @@ export default function OrdersPage() {
                   initial={{ opacity: 0, y: 10 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: 0.3 }}
-                  className="text-2xl font-bold text-gray-900 mb-3"
+                  className="text-2xl font-bold text-purple-200 mb-3"
                 >
                   No tienes órdenes aún
                 </motion.h3>
@@ -283,9 +377,10 @@ export default function OrdersPage() {
                   initial={{ opacity: 0, y: 10 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: 0.4 }}
-                  className="text-gray-600 mb-8 max-w-md mx-auto"
+                  className="text-slate-400 mb-8 max-w-md mx-auto"
                 >
-                  Cuando realices tu primera compra, todos los detalles aparecerán aquí para que puedas hacer seguimiento
+                  Cuando realices tu primera compra, todos los detalles
+                  aparecerán aquí para que puedas hacer seguimiento
                 </motion.p>
 
                 <motion.div
@@ -295,7 +390,7 @@ export default function OrdersPage() {
                 >
                   <Button
                     onClick={() => router.push("/")}
-                    className="bg-gradient-to-r from-blue-600 to-cyan-600 hover:from-blue-700 hover:to-cyan-700 text-white shadow-lg h-12 px-8 text-base font-semibold rounded-xl"
+                    className="bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white shadow-lg shadow-purple-500/30 h-12 px-8 text-base font-semibold rounded-xl transition-all duration-300 hover:scale-105"
                   >
                     Explorar productos
                     <ChevronRight className="w-5 h-5 ml-2" />
@@ -315,31 +410,39 @@ export default function OrdersPage() {
                   exit={{ opacity: 0, scale: 0.95 }}
                   transition={{ duration: 0.4, delay: index * 0.05 }}
                 >
-                  <Card className="bg-white border border-blue-100/50 hover:border-blue-200 shadow-md hover:shadow-xl transition-all duration-300 rounded-2xl overflow-hidden group">
-
+                  <Card className="bg-slate-800/60 backdrop-blur-md border border-purple-500/20 hover:border-purple-500/40 shadow-xl hover:shadow-2xl hover:shadow-purple-500/20 transition-all duration-300 rounded-2xl overflow-hidden group">
                     {/* Card Header */}
-                    <CardHeader className="pb-4 bg-gradient-to-r from-slate-50 to-blue-50/30 border-b border-gray-100">
+                    <CardHeader className="pb-4 bg-gradient-to-r from-slate-800/80 to-purple-900/30 border-b border-purple-500/20">
                       <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
                         <div className="flex items-start gap-4">
-                          <div className="w-14 h-14 rounded-xl bg-gradient-to-br from-blue-500 to-cyan-500 flex items-center justify-center shadow-lg flex-shrink-0">
+                          <div className="w-14 h-14 rounded-xl bg-gradient-to-br from-purple-500 to-pink-500 flex items-center justify-center shadow-lg flex-shrink-0">
                             <Package className="w-7 h-7 text-white" />
                           </div>
                           <div>
-                            <CardTitle className="text-xl font-bold text-gray-900 flex items-center gap-2 mb-1">
+                            <CardTitle className="text-xl font-bold text-purple-200 flex items-center gap-2 mb-1">
                               Orden #{order.id || order.order_id || "N/A"}
                             </CardTitle>
                             <CardDescription className="flex items-center gap-2">
-                              <Calendar className="w-4 h-4 text-gray-400" />
-                              <span className="text-sm text-gray-600">{formatDate(order.created_at)}</span>
+                              <Calendar className="w-4 h-4 text-slate-500" />
+                              <span className="text-sm text-slate-400">
+                                {formatDate(order.created_at)}
+                              </span>
                             </CardDescription>
                           </div>
                         </div>
                         <div className="flex flex-col items-start lg:items-end gap-3">
                           {getStatusBadge(order.status)}
                           <div className="flex items-baseline gap-2">
-                            <span className="text-sm text-gray-500 font-medium">Total:</span>
-                            <p className="text-2xl font-bold text-gray-900">
-                              ${(order.total || order.total_amount || 0).toLocaleString("es-CO")}
+                            <span className="text-sm text-slate-400 font-medium">
+                              Total:
+                            </span>
+                            <p className="text-2xl font-bold bg-gradient-to-r from-purple-300 to-pink-300 bg-clip-text text-transparent">
+                              $
+                              {(
+                                order.total ||
+                                order.total_amount ||
+                                0
+                              ).toLocaleString("es-CO")}
                             </p>
                           </div>
                         </div>
@@ -347,16 +450,18 @@ export default function OrdersPage() {
                     </CardHeader>
 
                     <CardContent className="p-6 space-y-6">
-
                       {/* Products Section */}
                       <div>
                         <div className="flex items-center justify-between mb-4">
-                          <h4 className="font-semibold text-gray-900 text-base flex items-center gap-2">
-                            <div className="w-1.5 h-5 bg-gradient-to-b from-blue-500 to-cyan-500 rounded-full" />
+                          <h4 className="font-semibold text-purple-200 text-base flex items-center gap-2">
+                            <div className="w-1.5 h-5 bg-gradient-to-b from-purple-500 to-pink-500 rounded-full" />
                             Productos
                           </h4>
-                          <span className="text-sm text-gray-500 font-medium">
-                            {order.order_items?.length || 0} {order.order_items?.length === 1 ? 'artículo' : 'artículos'}
+                          <span className="text-sm text-slate-400 font-medium">
+                            {order.order_items?.length || 0}{" "}
+                            {order.order_items?.length === 1
+                              ? "artículo"
+                              : "artículos"}
                           </span>
                         </div>
 
@@ -367,36 +472,62 @@ export default function OrdersPage() {
                               initial={{ opacity: 0, x: -20 }}
                               animate={{ opacity: 1, x: 0 }}
                               transition={{ delay: 0.1 + idx * 0.05 }}
-                              className="flex items-center justify-between bg-gradient-to-r from-slate-50 to-blue-50/30 p-4 rounded-xl border border-gray-100 hover:border-blue-200 hover:shadow-md transition-all group/item"
+                              className="flex items-center justify-between bg-slate-700/40 backdrop-blur-sm p-4 rounded-xl border border-purple-500/20 hover:border-purple-500/40 hover:shadow-lg hover:shadow-purple-500/10 transition-all group/item"
                             >
                               <div className="flex items-center gap-4 flex-1 min-w-0">
                                 <div
-                                  className="w-12 h-12 rounded-lg shadow-md flex-shrink-0 ring-2 ring-white"
-                                  style={{ backgroundColor: item.color_code || '#e5e7eb' }}
+                                  className="w-12 h-12 rounded-lg shadow-lg flex-shrink-0 ring-2 ring-purple-500/30"
+                                  style={{
+                                    backgroundColor:
+                                      item.color_code || "#6366f1",
+                                  }}
                                 />
                                 <div className="min-w-0 flex-1">
-                                  <p className="font-semibold text-gray-900 truncate text-base mb-1">
+                                  <p className="font-semibold text-purple-100 truncate text-base mb-1">
                                     {item.products?.name || "Producto"}
                                   </p>
-                                  <div className="flex items-center gap-3 text-sm text-gray-600">
+                                  <div className="flex items-center gap-3 text-sm text-slate-400">
                                     {item.products?.brands?.name && (
                                       <>
-                                        <span className="font-medium text-gray-700">{item.products.brands.name}</span>
-                                        <span className="w-1 h-1 rounded-full bg-gray-300" />
+                                        <span className="font-medium text-slate-300">
+                                          {item.products.brands.name}
+                                        </span>
+                                        <span className="w-1 h-1 rounded-full bg-purple-500/50" />
                                       </>
                                     )}
-                                    <span>Talla: <span className="font-medium text-gray-700">{item.size}</span></span>
-                                    <span className="w-1 h-1 rounded-full bg-gray-300" />
-                                    <span>Cant: <span className="font-medium text-gray-700">{item.quantity}</span></span>
+                                    <span>
+                                      Talla:{" "}
+                                      <span className="font-medium text-slate-300">
+                                        {item.size}
+                                      </span>
+                                    </span>
+                                    <span className="w-1 h-1 rounded-full bg-purple-500/50" />
+                                    <span>
+                                      Cant:{" "}
+                                      <span className="font-medium text-slate-300">
+                                        {item.quantity}
+                                      </span>
+                                    </span>
                                   </div>
                                 </div>
                               </div>
                               <div className="ml-4 text-right">
-                                <p className="font-bold text-gray-900 text-lg">
-                                  ${(item.subtotal || (item.price || item.unit_price || 0) * item.quantity).toLocaleString("es-CO")}
+                                <p className="font-bold text-purple-200 text-lg">
+                                  $
+                                  {(
+                                    item.subtotal ||
+                                    (item.price || item.unit_price || 0) *
+                                      item.quantity
+                                  ).toLocaleString("es-CO")}
                                 </p>
-                                <p className="text-xs text-gray-500">
-                                  ${(item.price || item.unit_price || 0).toLocaleString("es-CO")} c/u
+                                <p className="text-xs text-slate-500">
+                                  $
+                                  {(
+                                    item.price ||
+                                    item.unit_price ||
+                                    0
+                                  ).toLocaleString("es-CO")}{" "}
+                                  c/u
                                 </p>
                               </div>
                             </motion.div>
@@ -405,23 +536,32 @@ export default function OrdersPage() {
                       </div>
 
                       {/* Additional Info */}
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-3 pt-4 border-t border-gray-100">
-                        <div className="flex items-center gap-3 p-4 bg-slate-50 rounded-xl border border-gray-100">
-                          <div className="w-10 h-10 rounded-lg bg-white shadow-sm flex items-center justify-center flex-shrink-0">
-                            <MapPin className="w-5 h-5 text-blue-600" />
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-3 pt-4 border-t border-purple-500/20">
+                        <div className="flex items-center gap-3 p-4 bg-slate-700/40 backdrop-blur-sm rounded-xl border border-purple-500/20">
+                          <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-purple-500/30 to-pink-500/30 shadow-sm flex items-center justify-center flex-shrink-0">
+                            <MapPin className="w-5 h-5 text-purple-300" />
                           </div>
                           <div>
-                            <p className="text-xs text-gray-500 mb-0.5">ID de orden</p>
-                            <p className="font-semibold text-gray-900">#{order.id}</p>
+                            <p className="text-xs text-slate-500 mb-0.5">
+                              ID de orden
+                            </p>
+                            <p className="font-semibold text-purple-200">
+                              #{order.id}
+                            </p>
                           </div>
                         </div>
-                        <div className="flex items-center gap-3 p-4 bg-slate-50 rounded-xl border border-gray-100">
-                          <div className="w-10 h-10 rounded-lg bg-white shadow-sm flex items-center justify-center flex-shrink-0">
-                            <CreditCard className="w-5 h-5 text-cyan-600" />
+                        <div className="flex items-center gap-3 p-4 bg-slate-700/40 backdrop-blur-sm rounded-xl border border-purple-500/20">
+                          <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-cyan-500/30 to-blue-500/30 shadow-sm flex items-center justify-center flex-shrink-0">
+                            <CreditCard className="w-5 h-5 text-cyan-300" />
                           </div>
                           <div>
-                            <p className="text-xs text-gray-500 mb-0.5">Método de pago</p>
-                            <p className="font-semibold text-gray-900">{order.payment?.payment_method || "No especificado"}</p>
+                            <p className="text-xs text-slate-500 mb-0.5">
+                              Método de pago
+                            </p>
+                            <p className="font-semibold text-purple-200">
+                              {order.payment?.payment_method ||
+                                "No especificado"}
+                            </p>
                           </div>
                         </div>
                       </div>
@@ -432,7 +572,7 @@ export default function OrdersPage() {
                           variant="outline"
                           size="default"
                           onClick={() => router.push(`/orders/${order.id}`)}
-                          className="border-blue-200 bg-white hover:bg-blue-50 hover:border-blue-300 text-blue-700 font-medium shadow-sm"
+                          className="border-purple-500/40 bg-purple-500/10 hover:bg-purple-500/20 hover:border-purple-500/60 text-purple-300 font-medium shadow-sm backdrop-blur-sm"
                         >
                           <Eye className="w-4 h-4 mr-2" />
                           Ver detalles completos
@@ -442,18 +582,19 @@ export default function OrdersPage() {
                           <Button
                             variant="outline"
                             size="default"
-                            className="border-gray-200 bg-white hover:bg-gray-50 hover:border-gray-300 text-gray-700 font-medium shadow-sm"
+                            className="border-slate-500/40 bg-slate-500/10 hover:bg-slate-500/20 hover:border-slate-500/60 text-slate-300 font-medium shadow-sm backdrop-blur-sm"
                           >
                             <ShoppingBag className="w-4 h-4 mr-2" />
                             Comprar de nuevo
                           </Button>
                         )}
 
-                        {(order.status === "pending" || order.status === "confirmed") && (
+                        {(order.status === "pending" ||
+                          order.status === "confirmed") && (
                           <Button
                             variant="outline"
                             size="default"
-                            className="border-red-200 bg-white hover:bg-red-50 hover:border-red-300 text-red-700 font-medium shadow-sm"
+                            className="border-red-500/40 bg-red-500/10 hover:bg-red-500/20 hover:border-red-500/60 text-red-300 font-medium shadow-sm backdrop-blur-sm"
                           >
                             <XCircle className="w-4 h-4 mr-2" />
                             Cancelar orden

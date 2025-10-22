@@ -15,7 +15,7 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { Eye, EyeOff, User, Lock, Sparkles } from "lucide-react";
+import { Eye, EyeOff, User, Lock, Sparkles, ArrowRight } from "lucide-react";
 import { signIn, useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import {
@@ -104,39 +104,58 @@ export const LoginForm: React.FC = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-indigo-50/30">
-      <div className="min-h-screen flex flex-col items-center justify-center">
-        <motion.div 
-          className="max-w-lg w-full"
+    <div className="min-h-screen bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950 relative overflow-hidden">
+      {/* Animated background particles */}
+      <div className="absolute inset-0 overflow-hidden pointer-events-none">
+        {[...Array(20)].map((_, i) => (
+          <div
+            key={i}
+            className="absolute rounded-full bg-blue-500/10 animate-pulse"
+            style={{
+              width: Math.random() * 8 + 3 + "px",
+              height: Math.random() * 8 + 3 + "px",
+              left: Math.random() * 100 + "%",
+              top: Math.random() * 100 + "%",
+              animationDelay: Math.random() * 3 + "s",
+              animationDuration: Math.random() * 3 + 2 + "s",
+            }}
+          />
+        ))}
+      </div>
+
+      {/* Gradient orbs */}
+      <div className="absolute top-0 left-0 w-96 h-96 bg-blue-600/20 rounded-full blur-3xl"></div>
+      <div className="absolute bottom-0 right-0 w-96 h-96 bg-indigo-600/20 rounded-full blur-3xl"></div>
+
+      <div className="min-h-screen flex flex-col items-center justify-center relative z-10 px-4">
+        <motion.div
+          className="max-w-md w-full"
           initial={{ opacity: 0, y: 30 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6, ease: "easeOut" }}
         >
-          <motion.div 
-            className="px-10 py-12 rounded-2xl bg-white/80 backdrop-blur-sm shadow-2xl border border-gray-100/50"
+          <motion.div
+            className="px-8 py-10 rounded-3xl bg-slate-800/60 backdrop-blur-xl shadow-2xl border border-blue-500/20 hover:border-blue-500/30 transition-all duration-300"
             initial={{ opacity: 0, scale: 0.9 }}
             animate={{ opacity: 1, scale: 1 }}
             transition={{ duration: 0.5, delay: 0.1 }}
           >
             {/* Header */}
-            <motion.div 
+            <motion.div
               className="text-center mb-8"
               initial={{ opacity: 0, y: -20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.6, delay: 0.3 }}
             >
-              <div className="flex items-center justify-center gap-2 mb-4">
-            
-                <h2 className="text-3xl font-bold bg-gradient-to-r from-gray-800 to-blue-600 bg-clip-text text-transparent font-montserrat">
-                  Iniciar sesión
-                </h2>
-              </div>
-             
+              <div className="flex items-center justify-center gap-2 mb-3"></div>
+              <h2 className="text-3xl font-bold bg-gradient-to-r from-blue-300 via-indigo-300 to-blue-300 bg-clip-text text-transparent mb-2">
+                Iniciar Sesión
+              </h2>
             </motion.div>
 
             <Form {...form}>
               <form
-                className="space-y-6"
+                className="space-y-5"
                 onSubmit={form.handleSubmit(onSubmit)}
               >
                 {/* Email Field */}
@@ -150,7 +169,7 @@ export const LoginForm: React.FC = () => {
                     name="email"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel className="text-gray-800 text-sm font-semibold">
+                        <FormLabel className="text-blue-200 text-sm font-semibold">
                           Email
                         </FormLabel>
                         <FormControl>
@@ -158,13 +177,13 @@ export const LoginForm: React.FC = () => {
                             <Input
                               type="email"
                               placeholder="ejemplo@correo.com"
-                              className="pl-11 h-12 border-gray-200 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 bg-white/60 backdrop-blur-sm rounded-xl transition-all duration-300 group-hover:shadow-md"
+                              className="pl-11 h-12 border-blue-500/30 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 bg-slate-700/50 backdrop-blur-sm rounded-xl transition-all duration-300 group-hover:shadow-lg group-hover:shadow-blue-500/10 text-blue-100 placeholder:text-slate-500"
                               {...field}
                             />
-                            <User className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400 group-focus-within:text-blue-500 transition-colors duration-200" />
+                            <User className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-slate-400 group-focus-within:text-blue-400 transition-colors duration-200" />
                           </div>
                         </FormControl>
-                        <FormMessage />
+                        <FormMessage className="text-red-400" />
                       </FormItem>
                     )}
                   />
@@ -181,7 +200,7 @@ export const LoginForm: React.FC = () => {
                     name="password"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel className="text-gray-800 text-sm font-semibold">
+                        <FormLabel className="text-blue-200 text-sm font-semibold">
                           Contraseña
                         </FormLabel>
                         <FormControl>
@@ -189,33 +208,33 @@ export const LoginForm: React.FC = () => {
                             <Input
                               type={showPassword ? "text" : "password"}
                               placeholder="Escribe tu contraseña"
-                              className="pl-11 pr-11 h-12 border-gray-200 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 bg-white/60 backdrop-blur-sm rounded-xl transition-all duration-300 group-hover:shadow-md"
+                              className="pl-11 pr-11 h-12 border-blue-500/30 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 bg-slate-700/50 backdrop-blur-sm rounded-xl transition-all duration-300 group-hover:shadow-lg group-hover:shadow-blue-500/10 text-blue-100 placeholder:text-slate-500"
                               {...field}
                             />
-                            <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400 group-focus-within:text-blue-500 transition-colors duration-200" />
+                            <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-slate-400 group-focus-within:text-blue-400 transition-colors duration-200" />
                             <motion.button
                               type="button"
                               onClick={() => setShowPassword(!showPassword)}
-                              className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-blue-500 transition-colors duration-200"
+                              className="absolute right-3 top-1/2 transform -translate-y-1/2 text-slate-400 hover:text-blue-400 transition-colors duration-200"
                               whileHover={{ scale: 1.1 }}
                               whileTap={{ scale: 0.9 }}
                             >
                               {showPassword ? (
-                                <EyeOff className="h-4 w-4" />
+                                <EyeOff className="h-5 w-5" />
                               ) : (
-                                <Eye className="h-4 w-4" />
+                                <Eye className="h-5 w-5" />
                               )}
                             </motion.button>
                           </div>
                         </FormControl>
-                        <FormMessage />
+                        <FormMessage className="text-red-400" />
                       </FormItem>
                     )}
                   />
                 </motion.div>
 
                 {/* Forgot Password */}
-                <motion.div 
+                <motion.div
                   className="flex justify-end"
                   initial={{ opacity: 0 }}
                   animate={{ opacity: 1 }}
@@ -223,14 +242,15 @@ export const LoginForm: React.FC = () => {
                 >
                   <Link
                     href="/forgot-password"
-                    className="text-sm text-blue-600 hover:text-blue-700 font-medium hover:underline transition-all duration-200 hover:scale-105"
+                    className="text-sm text-blue-400 hover:text-indigo-400 font-medium hover:underline transition-all duration-200 group flex items-center gap-1"
                   >
                     ¿Olvidaste tu contraseña?
+                    <ArrowRight className="w-3 h-3 group-hover:translate-x-1 transition-transform duration-200" />
                   </Link>
                 </motion.div>
 
                 {/* Submit Button */}
-                <motion.div 
+                <motion.div
                   className="pt-2"
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
@@ -242,7 +262,7 @@ export const LoginForm: React.FC = () => {
                   >
                     <Button
                       type="submit"
-                      className="w-full h-12 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white font-semibold rounded-xl transition-all duration-300 shadow-lg hover:shadow-xl group"
+                      className="w-full h-12 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white font-semibold rounded-xl transition-all duration-300 shadow-lg shadow-blue-500/30 hover:shadow-xl hover:shadow-blue-500/40 group"
                       disabled={isLoading}
                     >
                       {isLoading ? (
@@ -251,8 +271,9 @@ export const LoginForm: React.FC = () => {
                           Iniciando sesión...
                         </div>
                       ) : (
-                        <span className="group-hover:scale-105 font-semibold transition-transform duration-200">
+                        <span className="flex items-center gap-2 group-hover:gap-3 transition-all duration-200">
                           Iniciar sesión
+                          <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform duration-200" />
                         </span>
                       )}
                     </Button>
@@ -260,50 +281,57 @@ export const LoginForm: React.FC = () => {
                 </motion.div>
 
                 {/* Divider */}
-                <motion.div 
-                  className="relative"
+                <motion.div
+                  className="relative py-4"
                   initial={{ opacity: 0 }}
                   animate={{ opacity: 1 }}
                   transition={{ duration: 0.5, delay: 0.8 }}
                 >
                   <div className="absolute inset-0 flex items-center">
-                    <span className="w-full border-t border-gray-200" />
+                    <span className="w-full border-t border-blue-500/20" />
                   </div>
                   <div className="relative flex justify-center text-xs uppercase">
-                    <span className="bg-white px-3 text-gray-500 font-medium">
+                    <span className="bg-slate-900/40 backdrop-blur-sm px-3 text-slate-400 font-medium">
                       O continuar con
                     </span>
                   </div>
                 </motion.div>
 
                 {/* Social Buttons */}
-                <motion.div 
+                <motion.div
                   className="grid grid-cols-4 gap-3"
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ duration: 0.5, delay: 0.9 }}
                 >
                   {[
-                    { 
-                      icon: RiGoogleFill, 
-                      color: "text-[#DB4437]", 
+                    {
+                      icon: RiGoogleFill,
+                      color: "text-red-400",
+                      hoverColor: "hover:bg-red-500/10 hover:border-red-500/30",
                       label: "Google",
-                      onClick: () => signIn("google")
+                      onClick: () => signIn("google"),
                     },
-                    { 
-                      icon: RiFacebookFill, 
-                      color: "text-[#1877f2]", 
-                      label: "Facebook" 
+                    {
+                      icon: RiFacebookFill,
+                      color: "text-blue-400",
+                      hoverColor:
+                        "hover:bg-blue-500/10 hover:border-blue-500/30",
+                      label: "Facebook",
                     },
-                    { 
-                      icon: RiTwitterXFill, 
-                      color: "text-[#14171a]", 
-                      label: "X" 
+                    {
+                      icon: RiTwitterXFill,
+                      color: "text-slate-300",
+                      hoverColor:
+                        "hover:bg-slate-500/10 hover:border-slate-500/30",
+                      label: "X",
                     },
-                    { 
-                      icon: RiGithubFill, 
-                      color: "text-black", 
-                      label: "GitHub" 
+                    {
+                      icon: RiGithubFill,
+                      color: "text-indigo-300",
+                      hoverColor:
+                        "hover:bg-indigo-500/10 hover:border-indigo-500/30",
+                      label: "GitHub",
                     },
                   ].map((social, index) => (
                     <motion.div
@@ -320,13 +348,13 @@ export const LoginForm: React.FC = () => {
                           type="button"
                           variant="outline"
                           size="icon"
-                          className="w-full h-12 border-gray-200 hover:border-gray-300 hover:bg-gray-50 transition-all duration-200 rounded-xl"
+                          className={`w-full h-12 border-blue-500/20 bg-slate-700/30 backdrop-blur-sm ${social.hoverColor} transition-all duration-200 rounded-xl`}
                           aria-label={`Iniciar sesión con ${social.label}`}
                           onClick={social.onClick}
                         >
                           <social.icon
                             className={social.color}
-                            size={20}
+                            size={22}
                             aria-hidden="true"
                           />
                         </Button>
@@ -336,24 +364,38 @@ export const LoginForm: React.FC = () => {
                 </motion.div>
 
                 {/* Register Link */}
-                <motion.div 
-                  className="text-center pt-4"
+                <motion.div
+                  className="text-center pt-6"
                   initial={{ opacity: 0 }}
                   animate={{ opacity: 1 }}
                   transition={{ duration: 0.5, delay: 1.1 }}
                 >
-                  <p className="text-gray-600 text-sm">
+                  <p className="text-slate-400 text-sm">
                     ¿No tienes cuenta?{" "}
                     <Link
                       href="/register"
-                      className="text-blue-600 hover:text-blue-700 font-semibold hover:underline transition-all duration-200 hover:scale-105 inline-block"
+                      className="text-blue-400 hover:text-indigo-400 font-semibold hover:underline transition-all duration-200 inline-flex items-center gap-1 group"
                     >
                       Regístrate
+                      <ArrowRight className="w-3 h-3 group-hover:translate-x-1 transition-transform duration-200" />
                     </Link>
                   </p>
                 </motion.div>
               </form>
             </Form>
+          </motion.div>
+
+          {/* Security Badge */}
+          <motion.div
+            className="mt-6 text-center"
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5, delay: 1.2 }}
+          >
+            <div className="flex items-center justify-center gap-2 text-slate-400 text-xs">
+              <Lock className="w-3 h-3" />
+              <span>Conexión segura y encriptada</span>
+            </div>
           </motion.div>
         </motion.div>
       </div>

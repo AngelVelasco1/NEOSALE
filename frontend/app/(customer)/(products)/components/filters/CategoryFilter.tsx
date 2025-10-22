@@ -1,10 +1,10 @@
-import React, { useState } from "react"
-import { useRouter } from "next/navigation"
-import { Checkbox } from "@/components/ui/checkbox"
-import { Badge } from "@/components/ui/badge"
-import { Button } from "@/components/ui/button"
-import { Tag, ChevronDown, ChevronRight, ExternalLink } from "lucide-react"
-import { motion, AnimatePresence } from "framer-motion"
+import React, { useState } from "react";
+import { useRouter } from "next/navigation";
+import { Checkbox } from "@/components/ui/checkbox";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { Tag, ChevronDown, ChevronRight, ExternalLink } from "lucide-react";
+import { motion, AnimatePresence } from "framer-motion";
 
 interface CategoryWithSubcategories {
   id: number;
@@ -16,13 +16,13 @@ interface CategoryWithSubcategories {
 }
 
 interface FilterCategoriesProps {
-  categories: CategoryWithSubcategories[]
-  selectedCategories: string[]
-  selectedSubcategories: string[]
-  onCategoryToggle: (category: string) => void
-  onSubcategoryToggle: (subcategory: string) => void
-  getCategoryCount: (category: string) => number
-  getSubcategoryCount: (subcategory: string) => number
+  categories: CategoryWithSubcategories[];
+  selectedCategories: string[];
+  selectedSubcategories: string[];
+  onCategoryToggle: (category: string) => void;
+  onSubcategoryToggle: (subcategory: string) => void;
+  getCategoryCount: (category: string) => number;
+  getSubcategoryCount: (subcategory: string) => number;
 }
 
 export const CategoryFilter = ({
@@ -34,18 +34,20 @@ export const CategoryFilter = ({
   getCategoryCount,
   getSubcategoryCount,
 }: FilterCategoriesProps) => {
-  const [expandedCategories, setExpandedCategories] = useState<Set<number>>(new Set())
-  const router = useRouter()
+  const [expandedCategories, setExpandedCategories] = useState<Set<number>>(
+    new Set()
+  );
+  const router = useRouter();
 
   const toggleCategory = (categoryId: number) => {
-    const newExpanded = new Set(expandedCategories)
+    const newExpanded = new Set(expandedCategories);
     if (newExpanded.has(categoryId)) {
-      newExpanded.delete(categoryId)
+      newExpanded.delete(categoryId);
     } else {
-      newExpanded.add(categoryId)
+      newExpanded.add(categoryId);
     }
-    setExpandedCategories(newExpanded)
-  }
+    setExpandedCategories(newExpanded);
+  };
 
   const navigateToCategory = (categoryName: string) => {
     const slug = categoryName
@@ -54,8 +56,8 @@ export const CategoryFilter = ({
       .replace(/[\u0300-\u036f]/g, "")
       .replace(/[^a-z0-9\s]/gi, "")
       .replace(/\s+/g, "-");
-    router.push(`/categoria/${slug}`)
-  }
+    router.push(`/category/${slug}`);
+  };
 
   const navigateToSubcategory = (subcategoryName: string) => {
     const slug = subcategoryName
@@ -64,10 +66,11 @@ export const CategoryFilter = ({
       .replace(/[\u0300-\u036f]/g, "")
       .replace(/[^a-z0-9\s]/gi, "")
       .replace(/\s+/g, "-");
-    router.push(`/categoria/${slug}`)
-  }
+    router.push(`/category/${slug}`);
+  };
 
-  const totalSelectedFilters = selectedCategories.length + selectedSubcategories.length
+  const totalSelectedFilters =
+    selectedCategories.length + selectedSubcategories.length;
 
   return (
     <div className="space-y-4">
@@ -93,10 +96,10 @@ export const CategoryFilter = ({
 
       <div className="space-y-2 max-h-96 overflow-y-auto scrollbar-thin scrollbar-thumb-slate-700 scrollbar-track-slate-900 rounded-lg pr-2">
         {categories.map((category, idx) => {
-          const isSelected = selectedCategories.includes(category.name)
-          const isExpanded = expandedCategories.has(category.id)
-          const count = getCategoryCount(category.name)
-          const hasSubcategories = category.subcategories.length > 0
+          const isSelected = selectedCategories.includes(category.name);
+          const isExpanded = expandedCategories.has(category.id);
+          const count = getCategoryCount(category.name);
+          const hasSubcategories = category.subcategories.length > 0;
 
           return (
             <motion.div
@@ -107,10 +110,13 @@ export const CategoryFilter = ({
               transition={{ delay: idx * 0.05 }}
             >
               {/* Categoría principal */}
-              <div className={`flex items-center justify-between p-3 rounded-lg transition-all ${isSelected
-                  ? "bg-slate-800 ring-1 ring-slate-700"
-                  : "bg-slate-900/50 hover:bg-slate-800/70"
-                }`}>
+              <div
+                className={`flex items-center justify-between p-3 rounded-lg transition-all ${
+                  isSelected
+                    ? "bg-slate-800 ring-1 ring-slate-700"
+                    : "bg-slate-900/50 hover:bg-slate-800/70"
+                }`}
+              >
                 <div className="flex items-center space-x-3 flex-1 min-w-0">
                   <Checkbox
                     id={`category-${category.id}`}
@@ -125,7 +131,10 @@ export const CategoryFilter = ({
                     {category.name}
                   </label>
                   <div className="flex items-center gap-2 flex-shrink-0">
-                    <Badge variant="outline" className="text-xs text-slate-400 border-slate-700 font-semibold">
+                    <Badge
+                      variant="outline"
+                      className="text-xs text-slate-400 border-slate-700 font-semibold"
+                    >
                       {count}
                     </Badge>
                     <Button
@@ -167,16 +176,19 @@ export const CategoryFilter = ({
                     className="space-y-1.5 ml-6 pl-4 border-l-2 border-slate-800 py-2"
                   >
                     {category.subcategories.map((subcategory) => {
-                      const isSubSelected = selectedSubcategories.includes(subcategory.name)
-                      const subCount = getSubcategoryCount(subcategory.name)
+                      const isSubSelected = selectedSubcategories.includes(
+                        subcategory.name
+                      );
+                      const subCount = getSubcategoryCount(subcategory.name);
 
                       return (
                         <motion.div
                           key={subcategory.id}
-                          className={`flex items-center justify-between p-2.5 rounded-lg transition-all ${isSubSelected
+                          className={`flex items-center justify-between p-2.5 rounded-lg transition-all ${
+                            isSubSelected
                               ? "bg-slate-800/80 ring-1 ring-slate-700/50"
                               : "bg-slate-900/30 hover:bg-slate-800/50"
-                            }`}
+                          }`}
                           initial={{ opacity: 0, x: -10 }}
                           animate={{ opacity: 1, x: 0 }}
                         >
@@ -184,7 +196,9 @@ export const CategoryFilter = ({
                             <Checkbox
                               id={`subcategory-${subcategory.id}`}
                               checked={isSubSelected}
-                              onCheckedChange={() => onSubcategoryToggle(subcategory.name)}
+                              onCheckedChange={() =>
+                                onSubcategoryToggle(subcategory.name)
+                              }
                               className="data-[state=checked]:bg-slate-700 data-[state=checked]:border-slate-600 border-slate-600 h-3.5 w-3.5 flex-shrink-0"
                             />
                             <label
@@ -194,13 +208,18 @@ export const CategoryFilter = ({
                               {subcategory.name}
                             </label>
                             <div className="flex items-center gap-1.5 flex-shrink-0">
-                              <Badge variant="outline" className="text-xs text-slate-500 border-slate-700 font-semibold">
+                              <Badge
+                                variant="outline"
+                                className="text-xs text-slate-500 border-slate-700 font-semibold"
+                              >
                                 {subCount}
                               </Badge>
                               <Button
                                 variant="ghost"
                                 size="sm"
-                                onClick={() => navigateToSubcategory(subcategory.name)}
+                                onClick={() =>
+                                  navigateToSubcategory(subcategory.name)
+                                }
                                 className="h-6 w-6 p-0 hover:bg-slate-700"
                                 title={`Ver ${subcategory.name}`}
                               >
@@ -209,15 +228,15 @@ export const CategoryFilter = ({
                             </div>
                           </div>
                         </motion.div>
-                      )
+                      );
                     })}
                   </motion.div>
                 )}
               </AnimatePresence>
             </motion.div>
-          )
+          );
         })}
       </div>
     </div>
-  )
-}
+  );
+};

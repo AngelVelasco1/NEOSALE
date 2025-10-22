@@ -9,14 +9,6 @@ export function NotFound({ page = "Page" }: { page?: string }) {
   return (
     <div className="py-16 sm:py-20 w-full h-full grid place-items-center px-2 max-w-3xl mx-auto">
       <div>
-        <Image
-          src={"../../../../public/imgs/Logo"}
-          alt={`${page} not found`}
-          priority
-          placeholder="blur"
-          className="w-full"
-        />
-
         <div className="flex flex-col text-center items-center mt-4 space-y-2">
           <Typography
             variant="h1"
