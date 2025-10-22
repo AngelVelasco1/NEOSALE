@@ -121,7 +121,6 @@ export const Navbar = () => {
   const router = useRouter();
   const searchTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
-  // Search functionality
   const performSearch = async (query: string) => {
     if (!query.trim()) {
       setSearchResults([]);
@@ -134,7 +133,7 @@ export const Navbar = () => {
       const filtered = allProducts.filter((product: IProduct) =>
         product.name.toLowerCase().includes(query.toLowerCase()) ||
         product.category.toLowerCase().includes(query.toLowerCase())
-      ).slice(0, 5); // Limit to 5 results
+      ).slice(0, 5);
       setSearchResults(filtered);
     } catch (error) {
       console.error('Error searching products:', error);
@@ -155,7 +154,7 @@ export const Navbar = () => {
     // Set new timeout for debounced search
     searchTimeoutRef.current = setTimeout(() => {
       performSearch(value);
-    }, 300);
+    }, 200);
   };
 
   const handleSearchSubmit = (e: React.FormEvent) => {
@@ -174,7 +173,6 @@ export const Navbar = () => {
     setSearchQuery("");
   };
 
-  // Cleanup timeout on unmount
   useEffect(() => {
     return () => {
       if (searchTimeoutRef.current) {
@@ -546,7 +544,7 @@ export const Navbar = () => {
                                   {product.name}
                                 </div>
                                 <div className="text-xs text-slate-400">
-                                  {product.category} • ${product.price.toLocaleString('es-CO')}
+                                  {product.category}
                                 </div>
                               </div>
                             </div>
