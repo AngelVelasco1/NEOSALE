@@ -11,6 +11,7 @@ import { ColorFilter } from "./filters/ColorFilter"
 import { CategoryFilter } from "./filters/CategoryFilter"
 import { SortFilter } from "./filters/SortFilter"
 import { ActiveFilters } from "./filters/ActiveFilters"
+import { PriceFilter } from "./filters/PriceFilter"
 import type { FilterState, CategoryWithSubcategories, IProduct } from "../../types"
 
 interface Color {
@@ -33,10 +34,12 @@ interface MobileFilterProps {
   handleColorToggle: (colorCode: string) => void
   handleCategoryToggle: (category: string) => void
   handleSubcategoryToggle: (subcategory: string) => void
+  handlePriceChange: (min: number, max: number) => void
   clearAllFilters: () => void
   getColorCount: (colorCode: string) => number
   getCategoryCount: (category: string) => number
   getSubcategoryCount: (subcategory: string) => number
+  getProductCountInRange: (min: number, max: number) => number
 }
 
 export const MobileFilter = ({
@@ -48,10 +51,12 @@ export const MobileFilter = ({
   handleColorToggle,
   handleCategoryToggle,
   handleSubcategoryToggle,
+  handlePriceChange,
   clearAllFilters,
   getColorCount,
   getCategoryCount,
   getSubcategoryCount,
+  getProductCountInRange,
 }: MobileFilterProps) => {
   const [isOpen, setIsOpen] = useState(false)
 
@@ -102,6 +107,17 @@ export const MobileFilter = ({
                 <SearchFilter
                   searchTerm={filters.searchTerm}
                   onSearchChange={(value) => updateFilter("searchTerm", value)}
+                />
+
+                <Separator className="bg-gradient-to-r from-blue-100 to-indigo-100" />
+
+                {/* Price Filter */}
+                <PriceFilter
+                  priceRange={uniqueData.priceRange}
+                  selectedMinPrice={filters.priceRange.min}
+                  selectedMaxPrice={filters.priceRange.max}
+                  onPriceChange={handlePriceChange}
+                  getProductCountInRange={getProductCountInRange}
                 />
 
                 <Separator className="bg-gradient-to-r from-blue-100 to-indigo-100" />

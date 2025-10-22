@@ -1,13 +1,19 @@
-CREATE OR REPLACE PROCEDURE sp_create_cart(p_user_id INT)
-    LANGUAGE plpgsql
-    AS $$
-    BEGIN
-        IF EXISTS (SELECT 1 FROM cart WHERE user_id = p_user_id) THEN
-            RAISE EXCEPTION 'El usuario ya tiene un carrito';
-        END IF;
-        INSERT INTO cart (user_id, created_at, subtotal) VALUES (p_user_id, CURRENT_TIMESTAMP, 0);
-    END;
-    $$;
+CREATE OR REPLACE FUNCTION fn_create_cart()
+RETURNS TRIGGER AS $$
+BEGIN
+    INSERT INTO cart (user_id, created_at, subtotal) 
+    VALUES (NEW.id, CURRENT_TIMESTAMP, 0);
+    
+    RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+CREATE TRIGGER tg_create_cart_after_register
+    AFTER INSERT ON "User"
+    FOR EACH ROW
+    EXECUTE FUNCTION   
+fn_create_cart();
+     
 
 CREATE OR REPLACE PROCEDURE sp_add_product_to_cart(p_user_id INT, p_product_id INT, p_quantity INT, p_color_code VARCHAR(7), p_size VARCHAR(25))
     LANGUAGE plpgsql

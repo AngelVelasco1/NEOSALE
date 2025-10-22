@@ -1,3 +1,7 @@
+
+
+
+
 CREATE OR REPLACE FUNCTION update_product_total_stock()
 RETURNS TRIGGER AS $$
 BEGIN

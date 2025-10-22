@@ -5,6 +5,7 @@ import { IProduct } from "../../types";
 import { getProducts } from "../services/api";
 import { ProductCard } from "../components/ProductCard";
 import { ProductFilter } from "../components/Filters";
+import type { IProduct as ProductCardIProduct } from "../components/ProductCard";
 
 
 
@@ -12,7 +13,6 @@ export const ProductsPage = () => {
   const [products, setProducts] = useState<IProduct[]>([]);
   const [filteredProducts, setFilteredProducts] = useState<IProduct[]>([]);
 
-  
   useEffect(() => {
     const fetchProducts = async () => {
       const data = await getProducts();
@@ -22,10 +22,24 @@ export const ProductsPage = () => {
     fetchProducts();
   }, []);
 
-   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-indigo-50">
+  // Handle URL search params
+  useEffect(() => {
+    const urlParams = new URLSearchParams(window.location.search);
+    const searchQuery = urlParams.get('search');
+    if (searchQuery) {
+      // Filter products based on search query
+      const filtered = products.filter(product =>
+        product.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        product.category.toLowerCase().includes(searchQuery.toLowerCase())
+      );
+      setFilteredProducts(filtered);
+    }
+  }, [products]);
+
+  return (
+    <div className="min-h-screen bg-gradient-to-br from-slate-800 via-slate to-slate-900">
       <div className="container mx-auto px-4 py-8">
-        <div className="grid lg:grid-cols-[300px_1fr] gap-8">
+        <div className="grid lg:grid-cols-[350px_1fr] gap-8">
           {/* Filter Sidebar */}
           <div className="lg:block">
             <ProductFilter products={products} setFilteredProducts={setFilteredProducts} />
@@ -34,12 +48,20 @@ export const ProductsPage = () => {
           {/* Products Grid */}
           <div className="space-y-6">
             <div className="flex items-center justify-between">
-              <h1 className="text-2xl font-bold text-gray-900">Productos ({filteredProducts.length})</h1>
+              <h1 className="text-2xl font-bold text-white">Productos ({filteredProducts.length})</h1>
             </div>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
               {filteredProducts.map((product) => (
-                <ProductCard key={product.id} data={product} />
+                <ProductCard key={product.id} data={{
+                  id: product.id.toString(),
+                  name: product.name,
+                  price: product.price,
+                  stock: product.stock,
+                  color: product.color,
+                  color_code: product.color_code,
+                  image_url: product.image_url
+                }} />
               ))}
             </div>
 

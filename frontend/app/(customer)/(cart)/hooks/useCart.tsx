@@ -101,9 +101,7 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
     };
   }, [cartProducts]); // ✅ SOLO cartProducts como dependencia
 
-  // ===================================
-  // FUNCIÓN PRINCIPAL PARA OBTENER CARRITO
-  // ===================================
+
 
   const getCart = useCallback(async () => {
     if (!userProfile) {
@@ -115,6 +113,7 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
 
     try {
       setIsLoading(true);
+
       const serverCart = await getCartApi(userProfile.id);
       setCartProducts(Array.isArray(serverCart) ? serverCart : []);
     } catch (error) {

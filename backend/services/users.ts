@@ -153,7 +153,10 @@ export const addFavoriteService = async (userId: number, productId: number) => {
   return { success: true, message: "Producto agregado a favoritos" };
 };
 
-export const removeFavoriteService = async (userId: number, productId: number) => {
+export const removeFavoriteService = async (
+  userId: number,
+  productId: number
+) => {
   if (!userId || !productId) {
     throw new Error("ID de usuario y ID de producto son requeridos");
   }
@@ -162,8 +165,10 @@ export const removeFavoriteService = async (userId: number, productId: number) =
   return { success: true, message: "Producto eliminado de favoritos" };
 };
 
-
-export const checkIsFavoriteService = async (userId: number, productId: number) => {
+export const checkIsFavoriteService = async (
+  userId: number,
+  productId: number
+) => {
   if (!userId || !productId) {
     throw new Error("ID de usuario y ID de producto son requeridos");
   }
@@ -171,8 +176,8 @@ export const checkIsFavoriteService = async (userId: number, productId: number) 
   const isFavorite = await prisma.favorites.findFirst({
     where: {
       user_id: userId,
-      product_id: productId
-    }
+      product_id: productId,
+    },
   });
   return isFavorite ? true : false;
 };
@@ -183,11 +188,11 @@ export const getUserFavoritesService = async (userId: number) => {
   }
 
   const favorites = await prisma.favorites.findMany({
-    where: { 
+    where: {
       user_id: userId,
       products: {
-        active: true 
-      }
+        active: true,
+      },
     },
     select: {
       id: true,
@@ -203,24 +208,24 @@ export const getUserFavoritesService = async (userId: number) => {
           description: true,
           images: {
             where: {
-              is_primary: true
+              is_primary: true,
             },
             select: {
               image_url: true,
               color: true,
-              color_code: true
+              color_code: true,
             },
-            take: 1
-          }
-        }
+            take: 1,
+          },
+        },
       },
     },
     orderBy: {
-      created_at: 'desc'
-    }
+      created_at: "desc",
+    },
   });
 
-  const transformedFavorites = favorites.map(favorite => ({
+  const transformedFavorites = favorites.map((favorite) => ({
     id: favorite.id,
     user_id: favorite.user_id,
     product_id: favorite.product_id,
@@ -232,13 +237,11 @@ export const getUserFavoritesService = async (userId: number) => {
       stock: favorite.products.stock,
       description: favorite.products.description,
       // Tomar el color e imagen principal, o valores por defecto
-      color: favorite.products.images[0]?.color || 'Sin especificar',
-      color_code: favorite.products.images[0]?.color_code || '#000000',
-      image_url: favorite.products.images[0]?.image_url || null
-    }
+      color: favorite.products.images[0]?.color || "Sin especificar",
+      color_code: favorite.products.images[0]?.color_code || "#000000",
+      image_url: favorite.products.images[0]?.image_url || null,
+    },
   }));
 
- 
-  
   return transformedFavorites;
 };

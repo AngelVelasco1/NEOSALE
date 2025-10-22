@@ -10,7 +10,7 @@ export const useProductFilters = (products: IProduct[], setFilteredProducts: (pr
     selectedColors: [],
     selectedCategories: [],
     selectedSubcategories: [],
-    priceRange: { min: 1, max: 5000 },
+    priceRange: { min: 0, max: 0 },
     inStockOnly: false,
     sortBy: "name",
   })
@@ -39,6 +39,16 @@ export const useProductFilters = (products: IProduct[], setFilteredProducts: (pr
     )
     return { colors, categories, priceRange }
   }, [products, dbCategories])
+
+  // Initialize price range when uniqueData is available
+  useEffect(() => {
+    if (uniqueData.priceRange.min !== Number.POSITIVE_INFINITY && uniqueData.priceRange.max !== 0) {
+      setFilters(prev => ({
+        ...prev,
+        priceRange: { min: uniqueData.priceRange.min, max: uniqueData.priceRange.max }
+      }))
+    }
+  }, [uniqueData.priceRange])
 
   // Apply all filters
   const applyFilters = useCallback(() => {
@@ -73,6 +83,13 @@ export const useProductFilters = (products: IProduct[], setFilteredProducts: (pr
       })
     }
 
+    // Price filter
+    if (filters.priceRange.min > uniqueData.priceRange.min || filters.priceRange.max < uniqueData.priceRange.max) {
+      filtered = filtered.filter((product) =>
+        product.price >= filters.priceRange.min && product.price <= filters.priceRange.max
+      )
+    }
+
     // Stock filter
     if (filters.inStockOnly) {
       filtered = filtered.filter((product) => product.stock > 0)
@@ -95,7 +112,7 @@ export const useProductFilters = (products: IProduct[], setFilteredProducts: (pr
     })
 
     setFilteredProducts(filtered)
-  }, [products, filters, setFilteredProducts, dbCategories])
+  }, [products, filters, setFilteredProducts, dbCategories, uniqueData.priceRange.max])
 
   // Apply filters whenever filters change
   useEffect(() => {
@@ -153,6 +170,16 @@ export const useProductFilters = (products: IProduct[], setFilteredProducts: (pr
     })
   }, [uniqueData.priceRange])
 
+  // Handle price range change
+  const handlePriceChange = useCallback((min: number, max: number) => {
+    updateFilter("priceRange", { min, max })
+  }, [updateFilter])
+
+  // Get product count in price range
+  const getProductCountInRange = useCallback((min: number, max: number) => {
+    return products.filter(product => product.price >= min && product.price <= max).length
+  }, [products])
+
   // Count active filters
   const activeFiltersCount = useMemo(() => {
     return (
@@ -204,10 +231,12 @@ export const useProductFilters = (products: IProduct[], setFilteredProducts: (pr
     handleColorToggle,
     handleCategoryToggle,
     handleSubcategoryToggle,
+    handlePriceChange,
     clearAllFilters,
     activeFiltersCount,
     getColorCount,
     getCategoryCount,
     getSubcategoryCount,
+    getProductCountInRange,
   }
 }

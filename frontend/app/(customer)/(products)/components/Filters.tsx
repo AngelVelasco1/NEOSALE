@@ -13,11 +13,13 @@ export const ProductFilter = ({ products, setFilteredProducts }: FilterProps) =>
     handleColorToggle,
     handleCategoryToggle,
     handleSubcategoryToggle,
+    handlePriceChange,
     clearAllFilters,
     activeFiltersCount,
     getColorCount,
     getCategoryCount,
     getSubcategoryCount,
+    getProductCountInRange,
   } = useProductFilters(products, setFilteredProducts)
 
   const commonProps = {
@@ -29,10 +31,12 @@ export const ProductFilter = ({ products, setFilteredProducts }: FilterProps) =>
     handleColorToggle,
     handleCategoryToggle,
     handleSubcategoryToggle,
+    handlePriceChange,
     clearAllFilters,
     getColorCount,
     getCategoryCount,
     getSubcategoryCount,
+    getProductCountInRange,
   }
 
   return (

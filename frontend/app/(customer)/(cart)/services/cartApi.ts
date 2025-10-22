@@ -42,7 +42,7 @@ export const getCartApi = async (
     const { data } = await api.get<CartResponse>(
       `${ENDPOINTS.getCart}?user_id=${user_id}`
     );
-    return data.items || [];
+    return data.items;
   } catch (error) {
     console.error("Error fetching cart:", error);
     return [];

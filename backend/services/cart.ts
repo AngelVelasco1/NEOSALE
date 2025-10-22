@@ -71,7 +71,7 @@ export const getCartService = async (
       },
     },
   });
-
+ 
   if (!cart || cart.cart_items.length === 0) {
     return {
       items: [],

@@ -36,13 +36,13 @@ export default function UserLayout({
   }
 
   return (
- 
-      <UserProviders>
-        <div className="flex flex-col min-h-screen w-full font-montserrat">
-          <Navbar />
-          <main className="flex-grow">{children}</main>
-          <Footer />
-        </div>
-      </UserProviders>
+
+    <UserProviders>
+      <div className="flex flex-col min-h-screen w-full font-montserrat bg-gradient-to-br from-slate-900 via-slate-900 to-slate-900">
+        <Navbar />
+        <main className="flex-grow">{children}</main>
+        <Footer />
+      </div>
+    </UserProviders>
   );
 }

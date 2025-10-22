@@ -27,11 +27,11 @@ export default function Home() {
 
   return (
     <>
-      <div className="mx-auto flex flex-col  ">
+      <div className="mx-auto flex flex-col from-slate-800 via-slate-900 to-slate-900  bg-gradient-to-br">
         <Banner />
 
         {/* Latest Products Section */}
-        <section className="relative py-20 bg-gradient-to-br from-slate-900 via-slate-900 to-slate-950 overflow-hidden">
+        <section className="relative py-20  overflow-hidden">
           {/* Background Effects */}
           <div className="absolute inset-0">
             <div className="absolute top-1/4 right-1/4 w-96 h-96 bg-blue-500/3 rounded-full blur-3xl"></div>
