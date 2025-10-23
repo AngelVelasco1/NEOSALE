@@ -81,15 +81,15 @@ export default function Home() {
               <motion.button
                 onClick={() => router.push("/products")}
                 className="group relative inline-flex items-center justify-center gap-4 px-10 py-5
-                         bg-gradient-to-r from-blue-600 via-purple-600 to-cyan-600
-                         hover:from-blue-700 hover:via-purple-700 hover:to-cyan-700
-                         text-white font-bold text-xl rounded-3xl
+                         bg-gradient-to-r from-blue-600 via-purple-600 to-indigo-600
+                         hover:from-blue-700 hover:via-purple-600 hover:to-indigo-700
+                         text-white font-bold text-xl rounded-2xl
                          shadow-2xl shadow-blue-500/25 hover:shadow-3xl hover:shadow-blue-600/40
                          transform transition-all duration-300 ease-out
-                         hover:scale-110 hover:-translate-y-2
+                         hover:scale-105 hover:-translate-y-2
                          focus:outline-none focus:ring-4 focus:ring-blue-500/50
                          overflow-hidden cursor-pointer"
-                whileHover={{ scale: 1.05 }}
+                whileHover={{ scale: 1.02 }}
                 whileTap={{ scale: 0.95 }}
               >
                 {/* Animated background */}
@@ -99,11 +99,11 @@ export default function Home() {
                 <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/30 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-1000 skew-x-12"></div>
 
                 {/* Glow effect */}
-                <div className="absolute -inset-1 bg-gradient-to-r from-blue-500 to-purple-500 rounded-3xl blur opacity-0 group-hover:opacity-40 transition-opacity duration-500"></div>
+                <div className="absolute -inset-1 bg-gradient-to-r from-blue-500 to-slate-500 rounded-2xl blur opacity-0 group-hover:opacity-40 transition-opacity duration-500"></div>
 
                 {/* Content */}
                 <div className="relative z-10 flex items-center gap-4">
-                  <Sparkles className="h-7 w-7 text-white animate-pulse group-hover:animate-bounce" />
+
 
                   <span className="tracking-wide font-bold">
                     Ver Todos los Productos

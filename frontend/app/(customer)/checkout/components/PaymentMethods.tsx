@@ -6,8 +6,9 @@ import { Badge } from "@/components/ui/badge";
 import { CreditCard, Wallet2Icon, Building, ShieldCheck } from 'lucide-react';
 import { motion, AnimatePresence } from "framer-motion";
 import WompiContractsAcceptance from "./WompiContractsAcceptance";
-import WompiCardForm from "./WompiCardForm";
-import WompiPSEForm from "./WompiPSEForm";
+import WompiCardForm from "./CardForm";
+import WompiPSEForm from "./PseForm";
+import NequiForm from "./NequiForm";
 
 interface PaymentMethodsProps {
   amount: number;
@@ -18,7 +19,7 @@ interface PaymentMethodsProps {
   disabled?: boolean;
 }
 
-type PaymentMethod = "credit_card" | "paypal" | "pse" | "efecty";
+type PaymentMethod = "credit_card" | "pse" | "nequi";
 
 export const PaymentMethods = ({
   amount,
@@ -53,12 +54,12 @@ export const PaymentMethods = ({
       comingSoon: false,
     },
     {
-      id: "Nequi" as PaymentMethod,
+      id: "nequi" as PaymentMethod,
       name: "Nequi",
       description: "Paga de forma segura con Nequi",
       icon: Wallet2Icon,
-      available: false,
-      comingSoon: true,
+      available: true,
+      comingSoon: false,
     }
   ];
 
@@ -72,12 +73,7 @@ export const PaymentMethods = ({
   ) => {
     setContractsAccepted(allAccepted);
     setAcceptanceTokens(tokens);
-    console.log(
-      "📋 Contratos aceptados:",
-      allAccepted,
-      "Tokens:",
-      Object.keys(tokens)
-    );
+
   };
 
   const renderPaymentForm = () => {
@@ -98,6 +94,18 @@ export const PaymentMethods = ({
       case "pse":
         return (
           <WompiPSEForm
+            amount={amount}
+            description={description}
+            onSuccess={handlePaymentSuccess}
+            onError={onPaymentError}
+            disabled={disabled || !contractsAccepted}
+            userId={userId || 0}
+            acceptanceTokens={acceptanceTokens}
+          />
+        );
+      case "nequi":
+        return (
+          <NequiForm
             amount={amount}
             description={description}
             onSuccess={handlePaymentSuccess}

@@ -770,6 +770,262 @@ export const createOrderFromPaymentApi = async (orderData: {
   }
 };
 
+// 🟢 ====== NEQUI APIs ======
+
+// 🟢 INTERFACES NEQUI - Estructura real de la API de Wompi
+export interface NequiPaymentData {
+  amount: number;
+  currency?: string;
+  customerEmail: string;
+  phone_number: string; // Número celular colombiano registrado en Nequi
+  payment_description?: string;
+  customer_data: {
+    phone_number: string; // REQUERIDO
+    full_name: string; // REQUERIDO
+  };
+  shipping_address?: {
+    address_line_1: string;
+    address_line_2?: string;
+    city: string;
+    region: string;
+    country: string;
+    postal_code: string;
+    phone_number?: string;
+    name?: string;
+  };
+  cartData?: Array<{
+    product_id: number;
+    quantity: number;
+    price: number;
+    name?: string;
+    color_code?: string;
+    size?: string;
+  }>;
+}
+
+export interface NequiTransactionResponse {
+  transactionId: string;
+  status: string;
+  payment_method: {
+    type: "NEQUI";
+    phone_number: string;
+  };
+}
+
+export const createNequiTransactionApi = async (
+  nequiData: NequiPaymentData,
+  userId: number
+): Promise<WompiApiResponse<NequiTransactionResponse>> => {
+  try {
+    const response = await api.post(
+      `/api/payments/nequi/create-transaction?user_id=${userId}`,
+      nequiData
+    );
+
+    if (response.data?.success) {
+      console.log("Transacción Nequi creada exitosamente:", {
+        transactionId: response.data.data?.transactionId,
+        status: response.data.data?.status,
+        payment_method: response.data.data?.payment_method,
+      });
+
+      return {
+        success: true,
+        data: response.data.data,
+      };
+    } else {
+      throw new Error(
+        response.data?.message || "Error creando transacción Nequi"
+      );
+    }
+  } catch (error) {
+    console.error("❌ Error en createNequiTransactionApi:", error);
+
+    const errorData =
+      error && typeof error === "object" && "response" in error
+        ? (error as any).response?.data
+        : null;
+
+    return {
+      success: false,
+      error:
+        errorData?.message ||
+        (error instanceof Error ? error.message : "Error desconocido"),
+      details: errorData,
+    };
+  }
+};
+
+export const processNequiPaymentFlow = async (
+  customerData: {
+    userId: number;
+    email: string;
+    name: string;
+    phone: string;
+    documentType: "CC" | "CE" | "NIT" | "PP";
+    documentNumber: string;
+    userType: 0 | 1; // 0: Natural, 1: Jurídica
+  },
+  orderData: {
+    amount: number;
+    currency?: string;
+    userId?: number;
+    description?: string;
+  },
+  nequiData: {
+    phoneNumber: string;
+  },
+  shippingAddress?: {
+    line1: string;
+    line2?: string;
+    city: string;
+    state: string;
+    country: string;
+    postalCode: string;
+    name?: string;
+  },
+  cartData?: Array<{
+    product_id: number;
+    quantity: number;
+    price: number;
+    name?: string;
+    color_code?: string;
+    size?: string;
+  }>
+): Promise<WompiApiResponse<NequiTransactionResponse>> => {
+  try {
+    const userId = orderData.userId || customerData.userId;
+
+    if (!userId) {
+      throw new Error("user_id es requerido para crear transacción Nequi");
+    }
+
+    // ✅ PREPARAR DATOS COMPLETOS PARA NEQUI
+    const nequiPayload: NequiPaymentData = {
+      amount: orderData.amount,
+      currency: orderData.currency || "COP",
+      customerEmail: customerData.email,
+      phone_number: nequiData.phoneNumber,
+      payment_description: orderData.description || "Pago en NEOSALE",
+      customer_data: {
+        phone_number: customerData.phone,
+        full_name: customerData.name,
+      },
+      ...(shippingAddress && {
+        shipping_address: {
+          address_line_1: shippingAddress.line1,
+          address_line_2: shippingAddress.line2 || "",
+          city: shippingAddress.city,
+          region: shippingAddress.state,
+          country: shippingAddress.country,
+          postal_code: shippingAddress.postalCode,
+          phone_number: customerData.phone,
+          name: shippingAddress.name || customerData.name,
+        },
+      }),
+      ...(cartData && { cartData }),
+    };
+
+    const result = await createNequiTransactionApi(nequiPayload, userId);
+
+    if (result.success) {
+      // Nequi no redirige, solo confirma vía push notification
+      return result;
+    } else {
+      throw new Error(result.error || "Error en el flujo de pago Nequi");
+    }
+  } catch (error) {
+    console.error("❌ Error en flujo completo de pago Nequi:", error);
+    return {
+      success: false,
+      error: error instanceof Error ? error.message : "Error en flujo Nequi",
+    };
+  }
+};
+
+// 🔍 VALIDAR DATOS NEQUI ANTES DE CREAR TRANSACCIÓN
+export const validateNequiDataApi = async (
+  nequiData: Omit<NequiPaymentData, "cartData">
+): Promise<
+  WompiApiResponse<{
+    isValid: boolean;
+    issues: string[];
+    recommendations: string[];
+  }>
+> => {
+  try {
+    const issues: string[] = [];
+    const recommendations: string[] = [];
+
+    // Validaciones básicas
+    if (!nequiData.amount || nequiData.amount <= 0) {
+      issues.push("El monto debe ser mayor a 0");
+    }
+
+    if (!nequiData.customerEmail || !nequiData.customerEmail.includes("@")) {
+      issues.push("Email es requerido y debe ser válido");
+    }
+
+    if (
+      !nequiData.phone_number ||
+      !/^(\+57|57)?[0-9]{10}$/.test(nequiData.phone_number.replace(/\s+/g, ""))
+    ) {
+      issues.push(
+        "Número de teléfono Nequi debe ser colombiano válido (10 dígitos)"
+      );
+    }
+
+    if (
+      !nequiData.customer_data?.phone_number ||
+      !/^(\+57|57)?[0-9]{10}$/.test(
+        nequiData.customer_data.phone_number.replace(/\s+/g, "")
+      )
+    ) {
+      issues.push(
+        "Número de teléfono del cliente debe ser colombiano válido (10 dígitos)"
+      );
+    }
+
+    if (
+      !nequiData.customer_data?.full_name ||
+      nequiData.customer_data.full_name.trim().length < 3
+    ) {
+      issues.push(
+        "Nombre completo es requerido y debe tener al menos 3 caracteres"
+      );
+    }
+
+    // Recomendaciones
+    if (nequiData.amount > 10000000) {
+      // 100 mil en centavos
+      recommendations.push(
+        "Montos altos pueden requerir validación adicional en Nequi"
+      );
+    }
+
+    const isValid = issues.length === 0;
+
+    return {
+      success: true,
+      data: {
+        isValid,
+        issues,
+        recommendations,
+      },
+    };
+  } catch (error: unknown) {
+    console.error("❌ Error en validateNequiDataApi:", error);
+
+    return {
+      success: false,
+      error:
+        error instanceof Error
+          ? error.message
+          : "Error desconocido validando datos Nequi",
+    };
+  }
+};
+
 // 🏦 ====== PSE (PAGOS SEGUROS EN LÍNEA) APIs ======
 
 // 🏦 INTERFACES PSE - Estructura real de la API de Wompi

@@ -1,41 +1,43 @@
-"use client";
-
-import React, { useState, useEffect, useCallback, useMemo } from "react";
-import { useCart } from "../hooks/useCart"; import Image from "next/image";
-import { Button } from "../../../../components/ui/button";
+"use client"
+import React, { useCallback, useEffect, useState, useMemo } from "react"
+import { motion, AnimatePresence } from "framer-motion"
+import Image from "next/image"
+import { useRouter } from "next/navigation"
+import { Button } from "@/components/ui/button"
 import {
-  Trash2,
   ShoppingBag,
-  ArrowRight,
-  AlertTriangle,
+  Trash2,
   RefreshCw,
+  XCircle,
+  AlertTriangle,
+  CheckCircle,
+  ArrowRight,
   Package,
   Clock,
-  CheckCircle,
-  XCircle
-} from "lucide-react";
-import { motion, AnimatePresence } from "framer-motion";
-import { getProductVariantApi } from "../../(products)/services/api";
-import { CartProductsInfo } from "../../types";
-import { useRouter } from "next/navigation";
-
+  Sparkles,
+  ShoppingCart,
+  Zap
+} from "lucide-react"
+import { useCart } from "../hooks/useCart"
+import type { CartProductsInfo } from "../../types"
+import { getProductVariantApi } from "../../(products)/services/api"
 
 interface VariantStock {
-  stock: number;
-  isLoading: boolean;
-  lastUpdated: number;
-  error?: string;
+  stock: number
+  isLoading: boolean
+  lastUpdated: number
+  error?: string
 }
 
 interface VariantStockMap {
-  [key: string]: VariantStock;
+  [key: string]: VariantStock
 }
 
 interface ProductItemProps {
-  product: CartProductsInfo;
-  currentStock: number;
-  isStockLoading: boolean;
-  onRefreshStock: (product: CartProductsInfo) => void;
+  product: CartProductsInfo
+  currentStock: number
+  isStockLoading: boolean
+  onRefreshStock: (product: CartProductsInfo) => Promise<void>
 }
 
 const ProductItem = React.memo<ProductItemProps>(({
@@ -50,182 +52,158 @@ const ProductItem = React.memo<ProductItemProps>(({
     incrementQuantity,
     decrementQuantity,
     getProductQuantity
-  } = useCart();
+  } = useCart()
 
-  const productQuantity = getProductQuantity(product.id, product.color_code, product.size);
-  const isOutOfStock = currentStock === 0;
-  const hasLimitedStock = currentStock < productQuantity && currentStock > 0;
-  const totalPrice = product.price * productQuantity;
+  const productQuantity = getProductQuantity(product.id, product.color_code, product.size)
+  const isOutOfStock = currentStock === 0
+  const hasLimitedStock = currentStock < productQuantity && currentStock > 0
+  const totalPrice = product.price * productQuantity
 
   const handleDecrease = useCallback(async () => {
     if (productQuantity > 1) {
-      await decrementQuantity(product.id, product.color_code, product.size);
+      await decrementQuantity(product.id, product.color_code, product.size)
     }
-  }, [productQuantity, decrementQuantity, product.id, product.color_code, product.size]);
+  }, [productQuantity, decrementQuantity, product.id, product.color_code, product.size])
 
   const handleIncrease = useCallback(async () => {
     if (productQuantity < currentStock) {
-      await incrementQuantity(product.id, product.color_code, product.size);
+      await incrementQuantity(product.id, product.color_code, product.size)
     }
-  }, [productQuantity, currentStock, incrementQuantity, product.id, product.color_code, product.size]);
+  }, [productQuantity, currentStock, incrementQuantity, product.id, product.color_code, product.size])
 
   const handleQuantityChange = useCallback(async (newQuantity: number) => {
     if (newQuantity !== productQuantity && newQuantity <= currentStock && newQuantity > 0) {
-      await updateQuantity(product.id, product.color_code, newQuantity, product.size);
+      await updateQuantity(product.id, product.color_code, newQuantity, product.size)
     }
-  }, [productQuantity, currentStock, updateQuantity, product.id, product.color_code, product.size]);
+  }, [productQuantity, currentStock, updateQuantity, product.id, product.color_code, product.size])
 
   const handleRemove = useCallback(async () => {
-    await removeProductFromCart(product.id, product.color_code, product.size);
-  }, [removeProductFromCart, product.id, product.color_code, product.size]);
-
-
-
+    await removeProductFromCart(product.id, product.color_code, product.size)
+  }, [removeProductFromCart, product.id, product.color_code, product.size])
 
   const itemVariants = {
     hidden: { opacity: 0, y: 20 },
     visible: { opacity: 1, y: 0 },
     exit: { opacity: 0, x: -100 }
-  };
+  }
 
   return (
     <motion.div
       variants={itemVariants}
       layout
-      className={`group bg-white rounded-2xl p-6 shadow-sm border transition-all duration-300 hover:shadow-md ${isOutOfStock
-        ? "border-red-200 bg-red-50/30"
+      className={`group relative bg-gradient-to-br from-slate-900/80 via-slate-800/60 to-slate-900/80 backdrop-blur-xl rounded-3xl p-6 border transition-all duration-500 shadow-2xl hover:shadow-indigo-500/10 ${isOutOfStock
+        ? "border-red-500/40 shadow-red-500/20"
         : hasLimitedStock
-          ? "border-yellow-200 bg-yellow-50/30"
-          : "border-gray-100 hover:border-blue-200"
-        }`}
+          ? "border-amber-500/40 shadow-amber-500/20"
+          : "border-slate-700/60 hover:border-indigo-400/60 hover:shadow-indigo-400/20"
+        } overflow-hidden`}
     >
-      <div className="flex items-center gap-6">
-        {/* Imagen del Producto */}
+      {/* Subtle background pattern or glow */}
+      <div className="absolute inset-0 bg-gradient-to-r from-transparent via-indigo-500/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+
+      <div className="relative flex items-center gap-8">
+        {/* Product Image */}
         <motion.div
-          className={`relative w-24 h-24 flex-shrink-0 rounded-xl overflow-hidden bg-gray-50 border border-gray-100 ${isOutOfStock ? "opacity-60" : ""
-            }`}
-          whileHover={{ scale: isOutOfStock ? 1 : 1.05 }}
-          transition={{ duration: 0.2 }}
+          className={`relative w-24 h-24 flex-shrink-0 rounded-2xl overflow-hidden bg-gradient-to-br from-slate-800/70 to-slate-900/70 border border-slate-700/60 ${isOutOfStock ? "opacity-60 grayscale" : ""
+            } shadow-lg`}
+          transition={{ duration: 0.3 }}
         >
           <Image
             src={product.image_url || "/placeholder.svg"}
             alt={product.name || product.title || "Producto"}
             fill
-            className="object-cover"
-            sizes="96px"
+            className="object-fit"
+            sizes="128px"
           />
           {isStockLoading && (
-            <div className="absolute inset-0 bg-white/80 flex items-center justify-center">
-              <RefreshCw className="w-5 h-5 animate-spin text-blue-600" />
+            <div className="absolute inset-0 bg-slate-900/90 backdrop-blur-md flex items-center justify-center rounded-2xl">
+              <RefreshCw className="w-6 h-6 animate-spin text-indigo-400" />
+            </div>
+          )}
+          {/* Overlay for out of stock */}
+          {isOutOfStock && (
+            <div className="absolute inset-0 bg-red-500/20 flex items-center justify-center">
+              <XCircle className="w-8 h-8 text-red-400" />
             </div>
           )}
         </motion.div>
 
-        {/* Información del Producto */}
+        {/* Product Info */}
         <div className="flex-1 min-w-0">
-          <h3 className={`font-semibold mb-1 truncate ${isOutOfStock ? "text-gray-500" : "text-gray-900"
-            }`}>
+          <h3 className={`font-bold mb-3 truncate text-xl bg-gradient-to-r ${isOutOfStock ? "from-slate-500 to-slate-600" : "from-slate-100 to-indigo-200"} bg-clip-text text-transparent`}>
             {product.name || product.title}
           </h3>
 
-          <div className="flex items-center gap-3 mb-3">
-            <span className="text-sm text-gray-500 bg-gray-100 px-2 py-1 rounded-md flex items-center gap-1">
-              <Package className="w-3 h-3" />
+          <div className="flex items-center gap-4 mb-2">
+            <span className="text-sm text-slate-300 bg-slate-800/70 px-4 py-2 rounded-xl flex items-center gap-2 border border-slate-700/50 shadow-sm">
+              <Package className="w-4 h-4 text-indigo-400" />
               {product.size}
             </span>
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-3">
               <div
-                className="w-4 h-4 rounded-full border-2 border-white shadow-sm ring-1 ring-gray-200"
+                className="w-6 h-6 rounded-full border-2 border-slate-600 shadow-md"
                 style={{ backgroundColor: product.color_code }}
                 title={product.color}
               />
-              <span className="text-sm text-gray-500">{product.color}</span>
+              <span className="text-sm text-slate-300 font-medium">{product.color}</span>
             </div>
           </div>
 
-          {/* Estado del Stock con Refresh */}
-          <div className="flex items-center gap-3 mb-2">
-            <div className="flex items-center gap-2">
-              {isStockLoading ? (
-                <span className="text-xs text-gray-500 flex items-center gap-1">
-                  <Clock className="w-3 h-3" />
-                  Verificando stock...
-                </span>
-              ) : isOutOfStock ? (
-                <span className="text-xs text-red-600 font-medium flex items-center gap-1">
-                  <XCircle className="w-3 h-3" />
-                  Sin stock
-                </span>
-              ) : hasLimitedStock ? (
-                <span className="text-xs text-yellow-600 font-medium flex items-center gap-1">
-                  <AlertTriangle className="w-3 h-3" />
-                  Stock limitado ({currentStock} disponibles)
-                </span>
-              ) : (
-                <span className="text-xs text-green-600 font-medium flex items-center gap-1">
-                  <CheckCircle className="w-3 h-3" />
-                  {currentStock} disponibles
-                </span>
-              )}
-            </div>
 
 
-          </div>
-
-          {/* Precio Unitario */}
-          <div className={`text-lg font-bold ${isOutOfStock ? "text-gray-400" : "text-blue-600"
-            }`}>
+          {/* Unit Price */}
+          <div className={`text-xl font-bold ${isOutOfStock ? "text-slate-500" : "text-indigo-300"}`}>
             ${product.price.toLocaleString()}
           </div>
         </div>
 
-        <div className="flex flex-col items-end gap-4">
-          {/* Precio Total */}
-          <div className="text-right min-w-[100px]">
-            <div className={`text-xl font-bold ${isOutOfStock ? "text-gray-400" : "text-gray-900"
-              }`}>
+        {/* Price & Quantity */}
+        <div className="flex flex-col items-end gap-6">
+          {/* Total Price */}
+          <div className="text-right min-w-[140px]">
+            <div className={`text-2xl font-extrabold bg-gradient-to-r ${isOutOfStock ? "from-slate-600 to-slate-700" : "from-slate-100 to-purple-200"} bg-clip-text text-transparent`}>
               ${totalPrice.toLocaleString()}
             </div>
             {productQuantity > 1 && (
-              <div className="text-xs text-gray-500">
+              <div className="text-sm text-slate-400 mt-2">
                 {productQuantity} × ${product.price.toLocaleString()}
               </div>
             )}
           </div>
 
-          {/* Controles de Cantidad Personalizados */}
-          <div className="flex items-center gap-3">
+          {/* Quantity Controls */}
+          <div className="flex items-center gap-3 bg-slate-800/50 rounded-2xl p-2 border border-slate-700/50 shadow-inner">
             <motion.button
               onClick={handleDecrease}
               disabled={productQuantity <= 1 || isOutOfStock || isStockLoading}
-              className="w-8 h-8 rounded-lg border border-gray-300 flex items-center justify-center text-gray-600 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
-              whileHover={{ scale: 1.1 }}
-              whileTap={{ scale: 0.9 }}
+              className="w-8 h-8 rounded-xl bg-slate-700 border border-slate-600 flex items-center justify-center text-slate-200 hover:bg-slate-600 hover:border-indigo-400/50 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-300 font-bold shadow-md"
+              whileHover={{ scale: 1.1, backgroundColor: "#4f46e5" }}
+              whileTap={{ scale: 0.95 }}
             >
               -
             </motion.button>
 
-            <div className="w-12 text-center font-medium">
+            <div className="w-12 text-center font-bold text-slate-100 text-md bg-slate-900/50 rounded-lg py-1">
               {productQuantity}
             </div>
 
             <motion.button
               onClick={handleIncrease}
               disabled={productQuantity >= currentStock || isOutOfStock || isStockLoading}
-              className="w-8 h-8 rounded-lg border border-gray-300 flex items-center justify-center text-gray-600 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
-              whileHover={{ scale: 1.1 }}
-              whileTap={{ scale: 0.9 }}
+              className="w-8 h-8 rounded-xl bg-slate-700 border border-slate-600 flex items-center justify-center text-slate-200 hover:bg-slate-600 hover:border-indigo-400/50 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-300 font-bold shadow-md"
+              whileHover={{ scale: 1.1, backgroundColor: "#4f46e5" }}
+              whileTap={{ scale: 0.95 }}
             >
               +
             </motion.button>
           </div>
         </div>
 
-        {/* Botón Eliminar */}
+        {/* Delete Button */}
         <motion.button
-          className="p-2 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded-lg transition-all duration-200"
+          className="p-3 text-slate-200 bg-slate-500/20 hover:text-red-200 hover:bg-red-500/20 rounded-xl transition-all duration-200 shadow-md cursor-pointer"
           onClick={handleRemove}
-          whileHover={{ scale: 1.1 }}
+          whileHover={{ scale: 1.15 }}
           whileTap={{ scale: 0.9 }}
           disabled={isStockLoading}
         >
@@ -233,25 +211,25 @@ const ProductItem = React.memo<ProductItemProps>(({
         </motion.button>
       </div>
 
-      {/* Mensajes de Advertencia */}
+      {/* Warning Messages */}
       <AnimatePresence>
         {isOutOfStock && (
           <motion.div
-            initial={{ opacity: 0, height: 0 }}
-            animate={{ opacity: 1, height: "auto" }}
-            exit={{ opacity: 0, height: 0 }}
-            className="mt-4 p-3 bg-red-50 border border-red-200 rounded-lg"
+            initial={{ opacity: 0, height: 0, y: -10 }}
+            animate={{ opacity: 1, height: "auto", y: 0 }}
+            exit={{ opacity: 0, height: 0, y: -10 }}
+            className="mt-6 p-4 bg-gradient-to-r from-red-500/20 to-red-600/20 border border-red-500/50 rounded-2xl shadow-lg"
           >
             <div className="flex items-center justify-between">
-              <div className="flex items-center gap-2 text-sm text-red-700">
-                <AlertTriangle className="w-4 h-4" />
-                <span>Este producto ya no está disponible.</span>
+              <div className="flex items-center gap-3 text-sm text-red-300">
+                <AlertTriangle className="w-5 h-5" />
+                <span className="font-medium">Este producto ya no está disponible</span>
               </div>
               <Button
                 size="sm"
                 variant="outline"
                 onClick={handleRemove}
-                className="text-red-600 border-red-300 hover:bg-red-50"
+                className="text-red-300 border-red-500/50 hover:bg-red-500/30 bg-transparent h-9 rounded-xl"
               >
                 Eliminar
               </Button>
@@ -261,36 +239,36 @@ const ProductItem = React.memo<ProductItemProps>(({
 
         {hasLimitedStock && (
           <motion.div
-            initial={{ opacity: 0, height: 0 }}
-            animate={{ opacity: 1, height: "auto" }}
-            exit={{ opacity: 0, height: 0 }}
-            className="mt-4 p-3 bg-yellow-50 border border-yellow-200 rounded-lg"
+            initial={{ opacity: 0, height: 0, y: -10 }}
+            animate={{ opacity: 1, height: "auto", y: 0 }}
+            exit={{ opacity: 0, height: 0, y: -10 }}
+            className="mt-6 p-4 bg-gradient-to-r from-amber-500/20 to-amber-600/20 border border-amber-500/50 rounded-2xl shadow-lg"
           >
             <div className="flex items-center justify-between">
-              <div className="flex items-center gap-2 text-sm text-yellow-700">
-                <AlertTriangle className="w-4 h-4" />
-                <span>Solo quedan {currentStock} unidades disponibles.</span>
+              <div className="flex items-center gap-3 text-sm text-amber-300">
+                <AlertTriangle className="w-5 h-5" />
+                <span className="font-medium">Solo quedan {currentStock} unidades</span>
               </div>
               <Button
                 size="sm"
                 variant="outline"
                 onClick={() => handleQuantityChange(currentStock)}
-                className="text-yellow-600 border-yellow-300 hover:bg-yellow-50"
+                className="text-amber-300 border-amber-500/50 hover:bg-amber-500/30 bg-transparent h-9 rounded-xl"
               >
-                Ajustar a {currentStock}
+                Ajustar
               </Button>
             </div>
           </motion.div>
         )}
       </AnimatePresence>
     </motion.div>
-  );
-});
+  )
+})
 
-ProductItem.displayName = 'ProductItem';
+ProductItem.displayName = 'ProductItem'
 
 export default function CartProducts() {
-  const router = useRouter();
+  const router = useRouter()
   const {
     cartProducts,
     getSubTotal,
@@ -300,19 +278,17 @@ export default function CartProducts() {
     isLoading: cartLoading,
     error,
     clearError
-  } = useCart();
+  } = useCart()
 
-  const [variantStocks, setVariantStocks] = useState<VariantStockMap>({});
-  const [isUpdatingStocks, setIsUpdatingStocks] = useState(false);
-
-
+  const [variantStocks, setVariantStocks] = useState<VariantStockMap>({})
+  const [isUpdatingStocks, setIsUpdatingStocks] = useState(false)
 
   const getVariantKey = useCallback((product: CartProductsInfo) => {
-    return `${product.id}-${product.color_code}-${product.size}`;
-  }, []);
+    return `${product.id}-${product.color_code}-${product.size}`
+  }, [])
 
   const fetchVariantStock = useCallback(async (product: CartProductsInfo) => {
-    const variantKey = getVariantKey(product);
+    const variantKey = getVariantKey(product)
 
     try {
       setVariantStocks(prev => ({
@@ -322,15 +298,15 @@ export default function CartProducts() {
           isLoading: true,
           error: undefined
         }
-      }));
+      }))
 
       const response = await getProductVariantApi({
         id: product.id,
         color_code: product.color_code,
         size: product.size
-      });
+      })
 
-      const currentStock = response.data?.stock || response.stock || 0;
+      const currentStock = response.data?.stock || response.stock || 0
 
       setVariantStocks(prev => ({
         ...prev,
@@ -339,11 +315,11 @@ export default function CartProducts() {
           isLoading: false,
           lastUpdated: Date.now()
         }
-      }));
+      }))
 
-      return currentStock;
+      return currentStock
     } catch (error) {
-      console.error(`Error fetching stock for variant ${variantKey}:`, error);
+      console.error(`Error fetching stock for variant ${variantKey}:`, error)
       setVariantStocks(prev => ({
         ...prev,
         [variantKey]: {
@@ -352,73 +328,63 @@ export default function CartProducts() {
           lastUpdated: Date.now(),
           error: 'Error al cargar stock'
         }
-      }));
-      return 0;
+      }))
+      return 0
     }
-  }, [getVariantKey]); // ✅ Incluir dependencia necesaria
+  }, [getVariantKey])
 
   const updateAllStocks = useCallback(async () => {
-    if (cartProducts.length === 0) return;
+    if (cartProducts.length === 0) return
 
-    setIsUpdatingStocks(true);
+    setIsUpdatingStocks(true)
 
     try {
-      const stockPromises = cartProducts.map(product => fetchVariantStock(product));
-      await Promise.allSettled(stockPromises);
+      const stockPromises = cartProducts.map(product => fetchVariantStock(product))
+      await Promise.allSettled(stockPromises)
     } finally {
-      setIsUpdatingStocks(false);
+      setIsUpdatingStocks(false)
     }
-  }, [cartProducts, fetchVariantStock]); // ✅ Incluir dependencias necesarias
+  }, [cartProducts, fetchVariantStock])
 
   const refreshSingleStock = useCallback(async (product: CartProductsInfo) => {
-    await fetchVariantStock(product);
-  }, [fetchVariantStock]); // ✅ Incluir dependencia necesaria
-
-  // ===================================
-  // EFECTOS OPTIMIZADOS
-  // ===================================
+    await fetchVariantStock(product)
+  }, [fetchVariantStock])
 
   useEffect(() => {
     if (!cartLoading && cartProducts.length > 0) {
-      updateAllStocks();
+      updateAllStocks()
     }
-  }, [cartLoading, cartProducts, updateAllStocks]);
+  }, [cartLoading, cartProducts, updateAllStocks])
 
-  // Auto-refresh cart every 5 minutes
   useEffect(() => {
     const interval = setInterval(() => {
       if (cartProducts.length > 0) {
-        getCart();
+        getCart()
       }
-    }, 5 * 60 * 1000); // 5 minutos
+    }, 5 * 60 * 1000)
 
-    return () => clearInterval(interval);
-  }, [cartProducts, getCart]); // ✅ Incluir dependencias necesarias
-
-  // ===================================
-  // FUNCIONES AUXILIARES CON USEMEMO
-  // ===================================
+    return () => clearInterval(interval)
+  }, [cartProducts, getCart])
 
   const getCurrentStock = useCallback((product: CartProductsInfo) => {
-    const variantKey = getVariantKey(product);
-    const variantStock = variantStocks[variantKey];
-    return variantStock?.stock ?? product.stock;
-  }, [getVariantKey, variantStocks]); // ✅ Incluir dependencias necesarias
+    const variantKey = getVariantKey(product)
+    const variantStock = variantStocks[variantKey]
+    return variantStock?.stock ?? product.stock
+  }, [getVariantKey, variantStocks])
 
   const isVariantLoading = useCallback((product: CartProductsInfo) => {
-    const variantKey = getVariantKey(product);
-    return variantStocks[variantKey]?.isLoading || false;
-  }, [getVariantKey, variantStocks]); // ✅ Incluir dependencias necesarias
+    const variantKey = getVariantKey(product)
+    return variantStocks[variantKey]?.isLoading || false
+  }, [getVariantKey, variantStocks])
 
-  // Métricas del carrito optimizadas
   const cartMetrics = useMemo(() => {
-    const totalItems = getCartProductCount();
-    const subtotal = getSubTotal();
-    const hasOutOfStockItems = cartProducts.some(product => getCurrentStock(product) === 0);
+    const totalItems = getCartProductCount()
+    const subtotal = getSubTotal()
+    const hasOutOfStockItems = cartProducts.some(product => getCurrentStock(product) === 0)
     const hasLimitedStockItems = cartProducts.some(product => {
-      const stock = getCurrentStock(product);
-      return stock < product.quantity && stock > 0;
-    });
+      const stock = getCurrentStock(product)
+      return stock < product.quantity && stock > 0
+    })
 
     return {
       totalItems,
@@ -426,164 +392,146 @@ export default function CartProducts() {
       hasOutOfStockItems,
       hasLimitedStockItems,
       uniqueProducts: cartProducts.length
-    };
-  }, [cartProducts, getCurrentStock, getCartProductCount, getSubTotal]); // ✅ Incluir todas las dependencias
-
-  // ===================================
-  // HANDLERS OPTIMIZADOS
-  // ===================================
+    }
+  }, [cartProducts, getCurrentStock, getCartProductCount, getSubTotal])
 
   const handleContinueShopping = useCallback(() => {
-    router.back();
-  }, [router]); // ✅ Incluir router como dependencia
+    router.back()
+  }, [router])
 
   const handleProceedToCheckout = useCallback(() => {
     if (cartMetrics.hasOutOfStockItems) {
-      // Opcional: mostrar modal de confirmación
-      return;
+      return
     }
-    router.push('/checkout');
-  }, [router, cartMetrics.hasOutOfStockItems]); // ✅ Incluir dependencias necesarias
+    router.push('/checkout')
+  }, [router, cartMetrics.hasOutOfStockItems])
 
   const handleClearCart = useCallback(async () => {
     if (window.confirm('¿Estás seguro de que quieres vaciar tu carrito?')) {
-      await clearCart();
+      await clearCart()
     }
-  }, [clearCart]); // ✅ Incluir clearCart como dependencia
+  }, [clearCart])
 
   const handleRefreshCart = useCallback(async () => {
-    await getCart();
-    await updateAllStocks();
-  }, [getCart, updateAllStocks]); // ✅ Incluir dependencias necesarias
-
-  // ===================================
-  // VARIANTES DE ANIMACIÓN
-  // ===================================
+    await getCart()
+    await updateAllStocks()
+  }, [getCart, updateAllStocks])
 
   const containerVariants = {
     hidden: { opacity: 0 },
     visible: { opacity: 1 }
-  };
-
-  // ===================================
-  // RENDERIZADO
-  // ===================================
+  }
 
   if (cartLoading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-blue-50/30 flex items-center justify-center">
-        <div className="text-center">
-          <RefreshCw className="w-8 h-8 animate-spin text-blue-600 mx-auto mb-4" />
-          <p className="text-gray-600">Cargando tu carrito...</p>
-        </div>
+      <div className="min-h-screen bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950 flex items-center justify-center">
+        <motion.div
+          className="text-center"
+          initial={{ opacity: 0, scale: 0.9 }}
+          animate={{ opacity: 1, scale: 1 }}
+          transition={{ duration: 0.5 }}
+        >
+          <RefreshCw className="w-12 h-12 animate-spin text-indigo-400 mx-auto mb-6" />
+          <p className="text-slate-300 font-semibold text-lg">Cargando tu carrito...</p>
+        </motion.div>
       </div>
-    );
+    )
   }
 
   return (
+
     <motion.div
-      className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-blue-50/30"
+      className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-900 to-slate-900"
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       transition={{ duration: 0.6 }}
+
     >
-      <div className="container mx-auto px-4 py-12 max-w-5xl">
-        {/* Header Optimizado */}
+      <div className="absolute bottom-0 right-0 w-96 h-96 bg-blue-600/20 rounded-full blur-3xl"></div>
+      <div className="container mx-auto px-6 py-16 max-w-7xl">
+        {/* Header */}
         <motion.div
-          className="text-center mb-12"
+          className="mb-12"
           initial={{ opacity: 0, y: -30 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6, delay: 0.2 }}
+          transition={{ duration: 0.6 }}
         >
-          <div className="flex items-center justify-center gap-3 mb-2">
-            <ShoppingBag className="w-8 h-8 text-blue-600" />
-            <h1 className="text-4xl font-bold bg-gradient-to-r from-gray-800 to-blue-600 bg-clip-text text-transparent">
-              Mi Carrito
-            </h1>
-          </div>
+          <div className="flex items-center justify-between mb-8">
+            <div className="flex items-center gap-4">
 
-          <p className="text-gray-600 font-medium">
-            {cartMetrics.uniqueProducts} {cartMetrics.uniqueProducts === 1 ? "producto" : "productos"}
-            {cartMetrics.totalItems !== cartMetrics.uniqueProducts && (
-              <span> • {cartMetrics.totalItems} unidades totales</span>
-            )}
-          </p>
+              <h1 className="text-5xl font-extrabold bg-gradient-to-r from-slate-100 via-indigo-200 to-purple-200 bg-clip-text text-transparent">
+                Mi Carrito
+              </h1>
+            </div>
 
-          {/* Indicadores de Stock y Acciones */}
-          <div className="mt-4 flex justify-center items-center gap-4">
-            {(cartMetrics.hasOutOfStockItems || cartMetrics.hasLimitedStockItems) && (
-              <motion.div
-                className="flex gap-3 text-sm"
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-              >
-                {cartMetrics.hasOutOfStockItems && (
-                  <span className="text-red-600 font-medium flex items-center gap-1">
-                    <XCircle className="w-4 h-4" />
-                    Productos sin stock
-                  </span>
-                )}
-                {cartMetrics.hasLimitedStockItems && (
-                  <span className="text-yellow-600 font-medium flex items-center gap-1">
-                    <AlertTriangle className="w-4 h-4" />
-                    Stock limitado
-                  </span>
-                )}
-              </motion.div>
-            )}
-
-            {/* Botón Refresh */}
             <motion.button
               onClick={handleRefreshCart}
               disabled={isUpdatingStocks}
-              className="text-sm text-gray-500 hover:text-blue-600 flex items-center gap-1"
+              className="text-sm text-slate-300 hover:text-indigo-300 flex items-center gap-3 px-5 py-3 rounded-2xl border border-slate-700/60 hover:border-indigo-400/60 bg-slate-800/50 backdrop-blur-sm transition-all duration-300 disabled:opacity-50 shadow-lg hover:shadow-indigo-500/20"
               whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
+              whileTap={{ scale: 0.98 }}
             >
-              <RefreshCw className={`w-4 h-4 ${isUpdatingStocks ? 'animate-spin' : ''}`} />
+              <RefreshCw className={`w-5 h-5 ${isUpdatingStocks ? 'animate-spin' : ''}`} />
               Actualizar
             </motion.button>
           </div>
+
+
+
+          {/* Status badges */}
+          {(cartMetrics.hasOutOfStockItems || cartMetrics.hasLimitedStockItems) && (
+            <div className="flex gap-4 mt-6">
+              {cartMetrics.hasOutOfStockItems && (
+                <span className="text-sm text-red-300 flex items-center gap-2 bg-red-500/20 px-4 py-2 rounded-xl border border-red-500/40 shadow-md">
+                  <XCircle className="w-4 h-4" />
+                  Productos sin stock
+                </span>
+              )}
+              {cartMetrics.hasLimitedStockItems && (
+                <span className="text-sm text-amber-300 flex items-center gap-2 bg-amber-500/20 px-4 py-2 rounded-xl border border-amber-500/40 shadow-md">
+                  <AlertTriangle className="w-4 h-4" />
+                  Stock limitado
+                </span>
+              )}
+            </div>
+          )}
 
           {/* Error Display */}
           {error && (
             <motion.div
               initial={{ opacity: 0, y: -10 }}
               animate={{ opacity: 1, y: 0 }}
-              className="mt-4 p-3 bg-red-50 border border-red-200 rounded-lg max-w-md mx-auto"
+              className="mt-6 p-4 bg-red-500/20 border border-red-500/50 rounded-2xl shadow-lg"
             >
               <div className="flex items-center justify-between">
-                <span className="text-sm text-red-700">{error}</span>
-                <button
-                  onClick={clearError}
-                  className="text-red-400 hover:text-red-600"
-                >
-                  <XCircle className="w-4 h-4" />
+                <span className="text-sm text-red-300 font-medium">{error}</span>
+                <button onClick={clearError} className="text-red-300 hover:text-red-200 transition-colors">
+                  <XCircle className="w-5 h-5" />
                 </button>
               </div>
             </motion.div>
           )}
         </motion.div>
 
-        {/* Estado Vacío */}
+        {/* Empty State */}
         {cartProducts.length === 0 && (
           <motion.div
-            className="text-center py-16"
+            className="text-center py-24"
             initial={{ opacity: 0, scale: 0.9 }}
             animate={{ opacity: 1, scale: 1 }}
-            transition={{ duration: 0.5 }}
+            transition={{ duration: 0.6 }}
           >
-            <div className="w-24 h-24 mx-auto mb-6 bg-gray-100 rounded-full flex items-center justify-center">
-              <ShoppingBag className="w-12 h-12 text-gray-400" />
+            <div className="w-28 h-28 mx-auto mb-8 bg-gradient-to-br from-slate-800 to-slate-900 rounded-3xl flex items-center justify-center border border-slate-700/60 shadow-2xl">
+              <ShoppingBag className="w-14 h-14 text-slate-600" />
             </div>
-            <h3 className="text-xl font-semibold text-gray-700 mb-2">
+            <h3 className="text-2xl font-bold text-slate-200 mb-4">
               Tu carrito está vacío
             </h3>
-            <p className="text-gray-500 mb-6">
-              ¡Descubre nuestros increíbles productos!
+            <p className="text-slate-500 mb-8 text-lg">
+              Descubre nuestros productos y comienza a comprar
             </p>
             <Button
-              className="bg-blue-600 hover:bg-blue-700 text-white px-8 py-3 rounded-xl font-medium transition-all duration-300 hover:scale-105 shadow-lg"
+              className="bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-500 hover:to-purple-500 text-white px-8 py-4 rounded-2xl font-semibold transition-all duration-300 shadow-lg hover:shadow-indigo-500/30"
               onClick={handleContinueShopping}
             >
               Continuar Comprando
@@ -591,34 +539,32 @@ export default function CartProducts() {
           </motion.div>
         )}
 
-        {/* Resumen del Carrito */}
+        {/* Cart Summary */}
         {cartProducts.length > 0 && (
           <motion.div
-            className="mb-8 bg-white rounded-2xl p-8 shadow-sm border border-gray-100"
+            className="mb-10 bg-gradient-to-br from-slate-900/80 via-slate-800/60 to-slate-900/80 backdrop-blur-xl rounded-3xl p-8 border border-slate-700/60 shadow-2xl"
             initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6, delay: 0.3 }}
+            transition={{ duration: 0.6 }}
           >
-            <div className="flex flex-col sm:flex-row items-center justify-between gap-6">
-              <div className="text-center sm:text-left">
-                <div className="text-sm text-gray-600 mb-1">
-                  Subtotal del carrito
-                </div>
-                <div className="text-3xl font-bold bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">
+            <div className="flex flex-col lg:flex-row items-center justify-between gap-8">
+              <div>
+                <div className="text-sm text-slate-400 mb-2 uppercase tracking-wide">Subtotal</div>
+                <div className="text-4xl font-extrabold bg-gradient-to-r from-slate-100 to-indigo-200 bg-clip-text text-transparent">
                   ${cartMetrics.subtotal.toLocaleString()}
                 </div>
                 {isUpdatingStocks && (
-                  <div className="text-xs text-gray-500 mt-1 flex items-center gap-1">
-                    <RefreshCw className="w-3 h-3 animate-spin" />
-                    Actualizando precios...
+                  <div className="text-sm text-slate-500 mt-3 flex items-center gap-2">
+                    <RefreshCw className="w-4 h-4 animate-spin" />
+                    Actualizando stocks...
                   </div>
                 )}
               </div>
 
-              <div className="flex flex-col sm:flex-row gap-3 w-full sm:w-auto">
+              <div className="flex flex-col sm:flex-row gap-4 w-full lg:w-auto">
                 <Button
                   variant="outline"
-                  className="border-gray-200 text-gray-700 hover:bg-gray-50 px-6 py-3 rounded-lg font-medium transition-all duration-300"
+                  className="border-slate-700/60 bg-slate-800/50 backdrop-blur-sm text-slate-300 hover:bg-slate-700 hover:border-slate-600 rounded-xl font-semibold shadow-lg hover:shadow-slate-700/30 p-5"
                   onClick={handleContinueShopping}
                 >
                   Seguir Comprando
@@ -626,67 +572,69 @@ export default function CartProducts() {
 
                 <Button
                   variant="outline"
-                  className="border-red-200 text-red-700 hover:bg-red-50 px-6 py-3 rounded-lg font-medium transition-all duration-300"
+                  className="border-slate-700/60 bg-slate-800/50 backdrop-blur-sm text-slate-300 hover:bg-red-500/20 hover:border-red-500/50 hover:text-red-300 rounded-xl font-semibold shadow-lg hover:shadow-red-500/20 p-5"
                   onClick={handleClearCart}
                 >
                   Vaciar Carrito
                 </Button>
 
-                <motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
-                  <Button
-                    onClick={handleProceedToCheckout}
-                    disabled={cartMetrics.hasOutOfStockItems || isUpdatingStocks}
-                    className="bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white px-6 py-3 rounded-lg font-medium transition-all duration-300 shadow-lg hover:shadow-xl group disabled:opacity-50 disabled:cursor-not-allowed"
-                  >
-                    <span>Proceder al Pago</span>
-                    <ArrowRight className="w-4 h-4 ml-2 group-hover:translate-x-1 transition-transform duration-200" />
-                  </Button>
-                </motion.div>
+                <Button
+                  onClick={handleProceedToCheckout}
+                  disabled={cartMetrics.hasOutOfStockItems || isUpdatingStocks}
+                  className="bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-500 hover:to-purple-500 text-white rounded-xl font-semibold disabled:opacity-50 disabled:cursor-not-allowed group shadow-lg hover:shadow-indigo-500/30 p-5"
+                >
+                  Proceder al Pago
+                  <ArrowRight className="w-5 h-5 ml-3 group-hover:translate-x-2 transition-transform" />
+                </Button>
               </div>
             </div>
 
-            {/* Información Adicional */}
-            <div className="mt-6 pt-4 border-t border-gray-100">
-              <div className="flex flex-wrap gap-4 text-sm text-gray-600">
-                <div className="flex items-center gap-2">
-                  <div className="w-2 h-2 bg-green-500 rounded-full"></div>
-                  <span>Envío gratis en compras superiores a $100.000</span>
-                </div>
-                <div className="flex items-center gap-2">
-                  <div className="w-2 h-2 bg-blue-500 rounded-full"></div>
-                  <span>Entrega en 2-3 días hábiles</span>
-                </div>
-                <div className="flex items-center gap-2">
-                  <div className="w-2 h-2 bg-purple-500 rounded-full"></div>
-                  <span>Devoluciones gratis por 30 días</span>
-                </div>
-              </div>
+            {/* Info badges */}
+            <div className="mt-8 pt-8 border-t border-slate-800/60 flex flex-wrap gap-6 text-sm text-slate-400">
+              <span className="flex items-center gap-2">
+                <Sparkles className="w-4 h-4 text-indigo-400" />
+                Envío gratis +$100k
+              </span>
+              <span className="flex items-center gap-2">
+                <Zap className="w-4 h-4 text-purple-400" />
+                Entrega 2-3 días
+              </span>
+              <span className="flex items-center gap-2">
+                <CheckCircle className="w-4 h-4 text-emerald-400" />
+                Devolución 30 días
+              </span>
             </div>
           </motion.div>
         )}
 
-        {/* Lista de Productos */}
+        {/* Products List */}
         <AnimatePresence mode="wait">
           {cartProducts.length > 0 && (
             <motion.div
-              className="space-y-4"
+              className="space-y-6"
               variants={containerVariants}
               initial="hidden"
               animate="visible"
             >
-              {cartProducts.map((product) => (
-                <ProductItem
+              {cartProducts.map((product, index) => (
+                <motion.div
                   key={`${product.id}-${product.color_code}-${product.size}`}
-                  product={product}
-                  currentStock={getCurrentStock(product)}
-                  isStockLoading={isVariantLoading(product)}
-                  onRefreshStock={refreshSingleStock}
-                />
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.4, delay: index * 0.1 }}
+                >
+                  <ProductItem
+                    product={product}
+                    currentStock={getCurrentStock(product)}
+                    isStockLoading={isVariantLoading(product)}
+                    onRefreshStock={refreshSingleStock}
+                  />
+                </motion.div>
               ))}
             </motion.div>
           )}
         </AnimatePresence>
       </div>
     </motion.div>
-  );
+  )
 }

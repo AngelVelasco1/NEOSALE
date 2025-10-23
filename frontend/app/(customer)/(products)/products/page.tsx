@@ -1,39 +1,46 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
+import { useSearchParams } from "next/navigation";
 import { IProduct } from "../../types";
 import { getProducts } from "../services/api";
 import { ProductCard } from "../components/ProductCard";
 import { ProductFilter } from "../components/Filters";
-import type { IProduct as ProductCardIProduct } from "../components/ProductCard";
 
 export const ProductsPage = () => {
   const [products, setProducts] = useState<IProduct[]>([]);
   const [filteredProducts, setFilteredProducts] = useState<IProduct[]>([]);
+  const searchParams = useSearchParams();
+
+  // Función auxiliar para normalizar cadenas y ignorar acentos en búsquedas
+  const normalizeForSearch = (str: string): string => {
+    return str.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase();
+  };
 
   useEffect(() => {
     const fetchProducts = async () => {
       const data = await getProducts();
       setProducts(data);
-      setFilteredProducts(data);
     };
     fetchProducts();
   }, []);
 
-  // Handle URL search params
+  // Handle URL search params and filtering
   useEffect(() => {
-    const urlParams = new URLSearchParams(window.location.search);
-    const searchQuery = urlParams.get("search");
+    const searchQuery = searchParams.get("search");
     if (searchQuery) {
-      // Filter products based on search query
+      // Filter products based on search query, ignoring accents
+      const queryNormalized = normalizeForSearch(searchQuery);
       const filtered = products.filter(
         (product) =>
-          product.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-          product.category.toLowerCase().includes(searchQuery.toLowerCase())
+          normalizeForSearch(product.name).includes(queryNormalized) ||
+          normalizeForSearch(product.category).includes(queryNormalized)
       );
       setFilteredProducts(filtered);
+    } else {
+      setFilteredProducts(products);
     }
-  }, [products]);
+  }, [products, searchParams]);
 
   return (
     <div className="relative min-h-screen bg-gradient-to-br from-slate-900  via-slate to-slate-900">

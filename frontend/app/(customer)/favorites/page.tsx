@@ -92,7 +92,7 @@ export default function Favorites() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100">
+    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900">
       <div className="container mx-auto px-4 py-8">
         <motion.div
           initial={{ opacity: 0, y: -20 }}
@@ -104,14 +104,13 @@ export default function Favorites() {
               <FaHeart className="w-6 h-6 text-white" />
             </div>
             <div>
-              <h1 className="text-4xl font-bold bg-gradient-to-r from-slate-800 via-slate-700 to-slate-800 bg-clip-text text-transparent">
+              <h1 className="text-4xl font-bold bg-gradient-to-r from-slate-200 via-slate-200 to-slate-300 bg-clip-text text-transparent">
                 Mis Favoritos
               </h1>
-              <p className="text-slate-600 text-lg">
+              <p className="text-slate-300 text-lg">
                 {favorites.length > 0
-                  ? `${favorites.length} producto${
-                      favorites.length !== 1 ? "s" : ""
-                    } favorito${favorites.length !== 1 ? "s" : ""}`
+                  ? `${favorites.length} producto${favorites.length !== 1 ? "s" : ""
+                  } favorito${favorites.length !== 1 ? "s" : ""}`
                   : "No tienes productos favoritos aún"}
               </p>
             </div>
@@ -177,7 +176,7 @@ export default function Favorites() {
                         image_url: favorite.products.image_url,
                       }}
                       initialIsFavorite={true}
-                      // ✅ Ya no necesitas onToggleFavorite - el ProductCard se encarga
+                    // ✅ Ya no necesitas onToggleFavorite - el ProductCard se encarga
                     />
                   </motion.div>
                 );

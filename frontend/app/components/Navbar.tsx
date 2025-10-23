@@ -45,13 +45,6 @@ import { useCategories } from "../(customer)/(products)/hooks/useCategories";
 import { getProducts } from "../(customer)/(products)/services/api";
 import { IProduct } from "../(customer)/types";
 
-const trendingSearches = [
-  "iPhone 15",
-  "MacBook Pro",
-  "Nike Air Max",
-  "Samsung TV",
-  "PlayStation 5",
-];
 
 interface NavLinkProps extends React.ComponentProps<typeof Link> {
   href: string;
@@ -67,7 +60,7 @@ const NavLink: React.FC<NavLinkProps> = ({
 }) => (
   <Link
     href={href}
-    className={`inline-flex h-11 items-center justify-center rounded-xl px-6 text-sm font-medium transition-all duration-300 hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-slate-900 dark:hover:text-white font-medium ${className}`}
+    className={`inline-flex h-11 items-center justify-center rounded-xl px-6 text-sm font-medium transition-all duration-300  dark:hover:bg-slate-800 hover:text-slate-900 dark:hover:text-white font-medium ${className}`}
     {...props}
   >
     {children}
@@ -121,6 +114,10 @@ export const Navbar = () => {
   const router = useRouter();
   const searchTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
+  const normalizeForSearch = (str: string): string => {
+    return str.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase();
+  };
+
   const performSearch = async (query: string) => {
     if (!query.trim()) {
       setSearchResults([]);
@@ -130,13 +127,13 @@ export const Navbar = () => {
     setIsSearching(true);
     try {
       const allProducts = await getProducts();
+      const queryNormalized = normalizeForSearch(query);
       const filtered = allProducts
         .filter(
           (product: IProduct) =>
-            product.name.toLowerCase().includes(query.toLowerCase()) ||
-            product.category.toLowerCase().includes(query.toLowerCase())
-        )
-        .slice(0, 5);
+            normalizeForSearch(product.name).includes(queryNormalized) ||
+            normalizeForSearch(product.category).includes(queryNormalized)
+        );
       setSearchResults(filtered);
     } catch (error) {
       console.error("Error searching products:", error);
@@ -149,12 +146,10 @@ export const Navbar = () => {
   const handleSearchChange = (value: string) => {
     setSearchQuery(value);
 
-    // Clear previous timeout
     if (searchTimeoutRef.current) {
       clearTimeout(searchTimeoutRef.current);
     }
 
-    // Set new timeout for debounced search
     searchTimeoutRef.current = setTimeout(() => {
       performSearch(value);
     }, 200);
@@ -283,11 +278,11 @@ export const Navbar = () => {
 
                         <Link
                           href="/ofertas"
-                          className="flex items-center gap-3 py-3 px-4 rounded-lg hover:bg-white/10 transition-colors group"
+                          className="flex items-center gap-3 p-3 rounded-lg border-none  transition-colors group"
                           onClick={() => setIsMobileMenuOpen(false)}
                         >
-                          <Zap className="h-5 w-5 text-amber-400 group-hover:text-amber-300" />
-                          <span className="font-medium text-white group-hover:text-amber-300">
+                          <Zap className="h-5 w-5 " />
+                          <span className="font-medium text-white ">
                             Ofertas
                           </span>
                         </Link>
@@ -586,40 +581,19 @@ export const Navbar = () => {
                             onClick={handleSearchSubmit}
                             className="w-full text-left p-2 text-sm text-blue-400 hover:text-blue-300 hover:bg-blue-500/10 rounded transition-colors"
                           >
-                            Ver todos los resultados para "{searchQuery}"
+                            Ver todos los resultados para {searchQuery}
                           </button>
                         </div>
                       </div>
                     ) : searchQuery.length > 2 ? (
                       <div className="p-4 text-center text-slate-400">
-                        No se encontraron productos para "{searchQuery}"
+                        No se encontraron productos para {searchQuery}
                       </div>
                     ) : null}
                   </div>
                 )}
 
-                {/* Trending Searches */}
-                {isSearchFocused && searchQuery.length === 0 && (
-                  <div className="absolute top-full left-0 right-0 mt-2 bg-slate-800 border border-slate-600 rounded-xl shadow-2xl p-4 z-50">
-                    <div className="text-sm mb-3 font-medium text-white">
-                      Búsquedas populares:
-                    </div>
-                    <div className="flex flex-wrap gap-2">
-                      {trendingSearches.map((search) => (
-                        <button
-                          key={search}
-                          className="px-3 py-1.5 bg-white/10 text-slate-300 rounded-lg text-sm hover:bg-blue-500/20 hover:text-blue-300 transition-colors"
-                          onClick={() => {
-                            setSearchQuery(search);
-                            setIsSearchFocused(false);
-                          }}
-                        >
-                          {search}
-                        </button>
-                      ))}
-                    </div>
-                  </div>
-                )}
+
               </form>
             </div>
 
@@ -804,28 +778,7 @@ export const Navbar = () => {
             </div>
           )}
 
-          {/* Mobile Trending Searches */}
-          {isSearchFocused && searchQuery.length === 0 && (
-            <div className="absolute top-full left-0 right-0 mt-2 bg-slate-800 border border-slate-600 rounded-xl shadow-2xl p-4 z-50">
-              <div className="text-sm mb-3 font-medium text-white">
-                Búsquedas populares:
-              </div>
-              <div className="flex flex-wrap gap-2">
-                {trendingSearches.map((search) => (
-                  <button
-                    key={search}
-                    className="px-3 py-1.5 bg-white/10 text-slate-300 rounded-lg text-sm hover:bg-blue-500/20 hover:text-blue-300 transition-colors"
-                    onClick={() => {
-                      setSearchQuery(search);
-                      setIsSearchFocused(false);
-                    }}
-                  >
-                    {search}
-                  </button>
-                ))}
-              </div>
-            </div>
-          )}
+
         </form>
       </div>
     </nav>
