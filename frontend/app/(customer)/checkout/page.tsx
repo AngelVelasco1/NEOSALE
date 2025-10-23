@@ -294,7 +294,7 @@ export default function CheckoutPage() {
 
   if (error) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950 flex items-center justify-center p-4">
+      <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-900 to-slate-900 flex items-center justify-center p-4">
         <Card className="w-full max-w-2xl bg-gradient-to-br from-slate-900/90 to-slate-800/90 backdrop-blur-xl border-slate-700/50 shadow-2xl">
           <CardHeader>
             <CardTitle className="text-slate-100">Error</CardTitle>
@@ -351,7 +351,7 @@ export default function CheckoutPage() {
             repeat: Infinity,
             ease: "linear"
           }}
-          className="absolute -bottom-1/2 -right-1/2 w-full h-full bg-gradient-to-br from-cyan-500/10 to-blue-500/10 rounded-full blur-3xl"
+          className="absolute -bottom-1/2 -right-1/2 w-full h-full bg-gradient-to-br from-blue-500/10 to-slate-500/10 rounded-full blur-3xl"
         />
       </div>
 
@@ -373,7 +373,7 @@ export default function CheckoutPage() {
                 damping: 20,
                 delay: 0.1
               }}
-              className="relative p-5 rounded-2xl bg-gradient-to-br from-indigo-600 via-purple-600 to-indigo-700 shadow-2xl shadow-indigo-500/40"
+              className="relative p-5 rounded-2xl bg-gradient-to-br from-purple-700 via-indigo-600 to-indigo-700 shadow-2xl shadow-indigo-500/40"
             >
               <motion.div
                 animate={{
@@ -385,20 +385,20 @@ export default function CheckoutPage() {
                   repeat: Infinity,
                   ease: "easeInOut"
                 }}
-                className="absolute inset-0 rounded-2xl bg-gradient-to-br from-indigo-400 to-purple-400 blur-xl"
+                className="absolute inset-0 rounded-2xl bg-gradient-to-br from-indigo-400 to-blue-400 blur-xl"
               />
-              <ShoppingCart className="w-9 h-9 text-white relative z-10" />
+              <ShoppingCart className="w-8 h-8 text-white relative z-10" />
             </motion.div>
             <div>
               <h1 className="text-5xl font-extrabold bg-gradient-to-r from-slate-100 via-indigo-200 to-purple-200 bg-clip-text text-transparent">
                 Finalizar compra
               </h1>
               <p className="text-slate-400 mt-2 text-lg flex items-center gap-2">
-                <Sparkles className="w-4 h-4 text-indigo-400" />
                 Paso {currentStep} de 3: {steps[currentStep - 1].description}
               </p>
             </div>
           </div>
+
 
           {/* Progress Steps */}
           <motion.div
@@ -458,7 +458,7 @@ export default function CheckoutPage() {
                           <StepIcon
                             className={`w-8 h-8 relative z-10 transition-colors ${step.completed || step.active
                               ? 'text-white'
-                              : 'text-slate-500'
+                              : 'text-slate-400'
                               }`}
                           />
                         </div>
@@ -470,7 +470,7 @@ export default function CheckoutPage() {
                               ? 'bg-gradient-to-br from-emerald-400 to-teal-500 text-white'
                               : step.active
                                 ? 'bg-gradient-to-br from-indigo-500 to-purple-600 text-white'
-                                : 'bg-slate-800 text-slate-400 border border-slate-700'
+                                : 'bg-slate-700 text-slate-300 border border-slate-700'
                             }
                           `}
                           whileHover={{ scale: 1.1 }}
@@ -490,12 +490,12 @@ export default function CheckoutPage() {
                             ? 'text-slate-100'
                             : step.completed
                               ? 'text-emerald-400'
-                              : 'text-slate-500'
+                              : 'text-slate-400'
                             }`}
                         >
                           {step.title}
                         </p>
-                        <p className="text-xs text-slate-500 mt-1">
+                        <p className="text-xs text-slate-400 mt-1">
                           {step.description}
                         </p>
                       </motion.div>
@@ -503,7 +503,7 @@ export default function CheckoutPage() {
 
                     {!isLast && (
                       <div className="flex-1 h-1 mx-6 mt-10 relative rounded-full overflow-hidden">
-                        <div className="absolute inset-0 bg-slate-800/50" />
+                        <div className="absolute inset-0 bg-slate-500/60" />
                         <motion.div
                           initial={{ scaleX: 0 }}
                           animate={{
@@ -520,26 +520,7 @@ export default function CheckoutPage() {
             </div>
           </motion.div>
 
-          {/* Animated progress bar */}
-          <motion.div
-            initial={{ scaleX: 0, opacity: 0 }}
-            animate={{ scaleX: 1, opacity: 1 }}
-            transition={{ duration: 1, delay: 0.6, ease: "easeOut" }}
-            className="relative h-1 w-full max-w-5xl mx-auto rounded-full overflow-hidden mt-10"
-          >
-            <div className="absolute inset-0 bg-gradient-to-r from-slate-800 via-slate-700 to-slate-800" />
-            <motion.div
-              animate={{
-                x: ['-100%', '100%'],
-              }}
-              transition={{
-                duration: 2,
-                repeat: Infinity,
-                ease: "linear"
-              }}
-              className="absolute inset-0 bg-gradient-to-r from-transparent via-indigo-500/60 to-transparent"
-            />
-          </motion.div>
+
         </motion.div>
 
         {/* Main content */}
