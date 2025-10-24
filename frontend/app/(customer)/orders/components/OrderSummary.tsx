@@ -37,7 +37,7 @@ export const OrderSummary = ({
     >
       <Card className="relative overflow-hidden border-0 shadow-2xl shadow-indigo-500/20 bg-gradient-to-br from-slate-900/95 via-slate-800/95 to-slate-900/95 backdrop-blur-xl">
         {/* Animated background gradient */}
-        <div className="absolute inset-0 bg-gradient-to-br from-indigo-500/10 via-purple-500/10 to-cyan-500/10" />
+        <div className="absolute inset-0 bg-gradient-to-br from-indigo-500/10 via-blue-600/10 to-indigo-500/10" />
 
         {/* Decorative animated border */}
         <div className="absolute top-0 left-0 right-0 h-[2px] bg-gradient-to-r from-transparent via-indigo-500 to-transparent">

@@ -53,6 +53,7 @@ export default function CheckoutPage() {
   const [selectedAddress, setSelectedAddress] = useState<Address | null>(null);
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
+  const [isInitializing, setIsInitializing] = useState(true);
   const [isProcessingOrder, setIsProcessingOrder] = useState(false);
   const { userProfile } = useUser();
 
@@ -60,20 +61,29 @@ export default function CheckoutPage() {
   const [currentStep, setCurrentStep] = useState(1);
 
   useEffect(() => {
-    if (!isAuthenticated) {
+    const timer = setTimeout(() => {
+      setIsInitializing(false);
+    }, 500);
+
+    return () => clearTimeout(timer);
+  }, []);
+
+  useEffect(() => {
+    if (!isInitializing && !isAuthenticated) {
       router.replace("/login");
       return;
     }
-  }, [isAuthenticated, router]);
+  }, [isInitializing, isAuthenticated, router]);
 
   useEffect(() => {
-    if (!cartLoading && (!cartProducts || cartProducts.length === 0)) {
+    if (!isInitializing && (!cartProducts || cartProducts.length === 0)) {
       ErrorsHandler.showError(
         "Carrito vacío",
         "No hay productos en tu carrito"
       );
     }
-  }, [cartProducts, cartLoading, router]);
+  }, [cartProducts, isInitializing, router]);
+
 
   const subtotal = cartProducts && cartProducts.length > 0 ? getSubTotal() : 0;
   const shipping = 0;
