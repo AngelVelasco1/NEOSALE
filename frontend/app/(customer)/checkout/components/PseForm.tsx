@@ -160,6 +160,7 @@ export default function WompiPSEForm({
             setError(null);
 
             const customerData = {
+                userId: userId,
                 email: formData.customer_email,
                 name: formData.full_name,
                 phone: formData.phone_number,
@@ -217,15 +218,15 @@ export default function WompiPSEForm({
 
     if (loadingInstitutions) {
         return (
-            <div className="min-h-[500px] flex items-center justify-center">
+            <div className="min-h-[500px] flex items-center justify-center bg-transparent">
                 <div className="text-center space-y-5">
                     <div className="relative w-20 h-20 mx-auto">
-                        <div className="absolute inset-0 border-4 border-purple-100 dark:border-purple-900 rounded-full"></div>
-                        <div className="absolute inset-0 border-4 border-t-purple-600 rounded-full animate-spin"></div>
-                        <div className="absolute inset-2 border-4 border-blue-100 dark:border-blue-900 rounded-full"></div>
-                        <div className="absolute inset-2 border-4 border-t-blue-600 rounded-full animate-spin" style={{ animationDirection: "reverse", animationDuration: "1.5s" }}></div>
+                        <div className="absolute inset-0 border-4 border-slate-700/50 rounded-full"></div>
+                        <div className="absolute inset-0 border-4 border-t-violet-500 rounded-full animate-spin"></div>
+                        <div className="absolute inset-2 border-4 border-slate-600/50 rounded-full"></div>
+                        <div className="absolute inset-2 border-4 border-t-indigo-500 rounded-full animate-spin" style={{ animationDirection: "reverse", animationDuration: "1.5s" }}></div>
                     </div>
-                    <p className="text-base font-semibold bg-gradient-to-r from-purple-600 to-blue-600 bg-clip-text text-transparent">
+                    <p className="text-base font-semibold text-white">
                         Cargando bancos disponibles...
                     </p>
                 </div>
@@ -234,28 +235,24 @@ export default function WompiPSEForm({
     }
 
     return (
-        <div className="mx-auto p-1">
-
-
-
-
-            <Card className="border-purple-200/50 dark:border-purple-800/50 shadow-xl shadow-purple-500/10">
-                <CardContent className="p-7 space-y-7">
+        <div className="max-w-3xl mx-auto p-3 min-h-screen">
+            <Card className="bg-slate-800/40 backdrop-blur-xl rounded-2xl shadow-2xl border border-slate-700/50">
+                <CardContent className="p-8 space-y-7">
                     {error && (
-                        <Alert variant="destructive" className="border-red-200 dark:border-red-800 bg-red-50 dark:bg-red-950/30 rounded-xl">
-                            <AlertCircle className="h-4 w-4" />
-                            <AlertDescription className="text-sm">{error}</AlertDescription>
+                        <Alert variant="destructive" className="border-red-500/30 bg-red-600/10 backdrop-blur-sm rounded-xl">
+                            <AlertCircle className="h-4 w-4 text-red-400" />
+                            <AlertDescription className="text-sm text-red-300">{error}</AlertDescription>
                         </Alert>
                     )}
 
                     <form onSubmit={handleSubmit} className="space-y-7">
                         {/* User Type Section */}
                         <div className="space-y-4">
-                            <div className="flex items-center gap-3 pb-3 border-b border-purple-100 dark:border-purple-900">
-                                <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-purple-500 to-indigo-600 flex items-center justify-center shadow-md">
+                            <div className="flex items-center gap-3 pb-3 border-b border-slate-700/50">
+                                <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-violet-600 via-violet-700 to-indigo-700 flex items-center justify-center shadow-lg shadow-violet-500/30">
                                     <User className="w-5 h-5 text-white" />
                                 </div>
-                                <h3 className="text-lg font-bold text-slate-900 dark:text-slate-100">
+                                <h3 className="text-lg font-bold text-white">
                                     Tipo de Usuario
                                 </h3>
                             </div>
@@ -268,20 +265,20 @@ export default function WompiPSEForm({
                                 <label
                                     htmlFor="natural"
                                     className={`relative flex items-center justify-center p-5 rounded-xl border-2 cursor-pointer transition-all duration-300 ${formData.user_type === 0
-                                        ? "border-purple-500 bg-gradient-to-br from-purple-50 to-indigo-50 dark:from-purple-950/30 dark:to-indigo-950/30 shadow-lg shadow-purple-500/20"
-                                        : "border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800/50 hover:border-purple-300 dark:hover:border-purple-700 hover:shadow-md"
+                                        ? "border-violet-500 bg-gradient-to-br from-violet-50/10 to-indigo-50/10 shadow-lg shadow-violet-500/20"
+                                        : "border-slate-600/50 bg-slate-700/30 hover:border-violet-400 hover:bg-violet-50/5 hover:shadow-md"
                                         }`}
                                 >
                                     <RadioGroupItem value="0" id="natural" className="sr-only" />
                                     <div className="text-center space-y-2">
-                                        <User className={`w-6 h-6 mx-auto ${formData.user_type === 0 ? "text-purple-600 dark:text-purple-400" : "text-slate-400"}`} />
-                                        <span className={`text-sm font-semibold ${formData.user_type === 0 ? "text-purple-900 dark:text-purple-100" : "text-slate-700 dark:text-slate-300"}`}>
+                                        <User className={`w-6 h-6 mx-auto ${formData.user_type === 0 ? "text-violet-400" : "text-slate-400"}`} />
+                                        <span className={`text-sm font-semibold ${formData.user_type === 0 ? "text-white" : "text-slate-300"}`}>
                                             Persona Natural
                                         </span>
                                     </div>
                                     {formData.user_type === 0 && (
                                         <div className="absolute top-3 right-3">
-                                            <CheckCircle2 className="w-5 h-5 text-purple-600 dark:text-purple-400" />
+                                            <CheckCircle2 className="w-5 h-5 text-violet-400" />
                                         </div>
                                     )}
                                 </label>
@@ -289,20 +286,20 @@ export default function WompiPSEForm({
                                 <label
                                     htmlFor="juridica"
                                     className={`relative flex items-center justify-center p-5 rounded-xl border-2 cursor-pointer transition-all duration-300 ${formData.user_type === 1
-                                        ? "border-blue-500 bg-gradient-to-br from-blue-50 to-indigo-50 dark:from-blue-950/30 dark:to-indigo-950/30 shadow-lg shadow-blue-500/20"
-                                        : "border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800/50 hover:border-blue-300 dark:hover:border-blue-700 hover:shadow-md"
+                                        ? "border-indigo-500 bg-gradient-to-br from-indigo-50/10 to-blue-50/10 shadow-lg shadow-indigo-500/20"
+                                        : "border-slate-600/50 bg-slate-700/30 hover:border-indigo-400 hover:bg-indigo-50/5 hover:shadow-md"
                                         }`}
                                 >
                                     <RadioGroupItem value="1" id="juridica" className="sr-only" />
                                     <div className="text-center space-y-2">
-                                        <Building2 className={`w-6 h-6 mx-auto ${formData.user_type === 1 ? "text-blue-600 dark:text-blue-400" : "text-slate-400"}`} />
-                                        <span className={`text-sm font-semibold ${formData.user_type === 1 ? "text-blue-900 dark:text-blue-100" : "text-slate-700 dark:text-slate-300"}`}>
+                                        <Building2 className={`w-6 h-6 mx-auto ${formData.user_type === 1 ? "text-indigo-400" : "text-slate-400"}`} />
+                                        <span className={`text-sm font-semibold ${formData.user_type === 1 ? "text-white" : "text-slate-300"}`}>
                                             Persona Jurídica
                                         </span>
                                     </div>
                                     {formData.user_type === 1 && (
                                         <div className="absolute top-3 right-3">
-                                            <CheckCircle2 className="w-5 h-5 text-blue-600 dark:text-blue-400" />
+                                            <CheckCircle2 className="w-5 h-5 text-indigo-400" />
                                         </div>
                                     )}
                                 </label>
@@ -311,38 +308,39 @@ export default function WompiPSEForm({
 
                         {/* Identification Section */}
                         <div className="space-y-4">
-                            <div className="flex items-center gap-3 pb-3 border-b border-purple-100 dark:border-purple-900">
-                                <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center shadow-md">
+                            <div className="flex items-center gap-3 pb-3 border-b border-slate-700/50">
+                                <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-indigo-600 via-purple-700 to-indigo-700 flex items-center justify-center shadow-lg shadow-indigo-500/30">
                                     <FileText className="w-5 h-5 text-white" />
                                 </div>
-                                <h3 className="text-lg font-bold text-slate-900 dark:text-slate-100">
+                                <h3 className="text-lg font-bold text-white">
                                     Información de Identificación
                                 </h3>
                             </div>
 
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                 <div className="space-y-2">
-                                    <Label htmlFor="docType" className="text-sm font-semibold text-slate-700 dark:text-slate-300">
+                                    <Label htmlFor="docType" className="text-sm font-semibold text-slate-300">
                                         Tipo de Documento
                                     </Label>
                                     <Select
                                         value={formData.user_legal_id_type}
+
                                         onValueChange={(value) => handleFormChange("user_legal_id_type", value)}
                                     >
-                                        <SelectTrigger className="h-11 bg-slate-50 dark:bg-slate-800/50 border-slate-200 dark:border-slate-700 rounded-xl focus:border-purple-500 dark:focus:border-purple-600 focus:ring-2 focus:ring-purple-500/20">
+                                        <SelectTrigger className="h-11 py-5 bg-slate-700/30 border-slate-600/50 rounded-xl focus:border-violet-500 focus:ring-2 focus:ring-violet-500/20 text-white">
                                             <SelectValue placeholder="Seleccionar tipo" />
                                         </SelectTrigger>
-                                        <SelectContent className="rounded-xl">
-                                            <SelectItem value="CC">Cédula de Ciudadanía</SelectItem>
-                                            <SelectItem value="CE">Cédula de Extranjería</SelectItem>
-                                            <SelectItem value="NIT">NIT</SelectItem>
-                                            <SelectItem value="PP">Pasaporte</SelectItem>
+                                        <SelectContent className="rounded-xl bg-slate-800 border-slate-700">
+                                            <SelectItem value="CC" className="text-white hover:bg-slate-700">Cédula de Ciudadanía</SelectItem>
+                                            <SelectItem value="CE" className="text-white hover:bg-slate-700">Cédula de Extranjería</SelectItem>
+                                            <SelectItem value="NIT" className="text-white hover:bg-slate-700">NIT</SelectItem>
+                                            <SelectItem value="PP" className="text-white hover:bg-slate-700">Pasaporte</SelectItem>
                                         </SelectContent>
                                     </Select>
                                 </div>
 
                                 <div className="space-y-2">
-                                    <Label htmlFor="docNumber" className="text-sm font-semibold text-slate-700 dark:text-slate-300">
+                                    <Label htmlFor="docNumber" className="text-sm font-semibold text-slate-300">
                                         Número de Documento
                                     </Label>
                                     <Input
@@ -354,7 +352,7 @@ export default function WompiPSEForm({
                                         onFocus={() => setFocusedField("docNumber")}
                                         onBlur={() => setFocusedField(null)}
                                         disabled={loading}
-                                        className="h-11 bg-slate-50 dark:bg-slate-800/50 border-slate-200 dark:border-slate-700 rounded-xl focus:border-purple-500 dark:focus:border-purple-600 focus:ring-2 focus:ring-purple-500/20"
+                                        className="h-11 bg-slate-700/30 border-slate-600/50 rounded-xl focus:border-violet-500 focus:ring-2 focus:ring-violet-500/20 text-white placeholder:text-slate-500"
                                     />
                                 </div>
                             </div>
@@ -362,18 +360,18 @@ export default function WompiPSEForm({
 
                         {/* Contact Information Section */}
                         <div className="space-y-4">
-                            <div className="flex items-center gap-3 pb-3 border-b border-purple-100 dark:border-purple-900">
-                                <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center shadow-md">
+                            <div className="flex items-center gap-3 pb-3 border-b border-slate-700/50">
+                                <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-indigo-600 via-violet-700 to-purple-700 flex items-center justify-center shadow-lg shadow-slate-500/30">
                                     <Mail className="w-5 h-5 text-white" />
                                 </div>
-                                <h3 className="text-lg font-bold text-slate-900 dark:text-slate-100">
+                                <h3 className="text-lg font-bold text-white">
                                     Información de Contacto
                                 </h3>
                             </div>
 
                             <div className="space-y-4">
                                 <div className="space-y-2">
-                                    <Label htmlFor="fullName" className="text-sm font-semibold text-slate-700 dark:text-slate-300">
+                                    <Label htmlFor="fullName" className="text-sm font-semibold text-slate-300">
                                         Nombre Completo
                                     </Label>
                                     <Input
@@ -385,12 +383,12 @@ export default function WompiPSEForm({
                                         onFocus={() => setFocusedField("fullName")}
                                         onBlur={() => setFocusedField(null)}
                                         disabled={loading}
-                                        className="h-11 bg-slate-50 dark:bg-slate-800/50 border-slate-200 dark:border-slate-700 rounded-xl focus:border-blue-500 dark:focus:border-blue-600 focus:ring-2 focus:ring-blue-500/20"
+                                        className="h-11 bg-slate-700/30 border-slate-600/50 rounded-xl focus:border-cyan-500 focus:ring-2 focus:ring-cyan-500/20 text-white placeholder:text-slate-500"
                                     />
                                 </div>
 
                                 <div className="space-y-2">
-                                    <Label htmlFor="email" className="text-sm font-semibold text-slate-700 dark:text-slate-300">
+                                    <Label htmlFor="email" className="text-sm font-semibold text-slate-300">
                                         Correo Electrónico
                                     </Label>
                                     <Input
@@ -402,12 +400,12 @@ export default function WompiPSEForm({
                                         onFocus={() => setFocusedField("email")}
                                         onBlur={() => setFocusedField(null)}
                                         disabled={loading}
-                                        className="h-11 bg-slate-50 dark:bg-slate-800/50 border-slate-200 dark:border-slate-700 rounded-xl focus:border-blue-500 dark:focus:border-blue-600 focus:ring-2 focus:ring-blue-500/20"
+                                        className="h-11 bg-slate-700/30 border-slate-600/50 rounded-xl focus:border-cyan-500 focus:ring-2 focus:ring-cyan-500/20 text-white placeholder:text-slate-500"
                                     />
                                 </div>
 
                                 <div className="space-y-2">
-                                    <Label htmlFor="phone" className="text-sm font-semibold text-slate-700 dark:text-slate-300">
+                                    <Label htmlFor="phone" className="text-sm font-semibold text-slate-300">
                                         Número de Teléfono
                                     </Label>
                                     <Input
@@ -419,9 +417,9 @@ export default function WompiPSEForm({
                                         onFocus={() => setFocusedField("phone")}
                                         onBlur={() => setFocusedField(null)}
                                         disabled={loading}
-                                        className="h-11 bg-slate-50 dark:bg-slate-800/50 border-slate-200 dark:border-slate-700 rounded-xl focus:border-blue-500 dark:focus:border-blue-600 focus:ring-2 focus:ring-blue-500/20"
+                                        className="h-11 bg-slate-700/30 border-slate-600/50 rounded-xl focus:border-cyan-500 focus:ring-2 focus:ring-cyan-500/20 text-white placeholder:text-slate-500"
                                     />
-                                    <p className="text-xs text-slate-500 dark:text-slate-400 flex items-center gap-1">
+                                    <p className="text-xs text-slate-400 flex items-center gap-1">
                                         <Phone className="w-3 h-3" />
                                         Formato: 3001234567 (sin espacios ni símbolos)
                                     </p>
@@ -431,32 +429,32 @@ export default function WompiPSEForm({
 
                         {/* Bank Selection Section */}
                         <div className="space-y-4">
-                            <div className="flex items-center gap-3 pb-3 border-b border-purple-100 dark:border-purple-900">
-                                <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-purple-600 to-blue-600 flex items-center justify-center shadow-md">
+                            <div className="flex items-center gap-3 pb-3 border-b border-slate-700/50">
+                                <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-indigo-600 via-purple-700 to-indigo-700 flex items-center justify-center shadow-lg shadow-indigo-500/30">
                                     <Building2 className="w-5 h-5 text-white" />
                                 </div>
-                                <h3 className="text-lg font-bold text-slate-900 dark:text-slate-100">
+                                <h3 className="text-lg font-bold text-white">
                                     Selecciona tu Banco
                                 </h3>
                             </div>
 
                             <div className="space-y-2">
-                                <Label htmlFor="bank" className="text-sm font-semibold text-slate-700 dark:text-slate-300">
+                                <Label htmlFor="bank" className="text-sm font-semibold text-slate-300">
                                     Institución Financiera
                                 </Label>
                                 <Select
                                     value={formData.financial_institution_code}
                                     onValueChange={(value) => handleFormChange("financial_institution_code", value)}
                                 >
-                                    <SelectTrigger className="h-12 bg-slate-50 dark:bg-slate-800/50 border-slate-200 dark:border-slate-700 rounded-xl focus:border-purple-500 dark:focus:border-purple-600 focus:ring-2 focus:ring-purple-500/20">
+                                    <SelectTrigger className="h-12 bg-slate-700/30 border-slate-600/50 rounded-xl focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20 text-white">
                                         <SelectValue placeholder="Seleccionar banco" />
                                     </SelectTrigger>
-                                    <SelectContent className="rounded-xl max-h-[300px]">
+                                    <SelectContent className="rounded-xl max-h-[300px] bg-slate-800 border-slate-700">
                                         {financialInstitutions.map((institution) => (
                                             <SelectItem
                                                 key={institution.financial_institution_code}
                                                 value={institution.financial_institution_code}
-                                                className="py-3"
+                                                className="py-3 text-white hover:bg-slate-700"
                                             >
                                                 {institution.financial_institution_name}
                                             </SelectItem>
@@ -468,39 +466,39 @@ export default function WompiPSEForm({
 
                         {/* Security Info & Submit */}
                         <div className="pt-4 space-y-5">
-                            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 p-5 bg-gradient-to-br from-indigo-50 via-purple-50 to-blue-50 dark:from-indigo-950/30 dark:via-purple-950/30 dark:to-blue-950/30 rounded-xl border border-purple-200/50 dark:border-purple-800/50">
+                            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 p-5 bg-gradient-to-br from-indigo-600/10 via-purple-600/10 to-blue-600/10 rounded-xl border border-slate-700/50">
                                 <div className="flex items-center gap-3">
-                                    <div className="w-10 h-10 rounded-xl bg-white dark:bg-slate-800 flex items-center justify-center shadow-md">
-                                        <Shield className="w-5 h-5 text-purple-600 dark:text-purple-400" />
+                                    <div className="w-10 h-10 rounded-xl bg-slate-700/50 flex items-center justify-center shadow-md">
+                                        <Shield className="w-5 h-5 text-violet-400" />
                                     </div>
                                     <div>
-                                        <p className="text-xs text-slate-600 dark:text-slate-400">Pago seguro</p>
-                                        <p className="text-sm font-semibold text-slate-900 dark:text-slate-100">Encriptación SSL</p>
+                                        <p className="text-xs text-slate-400">Pago seguro</p>
+                                        <p className="text-sm font-semibold text-white">Encriptación SSL</p>
                                     </div>
                                 </div>
                                 <div className="flex items-center gap-3">
-                                    <div className="w-10 h-10 rounded-xl bg-white dark:bg-slate-800 flex items-center justify-center shadow-md">
-                                        <Building2 className="w-5 h-5 text-blue-600 dark:text-blue-400" />
+                                    <div className="w-10 h-10 rounded-xl bg-slate-700/50 flex items-center justify-center shadow-md">
+                                        <Building2 className="w-5 h-5 text-indigo-400" />
                                     </div>
                                     <div>
-                                        <p className="text-xs text-slate-600 dark:text-slate-400">Procesado por</p>
-                                        <p className="text-sm font-semibold text-slate-900 dark:text-slate-100">Tu banco</p>
+                                        <p className="text-xs text-slate-400">Procesado por</p>
+                                        <p className="text-sm font-semibold text-white">Tu banco</p>
                                     </div>
                                 </div>
                                 <div className="flex items-center gap-3">
-                                    <div className="w-10 h-10 rounded-xl bg-white dark:bg-slate-800 flex items-center justify-center shadow-md">
-                                        <CheckCircle2 className="w-5 h-5 text-indigo-600 dark:text-indigo-400" />
+                                    <div className="w-10 h-10 rounded-xl bg-slate-700/50 flex items-center justify-center shadow-md">
+                                        <CheckCircle2 className="w-5 h-5 text-cyan-400" />
                                     </div>
                                     <div>
-                                        <p className="text-xs text-slate-600 dark:text-slate-400">Confirmación</p>
-                                        <p className="text-sm font-semibold text-slate-900 dark:text-slate-100">Inmediata</p>
+                                        <p className="text-xs text-slate-400">Confirmación</p>
+                                        <p className="text-sm font-semibold text-white">Inmediata</p>
                                     </div>
                                 </div>
                             </div>
 
                             <Button
                                 type="submit"
-                                className="w-full h-14 text-base font-bold bg-gradient-to-r from-indigo-600 via-purple-600 to-blue-600 hover:from-indigo-700 hover:via-purple-700 hover:to-blue-700 text-white rounded-xl shadow-lg shadow-purple-500/30 hover:shadow-xl hover:shadow-purple-500/40 transition-all"
+                                className="w-full h-14 text-base font-bold bg-gradient-to-r from-indigo-600 via-purple-600 to-blue-600 hover:from-indigo-700 hover:via-purple-700 hover:to-blue-700 text-white rounded-xl shadow-lg shadow-indigo-500/30 hover:shadow-xl hover:shadow-indigo-500/40 transition-all"
                                 disabled={loading || disabled}
                             >
                                 {loading ? (
@@ -516,17 +514,13 @@ export default function WompiPSEForm({
                                 )}
                             </Button>
 
-                            <p className="text-center text-xs text-slate-500 dark:text-slate-400">
+                            <p className="text-center text-xs text-slate-400">
                                 Serás redirigido a tu banco para completar la transacción de forma segura
                             </p>
                         </div>
                     </form>
                 </CardContent>
             </Card>
-
-
-
-
         </div>
     );
 }

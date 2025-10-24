@@ -216,7 +216,6 @@ export const ShippingAddressForm = ({
               <div>
                 <h2 className="text-2xl font-extrabold bg-gradient-to-r from-indigo-300 via-purple-300 to-cyan-300 bg-clip-text text-transparent flex items-center gap-2">
                   Dirección de envío
-                  <Sparkles className="w-5 h-5 text-indigo-400" />
                 </h2>
                 <p className="text-sm text-slate-400 mt-1">
                   Selecciona o agrega una nueva dirección

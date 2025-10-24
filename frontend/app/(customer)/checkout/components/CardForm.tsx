@@ -15,7 +15,6 @@ import type { CartProductsInfo } from "../../types"
 import {
   getWompiPublicConfigApi,
   processWompiPaymentFlow,
-  generatePaymentReference,
   getWompiTransactionStatusApi,
   type WompiPublicConfig,
   type WompiTransactionResponse,
@@ -321,33 +320,31 @@ export const WompiCardForm: React.FC<WompiCardFormProps> = ({
 
   if (configLoading) {
     return (
-      <div className="min-h-[600px] flex items-center justify-center bg-gradient-to-br from-blue-50 via-white to-cyan-50">
+      <div className="min-h-[600px] flex items-center justify-center bg-transparent">
         <div className="text-center space-y-6">
           <div className="relative w-20 h-20 mx-auto">
-            <div className="absolute inset-0 border-4 border-blue-100 rounded-full"></div>
-            <div className="absolute inset-0 border-4 border-t-blue-500 rounded-full animate-spin"></div>
+            <div className="absolute inset-0 border-4 border-slate-700/50 rounded-full"></div>
+            <div className="absolute inset-0 border-4 border-t-violet-500 rounded-full animate-spin"></div>
           </div>
-          <p className="text-lg font-medium text-gray-700">Cargando configuración...</p>
+          <p className="text-lg font-medium text-white">Cargando configuración...</p>
         </div>
       </div>
     )
   }
 
   return (
-    <div className="max-w-3xl mx-auto p-3 bg-gradient-to-br from-blue-50/30 via-white to-cyan-50/30 min-h-screen">
-      <div className="mb-8 text-center space-y-2">
-        <h1 className="text-3xl font-bold text-gray-900">Información de Pago</h1>
-        <p className="text-gray-600">Completa los datos de forma segura</p>
-      </div>
+    <div className="max-w-3xl mx-auto p-3 min-h-screen">
+
 
       <Form {...form}>
-        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
-          <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-8 space-y-6">
-            <div className="flex items-center gap-3 pb-4 border-b border-gray-100">
-              <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-blue-500 to-cyan-500 flex items-center justify-center">
+        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+          {/* Información Personal */}
+          <div className="bg-slate-800/40 backdrop-blur-xl rounded-2xl shadow-2xl border border-slate-700/50 p-8 space-y-6">
+            <div className="flex items-center gap-3 pb-4 border-b border-slate-700/50">
+              <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-violet-600 via-violet-700 to-indigo-700 shadow-lg shadow-violet-500/30 flex items-center justify-center">
                 <User className="w-5 h-5 text-white" />
               </div>
-              <h2 className="text-xl font-semibold text-gray-900">Información Personal</h2>
+              <h2 className="text-xl font-semibold text-white">Información Personal</h2>
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -356,17 +353,15 @@ export const WompiCardForm: React.FC<WompiCardFormProps> = ({
                 name="customerName"
                 render={({ field }) => (
                   <FormItem className="space-y-2">
-                    <FormLabel className="text-sm font-medium text-gray-700">Nombre completo</FormLabel>
+                    <FormLabel className="text-sm font-medium text-slate-300">Nombre completo</FormLabel>
                     <FormControl>
-                      <div className="relative">
-                        <Input
-                          placeholder="Juan Pérez"
-                          className="h-12 pl-4 pr-4 bg-gray-50 border-gray-200 rounded-xl focus:bg-white focus:border-blue-500 focus:ring-2 focus:ring-blue-100 transition-all"
-                          {...field}
-                        />
-                      </div>
+                      <Input
+                        placeholder="Juan Pérez"
+                        className="h-12 pl-4 pr-4 bg-slate-700/30 border-slate-600/50 rounded-xl text-white placeholder:text-slate-500 focus:bg-slate-700/50 focus:border-violet-500/50 focus:ring-2 focus:ring-violet-500/20 transition-all"
+                        {...field}
+                      />
                     </FormControl>
-                    <FormMessage className="text-xs text-red-500" />
+                    <FormMessage className="text-xs text-red-400" />
                   </FormItem>
                 )}
               />
@@ -376,16 +371,16 @@ export const WompiCardForm: React.FC<WompiCardFormProps> = ({
                 name="customerEmail"
                 render={({ field }) => (
                   <FormItem className="space-y-2">
-                    <FormLabel className="text-sm font-medium text-gray-700">Email</FormLabel>
+                    <FormLabel className="text-sm font-medium text-slate-300">Email</FormLabel>
                     <FormControl>
                       <Input
                         type="email"
                         placeholder="tu@email.com"
-                        className="h-12 pl-4 pr-4 bg-gray-50 border-gray-200 rounded-xl focus:bg-white focus:border-blue-500 focus:ring-2 focus:ring-blue-100 transition-all"
+                        className="h-12 pl-4 pr-4 bg-slate-700/30 border-slate-600/50 rounded-xl text-white placeholder:text-slate-500 focus:bg-slate-700/50 focus:border-violet-500/50 focus:ring-2 focus:ring-violet-500/20 transition-all"
                         {...field}
                       />
                     </FormControl>
-                    <FormMessage className="text-xs text-red-500" />
+                    <FormMessage className="text-xs text-red-400" />
                   </FormItem>
                 )}
               />
@@ -395,16 +390,16 @@ export const WompiCardForm: React.FC<WompiCardFormProps> = ({
                 name="customerPhone"
                 render={({ field }) => (
                   <FormItem className="space-y-2">
-                    <FormLabel className="text-sm font-medium text-gray-700">Teléfono</FormLabel>
+                    <FormLabel className="text-sm font-medium text-slate-300">Teléfono</FormLabel>
                     <FormControl>
                       <Input
                         type="tel"
                         placeholder="+57 300 123 4567"
-                        className="h-12 pl-4 pr-4 bg-gray-50 border-gray-200 rounded-xl focus:bg-white focus:border-blue-500 focus:ring-2 focus:ring-blue-100 transition-all"
+                        className="h-12 pl-4 pr-4 bg-slate-700/30 border-slate-600/50 rounded-xl text-white placeholder:text-slate-500 focus:bg-slate-700/50 focus:border-violet-500/50 focus:ring-2 focus:ring-violet-500/20 transition-all"
                         {...field}
                       />
                     </FormControl>
-                    <FormMessage className="text-xs text-red-500" />
+                    <FormMessage className="text-xs text-red-400" />
                   </FormItem>
                 )}
               />
@@ -414,20 +409,20 @@ export const WompiCardForm: React.FC<WompiCardFormProps> = ({
                 name="customerDocumentType"
                 render={({ field }) => (
                   <FormItem className="space-y-2">
-                    <FormLabel className="text-sm font-medium text-gray-700">Tipo de documento</FormLabel>
+                    <FormLabel className="text-sm font-medium text-slate-300">Tipo de documento</FormLabel>
                     <FormControl>
                       <select
-                        className="w-full h-12 px-4 bg-gray-50 border border-gray-200 rounded-xl focus:bg-white focus:border-blue-500 focus:ring-2 focus:ring-blue-100 focus:outline-none transition-all text-gray-900"
+                        className="w-full h-12 px-4 bg-slate-700/30 border border-slate-600/50 rounded-xl text-white focus:bg-slate-700/50 focus:border-violet-500/50 focus:ring-2 focus:ring-violet-500/20 focus:outline-none transition-all"
                         {...field}
                       >
                         {documentTypes.map((type) => (
-                          <option key={type.value} value={type.value}>
+                          <option key={type.value} value={type.value} className="bg-slate-800">
                             {type.label}
                           </option>
                         ))}
                       </select>
                     </FormControl>
-                    <FormMessage className="text-xs text-red-500" />
+                    <FormMessage className="text-xs text-red-400" />
                   </FormItem>
                 )}
               />
@@ -437,27 +432,28 @@ export const WompiCardForm: React.FC<WompiCardFormProps> = ({
                 name="customerDocument"
                 render={({ field }) => (
                   <FormItem className="space-y-2 md:col-span-2">
-                    <FormLabel className="text-sm font-medium text-gray-700">Número de documento</FormLabel>
+                    <FormLabel className="text-sm font-medium text-slate-300">Número de documento</FormLabel>
                     <FormControl>
                       <Input
                         placeholder="12345678"
-                        className="h-12 pl-4 pr-4 bg-gray-50 border-gray-200 rounded-xl focus:bg-white focus:border-blue-500 focus:ring-2 focus:ring-blue-100 transition-all"
+                        className="h-12 pl-4 pr-4 bg-slate-700/30 border-slate-600/50 rounded-xl text-white placeholder:text-slate-500 focus:bg-slate-700/50 focus:border-violet-500/50 focus:ring-2 focus:ring-violet-500/20 transition-all"
                         {...field}
                       />
                     </FormControl>
-                    <FormMessage className="text-xs text-red-500" />
+                    <FormMessage className="text-xs text-red-400" />
                   </FormItem>
                 )}
               />
             </div>
           </div>
 
-          <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-8 space-y-6">
-            <div className="flex items-center gap-3 pb-4 border-b border-gray-100">
-              <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-cyan-500 to-blue-500 flex items-center justify-center">
+          {/* Dirección de Envío */}
+          <div className="bg-slate-800/40 backdrop-blur-xl rounded-2xl shadow-2xl border border-slate-700/50 p-8 space-y-6">
+            <div className="flex items-center gap-3 pb-4 border-b border-slate-700/50">
+              <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-blue-600 via-violet-700 to-purple-700 shadow-lg shadow-slate-500/30 flex items-center justify-center">
                 <MapPin className="w-5 h-5 text-white" />
               </div>
-              <h2 className="text-xl font-semibold text-gray-900">Dirección de Envío</h2>
+              <h2 className="text-xl font-semibold text-white">Dirección de Envío</h2>
             </div>
 
             <div className="grid grid-cols-1 gap-6">
@@ -466,15 +462,15 @@ export const WompiCardForm: React.FC<WompiCardFormProps> = ({
                 name="shippingLine1"
                 render={({ field }) => (
                   <FormItem className="space-y-2">
-                    <FormLabel className="text-sm font-medium text-gray-700">Dirección principal</FormLabel>
+                    <FormLabel className="text-sm font-medium text-slate-300">Dirección principal</FormLabel>
                     <FormControl>
                       <Input
                         placeholder="Calle 123 # 45-67"
-                        className="h-12 pl-4 pr-4 bg-gray-50 border-gray-200 rounded-xl focus:bg-white focus:border-cyan-500 focus:ring-2 focus:ring-cyan-100 transition-all"
+                        className="h-12 pl-4 pr-4 bg-slate-700/30 border-slate-600/50 rounded-xl text-white placeholder:text-slate-500 focus:bg-slate-700/50 focus:border-cyan-500/50 focus:ring-2 focus:ring-cyan-500/20 transition-all"
                         {...field}
                       />
                     </FormControl>
-                    <FormMessage className="text-xs text-red-500" />
+                    <FormMessage className="text-xs text-red-400" />
                   </FormItem>
                 )}
               />
@@ -484,15 +480,15 @@ export const WompiCardForm: React.FC<WompiCardFormProps> = ({
                 name="shippingLine2"
                 render={({ field }) => (
                   <FormItem className="space-y-2">
-                    <FormLabel className="text-sm font-medium text-gray-700">Complemento (opcional)</FormLabel>
+                    <FormLabel className="text-sm font-medium text-slate-300">Complemento (opcional)</FormLabel>
                     <FormControl>
                       <Input
                         placeholder="Apartamento 101, Torre 2"
-                        className="h-12 pl-4 pr-4 bg-gray-50 border-gray-200 rounded-xl focus:bg-white focus:border-cyan-500 focus:ring-2 focus:ring-cyan-100 transition-all"
+                        className="h-12 pl-4 pr-4 bg-slate-700/30 border-slate-600/50 rounded-xl text-white placeholder:text-slate-500 focus:bg-slate-700/50 focus:border-cyan-500/50 focus:ring-2 focus:ring-cyan-500/20 transition-all"
                         {...field}
                       />
                     </FormControl>
-                    <FormMessage className="text-xs text-red-500" />
+                    <FormMessage className="text-xs text-red-400" />
                   </FormItem>
                 )}
               />
@@ -503,15 +499,15 @@ export const WompiCardForm: React.FC<WompiCardFormProps> = ({
                   name="shippingCity"
                   render={({ field }) => (
                     <FormItem className="space-y-2">
-                      <FormLabel className="text-sm font-medium text-gray-700">Ciudad</FormLabel>
+                      <FormLabel className="text-sm font-medium text-slate-300">Ciudad</FormLabel>
                       <FormControl>
                         <Input
                           placeholder="Bogotá"
-                          className="h-12 pl-4 pr-4 bg-gray-50 border-gray-200 rounded-xl focus:bg-white focus:border-cyan-500 focus:ring-2 focus:ring-cyan-100 transition-all"
+                          className="h-12 pl-4 pr-4 bg-slate-700/30 border-slate-600/50 rounded-xl text-white placeholder:text-slate-500 focus:bg-slate-700/50 focus:border-cyan-500/50 focus:ring-2 focus:ring-cyan-500/20 transition-all"
                           {...field}
                         />
                       </FormControl>
-                      <FormMessage className="text-xs text-red-500" />
+                      <FormMessage className="text-xs text-red-400" />
                     </FormItem>
                   )}
                 />
@@ -521,21 +517,21 @@ export const WompiCardForm: React.FC<WompiCardFormProps> = ({
                   name="shippingState"
                   render={({ field }) => (
                     <FormItem className="space-y-2">
-                      <FormLabel className="text-sm font-medium text-gray-700">Departamento</FormLabel>
+                      <FormLabel className="text-sm font-medium text-slate-300">Departamento</FormLabel>
                       <FormControl>
                         <select
-                          className="w-full h-12 px-4 bg-gray-50 border border-gray-200 rounded-xl focus:bg-white focus:border-cyan-500 focus:ring-2 focus:ring-cyan-100 focus:outline-none transition-all text-gray-900"
+                          className="w-full h-12 px-4 bg-slate-700/30 border border-slate-600/50 rounded-xl text-white focus:bg-slate-700/50 focus:border-cyan-500/50 focus:ring-2 focus:ring-cyan-500/20 focus:outline-none transition-all"
                           {...field}
                         >
-                          <option value="">Seleccionar</option>
+                          <option value="" className="bg-slate-800">Seleccionar</option>
                           {colombianStates.map((state) => (
-                            <option key={state} value={state}>
+                            <option key={state} value={state} className="bg-slate-800">
                               {state}
                             </option>
                           ))}
                         </select>
                       </FormControl>
-                      <FormMessage className="text-xs text-red-500" />
+                      <FormMessage className="text-xs text-red-400" />
                     </FormItem>
                   )}
                 />
@@ -546,27 +542,28 @@ export const WompiCardForm: React.FC<WompiCardFormProps> = ({
                 name="shippingPostalCode"
                 render={({ field }) => (
                   <FormItem className="space-y-2">
-                    <FormLabel className="text-sm font-medium text-gray-700">Código postal</FormLabel>
+                    <FormLabel className="text-sm font-medium text-slate-300">Código postal</FormLabel>
                     <FormControl>
                       <Input
                         placeholder="110111"
-                        className="h-12 pl-4 pr-4 bg-gray-50 border-gray-200 rounded-xl focus:bg-white focus:border-cyan-500 focus:ring-2 focus:ring-cyan-100 transition-all"
+                        className="h-12 pl-4 pr-4 bg-slate-700/30 border-slate-600/50 rounded-xl text-white placeholder:text-slate-500 focus:bg-slate-700/50 focus:border-cyan-500/50 focus:ring-2 focus:ring-cyan-500/20 transition-all"
                         {...field}
                       />
                     </FormControl>
-                    <FormMessage className="text-xs text-red-500" />
+                    <FormMessage className="text-xs text-red-400" />
                   </FormItem>
                 )}
               />
             </div>
           </div>
 
-          <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-8 space-y-6">
-            <div className="flex items-center gap-3 pb-4 border-b border-gray-100">
-              <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-blue-600 to-cyan-600 flex items-center justify-center">
+          {/* Datos de Tarjeta */}
+          <div className="bg-slate-800/40 backdrop-blur-xl rounded-2xl shadow-2xl border border-slate-700/50 p-8 space-y-6">
+            <div className="flex items-center gap-3 pb-4 border-b border-slate-700/50">
+              <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-indigo-600 via-violet-700 to-indigo-700 shadow-lg shadow-indigo-500/30 flex items-center justify-center">
                 <CreditCard className="w-5 h-5 text-white" />
               </div>
-              <h2 className="text-xl font-semibold text-gray-900">Datos de Tarjeta</h2>
+              <h2 className="text-xl font-semibold text-white">Datos de Tarjeta</h2>
             </div>
 
             <div className="space-y-6">
@@ -575,11 +572,11 @@ export const WompiCardForm: React.FC<WompiCardFormProps> = ({
                 name="cardNumber"
                 render={({ field }) => (
                   <FormItem className="space-y-2">
-                    <FormLabel className="text-sm font-medium text-gray-700">Número de tarjeta</FormLabel>
+                    <FormLabel className="text-sm font-medium text-slate-300">Número de tarjeta</FormLabel>
                     <FormControl>
                       <Input
                         placeholder="4242 4242 4242 4242"
-                        className="h-14 pl-4 pr-4 bg-gray-50 border-gray-200 rounded-xl focus:bg-white focus:border-blue-500 focus:ring-2 focus:ring-blue-100 transition-all font-mono text-lg tracking-wider"
+                        className="h-14 pl-4 pr-4 bg-slate-700/30 border-slate-600/50 rounded-xl text-white placeholder:text-slate-500 focus:bg-slate-700/50 focus:border-violet-500/50 focus:ring-2 focus:ring-violet-500/20 transition-all font-mono text-lg tracking-wider"
                         {...field}
                         onChange={(e) => {
                           const value = e.target.value.replace(/\s/g, "")
@@ -589,7 +586,7 @@ export const WompiCardForm: React.FC<WompiCardFormProps> = ({
                         maxLength={19}
                       />
                     </FormControl>
-                    <FormMessage className="text-xs text-red-500" />
+                    <FormMessage className="text-xs text-red-400" />
                   </FormItem>
                 )}
               />
@@ -599,18 +596,18 @@ export const WompiCardForm: React.FC<WompiCardFormProps> = ({
                 name="cardHolder"
                 render={({ field }) => (
                   <FormItem className="space-y-2">
-                    <FormLabel className="text-sm font-medium text-gray-700">Titular de la tarjeta</FormLabel>
+                    <FormLabel className="text-sm font-medium text-slate-300">Titular de la tarjeta</FormLabel>
                     <FormControl>
                       <Input
                         placeholder="JUAN PÉREZ"
-                        className="h-12 pl-4 pr-4 bg-gray-50 border-gray-200 rounded-xl focus:bg-white focus:border-blue-500 focus:ring-2 focus:ring-blue-100 transition-all uppercase"
+                        className="h-12 pl-4 pr-4 bg-slate-700/30 border-slate-600/50 rounded-xl text-white placeholder:text-slate-500 focus:bg-slate-700/50 focus:border-violet-500/50 focus:ring-2 focus:ring-violet-500/20 transition-all uppercase"
                         {...field}
                         onChange={(e) => {
                           field.onChange(e.target.value.toUpperCase())
                         }}
                       />
                     </FormControl>
-                    <FormMessage className="text-xs text-red-500" />
+                    <FormMessage className="text-xs text-red-400" />
                   </FormItem>
                 )}
               />
@@ -621,24 +618,24 @@ export const WompiCardForm: React.FC<WompiCardFormProps> = ({
                   name="cardExpMonth"
                   render={({ field }) => (
                     <FormItem className="space-y-2">
-                      <FormLabel className="text-sm font-medium text-gray-700">Mes</FormLabel>
+                      <FormLabel className="text-sm font-medium text-slate-300">Mes</FormLabel>
                       <FormControl>
                         <select
-                          className="w-full h-12 px-3 bg-gray-50 border border-gray-200 rounded-xl focus:bg-white focus:border-blue-500 focus:ring-2 focus:ring-blue-100 focus:outline-none transition-all text-gray-900"
+                          className="w-full h-12 px-3 bg-slate-700/30 border border-slate-600/50 rounded-xl text-white focus:bg-slate-700/50 focus:border-violet-500/50 focus:ring-2 focus:ring-violet-500/20 focus:outline-none transition-all"
                           {...field}
                         >
-                          <option value="">MM</option>
+                          <option value="" className="bg-slate-800">MM</option>
                           {Array.from({ length: 12 }, (_, i) => {
                             const month = (i + 1).toString().padStart(2, "0")
                             return (
-                              <option key={month} value={month}>
+                              <option key={month} value={month} className="bg-slate-800">
                                 {month}
                               </option>
                             )
                           })}
                         </select>
                       </FormControl>
-                      <FormMessage className="text-xs text-red-500" />
+                      <FormMessage className="text-xs text-red-400" />
                     </FormItem>
                   )}
                 />
@@ -648,24 +645,24 @@ export const WompiCardForm: React.FC<WompiCardFormProps> = ({
                   name="cardExpYear"
                   render={({ field }) => (
                     <FormItem className="space-y-2">
-                      <FormLabel className="text-sm font-medium text-gray-700">Año</FormLabel>
+                      <FormLabel className="text-sm font-medium text-slate-300">Año</FormLabel>
                       <FormControl>
                         <select
-                          className="w-full h-12 px-3 bg-gray-50 border border-gray-200 rounded-xl focus:bg-white focus:border-blue-500 focus:ring-2 focus:ring-blue-100 focus:outline-none transition-all text-gray-900"
+                          className="w-full h-12 px-3 bg-slate-700/30 border border-slate-600/50 rounded-xl text-white focus:bg-slate-700/50 focus:border-violet-500/50 focus:ring-2 focus:ring-violet-500/20 focus:outline-none transition-all"
                           {...field}
                         >
-                          <option value="">AA</option>
+                          <option value="" className="bg-slate-800">AA</option>
                           {Array.from({ length: 10 }, (_, i) => {
                             const year = (new Date().getFullYear() + i).toString().slice(-2)
                             return (
-                              <option key={year} value={year}>
+                              <option key={year} value={year} className="bg-slate-800">
                                 {year}
                               </option>
                             )
                           })}
                         </select>
                       </FormControl>
-                      <FormMessage className="text-xs text-red-500" />
+                      <FormMessage className="text-xs text-red-400" />
                     </FormItem>
                   )}
                 />
@@ -675,17 +672,17 @@ export const WompiCardForm: React.FC<WompiCardFormProps> = ({
                   name="cardCvc"
                   render={({ field }) => (
                     <FormItem className="space-y-2">
-                      <FormLabel className="text-sm font-medium text-gray-700">CVC</FormLabel>
+                      <FormLabel className="text-sm font-medium text-slate-300">CVC</FormLabel>
                       <FormControl>
                         <Input
                           placeholder="123"
                           type="password"
                           maxLength={4}
-                          className="h-12 px-4 bg-gray-50 border-gray-200 rounded-xl focus:bg-white focus:border-blue-500 focus:ring-2 focus:ring-blue-100 transition-all font-mono text-center text-lg"
+                          className="h-12 px-4 bg-slate-700/30 border-slate-600/50 rounded-xl text-white placeholder:text-slate-500 focus:bg-slate-700/50 focus:border-violet-500/50 focus:ring-2 focus:ring-violet-500/20 transition-all font-mono text-center text-lg"
                           {...field}
                         />
                       </FormControl>
-                      <FormMessage className="text-xs text-red-500" />
+                      <FormMessage className="text-xs text-red-400" />
                     </FormItem>
                   )}
                 />
@@ -696,33 +693,32 @@ export const WompiCardForm: React.FC<WompiCardFormProps> = ({
                 name="installments"
                 render={({ field }) => (
                   <FormItem className="space-y-2">
-                    <FormLabel className="text-sm font-medium text-gray-700">Número de cuotas</FormLabel>
+                    <FormLabel className="text-sm font-medium text-slate-300">Número de cuotas</FormLabel>
                     <FormControl>
                       <select
-                        className="w-full h-12 px-4 bg-gray-50 border border-gray-200 rounded-xl focus:bg-white focus:border-blue-500 focus:ring-2 focus:ring-blue-100 focus:outline-none transition-all text-gray-900"
-
+                        className="w-full h-12 px-4 bg-slate-700/30 border border-slate-600/50 rounded-xl text-white focus:bg-slate-700/50 focus:border-violet-500/50 focus:ring-2 focus:ring-violet-500/20 focus:outline-none transition-all"
                         {...field}
                         onChange={(e) => field.onChange(Number.parseInt(e.target.value))}
                       >
                         {Array.from({ length: 36 }, (_, i) => {
                           const installments = i + 1
                           return (
-                            <option key={installments} value={installments}>
+                            <option key={installments} value={installments} className="bg-slate-800">
                               {installments} cuota{installments > 1 ? "s" : ""}
                             </option>
                           )
                         })}
                       </select>
                     </FormControl>
-                    <FormMessage className="text-xs text-red-500" />
+                    <FormMessage className="text-xs text-red-400" />
                   </FormItem>
                 )}
               />
 
-              <div className="p-4 bg-blue-50 rounded-xl border border-blue-100">
+              <div className="p-4 bg-violet-600/10 backdrop-blur-sm rounded-xl border border-violet-500/20">
                 <div className="flex items-start gap-3">
-                  <Shield className="w-5 h-5 text-blue-600 flex-shrink-0 mt-0.5" />
-                  <p className="text-sm text-gray-700">
+                  <Shield className="w-5 h-5 text-violet-400 flex-shrink-0 mt-0.5" />
+                  <p className="text-sm text-slate-300">
                     Tu información es procesada de forma segura mediante encriptación SSL
                   </p>
                 </div>
@@ -730,20 +726,21 @@ export const WompiCardForm: React.FC<WompiCardFormProps> = ({
             </div>
           </div>
 
-          <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-8 space-y-6">
-            <div className="flex justify-between items-center pb-6 border-b border-gray-100">
-              <span className="text-lg text-gray-600">Total a pagar</span>
+          {/* Total y Botón de Pago */}
+          <div className="bg-slate-800/40 backdrop-blur-xl rounded-2xl shadow-2xl border border-slate-700/50 p-8 space-y-6">
+            <div className="flex justify-between items-center pb-6 border-b border-slate-700/50">
+              <span className="text-lg text-slate-400">Total a pagar</span>
               <div className="text-right">
-                <p className="text-3xl font-bold text-gray-900">
+                <p className="text-3xl font-bold text-white">
                   ${amount.toLocaleString("es-CO", { minimumFractionDigits: 0 })}
                 </p>
-                <p className="text-sm text-gray-500">COP</p>
+                <p className="text-sm text-slate-500">COP</p>
               </div>
             </div>
 
             {(!acceptanceTokens.termsAndConditions || !acceptanceTokens.personalDataAuth) && (
-              <div className="p-4 bg-amber-50 border border-amber-200 rounded-xl">
-                <p className="text-sm text-amber-800 text-center">
+              <div className="p-4 bg-amber-600/10 backdrop-blur-sm border border-amber-500/30 rounded-xl">
+                <p className="text-sm text-amber-300 text-center">
                   Debes aceptar los términos y condiciones para continuar
                 </p>
               </div>
@@ -751,7 +748,7 @@ export const WompiCardForm: React.FC<WompiCardFormProps> = ({
 
             <Button
               type="submit"
-              className="w-full h-14 text-lg font-semibold bg-gradient-to-r from-blue-500 to-cyan-500 hover:from-blue-600 hover:to-cyan-600 text-white rounded-xl shadow-lg hover:shadow-xl transition-all duration-300"
+              className="w-full h-14 text-lg font-semibold bg-gradient-to-r from-violet-600 via-violet-700 to-indigo-700 hover:from-violet-700 hover:via-violet-800 hover:to-indigo-800 text-white rounded-xl shadow-lg shadow-violet-500/30 hover:shadow-xl hover:shadow-violet-500/40 transition-all duration-300"
               disabled={
                 disabled ||
                 isProcessing ||
@@ -771,12 +768,12 @@ export const WompiCardForm: React.FC<WompiCardFormProps> = ({
             </Button>
 
             <div className="flex items-center justify-center gap-4 pt-4">
-              <div className="flex items-center gap-2 text-xs text-gray-500">
+              <div className="flex items-center gap-2 text-xs text-slate-400">
                 <Shield className="w-4 h-4" />
                 <span>Pago seguro</span>
               </div>
-              <div className="w-1 h-1 rounded-full bg-gray-300"></div>
-              <div className="flex items-center gap-2 text-xs text-gray-500">
+              <div className="w-1 h-1 rounded-full bg-slate-600"></div>
+              <div className="flex items-center gap-2 text-xs text-slate-400">
                 <Clock className="w-4 h-4" />
                 <span>Procesamiento instantáneo</span>
               </div>

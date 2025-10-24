@@ -4,6 +4,7 @@ import React, { useState, useEffect } from "react";
 import { Checkbox } from "@/components/ui/checkbox";
 
 
+
 import { ExternalLink, FileText, Shield, CheckCircle2, AlertCircle, Lock } from "lucide-react";
 import { ErrorsHandler } from "@/app/errors/errorsHandler";
 
@@ -113,15 +114,15 @@ export const WompiContractsAcceptance: React.FC<
 
   if (isLoading) {
     return (
-      <div className="bg-white/80 backdrop-blur-sm rounded-3xl shadow-xl border border-purple-100/50 overflow-hidden animate-in fade-in duration-500">
+      <div className="bg-slate-800/40 backdrop-blur-xl rounded-2xl shadow-2xl border border-slate-700/50 overflow-hidden animate-in fade-in duration-500">
         <div className="p-8">
           <div className="flex items-center justify-center py-12">
             <div className="text-center space-y-4">
               <div className="relative w-16 h-16 mx-auto">
-                <div className="absolute inset-0 border-4 border-purple-100 rounded-full"></div>
-                <div className="absolute inset-0 border-4 border-t-purple-500 rounded-full animate-spin"></div>
+                <div className="absolute inset-0 border-4 border-slate-700/50 rounded-full"></div>
+                <div className="absolute inset-0 border-4 border-t-violet-500 rounded-full animate-spin"></div>
               </div>
-              <p className="text-lg font-medium text-gray-700">Cargando términos y condiciones...</p>
+              <p className="text-lg font-medium text-white">Cargando términos y condiciones...</p>
             </div>
           </div>
         </div>
@@ -131,15 +132,15 @@ export const WompiContractsAcceptance: React.FC<
 
   if (!contractLinks) {
     return (
-      <div className="bg-white/80 backdrop-blur-sm rounded-3xl shadow-xl border border-red-100/50 overflow-hidden animate-in fade-in duration-500">
+      <div className="bg-slate-800/40 backdrop-blur-xl rounded-2xl shadow-2xl border border-red-500/30 overflow-hidden animate-in fade-in duration-500">
         <div className="p-8">
           <div className="text-center py-12 space-y-4">
-            <div className="w-16 h-16 mx-auto rounded-2xl bg-red-50 flex items-center justify-center">
-              <AlertCircle className="w-8 h-8 text-red-500" />
+            <div className="w-16 h-16 mx-auto rounded-2xl bg-red-600/10 flex items-center justify-center">
+              <AlertCircle className="w-8 h-8 text-red-400" />
             </div>
             <div>
-              <p className="text-lg font-medium text-gray-900 mb-2">No se pudieron cargar los términos</p>
-              <p className="text-sm text-gray-600">Intenta recargar la página</p>
+              <p className="text-lg font-medium text-white mb-2">No se pudieron cargar los términos</p>
+              <p className="text-sm text-slate-400">Intenta recargar la página</p>
             </div>
           </div>
         </div>
@@ -150,22 +151,22 @@ export const WompiContractsAcceptance: React.FC<
   const allAccepted = Object.values(acceptedContracts).every(Boolean);
 
   return (
-    <div className="bg-white/80 backdrop-blur-sm rounded-2xl shadow-xl border border-purple-100/50 overflow-hidden animate-in fade-in slide-in-from-bottom duration-700 max-w-full m-auto">
+    <div className="bg-slate-800/40 backdrop-blur-xl rounded-2xl shadow-2xl border border-slate-700/50 overflow-hidden animate-in fade-in slide-in-from-bottom duration-700 max-w-full m-auto">
       <div className="p-8 space-y-4">
-        <div className="flex items-center gap-4 pb-4 border-b border-gray-100">
-          <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-purple-500 to-blue-500 flex items-center justify-center shadow-lg">
+        <div className="flex items-center gap-4 pb-4 border-b border-slate-700/50">
+          <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-violet-600 via-violet-700 to-indigo-700 flex items-center justify-center shadow-lg shadow-violet-500/30">
             <Shield className="w-6 h-6 text-white" />
           </div>
           <div>
-            <h2 className="text-2xl font-bold text-gray-900">Términos y Condiciones</h2>
+            <h2 className="text-2xl font-bold text-white">Términos y Condiciones</h2>
           </div>
         </div>
 
         <div className="space-y-3">
           <div
             className={`group relative rounded-2xl border-2 transition-all duration-300 ${acceptedContracts.termsAndConditions
-              ? "border-blue-500 bg-gradient-to-br from-blue-50 to-cyan-50 shadow-lg"
-              : "border-gray-200 bg-gray-50 hover:border-blue-300 hover:bg-blue-50/30"
+              ? "border-violet-500 bg-gradient-to-br from-violet-50/10 to-indigo-50/10 shadow-lg"
+              : "border-slate-600/50 bg-slate-700/30 hover:border-violet-400 hover:bg-violet-50/5"
               }`}
             onMouseEnter={() => setHoveredContract("terms")}
             onMouseLeave={() => setHoveredContract(null)}
@@ -183,9 +184,9 @@ export const WompiContractsAcceptance: React.FC<
                       )
                     }
                     disabled={disabled}
-                    className={`w-6 h-6 rounded-lg transition-all ${acceptedContracts.termsAndConditions
-                      ? "bg-blue-600/85 border-blue-600/85"
-                      : ""
+                    className={`w-6 h-6 rounded-lg transition-all text-slate-300 ${acceptedContracts.termsAndConditions
+                      ? "bg-violet-600/85 border-violet-600/85 "
+                      : "border-2 border-slate-400/70"
                       }`}
                   />
                 </div>
@@ -193,12 +194,12 @@ export const WompiContractsAcceptance: React.FC<
                   <div>
                     <label
                       htmlFor="terms-conditions"
-                      className="block text-base font-medium text-gray-900 cursor-pointer leading-relaxed"
+                      className="block text-base font-medium text-white cursor-pointer leading-relaxed"
                     >
                       He leído y acepto los términos de uso
                     </label>
 
-                    <p className="text-sm text-gray-600">
+                    <p className="text-sm text-slate-400">
                       Términos y condiciones de uso de la plataforma de pagos
                     </p>
                   </div>
@@ -210,7 +211,7 @@ export const WompiContractsAcceptance: React.FC<
                         contractLinks.termsAndConditions.title
                       )
                     }
-                    className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-white border border-blue-200 hover:border-blue-400 hover:bg-blue-50 text-blue-700 font-medium text-sm transition-all duration-300 shadow-sm hover:shadow-md"
+                    className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-slate-700/50 border border-violet-500/30 hover:border-violet-400 hover:bg-violet-50/10 text-violet-300 font-medium text-sm transition-all duration-300 shadow-sm hover:shadow-md"
                     disabled={disabled}
                   >
                     <FileText className="w-4 h-4" />
@@ -222,7 +223,7 @@ export const WompiContractsAcceptance: React.FC<
             </div>
             {acceptedContracts.termsAndConditions && (
               <div className="absolute top-4 right-4">
-                <div className="w-8 h-8 rounded-full bg-blue-600/85 flex items-center justify-center shadow-lg animate-in zoom-in duration-300">
+                <div className="w-8 h-8 rounded-full bg-violet-600/85 flex items-center justify-center shadow-lg animate-in zoom-in duration-300">
                   <CheckCircle2 className="w-5 h-5 text-white" />
                 </div>
               </div>
@@ -231,8 +232,8 @@ export const WompiContractsAcceptance: React.FC<
 
           <div
             className={`group relative rounded-2xl border-2 transition-all duration-300 ${acceptedContracts.personalDataAuth
-              ? "border-blue-500 bg-gradient-to-br from-blue-50 to-cyan-50 shadow-lg"
-              : "border-gray-200 bg-gray-50 hover:border-blue-300 hover:bg-blue-50/30"
+              ? "border-violet-500 bg-gradient-to-br from-violet-50/10 to-indigo-50/10 shadow-lg"
+              : "border-slate-600/50 bg-slate-700/30 hover:border-violet-400 hover:bg-violet-50/5"
               }`}
             onMouseEnter={() => setHoveredContract("data")}
             onMouseLeave={() => setHoveredContract(null)}
@@ -247,9 +248,9 @@ export const WompiContractsAcceptance: React.FC<
                       handleContractAcceptance("personalDataAuth", checked as boolean)
                     }
                     disabled={disabled}
-                    className={`w-6 h-6 rounded-lg transition-all ${acceptedContracts.personalDataAuth
-                      ? "bg-blue-600/85 border-blue-600"
-                      : ""
+                    className={`w-6 h-6 rounded-lg transition-all text-slate-300  ${acceptedContracts.personalDataAuth
+                      ? "bg-violet-600/85 border-violet-600 "
+                      : "border-2 border-slate-400/70"
                       }`}
                   />
                 </div>
@@ -257,12 +258,12 @@ export const WompiContractsAcceptance: React.FC<
                   <div>
                     <label
                       htmlFor="personal-data-auth"
-                      className="block text-base font-medium text-gray-900 cursor-pointer leading-relaxed"
+                      className="block text-base font-medium text-white cursor-pointer leading-relaxed"
                     >
                       Autorizo el tratamiento de mis datos personales
                     </label>
 
-                    <p className="text-sm text-gray-600">
+                    <p className="text-sm text-slate-400">
                       Autorización para el manejo y administración de datos personales
                     </p>
                   </div>
@@ -276,7 +277,7 @@ export const WompiContractsAcceptance: React.FC<
                           contractLinks.personalDataAuth.title
                         )
                       }
-                      className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-white border border-blue-200 hover:border-blue-400 hover:bg-blue-50 text-blue-700 font-medium text-sm transition-all duration-300 shadow-sm hover:shadow-md"
+                      className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-slate-700/50 border border-violet-500/30 hover:border-violet-400 hover:bg-violet-50/10 text-violet-300 font-medium text-sm transition-all duration-300 shadow-sm hover:shadow-md"
                       disabled={disabled}
                     >
                       <Lock className="w-4 h-4" />
@@ -289,7 +290,7 @@ export const WompiContractsAcceptance: React.FC<
             </div>
             {acceptedContracts.personalDataAuth && (
               <div className="absolute top-4 right-4">
-                <div className="w-8 h-8 rounded-full bg-blue-600/85 flex items-center justify-center shadow-lg animate-in zoom-in duration-300">
+                <div className="w-8 h-8 rounded-full bg-violet-600/85 flex items-center justify-center shadow-lg animate-in zoom-in duration-300">
                   <CheckCircle2 className="w-5 h-5 text-white" />
                 </div>
               </div>
@@ -298,35 +299,23 @@ export const WompiContractsAcceptance: React.FC<
         </div>
 
         {
-          allAccepted ? "" : <div
-            className={`rounded-2xl p-4 transition-all duration-500
-               bg-gradient-to-br from-amber-50 to-orange-50 border-2 border-amber-200
-              }`}
-          >
-            <div className="flex items-start gap-4">
-              <div
-                className={`w-12 h-12 rounded-xl flex items-center justify-center flex-shrink-0 bg-amber-500
-                  }`}
-              >
-                {allAccepted ? (
-                  <CheckCircle2 className="w-6 h-6 text-white" />
-                ) : (
-                  <AlertCircle className="w-6 h-6 text-white" />
-                )}
-              </div>
-              <div className="flex-1">
-                <p className={`font-semibold text-lg  text-amber-900
-                  }`}>
-                  Debes aceptar todos los términos para continuar
-                </p>
-                <p className={`text-sm  text-amber-700
-                  }`}>
-
-                  Lee y acepta ambos documentos para habilitar el pago
-                </p>
+          !allAccepted && (
+            <div className="rounded-2xl p-4 transition-all duration-500 bg-gradient-to-br from-amber-600/10 to-orange-600/10 border-2 border-amber-500/30">
+              <div className="flex items-start gap-4">
+                <div className="w-12 h-12 rounded-xl flex items-center justify-center flex-shrink-0 bg-amber-500/20">
+                  <AlertCircle className="w-6 h-6 text-amber-400" />
+                </div>
+                <div className="flex-1">
+                  <p className="font-semibold text-lg text-amber-300">
+                    Debes aceptar todos los términos para continuar
+                  </p>
+                  <p className="text-sm text-amber-400">
+                    Lee y acepta ambos documentos para habilitar el pago
+                  </p>
+                </div>
               </div>
             </div>
-          </div>
+          )
         }
 
 

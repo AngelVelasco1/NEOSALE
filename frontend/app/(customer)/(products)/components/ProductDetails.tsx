@@ -1,99 +1,121 @@
-"use client"
-import { useCallback, useEffect, useState } from "react"
-import Image from "next/image"
-import { Button } from "@/components/ui/button"
-import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
-import { Badge } from "@/components/ui/badge"
-import { Skeleton } from "@/components/ui/skeleton"
-import { ShoppingCart, Truck, Shield, Star, Check, Heart, Share2, Sparkles, Lock, Zap, Package } from "lucide-react"
-import { useCart } from "../../(cart)/hooks/useCart"
-import { SetQuantity } from "../../../components/SetQuantity"
-import type { IProductDetails, CartProductsInfo } from "../../types"
-import { RiVisaLine, RiMastercardFill, RiPaypalFill, RiCashLine } from "react-icons/ri"
-import { ErrorsHandler } from "@/app/errors/errorsHandler"
-import { getProductVariantApi } from "../services/api"
+"use client";
+import { useCallback, useEffect, useState } from "react";
+import Image from "next/image";
+import { Button } from "@/components/ui/button";
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+import { Badge } from "@/components/ui/badge";
+import { Skeleton } from "@/components/ui/skeleton";
+import {
+  ShoppingCart,
+  Truck,
+  Shield,
+  Star,
+  Check,
+  Heart,
+  Share2,
+  Sparkles,
+  Lock,
+  Zap,
+  Package,
+} from "lucide-react";
+import { useCart } from "../../(cart)/hooks/useCart";
+import { SetQuantity } from "../../../components/SetQuantity";
+import type { IProductDetails, CartProductsInfo } from "../../types";
+import {
+  RiVisaLine,
+  RiMastercardLine,
+  RiBankFill,
+  RiWallet3Fill,
+} from "react-icons/ri";
+import { ErrorsHandler } from "@/app/errors/errorsHandler";
+import { getProductVariantApi } from "../services/api";
 
 export interface ProductDetailsProps {
-  data: IProductDetails
+  data: IProductDetails;
 }
 
 const paymentMethods = [
   { icon: <RiVisaLine />, name: "Visa" },
-  { icon: <RiMastercardFill />, name: "Mastercard" },
-  { icon: <RiPaypalFill />, name: "PayPal" },
-  { icon: <RiCashLine />, name: "Efectivo" },
-]
+  { icon: <RiMastercardLine />, name: "Mastercard" },
+  { icon: <RiBankFill />, name: "PSE" },
+  { icon: <RiWallet3Fill />, name: "Nequi" },
+];
 
 export const ProductDetails = ({ data }: ProductDetailsProps) => {
-  const [quantity, setQuantity] = useState(1)
-  const [selectedImage, setSelectedImage] = useState(0)
-  const [selectedColor, setSelectedColor] = useState("")
-  const [selectedSize, setSelectedSize] = useState("")
-  const [isAddingToCart, setIsAddingToCart] = useState(false)
-  const [variantStock, setVariantStock] = useState<number>(0)
-  const [isLoadingStock, setIsLoadingStock] = useState(false)
-  const [isSelectedVariant, setIsSelectedVariant] = useState(false)
-  const { addProductToCart } = useCart()
+  const [quantity, setQuantity] = useState(1);
+  const [selectedImage, setSelectedImage] = useState(0);
+  const [selectedColor, setSelectedColor] = useState("");
+  const [selectedSize, setSelectedSize] = useState("");
+  const [isAddingToCart, setIsAddingToCart] = useState(false);
+  const [variantStock, setVariantStock] = useState<number>(0);
+  const [isLoadingStock, setIsLoadingStock] = useState(false);
+  const [isSelectedVariant, setIsSelectedVariant] = useState(false);
+  const { addProductToCart } = useCart();
 
-  const images = Array.isArray(data.images) ? data.images : []
+  const images = Array.isArray(data.images) ? data.images : [];
 
   const fetchVariantStock = useCallback(
     async (id: number, color_code: string, size: string) => {
       if (!color_code || !size) {
-        setVariantStock(0)
-        setIsSelectedVariant(false)
-        return
+        setVariantStock(0);
+        setIsSelectedVariant(false);
+        return;
       }
 
       try {
-        setIsLoadingStock(true)
+        setIsLoadingStock(true);
         const variant = await getProductVariantApi({
           id,
           color_code,
           size,
-        })
-        const variantStock = variant.stock || 0
+        });
+        const variantStock = variant.stock || 0;
 
-        setVariantStock(variantStock)
-        setIsSelectedVariant(true)
+        setVariantStock(variantStock);
+        setIsSelectedVariant(true);
 
         if (quantity > variantStock) {
-          setQuantity(Math.max(1, Math.min(variantStock, quantity)))
+          setQuantity(Math.max(1, Math.min(variantStock, quantity)));
         }
-        setIsLoadingStock(false)
+        setIsLoadingStock(false);
       } catch (error) {
-        console.error("Error fetching variant stock:", error)
-        setVariantStock(0)
-        setIsSelectedVariant(false)
-        setIsLoadingStock(false)
+        console.error("Error fetching variant stock:", error);
+        setVariantStock(0);
+        setIsSelectedVariant(false);
+        setIsLoadingStock(false);
       }
     },
-    [quantity],
-  )
+    [quantity]
+  );
 
   useEffect(() => {
     if (selectedColor && selectedSize) {
-      fetchVariantStock(data.id, selectedColor, selectedSize)
+      fetchVariantStock(data.id, selectedColor, selectedSize);
     } else {
-      setVariantStock(0)
-      setIsSelectedVariant(false)
+      setVariantStock(0);
+      setIsSelectedVariant(false);
     }
-  }, [selectedColor, selectedSize, data.id, fetchVariantStock])
+  }, [selectedColor, selectedSize, data.id, fetchVariantStock]);
 
   const handleAddToCart = useCallback(async () => {
     if (variantStock === 0) {
-      ErrorsHandler.showError("Sin stock", "Esta variante no está disponible")
-      return
+      ErrorsHandler.showError("Sin stock", "Esta variante no está disponible");
+      return;
     }
     if (quantity > variantStock) {
-      ErrorsHandler.showError("Stock insuficiente", `Solo quedan ${variantStock} unidades`)
-      return
+      ErrorsHandler.showError(
+        "Stock insuficiente",
+        `Solo quedan ${variantStock} unidades`
+      );
+      return;
     }
 
-    setIsAddingToCart(true)
+    setIsAddingToCart(true);
 
     try {
-      const selectedImageData = images.find((img) => img.color_code === selectedColor)
+      const selectedImageData = images.find(
+        (img) => img.color_code === selectedColor
+      );
       const product: CartProductsInfo = {
         id: data.id,
         color: selectedImageData?.color || "",
@@ -108,33 +130,46 @@ export const ProductDetails = ({ data }: ProductDetailsProps) => {
         description: data.description,
         alt_text: data.name,
         category: data.category,
-      }
+      };
 
-      addProductToCart(product)
-      ErrorsHandler.showSuccess("Producto añadido al carrito", "Revísalo")
+      addProductToCart(product);
+      ErrorsHandler.showSuccess("Producto añadido al carrito", "Revísalo");
     } catch (error) {
-      ErrorsHandler.showError((error as Error).message, "No se pudo agregar el producto")
+      ErrorsHandler.showError(
+        (error as Error).message,
+        "No se pudo agregar el producto"
+      );
     } finally {
-      setIsAddingToCart(false)
+      setIsAddingToCart(false);
     }
-  }, [data, selectedColor, selectedSize, quantity, variantStock, addProductToCart, images])
+  }, [
+    data,
+    selectedColor,
+    selectedSize,
+    quantity,
+    variantStock,
+    addProductToCart,
+    images,
+  ]);
 
   const handleImageChange = (index: number, color: string) => {
-    setSelectedColor(color)
+    setSelectedColor(color);
 
-    const colorImageIndex = data.images.findIndex((img) => img.color_code === color)
-    setSelectedImage(colorImageIndex !== -1 ? colorImageIndex : index)
-  }
+    const colorImageIndex = data.images.findIndex(
+      (img) => img.color_code === color
+    );
+    setSelectedImage(colorImageIndex !== -1 ? colorImageIndex : index);
+  };
 
   useEffect(() => {
     if (images.length > 0) {
-      setSelectedColor(images[0].color_code || "")
+      setSelectedColor(images[0].color_code || "");
     }
-  }, [images])
+  }, [images]);
 
-  const isVariantInStock = variantStock > 0
-  const showStockInfo = isSelectedVariant || (selectedColor && selectedSize)
-  const discountPercentage = data.base_discount
+  const isVariantInStock = variantStock > 0;
+  const showStockInfo = isSelectedVariant || (selectedColor && selectedSize);
+  const discountPercentage = data.base_discount;
 
   return (
     <div className="min-h-screen">
@@ -145,18 +180,18 @@ export const ProductDetails = ({ data }: ProductDetailsProps) => {
       </div>
 
       <div className="container relative mx-auto px-4 sm:px-6 lg:px-8 py-8 md:py-16">
-        <div className="grid gap-8 lg:gap-12 xl:gap-16 lg:grid-cols-[1.1fr_0.9fr] max-w-[1600px] mx-auto">
+        <div className="grid gap-8 lg:gap-12 xl:gap-16 lg:grid-cols-[1fr_1fr] max-w-[1600px] mx-auto">
           {/* Image Gallery Section */}
-          <div className="flex flex-col space-y-5">
+          <div className="flex flex-col space-y-5 px-10">
             {/* Main Image */}
-            <div className="relative aspect-square bg-gradient-to-br from-slate-900 to-slate-800 rounded-[2rem] shadow-2xl overflow-hidden group border border-white/5 hover:border-white/10 transition-all duration-500">
+            <div className="relative aspect-square bg-gradient-to-br from-slate-900 to-slate-800 rounded-xl shadow-2xl overflow-hidden group border border-white/5 hover:border-white/10 transition-all duration-500">
               {images.length > 0 && images[selectedImage]?.image_url ? (
                 <>
                   <Image
                     src={images[selectedImage].image_url || "/placeholder.svg"}
                     alt={images[selectedImage].color || data.name}
                     fill
-                    className="object-contain p-8 transition-all duration-700 ease-out group-hover:scale-105 group-hover:rotate-1"
+                    className="object-fit  transition-all duration-700 ease-out group-hover:scale-105 group-hover:rotate-1"
                     priority
                   />
                   {/* Animated gradient overlay */}
@@ -168,7 +203,9 @@ export const ProductDetails = ({ data }: ProductDetailsProps) => {
                     <div className="w-24 h-24 bg-slate-800/80 rounded-3xl mx-auto mb-4 flex items-center justify-center backdrop-blur-xl border border-white/5">
                       <ShoppingCart className="w-12 h-12 text-slate-400" />
                     </div>
-                    <p className="text-sm font-medium text-slate-300">No hay imagen disponible</p>
+                    <p className="text-sm font-medium text-slate-300">
+                      No hay imagen disponible
+                    </p>
                   </div>
                 </div>
               )}
@@ -187,21 +224,22 @@ export const ProductDetails = ({ data }: ProductDetailsProps) => {
               {discountPercentage > 0 && (
                 <div className="absolute top-5 left-5 animate-bounce-slow">
                   <div className="bg-gradient-to-r from-rose-500 to-pink-500 text-white px-4 py-2 rounded-full text-sm font-bold shadow-2xl shadow-rose-500/50 backdrop-blur-xl border border-white/20 hover:scale-110 transition-transform duration-300">
-                    <span className="inline-block animate-pulse">🔥</span> -{discountPercentage}% OFF
+                    <span className="inline-block animate-pulse">🔥</span> -
+                    {discountPercentage}% OFF
                   </div>
                 </div>
               )}
             </div>
 
             {/* Thumbnails */}
-            <div className="flex gap-3 overflow-x-auto pb-2 scrollbar-hide px-1">
+            <div className="flex gap-3 overflow-x-auto pb-2 scrollbar-hide px-1 ">
               {images.length > 0 ? (
                 images.map((image, index: number) => (
                   <button
                     key={index}
                     onClick={() => handleImageChange(index, image.color_code)}
-                    className={`relative flex-shrink-0 aspect-square w-20 h-20 overflow-hidden rounded-2xl transition-all duration-300 ${selectedImage === index
-                      ? "ring-2 ring-blue-500 ring-offset-2 ring-offset-slate-950 scale-105 shadow-xl shadow-blue-500/30"
+                    className={`relative flex-shrink-0 aspect-square w-20 h-20 ml-2 mt-2 overflow-hidden rounded-2xl transition-all duration-300 ${selectedImage === index
+                      ? "ring-2 ring-blue-500 ring-offset-2 ring-offset-slate-950 scale-105 shadow-xl "
                       : "opacity-60 hover:opacity-100 border border-white/5 hover:border-white/20 hover:scale-105"
                       }`}
                   >
@@ -209,7 +247,7 @@ export const ProductDetails = ({ data }: ProductDetailsProps) => {
                       src={image.image_url || "/placeholder.svg"}
                       alt={`${data.name} thumbnail ${index + 1}`}
                       fill
-                      className="object-contain p-2"
+                      className="object-fit"
                     />
                     {selectedImage === index && (
                       <div className="absolute inset-0 bg-blue-500/10 rounded-2xl"></div>
@@ -219,7 +257,10 @@ export const ProductDetails = ({ data }: ProductDetailsProps) => {
               ) : (
                 <div className="flex gap-3">
                   {[...Array(4)].map((_, i) => (
-                    <Skeleton key={i} className="w-20 h-20 rounded-2xl bg-slate-800/50" />
+                    <Skeleton
+                      key={i}
+                      className="w-20 h-20 rounded-2xl bg-slate-800/50"
+                    />
                   ))}
                 </div>
               )}
@@ -232,7 +273,9 @@ export const ProductDetails = ({ data }: ProductDetailsProps) => {
                   <Truck className="w-5 h-5 text-emerald-400 mx-auto mb-2 group-hover:scale-110 transition-transform relative z-10" />
                   <div className="absolute inset-0 bg-emerald-400/20 blur-xl opacity-0 group-hover:opacity-100 transition-opacity"></div>
                 </div>
-                <p className="text-xs font-semibold text-slate-300 group-hover:text-emerald-300 transition-colors">Envío Gratis</p>
+                <p className="text-xs font-semibold text-slate-300 group-hover:text-emerald-300 transition-colors">
+                  Envío Gratis
+                </p>
                 <p className="text-[10px] text-slate-400 mt-0.5">+$100k</p>
               </div>
               <div className="bg-gradient-to-br from-slate-900/90 to-slate-800/90 backdrop-blur-xl rounded-2xl p-4 border border-white/5 text-center group hover:border-blue-500/50 hover:shadow-lg hover:shadow-blue-500/20 transition-all duration-300 hover:-translate-y-1">
@@ -240,7 +283,9 @@ export const ProductDetails = ({ data }: ProductDetailsProps) => {
                   <Shield className="w-5 h-5 text-blue-400 mx-auto mb-2 group-hover:scale-110 transition-transform relative z-10" />
                   <div className="absolute inset-0 bg-blue-400/20 blur-xl opacity-0 group-hover:opacity-100 transition-opacity"></div>
                 </div>
-                <p className="text-xs font-semibold text-slate-300 group-hover:text-blue-300 transition-colors">Compra Segura</p>
+                <p className="text-xs font-semibold text-slate-300 group-hover:text-blue-300 transition-colors">
+                  Compra Segura
+                </p>
                 <p className="text-[10px] text-slate-400 mt-0.5">Protegida</p>
               </div>
               <div className="bg-gradient-to-br from-slate-900/90 to-slate-800/90 backdrop-blur-xl rounded-2xl p-4 border border-white/5 text-center group hover:border-purple-500/50 hover:shadow-lg hover:shadow-purple-500/20 transition-all duration-300 hover:-translate-y-1">
@@ -248,7 +293,9 @@ export const ProductDetails = ({ data }: ProductDetailsProps) => {
                   <Package className="w-5 h-5 text-purple-400 mx-auto mb-2 group-hover:scale-110 transition-transform relative z-10" />
                   <div className="absolute inset-0 bg-purple-400/20 blur-xl opacity-0 group-hover:opacity-100 transition-opacity"></div>
                 </div>
-                <p className="text-xs font-semibold text-slate-300 group-hover:text-purple-300 transition-colors">Devolución</p>
+                <p className="text-xs font-semibold text-slate-300 group-hover:text-purple-300 transition-colors">
+                  Devolución
+                </p>
                 <p className="text-[10px] text-slate-400 mt-0.5">30 días</p>
               </div>
             </div>
@@ -266,10 +313,16 @@ export const ProductDetails = ({ data }: ProductDetailsProps) => {
                 <div className="flex items-center gap-2 bg-slate-900/90 backdrop-blur-xl px-3 py-1.5 rounded-full border border-white/10 hover:border-amber-500/40 hover:shadow-lg hover:shadow-amber-500/30 transition-all duration-300 cursor-default group">
                   <div className="flex items-center gap-0.5">
                     {[...Array(5)].map((_, i) => (
-                      <Star key={i} className="w-3.5 h-3.5 fill-amber-400 text-amber-400 group-hover:scale-110 transition-transform" style={{ transitionDelay: `${i * 50}ms` }} />
+                      <Star
+                        key={i}
+                        className="w-3.5 h-3.5 fill-amber-400 text-amber-400 group-hover:scale-110 transition-transform"
+                        style={{ transitionDelay: `${i * 50}ms` }}
+                      />
                     ))}
                   </div>
-                  <span className="text-xs font-bold text-slate-200 ml-1 group-hover:text-amber-300 transition-colors">4.8</span>
+                  <span className="text-xs font-bold text-slate-200 ml-1 group-hover:text-amber-300 transition-colors">
+                    4.8
+                  </span>
                 </div>
               </div>
 
@@ -277,7 +330,9 @@ export const ProductDetails = ({ data }: ProductDetailsProps) => {
                 {data.name}
               </h1>
 
-              <p className="text-slate-300 leading-relaxed text-base lg:text-lg">{data.description}</p>
+              <p className="text-slate-300 leading-relaxed text-base lg:text-lg">
+                {data.description}
+              </p>
             </div>
 
             {/* Price Section - Prominent and clean */}
@@ -285,7 +340,10 @@ export const ProductDetails = ({ data }: ProductDetailsProps) => {
               <div className="absolute inset-0 bg-gradient-to-r from-blue-500/5 via-purple-500/5 to-pink-500/5 opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
               <div className="relative flex items-baseline gap-3">
                 <span className="text-5xl lg:text-6xl font-black bg-gradient-to-r from-white via-slate-100 to-white bg-clip-text text-transparent tracking-tight group-hover:scale-105 group-hover:from-yellow-300 group-hover:via-orange-300 group-hover:to-red-300 transition-all duration-300 inline-block">
-                  ${Math.round(data.price - data.price * (discountPercentage / 100)).toLocaleString()}
+                  $
+                  {Math.round(
+                    data.price - data.price * (discountPercentage / 100)
+                  ).toLocaleString()}
                 </span>
                 {discountPercentage > 0 && (
                   <span className="text-2xl text-slate-400 line-through font-semibold group-hover:text-slate-500 transition-colors">
@@ -336,7 +394,9 @@ export const ProductDetails = ({ data }: ProductDetailsProps) => {
             {data?.sizes && (
               <div className="space-y-3.5">
                 <div className="flex items-center justify-between">
-                  <label className="text-sm font-bold text-white uppercase tracking-wide">Tamaño</label>
+                  <label className="text-sm font-bold text-white uppercase tracking-wide">
+                    Tamaño
+                  </label>
                   {selectedSize && (
                     <span className="text-xs text-slate-200 font-medium">
                       Talla {selectedSize}
@@ -372,17 +432,25 @@ export const ProductDetails = ({ data }: ProductDetailsProps) => {
             {/* Color Selection - Clean and visual */}
             <div className="space-y-3.5">
               <div className="flex items-center justify-between">
-                <label className="text-sm font-bold text-white uppercase tracking-wide">Color</label>
+                <label className="text-sm font-bold text-white uppercase tracking-wide">
+                  Color
+                </label>
                 {selectedColor && (
                   <span className="text-xs text-slate-200 font-medium">
-                    {images.find((img) => img.color_code === selectedColor)?.color}
+                    {
+                      images.find((img) => img.color_code === selectedColor)
+                        ?.color
+                    }
                   </span>
                 )}
               </div>
               <div className="flex flex-wrap gap-3">
                 {images
                   .map((img) => img.color_code)
-                  .filter((value: string, index: number, self: Array<string>) => value && self.indexOf(value) === index)
+                  .filter(
+                    (value: string, index: number, self: Array<string>) =>
+                      value && self.indexOf(value) === index
+                  )
                   .map((colorCode: string) => (
                     <button
                       key={colorCode}
@@ -410,8 +478,14 @@ export const ProductDetails = ({ data }: ProductDetailsProps) => {
                 <div className="flex-shrink-0">
                   <SetQuantity
                     cartProduct={{ quantity }}
-                    handleDecrease={() => setQuantity((prev) => Math.max(1, prev - 1))}
-                    handleIncrease={() => setQuantity((prev) => Math.min(variantStock || 99, prev + 1))}
+                    handleDecrease={() =>
+                      setQuantity((prev) => Math.max(1, prev - 1))
+                    }
+                    handleIncrease={() =>
+                      setQuantity((prev) =>
+                        Math.min(variantStock || 99, prev + 1)
+                      )
+                    }
                   />
                 </div>
 
@@ -460,7 +534,9 @@ export const ProductDetails = ({ data }: ProductDetailsProps) => {
             <div className="bg-gradient-to-br from-slate-900/90 to-slate-800/90 backdrop-blur-xl rounded-3xl p-6 border border-white/10 mt-auto">
               <div className="flex items-center gap-3 mb-5">
                 <Lock className="w-4.5 h-4.5 text-slate-300" />
-                <p className="font-semibold text-slate-200 text-sm">Métodos de pago seguros</p>
+                <p className="font-semibold text-slate-200 text-sm">
+                  Métodos de pago seguros
+                </p>
               </div>
 
               <div className="grid grid-cols-4 gap-3">
@@ -472,7 +548,9 @@ export const ProductDetails = ({ data }: ProductDetailsProps) => {
                     <div className="text-2xl text-slate-300 mb-1.5">
                       <div className="flex justify-center">{method.icon}</div>
                     </div>
-                    <p className="text-[10px] text-slate-400 font-medium">{method.name}</p>
+                    <p className="text-[10px] text-slate-400 font-medium">
+                      {method.name}
+                    </p>
                   </div>
                 ))}
               </div>
@@ -481,5 +559,7 @@ export const ProductDetails = ({ data }: ProductDetailsProps) => {
         </div>
       </div>
     </div>
-  )
-}
+  );
+};
+
+

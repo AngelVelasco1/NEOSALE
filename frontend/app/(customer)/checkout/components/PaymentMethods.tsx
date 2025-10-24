@@ -3,7 +3,7 @@
 import React, { useState } from "react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
-import { CreditCard, Wallet2Icon, Building, ShieldCheck } from 'lucide-react';
+import { CreditCard, Wallet, Building, ShieldCheck } from 'lucide-react';
 import { motion, AnimatePresence } from "framer-motion";
 import WompiContractsAcceptance from "./WompiContractsAcceptance";
 import WompiCardForm from "./CardForm";
@@ -57,7 +57,7 @@ export const PaymentMethods = ({
       id: "nequi" as PaymentMethod,
       name: "Nequi",
       description: "Paga de forma segura con Nequi",
-      icon: Wallet2Icon,
+      icon: Wallet,
       available: true,
       comingSoon: false,
     }
@@ -73,7 +73,6 @@ export const PaymentMethods = ({
   ) => {
     setContractsAccepted(allAccepted);
     setAcceptanceTokens(tokens);
-
   };
 
   const renderPaymentForm = () => {
@@ -136,7 +135,6 @@ export const PaymentMethods = ({
                 }}
                 className="relative w-24 h-24 mx-auto mb-6"
               >
-                {/* Animated rings */}
                 <motion.div
                   animate={{
                     scale: [1, 1.2, 1],
@@ -147,9 +145,9 @@ export const PaymentMethods = ({
                     repeat: Infinity,
                     ease: "easeInOut"
                   }}
-                  className="absolute inset-0 rounded-2xl bg-gradient-to-br from-blue-500 to-purple-600 blur-xl"
+                  className="absolute inset-0 rounded-2xl bg-gradient-to-br from-violet-600 to-indigo-700 blur-xl"
                 />
-                <div className="relative w-full h-full rounded-2xl bg-gradient-to-br from-blue-500 via-purple-500 to-purple-600 flex items-center justify-center shadow-2xl shadow-purple-500/40">
+                <div className="relative w-full h-full rounded-2xl bg-gradient-to-br from-violet-600 via-indigo-600 to-violet-700 flex items-center justify-center shadow-2xl shadow-violet-500/40">
                   {paymentMethods.find((m) => m.id === selectedPaymentMethod)
                     ?.icon &&
                     React.createElement(
@@ -165,7 +163,7 @@ export const PaymentMethods = ({
                 initial={{ opacity: 0, y: 10 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.3 }}
-                className="text-2xl font-bold mb-3 bg-gradient-to-r from-blue-600 via-purple-600 to-blue-600 bg-clip-text text-transparent"
+                className="text-2xl font-bold mb-3 text-white"
               >
                 {
                   paymentMethods.find((m) => m.id === selectedPaymentMethod)
@@ -177,7 +175,7 @@ export const PaymentMethods = ({
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 transition={{ delay: 0.4 }}
-                className="text-muted-foreground/80 mb-6"
+                className="text-slate-400 mb-6"
               >
                 Este método de pago estará disponible próximamente.
               </motion.p>
@@ -189,7 +187,7 @@ export const PaymentMethods = ({
               >
                 <Badge
                   variant="secondary"
-                  className="px-4 py-1.5 bg-gradient-to-r from-blue-500/10 to-purple-500/10 ring-1 ring-purple-500/20 text-purple-600 dark:text-purple-400 font-medium shadow-sm"
+                  className="px-4 py-1.5 bg-violet-600/20 backdrop-blur-sm border border-violet-500/30 text-violet-300 font-medium shadow-sm"
                 >
                   Próximamente disponible
                 </Badge>
@@ -205,16 +203,18 @@ export const PaymentMethods = ({
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.6, ease: "easeOut" }}
-      className="relative space-y-8 p-8 rounded-3xl bg-gradient-to-br from-card via-card to-card/50 shadow-xl shadow-blue-500/10 ring-1 ring-purple-500/10 backdrop-blur-sm  border-none"
+      className="relative space-y-8 p-8 rounded-3xl bg-slate-800/40 backdrop-blur-xl shadow-2xl border border-slate-700/50"
     >
-      {/* Decorative top border gradient */}
-      <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-transparent via-blue-500 to-transparent rounded-t-3xl" />
+      {/* Top animated border */}
+      <div className="absolute top-0 left-0 right-0 h-[1px] bg-gradient-to-r from-transparent via-violet-500/50 to-transparent rounded-t-3xl">
+        <motion.div
+          animate={{ x: ['-100%', '100%'] }}
+          transition={{ duration: 3, repeat: Infinity, ease: "linear" }}
+          className="h-full w-1/3 bg-gradient-to-r from-transparent via-violet-400 to-transparent blur-sm"
+        />
+      </div>
 
-      {/* Decorative corner accents */}
-      <div className="absolute top-4 right-4 w-20 h-20 bg-gradient-to-br from-blue-500/10 to-purple-500/10 rounded-full blur-2xl" />
-      <div className="absolute bottom-4 left-4 w-16 h-16 bg-gradient-to-tr from-purple-500/10 to-blue-500/10 rounded-full blur-2xl" />
-
-      {/* Header Section with Enhanced Design */}
+      {/* Header Section */}
       <motion.div
         initial={{ opacity: 0, y: -20 }}
         animate={{ opacity: 1, y: 0 }}
@@ -233,42 +233,33 @@ export const PaymentMethods = ({
                   damping: 20,
                   delay: 0.2
                 }}
-                className="p-3 rounded-2xl bg-gradient-to-br from-blue-500 to-indigo-600 shadow-lg shadow-blue-500/30 ring-2 ring-blue-400/20"
+                className="p-3 rounded-2xl bg-gradient-to-br from-violet-600 via-violet-700 to-indigo-700 shadow-lg shadow-violet-500/30"
               >
                 <ShieldCheck className="w-6 h-6 text-white" />
               </motion.div>
               <div>
-                <h2 className="text-3xl font-bold bg-gradient-to-r from-blue-600/90 via-indigo-600 to-blue-600/90 bg-clip-text text-transparent">
+                <h2 className="text-3xl font-bold text-white">
                   Método de pago
                 </h2>
-                <p className="text-md text-muted-foreground/70 mt-1">
+                <p className="text-sm text-slate-400 mt-1">
                   Transacciones seguras y protegidas
                 </p>
               </div>
             </div>
-
-
           </div>
         </div>
 
-        {/* Enhanced decorative gradient line */}
+        {/* Decorative gradient line */}
         <motion.div
           initial={{ scaleX: 0, opacity: 0 }}
           animate={{ scaleX: 1, opacity: 1 }}
           transition={{ duration: 0.8, delay: 0.3, ease: "easeOut" }}
-          className="relative h-1 w-full max-w-md rounded-full overflow-hidden"
+          className="relative h-[2px] w-full max-w-md rounded-full overflow-hidden bg-slate-700/50"
         >
-          <div className="absolute inset-0 bg-gradient-to-r from-blue-500 via-indigo-500 to-purple-500" />
           <motion.div
-            animate={{
-              x: ['-100%', '100%'],
-            }}
-            transition={{
-              duration: 2,
-              repeat: Infinity,
-              ease: "linear"
-            }}
-            className="absolute inset-0 bg-gradient-to-r from-transparent via-white/30 to-transparent"
+            animate={{ x: ['-100%', '100%'] }}
+            transition={{ duration: 2, repeat: Infinity, ease: "linear" }}
+            className="absolute inset-0 bg-gradient-to-r from-transparent via-violet-500 to-transparent"
           />
         </motion.div>
       </motion.div>
@@ -279,7 +270,7 @@ export const PaymentMethods = ({
           setSelectedPaymentMethod(value as PaymentMethod)
         }
       >
-        <TabsList className="grid w-full p-4 grid-cols-2 lg:grid-cols-3 gap-6 h-auto bg-transparent">
+        <TabsList className="grid w-full p-1 grid-cols-2 lg:grid-cols-3 gap-3 h-auto  rounded-2xl border-none">
           {paymentMethods.map((method, index) => {
             const IconComponent = method.icon;
             const isSelected = selectedPaymentMethod === method.id;
@@ -291,7 +282,7 @@ export const PaymentMethods = ({
                 value={method.id}
                 disabled={isDisabled}
                 asChild
-                className="rounded-2xl"
+                className="rounded-xl"
               >
                 <motion.button
                   initial={{ opacity: 0, y: 20 }}
@@ -304,23 +295,23 @@ export const PaymentMethods = ({
                   whileHover={
                     !isDisabled
                       ? {
-                        y: -3,
-                        scale: 1.02,
+                        y: -2,
+                        scale: 1.01,
                         transition: { duration: 0.3, ease: "easeOut" },
                       }
                       : {}
                   }
                   whileTap={
                     !isDisabled
-                      ? { scale: 0.97, transition: { duration: 0.15 } }
+                      ? { scale: 0.98, transition: { duration: 0.15 } }
                       : {}
                   }
                   className={`
-                    relative flex flex-col items-center justify-center py-3 h-auto 
+                    relative flex flex-col items-center justify-center p-4 py-3 h-auto 
                     transition-all duration-300 ease-out overflow-hidden
                     ${isSelected
-                      ? "bg-gradient-to-br from-blue-500/25 via-blue-500/35 to-indigo-600/35 shadow-xl shadow-indigo-500/30 ring-2 ring-indigo-500/50"
-                      : "bg-gradient-to-br from-card/80 to-card/40 hover:from-blue-500/5 hover:to-purple-500/5 hover:shadow-xl hover:shadow-purple-500/15 hover:ring-2 hover:ring-purple-400/30"
+                      ? "bg-gradient-to-br from-violet-600/30 via-violet-700/30 to-indigo-700/30 shadow-lg shadow-violet-500/20 border border-violet-500/50"
+                      : "bg-slate-700/30 hover:bg-slate-700/50 hover:shadow-lg hover:border-slate-600/70 border border-slate-600/50"
                     }
                     ${isDisabled
                       ? "opacity-40 cursor-not-allowed"
@@ -336,7 +327,7 @@ export const PaymentMethods = ({
                         initial={{ opacity: 0 }}
                         animate={{ opacity: 1 }}
                         exit={{ opacity: 0 }}
-                        className="absolute inset-0 bg-gradient-to-br from-blue-500/8 via-indigo-500/8 to-indigo-600/8"
+                        className="absolute inset-0 bg-gradient-to-br from-violet-600/10 via-indigo-600/10 to-violet-700/10"
                         transition={{
                           type: "spring",
                           stiffness: 400,
@@ -346,54 +337,30 @@ export const PaymentMethods = ({
                     )}
                   </AnimatePresence>
 
-                  {/* Shimmer effect on hover */}
-                  {!isDisabled && (
-                    <motion.div
-                      className="absolute inset-0 opacity-0 hover:opacity-100 transition-opacity duration-500"
-                      style={{
-                        background: 'linear-gradient(90deg, transparent, rgba(147, 51, 234, 0.1), transparent)',
-                      }}
-                      animate={{
-                        x: ['-100%', '100%'],
-                      }}
-                      transition={{
-                        duration: 2,
-                        repeat: Infinity,
-                        repeatDelay: 1,
-                      }}
-                    />
-                  )}
-
                   {/* Icon with gradient background */}
                   <motion.div
                     animate={
                       isSelected
-                        ? {
-                          scale: [1, 1.10, 1],
-                        }
-                        : { scale: 1, rotate: 0 }
+                        ? { scale: [1, 1.08, 1] }
+                        : { scale: 1 }
                     }
                     transition={{
                       duration: 0.6,
                       ease: "easeInOut"
                     }}
-                    className="relative mb-2 z-10 px-10"
+                    className="relative mb-2 z-10"
                   >
                     <div className={`
-                      p-3.5 rounded-2xl transition-all duration-300 relative
+                      p-3 rounded-xl transition-all duration-300 relative
                       ${isSelected
-                        ? "bg-gradient-to-br from-blue-500 via-blue-500 to-indigo-600 shadow-xl shadow-indigo-500/40"
-                        : "bg-muted/80"
+                        ? "bg-gradient-to-br from-violet-600 via-indigo-700 to-purple-700 "
+                        : "bg-slate-700/50"
                       }
                     `}>
-                      {/* Icon glow effect */}
                       {isSelected && (
                         <motion.div
-                          className="absolute inset-0 rounded-xl bg-gradient-to-br from-blue-400 to-indigo-500 blur-md opacity-50"
-                          animate={{
-                            scale: [1, 1.2, 1],
-                            opacity: [0.5, 0.7, 0.5],
-                          }}
+                          className="absolute inset-0 rounded-xl bg-gradient-to-br from-violet-500 to-indigo-600 blur-md opacity-50"
+
                           transition={{
                             duration: 2,
                             repeat: Infinity,
@@ -403,8 +370,8 @@ export const PaymentMethods = ({
                       )}
                       <IconComponent
                         className={`w-6 h-6 transition-all duration-300 relative z-10 ${isSelected
-                          ? "text-white drop-shadow-lg"
-                          : "text-muted-foreground"
+                          ? "text-slate-200 drop-shadow-lg"
+                          : "text-slate-400"
                           }`}
                       />
                     </div>
@@ -414,13 +381,13 @@ export const PaymentMethods = ({
                   <motion.span
                     animate={
                       isSelected
-                        ? { scale: [1, 1.05, 1] }
+                        ? { scale: [1, 1.03, 1] }
                         : { scale: 1 }
                     }
                     transition={{ duration: 0.3 }}
                     className={`text-sm font-semibold text-center leading-tight transition-all duration-300 relative z-10 ${isSelected
-                      ? "bg-gradient-to-r from-white via-white to-slate-100 bg-clip-text text-transparent"
-                      : "text-foreground"
+                      ? "text-white"
+                      : "text-slate-300"
                       }`}
                   >
                     {method.name}
@@ -434,11 +401,11 @@ export const PaymentMethods = ({
                         animate={{ opacity: 1, scale: 1, y: 0 }}
                         exit={{ opacity: 0, scale: 0.8 }}
                         transition={{ delay: 0.2, duration: 0.3 }}
-                        className="relative z-10 mt-2.5"
+                        className="relative z-10 mt-2"
                       >
                         <Badge
                           variant="secondary"
-                          className="text-[10px] px-2.5 py-0.5 bg-gradient-to-r from-blue-500/10 to-purple-500/10 ring-1 ring-purple-500/20 text-purple-600 dark:text-purple-400 font-medium shadow-sm"
+                          className="text-[10px] px-2.5 py-0.5 bg-violet-600/20 backdrop-blur-sm border border-violet-500/30 text-violet-300 font-medium shadow-sm"
                         >
                           Próximamente
                         </Badge>
@@ -454,7 +421,7 @@ export const PaymentMethods = ({
                         initial={{ opacity: 0, scale: 0.9 }}
                         animate={{ opacity: 1, scale: 1 }}
                         exit={{ opacity: 0, scale: 0.9 }}
-                        className="absolute -inset-1 rounded-3xl bg-gradient-to-br from-blue-500/30 via-indigo-500/30 to-indigo-600/30 pointer-events-none blur-xl"
+                        className="absolute -inset-0.5 rounded-xl bg-gradient-to-br from-violet-600/30 via-indigo-600/30 to-violet-700/30 pointer-events-none blur-lg"
                         transition={{
                           type: "spring",
                           stiffness: 400,
@@ -480,23 +447,10 @@ export const PaymentMethods = ({
           >
             {paymentMethods.map((method) => (
               <TabsContent key={method.id} value={method.id} className="mt-0">
-                {/* Method Header Card */}
-                <motion.div
-                  initial={{ opacity: 0, y: 10 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.4 }}
-                  className="mb-6 p-6 rounded-3xl bg-gradient-to-br from-blue-500/8 via-purple-500/8 to-transparent backdrop-blur-sm shadow-lg shadow-purple-500/5 ring-1 ring-purple-500/10"
-                >
-                  <div className="flex items-center gap-3 mb-2">
-
-                    <h3 className="font-bold text-xl bg-gradient-to-r from-blue-600 via-indigo-600 to-blue-600 bg-clip-text text-transparent">
-                      {method.name}
-                    </h3>
-                  </div>
-                  <p className="text-sm text-muted-foreground/80 ml-1">
-                    {method.description}
-                  </p>
-                </motion.div>
+                <div className="mb-2 mt-10 text-center space-y-2">
+                  <h1 className="text-3xl font-bold text-white">Información de Pago</h1>
+                  <p className="text-slate-400">Completa los datos de forma segura</p>
+                </div>
 
                 {/* Payment Form */}
                 <motion.div

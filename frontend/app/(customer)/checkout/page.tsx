@@ -349,7 +349,7 @@ export default function CheckoutPage() {
             repeat: Infinity,
             ease: "linear"
           }}
-          className="absolute -top-1/2 -left-1/2 w-full h-full bg-gradient-to-br from-indigo-500/10 to-purple-500/10 rounded-full blur-3xl"
+          className="absolute -top-1/2 -left-1/2 w-full h-full bg-gradient-to-br from-indigo-500/10 to-blue-500/10 rounded-full blur-3xl"
         />
         <motion.div
           animate={{
@@ -533,8 +533,31 @@ export default function CheckoutPage() {
 
         </motion.div>
 
+        {/* Navigation buttons */}
+        {
+          currentStep === 1 ? (
+            ""
+          ) :
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.2 }}
+              className="mt-12 mb-6 flex justify-between"
+            >
+              <Button
+                variant="outline"
+                onClick={handlePreviousStep}
+                disabled={isProcessingOrder}
+                className="bg-gradient-to-br from-slate-800 to-slate-900 text-slate-100 border-slate-700/50 hover:border-slate-600 px-6 py-6 rounded-2xl text-sm font-semibold shadow-lg hover:shadow-slate-700/50 transition-all"
+              >
+                <ArrowLeft className="w-4 h-4 mr-2" />
+                Volver
+              </Button>
+            </motion.div>
+        }
         {/* Main content */}
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+
           {/* Left column - Step Content */}
           <div className="lg:col-span-2">
             <AnimatePresence mode="wait">
@@ -602,23 +625,7 @@ export default function CheckoutPage() {
                     userId={userProfile?.id ?? 0}
                   />
 
-                  {/* Navigation buttons */}
-                  <motion.div
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: 0.2 }}
-                    className="mt-8 flex justify-between"
-                  >
-                    <Button
-                      variant="outline"
-                      onClick={handlePreviousStep}
-                      disabled={isProcessingOrder}
-                      className="bg-gradient-to-br from-slate-800 to-slate-900 text-slate-100 border-slate-700/50 hover:border-slate-600 px-6 py-6 rounded-2xl text-sm font-semibold shadow-lg hover:shadow-slate-700/50 transition-all"
-                    >
-                      <ArrowLeft className="w-4 h-4 mr-2" />
-                      Volver
-                    </Button>
-                  </motion.div>
+
                 </motion.div>
               )}
 

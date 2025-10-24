@@ -42,11 +42,10 @@ export const Banner = () => {
       <div className="relative z-10 flex min-h-screen items-center justify-center  pt-36 pb-18 my-auto">
         <div className="text-center space-y-12 max-w-6xl mx-auto">
           <div
-            className={`space-y-6 transition-all duration-1000 delay-300 ${
-              isLoaded ? "opacity-100 scale-100" : "opacity-0 scale-95"
-            }`}
+            className={`space-y-6 transition-all duration-1000 delay-300 ${isLoaded ? "opacity-100 scale-100" : "opacity-0 scale-95"
+              }`}
           >
-            <h1 className="text-6xl md:text-7xl lg:text-8xl xl:text-[9rem] font-black tracking-tight leading-none">
+            <h1 className="text-7xl sm:text-8xl md:text-8xl lg:text-9xl xl:text-[9rem] font-black tracking-tight leading-none">
               <span className="relative inline-block">
                 <span className="bg-gradient-to-r from-blue-500 via-purple-500 to-indigo-600 bg-clip-text text-transparent bg-[length:200%_auto] animate-gradient-flow">
                   NEO
@@ -74,11 +73,10 @@ export const Banner = () => {
 
           {/* Botones CTA */}
           <div
-            className={`space-y-8 pt-4 transition-all duration-1000 delay-500 ${
-              isLoaded
-                ? "opacity-100 translate-y-0"
-                : "opacity-0 translate-y-10"
-            }`}
+            className={`space-y-8 pt-4 transition-all duration-1000 delay-500 ${isLoaded
+              ? "opacity-100 translate-y-0"
+              : "opacity-0 translate-y-10"
+              }`}
           >
             <div className="flex flex-col sm:flex-row items-center justify-center gap-6">
               <Button
@@ -104,7 +102,7 @@ export const Banner = () => {
               </Button>
             </div>
 
-            <div className="flex items-center justify-center gap-16 pt-10">
+            <div className="flex flex-col items-center md:flex-row justify-center gap-4 md:gap-16 pt-10">
               <div className="text-center animate-fade-in-up animate-stat-bounce">
                 <div className="text-4xl font-bold bg-gradient-to-r from-blue-400 to-cyan-400 bg-clip-text text-transparent">
                   10K+
@@ -142,9 +140,8 @@ export const Banner = () => {
 
           {/* Indicador de scroll */}
           <div
-            className={`pt-4 transition-all duration-1000 delay-700 ${
-              isLoaded ? "opacity-100" : "opacity-0"
-            }`}
+            className={`pt-4 transition-all duration-1000 delay-700 ${isLoaded ? "opacity-100" : "opacity-0"
+              }`}
           >
             <div className="flex flex-col items-center gap-4 animate-float-gentle">
               <div className="text-slate-400 text-sm font-medium">

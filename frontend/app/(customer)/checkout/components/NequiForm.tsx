@@ -142,31 +142,31 @@ export default function NequiForm({
     };
 
     return (
-        <div className="mx-auto p-1">
-            <Card className="border-green-200/50 dark:border-green-800/50 shadow-xl shadow-green-500/10">
-                <CardContent className="p-7 space-y-7">
+        <div className="max-w-3xl mx-auto p-3 min-h-screen">
+            <Card className="bg-slate-800/40 backdrop-blur-xl rounded-2xl shadow-2xl border border-slate-700/50">
+                <CardContent className="p-8 space-y-7">
                     {error && (
-                        <Alert variant="destructive" className="border-red-200 dark:border-red-800 bg-red-50 dark:bg-red-950/30 rounded-xl">
-                            <AlertCircle className="h-4 w-4" />
-                            <AlertDescription className="text-sm">{error}</AlertDescription>
+                        <Alert variant="destructive" className="border-red-500/30 bg-red-600/10 backdrop-blur-sm rounded-xl">
+                            <AlertCircle className="h-4 w-4 text-red-400" />
+                            <AlertDescription className="text-sm text-red-300">{error}</AlertDescription>
                         </Alert>
                     )}
 
                     <form onSubmit={handleSubmit} className="space-y-7">
                         {/* Phone Number Section */}
                         <div className="space-y-4">
-                            <div className="flex items-center gap-3 pb-3 border-b border-green-100 dark:border-green-900">
-                                <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-green-500 to-emerald-600 flex items-center justify-center shadow-md">
+                            <div className="flex items-center gap-3 pb-3 border-b border-slate-700/50">
+                                <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-violet-600 via-purple-700 to-indigo-700 flex items-center justify-center shadow-lg shadow-violet-500/30">
                                     <Smartphone className="w-5 h-5 text-white" />
                                 </div>
-                                <h3 className="text-lg font-bold text-slate-900 dark:text-slate-100">
+                                <h3 className="text-lg font-bold text-white">
                                     Información de Nequi
                                 </h3>
                             </div>
 
                             <div className="space-y-4">
                                 <div className="space-y-2">
-                                    <Label htmlFor="phone" className="text-sm font-semibold text-slate-700 dark:text-slate-300">
+                                    <Label htmlFor="phone" className="text-sm font-semibold text-slate-300">
                                         Número de teléfono Nequi
                                     </Label>
                                     <Input
@@ -178,9 +178,9 @@ export default function NequiForm({
                                         onFocus={() => setFocusedField("phone")}
                                         onBlur={() => setFocusedField(null)}
                                         disabled={loading}
-                                        className="h-11 bg-slate-50 dark:bg-slate-800/50 border-slate-200 dark:border-slate-700 rounded-xl focus:border-green-500 dark:focus:border-green-600 focus:ring-2 focus:ring-green-500/20"
+                                        className="h-11 bg-slate-700/30 border-slate-600/50 rounded-xl focus:border-violet-500 focus:ring-2 focus:ring-violet-500/20 text-white placeholder:text-slate-500"
                                     />
-                                    <p className="text-xs text-slate-500 dark:text-slate-400 flex items-center gap-1">
+                                    <p className="text-xs text-slate-400 flex items-center gap-1">
                                         <Phone className="w-3 h-3" />
                                         Número colombiano de 10 dígitos registrado en Nequi
                                     </p>
@@ -190,18 +190,18 @@ export default function NequiForm({
 
                         {/* Contact Information Section */}
                         <div className="space-y-4">
-                            <div className="flex items-center gap-3 pb-3 border-b border-green-100 dark:border-green-900">
-                                <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center shadow-md">
+                            <div className="flex items-center gap-3 pb-3 border-b border-slate-700/50">
+                                <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-violet-600 via-purple-700 to-indigo-700 flex items-center justify-center shadow-lg shadow-violet-500/30">
                                     <Mail className="w-5 h-5 text-white" />
                                 </div>
-                                <h3 className="text-lg font-bold text-slate-900 dark:text-slate-100">
+                                <h3 className="text-lg font-bold text-white">
                                     Información de Contacto
                                 </h3>
                             </div>
 
                             <div className="space-y-4">
                                 <div className="space-y-2">
-                                    <Label htmlFor="fullName" className="text-sm font-semibold text-slate-700 dark:text-slate-300">
+                                    <Label htmlFor="fullName" className="text-sm font-semibold text-slate-300">
                                         Nombre Completo
                                     </Label>
                                     <Input
@@ -213,12 +213,12 @@ export default function NequiForm({
                                         onFocus={() => setFocusedField("fullName")}
                                         onBlur={() => setFocusedField(null)}
                                         disabled={loading}
-                                        className="h-11 bg-slate-50 dark:bg-slate-800/50 border-slate-200 dark:border-slate-700 rounded-xl focus:border-blue-500 dark:focus:border-blue-600 focus:ring-2 focus:ring-blue-500/20"
+                                        className="h-11 bg-slate-700/30 border-slate-600/50 rounded-xl focus:border-violet-500 focus:ring-2 focus:ring-violet-500/20 text-white placeholder:text-slate-500"
                                     />
                                 </div>
 
                                 <div className="space-y-2">
-                                    <Label htmlFor="email" className="text-sm font-semibold text-slate-700 dark:text-slate-300">
+                                    <Label htmlFor="email" className="text-sm font-semibold text-slate-300">
                                         Correo Electrónico
                                     </Label>
                                     <Input
@@ -230,7 +230,7 @@ export default function NequiForm({
                                         onFocus={() => setFocusedField("email")}
                                         onBlur={() => setFocusedField(null)}
                                         disabled={loading}
-                                        className="h-11 bg-slate-50 dark:bg-slate-800/50 border-slate-200 dark:border-slate-700 rounded-xl focus:border-blue-500 dark:focus:border-blue-600 focus:ring-2 focus:ring-blue-500/20"
+                                        className="h-11 bg-slate-700/30 border-slate-600/50 rounded-xl focus:border-violet-500 focus:ring-2 focus:ring-violet-500/20 text-white placeholder:text-slate-500"
                                     />
                                 </div>
                             </div>
@@ -238,39 +238,39 @@ export default function NequiForm({
 
                         {/* Security Info & Submit */}
                         <div className="pt-4 space-y-5">
-                            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 p-5 bg-gradient-to-br from-emerald-50 via-green-50 to-blue-50 dark:from-emerald-950/30 dark:via-green-950/30 dark:to-blue-950/30 rounded-xl border border-green-200/50 dark:border-green-800/50">
+                            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 p-5 bg-gradient-to-br from-violet-600/10 via-purple-600/10 to-indigo-600/10 rounded-xl border border-slate-700/50">
                                 <div className="flex items-center gap-3">
-                                    <div className="w-10 h-10 rounded-xl bg-white dark:bg-slate-800 flex items-center justify-center shadow-md">
-                                        <Shield className="w-5 h-5 text-green-600 dark:text-green-400" />
+                                    <div className="w-10 h-10 rounded-xl bg-slate-700/50 flex items-center justify-center shadow-md">
+                                        <Shield className="w-5 h-5 text-violet-400" />
                                     </div>
                                     <div>
-                                        <p className="text-xs text-slate-600 dark:text-slate-400">Pago seguro</p>
-                                        <p className="text-sm font-semibold text-slate-900 dark:text-slate-100">Encriptación SSL</p>
+                                        <p className="text-xs text-slate-400">Pago seguro</p>
+                                        <p className="text-sm font-semibold text-white">Encriptación SSL</p>
                                     </div>
                                 </div>
                                 <div className="flex items-center gap-3">
-                                    <div className="w-10 h-10 rounded-xl bg-white dark:bg-slate-800 flex items-center justify-center shadow-md">
-                                        <Smartphone className="w-5 h-5 text-emerald-600 dark:text-emerald-400" />
+                                    <div className="w-10 h-10 rounded-xl bg-slate-700/50 flex items-center justify-center shadow-md">
+                                        <Smartphone className="w-5 h-5 text-indigo-400" />
                                     </div>
                                     <div>
-                                        <p className="text-xs text-slate-600 dark:text-slate-400">Procesado por</p>
-                                        <p className="text-sm font-semibold text-slate-900 dark:text-slate-100">Nequi App</p>
+                                        <p className="text-xs text-slate-400">Procesado por</p>
+                                        <p className="text-sm font-semibold text-white">Nequi App</p>
                                     </div>
                                 </div>
                                 <div className="flex items-center gap-3">
-                                    <div className="w-10 h-10 rounded-xl bg-white dark:bg-slate-800 flex items-center justify-center shadow-md">
-                                        <CheckCircle2 className="w-5 h-5 text-blue-600 dark:text-blue-400" />
+                                    <div className="w-10 h-10 rounded-xl bg-slate-700/50 flex items-center justify-center shadow-md">
+                                        <CheckCircle2 className="w-5 h-5 text-purple-400" />
                                     </div>
                                     <div>
-                                        <p className="text-xs text-slate-600 dark:text-slate-400">Confirmación</p>
-                                        <p className="text-sm font-semibold text-slate-900 dark:text-slate-100">Push Notification</p>
+                                        <p className="text-xs text-slate-400">Confirmación</p>
+                                        <p className="text-sm font-semibold text-white">Push Notification</p>
                                     </div>
                                 </div>
                             </div>
 
                             <Button
                                 type="submit"
-                                className="w-full h-14 text-base font-bold bg-gradient-to-r from-emerald-600 via-green-600 to-blue-600 hover:from-emerald-700 hover:via-green-700 hover:to-blue-700 text-white rounded-xl shadow-lg shadow-green-500/30 hover:shadow-xl hover:shadow-green-500/40 transition-all"
+                                className="w-full h-14 text-base font-bold bg-gradient-to-r from-violet-600 via-purple-600 to-indigo-600 hover:from-violet-700 hover:via-purple-700 hover:to-indigo-700 text-white rounded-xl shadow-lg shadow-violet-500/30 hover:shadow-xl hover:shadow-violet-500/40 transition-all"
                                 disabled={loading || disabled}
                             >
                                 {loading ? (
@@ -286,7 +286,7 @@ export default function NequiForm({
                                 )}
                             </Button>
 
-                            <p className="text-center text-xs text-slate-500 dark:text-slate-400">
+                            <p className="text-center text-xs text-slate-400">
                                 Recibirás una notificación push en tu app de Nequi para confirmar el pago
                             </p>
                         </div>
