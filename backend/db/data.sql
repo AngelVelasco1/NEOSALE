@@ -19,7 +19,6 @@ DELETE FROM subcategories;
 DELETE FROM brands;
 DELETE FROM "User";
 
-select * from orders;
 -- REINICIAR SECUENCIAS
 ALTER SEQUENCE subcategories_id_seq RESTART WITH 1;
 ALTER SEQUENCE categories_id_seq RESTART WITH 1;
@@ -120,43 +119,43 @@ INSERT INTO products (name, description, price, stock, weight_grams, sizes, base
 ('Producto Descontinuado', 'Este producto ya no está disponible', 50000, 0, 100, 'Único', 0, 5, 1, FALSE, FALSE, NULL, NULL, NULL, 1, 1);
 
 -- VARIANTES DE PRODUCTOS
-INSERT INTO product_variants (product_id, color_code, size, stock, sku, price, weight_grams, active) VALUES
+INSERT INTO product_variants (product_id, color_code, color, size, stock, sku, price, weight_grams, active) VALUES
 -- Camiseta Dry-Fit Pro (ID: 1) - Con oferta
-(1, '#000000', 'M', 10, 'NIKE-DRYFIT-BLACK-M', 71200, 250, TRUE),
-(1, '#FFFFFF', 'M', 9, 'NIKE-DRYFIT-WHITE-M', 71200, 250, TRUE),
-(1, '#FF0000', 'L', 10, 'NIKE-DRYFIT-RED-L', 71200, 250, TRUE),
+(1, '#000000', 'Negro', 'M', 10, 'NIKE-DRYFIT-BLACK-M', 71200, 250, TRUE),
+(1, '#FFFFFF', 'Blanco', 'M', 9, 'NIKE-DRYFIT-WHITE-M', 71200, 250, TRUE),
+(1, '#FF0000', 'Rojo', 'L', 10, 'NIKE-DRYFIT-RED-L', 71200, 250, TRUE),
 -- Pantaloneta Running Elite (ID: 2) - Sin oferta
-(2, '#000000', 'M', 12, 'NIKE-SHORTS-BLACK-M', 75000, 200, TRUE),
-(2, '#0066CC', 'L', 7, 'NIKE-SHORTS-BLUE-L', 75000, 200, TRUE),
+(2, '#000000', 'Negro', 'M', 12, 'NIKE-SHORTS-BLACK-M', 75000, 200, TRUE),
+(2, '#0066CC', 'Azul', 'L', 7, 'NIKE-SHORTS-BLUE-L', 75000, 200, TRUE),
 -- Camiseta Training Adidas (ID: 3) - Con oferta
-(3, '#FF6B6B', 'M', 10, 'ADIDAS-TRAIN-RED-M', 80750, 300, TRUE),
+(3, '#FF6B6B', 'Rojo', 'M', 10, 'ADIDAS-TRAIN-RED-M', 80750, 300, TRUE),
 -- Leggings Deportivos (ID: 4)
-(4, '#4ECDC4', 'S', 7, 'PUMA-LEGGINGS-TEAL-S', 120000, 350, TRUE),
+(4, '#4ECDC4', 'Verde Azulado', 'S', 7, 'PUMA-LEGGINGS-TEAL-S', 120000, 350, TRUE),
 -- Chaqueta Deportiva Puma (ID: 5) - Con oferta
-(5, '#45B7D1', 'M', 5, 'PUMA-JACKET-BLUE-M', 126000, 800, TRUE),
+(5, '#45B7D1', 'Azul', 'M', 5, 'PUMA-JACKET-BLUE-M', 126000, 800, TRUE),
 -- Tenis Running Nike Air (ID: 6)
-(6, '#000000', '40', 6, 'NIKE-AIR-BLACK-40', 320000, 900, TRUE),
-(6, '#FFFFFF', '40', 5, 'NIKE-AIR-WHITE-40', 320000, 900, TRUE),
+(6, '#000000', 'Negro', '40', 6, 'NIKE-AIR-BLACK-40', 320000, 900, TRUE),
+(6, '#FFFFFF', 'Blanco', '40', 5, 'NIKE-AIR-WHITE-40', 320000, 900, TRUE),
 -- Tenis Training Adidas (ID: 7) - Con oferta
-(7, '#96CEB4', '39', 5, 'ADIDAS-TRAIN-GREEN-39', 210000, 850, TRUE),
+(7, '#96CEB4', 'Verde', '39', 5, 'ADIDAS-TRAIN-GREEN-39', 210000, 850, TRUE),
 -- iPhone 15 Pro (ID: 8) - Con oferta
-(8, '#8E8E93', 'Único', 5, 'IPHONE15-TITANIUM-NATURAL', 3780000, 190, TRUE),
+(8, '#8E8E93', 'Titanio Natural', 'Único', 5, 'IPHONE15-TITANIUM-NATURAL', 3780000, 190, TRUE),
 -- Samsung Galaxy S24 (ID: 9)
-(9, '#000000', 'Único', 8, 'GALAXY-S24-BLACK', 3800000, 210, TRUE),
+(9, '#000000', 'Negro', 'Único', 8, 'GALAXY-S24-BLACK', 3800000, 210, TRUE),
 -- MacBook Air M2 (ID: 10)
-(10, '#FFEAA7', 'Único', 10, 'MACBOOK-AIR-M2-GOLD', 5500000, 1240, TRUE),
+(10, '#FFEAA7', 'Dorado', 'Único', 10, 'MACBOOK-AIR-M2-GOLD', 5500000, 1240, TRUE),
 -- AirPods Pro 2 (ID: 11) - Con oferta
-(11, '#FFFFFF', 'Único', 40, 'AIRPODS-PRO2-WHITE', 680000, 50, TRUE),
+(11, '#FFFFFF', 'Blanco', 'Único', 40, 'AIRPODS-PRO2-WHITE', 680000, 50, TRUE),
 -- PlayStation 5 (ID: 12)
-(12, '#FFFFFF', 'Único', 8, 'PS5-WHITE', 2800000, 4500, TRUE),
+(12, '#FFFFFF', 'Blanco', 'Único', 8, 'PS5-WHITE', 2800000, 4500, TRUE),
 -- Smart TV LG 55" (ID: 13) - Con oferta
-(13, '#000000', 'Único', 12, 'LG-TV-55-BLACK', 1170000, 15000, TRUE),
+(13, '#000000', 'Negro', 'Único', 12, 'LG-TV-55-BLACK', 1170000, 15000, TRUE),
 -- Sofá Modular IKEA (ID: 14)
-(14, '#F0E68C', 'Único', 5, 'IKEA-SOFA-BEIGE', 1200000, 45000, TRUE),
+(14, '#F0E68C', 'Beige', 'Único', 5, 'IKEA-SOFA-BEIGE', 1200000, 45000, TRUE),
 -- Cama King Size (ID: 15) - Con oferta
-(15, '#CD853F', 'Único', 8, 'IKEA-BED-BROWN', 570000, 60000, TRUE),
+(15, '#CD853F', 'Café', 'Único', 8, 'IKEA-BED-BROWN', 570000, 60000, TRUE),
 -- Producto Descontinuado (ID: 16) - Inactivo
-(16, '#808080', 'Único', 0, 'DISCONTINUED-GRAY', 50000, 100, FALSE);
+(16, '#808080', 'Gris', 'Único', 0, 'DISCONTINUED-GRAY', 50000, 100, FALSE);
 
 -- IMÁGENES DE PRODUCTOS
 INSERT INTO images (image_url, color_code, color, is_primary, product_id, variant_id) VALUES
@@ -292,6 +291,7 @@ INSERT INTO review_images (review_id, image_url) VALUES
 (2, 'https://via.placeholder.com/300x300/000000/FFFFFF?text=Review+Image+2');
 
 
+/* Se debe hacer en un tigger cuando en el admin añadan productos */
 UPDATE products SET stock = (
     SELECT COALESCE(SUM(pv.stock), 0)
     FROM product_variants pv

@@ -161,9 +161,9 @@ export const ShippingAddressForm = ({
       transition={{ duration: 0.6, ease: "easeOut" }}
       className="relative"
     >
-      <Card className="relative overflow-hidden border-0 shadow-xl shadow-slate-800 bg-gradient-to-br from-slate-900/95 via-slate-800/95 to-slate-900/95 backdrop-blur-xl">
+      <Card className="relative overflow-hidden shadow-slate-800 border border-slate-700/50 shadow-2xl bg-slate-800/40 backdrop-blur-xl">
         {/* Animated background gradient */}
-        <div className="absolute inset-0 bg-gradient-to-br from-indigo-500/10 via-blue-600/10 to-slate-500/10" />
+        <div className="absolute inset-0 bg-gradient-to-br from-indigo-900/20 via-slate-800/40 to-slate-800/40" />
 
         {/* Decorative animated border */}
         <div className="absolute top-0 left-0 right-0 h-[2px] bg-gradient-to-r from-transparent via-indigo-500 to-transparent">
@@ -200,16 +200,9 @@ export const ShippingAddressForm = ({
                 className="relative p-3 rounded-xl bg-gradient-to-br from-indigo-600 via-purple-600 to-indigo-700 shadow-lg shadow-indigo-500/40"
               >
                 <motion.div
-                  animate={{
-                    scale: [1, 1.2, 1],
-                    opacity: [0.5, 0.8, 0.5],
-                  }}
-                  transition={{
-                    duration: 2,
-                    repeat: Infinity,
-                    ease: "easeInOut"
-                  }}
-                  className="absolute inset-0 rounded-xl bg-gradient-to-br from-indigo-400 to-purple-400 blur-lg"
+                  animate={{ scale: [1, 1.1, 1], opacity: [0.5, 0.8, 0.5] }}
+                  transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
+                  className="absolute inset-0 rounded-2xl bg-gradient-to-br from-violet-500 to-violet-600 blur-xl"
                 />
                 <MapPin className="w-6 h-6 text-white relative z-10" />
               </motion.div>
@@ -490,7 +483,7 @@ export const ShippingAddressForm = ({
 
       {/* Modal */}
       <Sheet open={isModalOpen} onOpenChange={setIsModalOpen}>
-        <SheetContent className="w-full sm:max-w-md overflow-y-auto bg-gradient-to-br from-slate-900 to-slate-800 border-l border-slate-700/50">
+        <SheetContent className="w-full sm:max-w-md overflow-y-auto bg-gradient-to-br from-slate-900 to-slate-800 border-l border-slate-700/50 p-4">
           <SheetHeader className="space-y-4 pb-6 border-b border-slate-700/50">
             <div className="flex items-center gap-3">
               <div className="p-3 rounded-xl bg-gradient-to-br from-indigo-600 via-purple-600 to-indigo-700 shadow-lg shadow-indigo-500/40">

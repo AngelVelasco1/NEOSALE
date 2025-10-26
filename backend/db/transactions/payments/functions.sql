@@ -235,11 +235,10 @@ EXCEPTION
 END;
 $$;
 
--- ✅ FUNCIÓN COMPLETA fn_create_payment
 CREATE OR REPLACE FUNCTION fn_create_payment(
 	p_transaction_id character varying,
 	p_reference character varying,
-	p_amount_in_cents integer,
+	p_amount bigint,
 	p_payment_method payment_method_enum,
 	p_customer_email character varying,
 	p_cart_data jsonb,
@@ -268,12 +267,7 @@ DECLARE
     v_payment_id INTEGER;
     v_final_checkout_url VARCHAR(500);
 BEGIN
-    -- 🔍 DEBUG: Log de los datos recibidos
-    RAISE NOTICE '🏗️  fn_create_payment ejecutada con: transaction_id=%, cart_data=%, cart_data_type=%',
-        p_transaction_id, p_cart_data, jsonb_typeof(p_cart_data);
-    RAISE NOTICE '🛒 Cart data length: %', jsonb_array_length(p_cart_data);
 
-    -- ✅ VALIDACIONES POR MÉTODO DE PAGO
     CASE p_payment_method
         WHEN 'CARD' THEN
             IF p_acceptance_token IS NULL OR p_acceptance_token_auth IS NULL THEN
@@ -298,17 +292,8 @@ BEGIN
                     FALSE, 'Para Nequi se requiere número de teléfono'::TEXT;
                 RETURN;
             END IF;
-
-        WHEN 'BANCOLOMBIA', 'BANCOLOMBIA_TRANSFER' THEN
-            IF p_customer_document_type IS NULL OR p_customer_document_number IS NULL THEN
-                RETURN QUERY SELECT
-                    NULL::INTEGER, p_transaction_id, p_reference, NULL::VARCHAR(500),
-                    FALSE, 'Para Bancolombia se requiere documento de identidad'::TEXT;
-                RETURN;
-            END IF;
     END CASE;
 
-    -- ✅ VALIDACIÓN: Evitar duplicados por transaction_id
     IF p_transaction_id IS NOT NULL AND EXISTS(SELECT 1 FROM payments p WHERE p.transaction_id = p_transaction_id) THEN
         RETURN QUERY SELECT
             NULL::INTEGER, p_transaction_id, p_reference, NULL::VARCHAR(500),
@@ -316,7 +301,6 @@ BEGIN
         RETURN;
     END IF;
 
-    -- ✅ INSERTAR PAYMENT
     INSERT INTO payments (
         transaction_id,
         reference,
@@ -344,7 +328,7 @@ BEGIN
     ) VALUES (
         p_transaction_id,
         p_reference,
-        p_amount_in_cents,
+        p_amount,
         p_currency,
         'PENDING'::payment_status_enum,
         p_payment_method,
@@ -367,8 +351,6 @@ BEGIN
         NOW()
     ) RETURNING payments.id, payments.checkout_url INTO v_payment_id, v_final_checkout_url;
 
-    -- 🔍 DEBUG: Log del payment creado
-    RAISE NOTICE '✅ Payment creado: id=%, cart_data guardado=%', v_payment_id, p_cart_data;
 
     RETURN QUERY SELECT
         v_payment_id,
@@ -380,7 +362,7 @@ BEGIN
 
 EXCEPTION
     WHEN OTHERS THEN
-        RAISE NOTICE '❌ Error en fn_create_payment: %', SQLERRM;
+        RAISE NOTICE 'Error en fn_create_payment: %', SQLERRM;
         RETURN QUERY SELECT
             NULL::INTEGER,
             p_transaction_id,

@@ -142,6 +142,37 @@ interface PSETransactionData {
   }>;
 }
 
+interface NequiTransactionData {
+  amount: number;
+  currency: string;
+  customerEmail: string;
+  reference: string;
+  phone_number: string; // Número celular colombiano registrado en Nequi
+  customerData: {
+    phone_number: string; // REQUERIDO
+    full_name: string; // REQUERIDO
+  };
+  shippingAddress?: {
+    address_line_1: string;
+    address_line_2?: string;
+    city: string;
+    region: string;
+    country: string;
+    postal_code: string;
+    phone_number: string;
+    name?: string;
+  };
+  userId?: number;
+  cartData?: Array<{
+    product_id: number;
+    quantity: number;
+    price: number;
+    name?: string;
+    color_code?: string;
+    size?: string;
+  }>;
+}
+
 const getWompiConfig = (): WompiConfig => {
   const environment =
     process.env.NODE_ENV === "production" ? "production" : "sandbox";
@@ -418,7 +449,6 @@ export const createPSETransaction = async (
 
     // 📦 ESTRUCTURA COMPLETA PARA PSE SEGÚN DOCUMENTACIÓN WOMPI
     const transactionData = {
-      // 🔐 CAMPOS OBLIGATORIOS PARA CUALQUIER TRANSACCIÓN WOMPI
       amount_in_cents: amount,
       currency,
       customer_email: customerEmail,
@@ -437,8 +467,7 @@ export const createPSETransaction = async (
         user_legal_id: pseDetails.user_legal_id,
         financial_institution_code: pseDetails.financial_institution_code,
         payment_description: pseDetails.payment_description,
-        // ✅ CAMPOS ANTI-FRAUDE OBLIGATORIOS PARA SERVICIOS FINANCIEROS
-        reference_one: finalClientIP, // ✅ IP del cliente
+        reference_one: finalClientIP, // IP del cliente
         reference_two: productOpeningDate, // Fecha apertura producto (YYYYMMDD)
         reference_three: beneficiaryDocument, // Documento del beneficiario
       },
@@ -601,6 +630,180 @@ export const createPSETransaction = async (
   }
 };
 
+export const createNequiTransaction = async (
+  nequiTransactionData: NequiTransactionData
+): Promise<any> => {
+  try {
+    const config = getWompiConfig();
+
+    const {
+      amount,
+      currency,
+      customerEmail,
+      reference,
+      phone_number,
+      customerData,
+      shippingAddress,
+      userId,
+    } = nequiTransactionData;
+
+    // 🔐 OBTENER TOKENS DE ACEPTACIÓN (como en pagos con tarjeta)
+    const tokensResult = await getWompiAcceptanceTokensService();
+
+    if (!tokensResult.success || !tokensResult.data) {
+      throw new Error(
+        `Error obteniendo tokens de aceptación: ${tokensResult.error}`
+      );
+    }
+
+    const acceptanceToken =
+      tokensResult.data.presigned_acceptance.acceptance_token;
+    const acceptPersonalAuth =
+      tokensResult.data.presigned_personal_data_auth.acceptance_token;
+
+    // 🔐 GENERAR INTEGRITY SIGNATURE (OBLIGATORIO PARA WOMPI)
+    const integritySignature = generateWompiIntegritySignature(
+      reference,
+      amount,
+      currency
+    );
+
+    // 🌐 CONFIGURAR URL DE REDIRECCIÓN
+    const frontendUrl = process.env.FRONTEND_URL || "http://localhost:3000";
+    const redirectUrl = `${frontendUrl}/checkout/success`;
+
+    try {
+      new URL(redirectUrl);
+    } catch {
+      throw new Error(`URL de redirect inválida: ${redirectUrl}`);
+    }
+
+    // 📦 ESTRUCTURA COMPLETA PARA NEQUI SEGÚN DOCUMENTACIÓN WOMPI
+    const transactionData = {
+      amount_in_cents: amount,
+      currency,
+      customer_email: customerEmail,
+      reference,
+      public_key: config.publicKey,
+      signature: integritySignature,
+      redirect_url: redirectUrl,
+      acceptance_token: acceptanceToken,
+      acceptance_token_auth: acceptPersonalAuth,
+
+      // 📱 CAMPOS ESPECÍFICOS PARA NEQUI
+      payment_method: {
+        type: "NEQUI" as const,
+        phone_number: phone_number, // Número celular colombiano registrado en Nequi
+      },
+
+      // 👤 DATOS DEL CLIENTE (OBLIGATORIOS PARA NEQUI)
+      customer_data: {
+        phone_number: customerData.phone_number,
+        full_name: customerData.full_name,
+      },
+
+      // 📦 DIRECCIÓN DE ENVÍO (OPCIONAL PARA NEQUI, PERO REQUERIDA SI SE ENVÍA)
+      ...(shippingAddress && {
+        shipping_address: shippingAddress,
+      }),
+    };
+
+    // 🚀 ENVIAR TRANSACIÓN A WOMPI
+    const response = await fetch(`${config.baseUrl}/transactions`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${config.privateKey}`,
+      },
+      body: JSON.stringify(transactionData),
+    });
+
+    if (!response.ok) {
+      const errorData = await response.json();
+      console.error("❌ Error creando transacción Nequi:", {
+        status: response.status,
+        error: errorData,
+      });
+      throw new Error(
+        `Wompi Nequi transaction failed: ${JSON.stringify(errorData)}`
+      );
+    }
+
+    const result = await response.json();
+    const transactionId = result.data?.id;
+
+    if (!transactionId) {
+      throw new Error("No se recibió transactionId de Wompi para Nequi");
+    }
+
+    try {
+      let cartDataForDb = null;
+      if (
+        nequiTransactionData.cartData &&
+        Array.isArray(nequiTransactionData.cartData)
+      ) {
+        // Convertir los items a formato esperado por la BD (precios en centavos)
+        cartDataForDb = nequiTransactionData.cartData.map((item) => {
+          return {
+            product_id: item.product_id,
+            quantity: item.quantity,
+            price:
+              item.price < 1000000
+                ? convertPesosToWompiCentavos(item.price)
+                : item.price, // Convertir si está en pesos
+            color: item.color_code || "",
+            size: item.size || "",
+          };
+        });
+      }
+
+      await createPaymentTransaction({
+        transactionId,
+        reference,
+        orderId: null,
+        amount,
+        currency,
+        paymentMethod: "NEQUI",
+        paymentMethodData: result.data?.payment_method || {},
+        acceptanceToken,
+        acceptPersonalAuth,
+        integritySignature,
+        redirectUrl,
+        checkoutUrl: undefined, // Nequi no tiene URL de checkout
+        customerEmail,
+        customerPhone: customerData.phone_number,
+        customerDocumentType: "CC", // Nequi requiere documento, pero no lo especifica en el payload
+        customerDocumentNumber: "", // Nequi no requiere documento específico
+        shippingAddress: shippingAddress || {},
+        processorResponse: result.data,
+        userId,
+        cartData: cartDataForDb || undefined,
+      });
+    } catch (dbError) {
+      console.error(
+        "⚠️ Error almacenando payment Nequi en BD (no crítico):",
+        dbError
+      );
+    }
+
+    return {
+      success: true,
+      data: {
+        transactionId,
+        status: result.data?.status,
+        reference: result.data?.reference,
+        paymentMethod: result.data?.payment_method,
+        redirect_url: result.data?.redirect_url,
+        createdAt: result.data?.created_at,
+        fullResponse: result.data,
+      },
+    };
+  } catch (error) {
+    console.error("❌ Error creating Nequi transaction:", error);
+    throw error;
+  }
+};
+
 export const createPaymentService = async (
   transactionData: WompiTransactionData,
   userId: number
@@ -743,11 +946,6 @@ export const createPaymentService = async (
       });
     }
 
-    console.log(
-      "Payload completo enviado a Wompi:",
-      JSON.stringify(transactionPayload, null, 2)
-    );
-
     // Realizar petición a Wompi
     const response = await fetch(`${config.baseUrl}/transactions`, {
       method: "POST",
@@ -796,15 +994,14 @@ export const createPaymentService = async (
           errorData.error?.messages ||
           errorData.error;
 
-        console.error("🚨 Errores de validación de Wompi:", validationErrors);
+        console.error("Errores de validación de Wompi:", validationErrors);
         console.error(
-          "🔍 Error data completo:",
+          "Error data completo:",
           JSON.stringify(errorData, null, 2)
         );
 
         let errorMessage = "Error de validación en Wompi: ";
 
-        // Función recursiva para extraer mensajes de error
         const extractErrorMessages = (
           errors: unknown,
           path: string = ""
@@ -1065,7 +1262,6 @@ export const getWompiTransactionStatusService = async (
   }
 };
 
-// NUEVA FUNCIÓN: Actualizar payment de manera general (no específico para webhooks)
 export const updatePaymentService = async ({
   transactionId,
   newStatus,
@@ -1103,7 +1299,6 @@ export const updatePaymentService = async ({
   }
 };
 
-// STEP 7: Actualizar estado de payment en base de datos
 export const updatePaymentStatusService = async (
   transactionId: string,
   newStatus: "PENDING" | "APPROVED" | "DECLINED" | "VOIDED" | "ERROR",
@@ -1200,35 +1395,11 @@ export const createPaymentTransaction = async (
   params: CreatePaymentTransactionParams
 ) => {
   try {
-    console.log("🔍 Llamando fn_create_payment con params:", {
-      transactionId: params.transactionId,
-      reference: params.reference,
-      amount: params.amount,
-      paymentMethod: params.paymentMethod,
-      customerEmail: params.customerEmail,
-      hasCartData: !!params.cartData,
-      cartDataLength: Array.isArray(params.cartData)
-        ? params.cartData.length
-        : 0,
-      userId: params.userId,
-      currency: params.currency,
-      hasShippingAddress: !!params.shippingAddress,
-      acceptanceToken: params.acceptanceToken
-        ? params.acceptanceToken.substring(0, 20) + "..."
-        : null,
-      acceptPersonalAuth: params.acceptPersonalAuth
-        ? params.acceptPersonalAuth.substring(0, 20) + "..."
-        : null,
-      integritySignature: params.integritySignature
-        ? params.integritySignature.substring(0, 20) + "..."
-        : null,
-    });
-
     const result = await prisma.$queryRaw`
       SELECT * FROM fn_create_payment(
         ${params.transactionId}::VARCHAR(255),
         ${params.reference}::VARCHAR(255),
-        ${params.amount}::INTEGER,
+        ${params.amount}::BIGINT,
         ${params.paymentMethod}::payment_method_enum,
         ${params.customerEmail}::VARCHAR(255),
         ${JSON.stringify(params.cartData || [])}::JSONB,
@@ -1248,8 +1419,6 @@ export const createPaymentTransaction = async (
         ${JSON.stringify(params.processorResponse || {})}::JSONB
       )
     `;
-
-    console.log("✅ fn_create_payment ejecutada exitosamente:", result);
 
     return { success: true, data: result };
   } catch (error) {
@@ -1305,7 +1474,6 @@ export const updatePaymentFromWebhook = async (webhookData: {
   }
 };
 
-// NUEVA FUNCIÓN: Generar firma para verificación de webhooks
 export const generateWebhookSignature = (webhookData: object): string => {
   try {
     const config = getWompiConfig();
@@ -1346,7 +1514,6 @@ export const verifyWebhookSignature = (
   }
 };
 
-// 💰 FUNCIÓN PARA CONVERTIR PESOS A CENTAVOS
 export const convertPesosToWompiCentavos = (pesosAmount: number): number => {
   // Validar que sea un número válido
   if (
@@ -1357,14 +1524,12 @@ export const convertPesosToWompiCentavos = (pesosAmount: number): number => {
     throw new Error(`Monto en pesos inválido: ${pesosAmount}`);
   }
 
-  // Convertir pesos a centavos (multiplicar por 100)
   const centavos = Math.round(pesosAmount * 100);
 
   return centavos;
 };
 
-// 💰 FUNCIÓN PARA CONVERTIR CENTAVOS A PESOS (para mostrar al usuario)
-export const convertWompiCentavosToPesos = (centavosAmount: number): number => {
+export const convertCentavosToPesos = (centavosAmount: number): number => {
   // Validar que sea un número válido
   if (
     typeof centavosAmount !== "number" ||
@@ -1373,14 +1538,11 @@ export const convertWompiCentavosToPesos = (centavosAmount: number): number => {
   ) {
     throw new Error(`Monto en centavos inválido: ${centavosAmount}`);
   }
-
-  // Convertir centavos a pesos (dividir por 100)
   const pesos = centavosAmount / 100;
 
   return pesos;
 };
 
-// 🧮 FUNCIÓN PARA CALCULAR EL TOTAL DEL CARRITO EN CENTAVOS
 export const calculateCartTotalInCentavos = (
   cartData: Array<{
     product_id: number;
@@ -1457,4 +1619,5 @@ export type {
   WompiTransactionData,
   CreatePaymentTransactionParams,
   PSETransactionData,
+  NequiTransactionData,
 };

@@ -14,6 +14,8 @@ import {
   getFinancialInstitutions,
   createPSETransaction,
   PSETransactionData,
+  createNequiTransaction,
+  NequiTransactionData,
 } from "../services/payments";
 import {
   createOrderService,
@@ -236,7 +238,6 @@ export const createPaymentController = async (req: Request, res: Response) => {
   }
 };
 
-// 🎯 PASO 6: Consultar estado de transacción por ID
 export const getTransactionStatusController = async (
   req: Request,
   res: Response
@@ -282,7 +283,6 @@ export const getTransactionStatusController = async (
   }
 };
 
-// 🔍 ENDPOINT DE DEBUGGING: Validar datos antes de enviar a Wompi
 export const validateWompiDataController = async (
   req: Request,
   res: Response
@@ -489,7 +489,6 @@ export const validateWompiDataController = async (
   }
 };
 
-// 🔄 PASO 7: Actualizar estado de payment manualmente
 export const updatePaymentStatusController = async (
   req: Request,
   res: Response
@@ -563,7 +562,6 @@ export const updatePaymentStatusController = async (
   }
 };
 
-// 📊 PASO 8: Obtener payment desde base de datos
 export const getPaymentFromDatabaseController = async (
   req: Request,
   res: Response
@@ -605,7 +603,6 @@ export const getPaymentFromDatabaseController = async (
   }
 };
 
-// 🔗 NUEVO: Webhook de Wompi para procesar eventos de pago
 export const handleWompiWebhookController = async (
   req: Request,
   res: Response
@@ -692,18 +689,15 @@ export const handleWompiWebhookController = async (
   }
 };
 
-// 🆕 NUEVO: Crear orden desde payment aprobado
 export const createOrderFromPaymentController = async (
   req: Request,
   res: Response
 ) => {
   try {
-    // Extraer con los nombres que envía el frontend
     const {
       payment_id,
       address_id,
       couponId,
-      // También permitir los nombres en camelCase por compatibilidad
       paymentId = payment_id,
       shippingAddressId = address_id,
     } = req.body;
@@ -815,7 +809,7 @@ export const createOrderFromPaymentController = async (
   }
 };
 
-// 🏦 CONTROLADORES PSE
+// PSE
 export const getFinancialInstitutionsController = async (
   req: Request,
   res: Response
@@ -838,7 +832,6 @@ export const getFinancialInstitutionsController = async (
   }
 };
 
-// 🔧 FUNCIÓN PARA OBTENER IP DEL CLIENTE
 const getClientIP = (req: Request): string => {
   const forwarded = req.headers["x-forwarded-for"] as string;
   const realIP = req.headers["x-real-ip"] as string;
@@ -1010,6 +1003,104 @@ export const createPSEPaymentController = async (
     res.status(500).json({
       success: false,
       message: "Error creando transacción PSE",
+      error: error instanceof Error ? error.message : "Error desconocido",
+    });
+  }
+};
+
+// Nequi
+export const createNequiPaymentController = async (
+  req: Request,
+  res: Response
+) => {
+  try {
+    const { user_id } = req.query;
+    const {
+      amount,
+      currency = "COP",
+      customerEmail,
+      phone_number,
+      customer_data,
+      shipping_address,
+      cartData,
+    } = req.body;
+
+    if (!user_id) {
+      return res.status(400).json({
+        success: false,
+        message: "user_id es requerido",
+      });
+    }
+
+    if (!amount || !customerEmail || !customer_data || !phone_number) {
+      return res.status(400).json({
+        success: false,
+        message:
+          "Datos incompletos: amount, customerEmail, customer_data y phone_number son requeridos",
+        received: {
+          hasAmount: !!amount,
+          hasCustomerEmail: !!customerEmail,
+          hasCustomerData: !!customer_data,
+          hasPhoneNumber: !!phone_number,
+        },
+      });
+    }
+
+    if (!customer_data.full_name || !customer_data.phone_number) {
+      return res.status(400).json({
+        success: false,
+        message:
+          "customer_data.full_name y customer_data.phone_number son requeridos para Nequi",
+        received: {
+          hasFullName: !!customer_data.full_name,
+          hasPhoneNumber: !!customer_data.phone_number,
+          customerData: customer_data,
+        },
+      });
+    }
+
+    const amountInCents = amount;
+    const reference = `NEQUI-${Date.now()}-${Math.random()
+      .toString(36)
+      .substr(2, 9)}`;
+
+    const nequiTransactionData: NequiTransactionData = {
+      amount: amountInCents,
+      currency,
+      customerEmail,
+      reference,
+      phone_number: phone_number.replace(/\s+/g, ""),
+      customerData: {
+        phone_number: customer_data.phone_number.replace(/\s+/g, ""),
+        full_name: customer_data.full_name,
+      },
+      ...(shipping_address && { shippingAddress: shipping_address }),
+      ...(cartData && { cartData }),
+      userId: parseInt(user_id as string),
+    };
+
+    const result = await createNequiTransaction(nequiTransactionData);
+
+    if (result.success) {
+      res.status(200).json({
+        success: true,
+        data: {
+          transactionId: result.data.transactionId,
+          status: result.data.status,
+          reference: result.data.reference,
+          payment_method: result.data.paymentMethod,
+          redirect_url: result.data.redirect_url,
+          message: "Transacción Nequi creada exitosamente",
+        },
+      });
+    } else {
+      throw new Error(result.error || "Error creando transacción Nequi");
+    }
+  } catch (error) {
+    console.error("❌ Error en createNequiPaymentController:", error);
+    res.status(500).json({
+      success: false,
+      message: "Error creando transacción Nequi",
       error: error instanceof Error ? error.message : "Error desconocido",
     });
   }

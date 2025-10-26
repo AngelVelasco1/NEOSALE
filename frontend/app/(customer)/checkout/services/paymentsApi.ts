@@ -160,7 +160,6 @@ export interface WompiConnectionTest {
   timestamp: string;
 }
 
-// 🎯 STEP 1: OBTENER TOKENS DE ACEPTACIÓN
 export const getWompiAcceptanceTokensApi = async (): Promise<
   WompiApiResponse<WompiMerchantData>
 > => {
@@ -198,7 +197,6 @@ export const getWompiAcceptanceTokensApi = async (): Promise<
   }
 };
 
-// 🎯 STEP 2: OBTENER CONFIGURACIÓN PÚBLICA (incluye tokens y links)
 export const getWompiPublicConfigApi = async (): Promise<
   WompiApiResponse<WompiPublicConfig>
 > => {
@@ -236,7 +234,6 @@ export const getWompiPublicConfigApi = async (): Promise<
   }
 };
 
-// 💳 STEP 3: TOKENIZAR TARJETA DE CRÉDITO/DÉBITO
 export const tokenizeCardApi = async (
   cardData: WompiCardTokenizationRequest,
   publicKey: string
@@ -289,7 +286,6 @@ export const tokenizeCardApi = async (
   }
 };
 
-// 🎯 STEP 4: GENERAR FIRMA DE INTEGRIDAD
 export const generateWompiIntegritySignatureApi = async (
   signatureData: WompiIntegritySignatureRequest
 ): Promise<WompiIntegritySignatureResponse> => {
@@ -326,7 +322,6 @@ export const generateWompiIntegritySignatureApi = async (
   }
 };
 
-// 🎯 STEP 5: CREAR TRANSACCIÓN EN WOMPI
 export const createWompiTransactionApi = async (
   transactionData: WompiTransactionData,
   userId: string | number // NUEVO: userId obligatorio desde NextAuth
@@ -371,7 +366,6 @@ export const createWompiTransactionApi = async (
   }
 };
 
-// 🎯 UTILIDAD: GENERAR REFERENCIA ÚNICA
 export const generatePaymentReference = (userId?: number): string => {
   const timestamp = Date.now();
   const random = Math.random().toString(36).substring(2, 8);
@@ -380,12 +374,10 @@ export const generatePaymentReference = (userId?: number): string => {
   return `NEOSALE_${userPrefix}_${timestamp}_${random}`.toUpperCase();
 };
 
-// 🎯 UTILIDAD: VALIDAR MONTO EN CENTAVOS
 export const convertToCents = (amount: number): number => {
   return Math.round(amount * 100);
 };
 
-// 🎯 UTILIDAD: FORMATEAR MONTO DESDE CENTAVOS
 export const convertFromCents = (amountInCents: number): number => {
   return amountInCents / 100;
 };
@@ -482,7 +474,6 @@ export const testWompiConnectionApi = async (): Promise<
   }
 };
 
-// 🎯 FLUJO COMPLETO DE PAGO WOMPI
 export const processWompiPaymentFlow = async (
   customerData: {
     email: string;
@@ -601,7 +592,6 @@ export const processWompiPaymentFlow = async (
   }
 };
 
-// 🆕 NUEVO: Obtener estado de transacción por ID
 export const getWompiTransactionStatusApi = async (
   transactionId: string
 ): Promise<
@@ -678,7 +668,6 @@ export const getWompiTransactionStatusApi = async (
   }
 };
 
-// 🆕 NUEVO: Obtener payment desde base de datos
 export const getPaymentFromDatabaseApi = async (
   transactionId: string
 ): Promise<WompiApiResponse<unknown>> => {
@@ -716,7 +705,6 @@ export const getPaymentFromDatabaseApi = async (
   }
 };
 
-// 🆕 NUEVO: Crear orden desde payment
 export const createOrderFromPaymentApi = async (orderData: {
   paymentId: number;
   shippingAddressId: number;
@@ -770,9 +758,6 @@ export const createOrderFromPaymentApi = async (orderData: {
   }
 };
 
-// 🟢 ====== NEQUI APIs ======
-
-// 🟢 INTERFACES NEQUI - Estructura real de la API de Wompi
 export interface NequiPaymentData {
   amount: number;
   currency?: string;
@@ -900,7 +885,6 @@ export const processNequiPaymentFlow = async (
       throw new Error("user_id es requerido para crear transacción Nequi");
     }
 
-    // ✅ PREPARAR DATOS COMPLETOS PARA NEQUI
     const nequiPayload: NequiPaymentData = {
       amount: orderData.amount,
       currency: orderData.currency || "COP",
@@ -943,7 +927,6 @@ export const processNequiPaymentFlow = async (
   }
 };
 
-// 🔍 VALIDAR DATOS NEQUI ANTES DE CREAR TRANSACCIÓN
 export const validateNequiDataApi = async (
   nequiData: Omit<NequiPaymentData, "cartData">
 ): Promise<
@@ -1026,9 +1009,6 @@ export const validateNequiDataApi = async (
   }
 };
 
-// 🏦 ====== PSE (PAGOS SEGUROS EN LÍNEA) APIs ======
-
-// 🏦 INTERFACES PSE - Estructura real de la API de Wompi
 export interface PSEFinancialInstitution {
   financial_institution_code: string;
   financial_institution_name: string;
@@ -1042,8 +1022,6 @@ export interface PSEPaymentData {
   user_legal_id_type: "CC" | "CE" | "NIT" | "PP";
   user_legal_id: string;
   financial_institution_code: string;
-  payment_description?: string;
-  // ESTRUCTURA CORRECTA PARA WOMPI PSE:
   customer_data: {
     phone_number: string; // REQUERIDO
     full_name: string; // REQUERIDO
@@ -1201,7 +1179,6 @@ export const processPSEPaymentFlow = async (
       throw new Error("user_id es requerido para crear transacción PSE");
     }
 
-    // ✅ PREPARAR DATOS COMPLETOS PARA PSE
     const psePayload: PSEPaymentData = {
       amount: orderData.amount,
       currency: orderData.currency || "COP",
@@ -1210,7 +1187,6 @@ export const processPSEPaymentFlow = async (
       user_legal_id_type: customerData.documentType,
       user_legal_id: customerData.documentNumber,
       financial_institution_code: pseData.financialInstitutionCode,
-      payment_description: orderData.description || "Pago en NEOSALE",
       customer_data: {
         phone_number: customerData.phone,
         full_name: customerData.name,
@@ -1248,7 +1224,6 @@ export const processPSEPaymentFlow = async (
   }
 };
 
-// 🔍 VALIDAR DATOS PSE ANTES DE CREAR TRANSACCIÓN
 export const validatePSEDataApi = async (
   pseData: Omit<PSEPaymentData, "cartData">
 ): Promise<

@@ -11,6 +11,7 @@ DROP TABLE IF EXISTS "Account";
 
 DROP TABLE IF EXISTS product_variants;
 DROP TABLE IF EXISTS orders;
+DROP TABLE IF EXISTS payments;
 DROP TABLE IF EXISTS cart;
 DROP TABLE IF EXISTS addresses;
 DROP TABLE IF EXISTS products;
@@ -246,7 +247,7 @@ CREATE TABLE payments (
     transaction_id VARCHAR(255) UNIQUE,      -- ID de Wompi
     reference VARCHAR(255) NOT NULL UNIQUE, -- NEOSALE_202410041234
     
-    amount_in_cents INTEGER NOT NULL,
+    amount_in_cents BIGINT NOT NULL,
     currency VARCHAR(3) DEFAULT 'COP' NOT NULL,
     
     payment_status payment_status_enum DEFAULT 'PENDING' NOT NULL,
@@ -298,19 +299,16 @@ CREATE TABLE addresses (
     created_at TIMESTAMP(6) DEFAULT CURRENT_TIMESTAMP NOT NULL
 );
 
-GRANT SELECT, INSERT, UPDATE ON neosale.* 
-TO 'app_user'@'%' IDENTIFIED BY 'claveSegura';
 
 CREATE TABLE orders (
     id SERIAL PRIMARY KEY,  
     payment_id INTEGER NOT NULL REFERENCES payments(id) ON DELETE CASCADE, 
     status orders_status_enum NOT NULL DEFAULT 'pending',  
-    -- Información monetaria (copiada del payment)
-    subtotal INTEGER NOT NULL,
+    subtotal BIGINT NOT NULL,
     discount INTEGER DEFAULT 0,
     shipping_cost INTEGER NOT NULL,
     taxes INTEGER NOT NULL,
-    total INTEGER NOT NULL,
+    total BIGINT NOT NULL,
     
     -- Información de envío
     shipping_address_id INTEGER NOT NULL REFERENCES addresses(id),
@@ -568,3 +566,4 @@ WHERE active = TRUE AND stock > 0;
 
 -- Búsqueda de productos por nombre
 CREATE INDEX idx_product_name_search ON products USING gin(to_tsvector('spanish', name));
+select * from orders;

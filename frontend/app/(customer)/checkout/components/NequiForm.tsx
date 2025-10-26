@@ -10,6 +10,8 @@ import {
     convertToCents,
     type NequiPaymentData,
 } from "../services/paymentsApi";
+import { useCart } from "../../(cart)/hooks/useCart";
+import { CartProductsInfo } from "../../types";
 
 interface NequiFormProps {
     amount: number;
@@ -30,6 +32,7 @@ export default function NequiForm({
     userId,
     acceptanceTokens,
 }: NequiFormProps) {
+    const { cartProducts } = useCart();
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
     const [focusedField, setFocusedField] = useState<string | null>(null);
@@ -112,12 +115,22 @@ export default function NequiForm({
                 phoneNumber: formData.phone_number,
             };
 
+            const cartData =
+                cartProducts?.map((product: CartProductsInfo) => ({
+                    product_id: product.id,
+                    quantity: product.quantity,
+                    price: product.price,
+                    name: product.name || product.title,
+                    color_code: product.color_code || "",
+                    size: product.size || "",
+                })) || []
+
             const response = await processNequiPaymentFlow(
                 customerData,
                 orderData,
                 nequiData,
                 undefined,
-                []
+                cartData
             );
 
             if (!response.success || !response.data) {

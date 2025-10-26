@@ -6,7 +6,7 @@ CREATE OR REPLACE FUNCTION fn_create_order(
 RETURNS TABLE(
     order_id INTEGER,
     payment_id INTEGER,
-    total_amount INTEGER,
+    total_amount BIGINT,
     success BOOLEAN,
     message TEXT
 )
@@ -135,46 +135,62 @@ BEGIN
 
     -- VERIFICAR QUE EL SUBTOTAL NO SEA 0
     IF v_subtotal = 0 THEN
-        RETURN QUERY SELECT 
+        RETURN QUERY SELECT
             NULL::INTEGER, p_payment_id, 0,
             FALSE, ('Subtotal es 0 después de procesar ' || v_cart_items_count || ' items')::TEXT;
         RETURN;
     END IF;
 
-    INSERT INTO orders (
-        payment_id,
-        status,
-        subtotal,
-        discount,
-        shipping_cost,
-        taxes,
-        total,
-        shipping_address_id,
-        coupon_id,
-        coupon_discount,
-        user_id,
-        updated_by,
-        created_at,
-        updated_at
-    ) VALUES (
-        p_payment_id,
-        CASE
-            WHEN v_payment.payment_status = 'APPROVED' THEN 'paid'::orders_status_enum
-            ELSE 'pending'::orders_status_enum
-        END,
-        v_subtotal,
-        0,
-        v_payment.amount_in_cents - v_subtotal - ROUND(v_subtotal * 0.19),
-        ROUND(v_subtotal * 0.19),
-        v_payment.amount_in_cents,
-        p_shipping_address_id,
-        p_coupon_id,
-        0,
-        v_payment.user_id,
-        v_payment.user_id,
-        NOW(),
-        NOW()
-    ) RETURNING id INTO v_new_order_id;
+    DECLARE
+        v_taxes INTEGER;
+        v_shipping_cost INTEGER;
+        v_final_subtotal INTEGER;
+    BEGIN
+        v_taxes := ROUND(v_subtotal * 0.19);
+
+     
+        v_shipping_cost := GREATEST(0, v_payment.amount_in_cents - v_subtotal - v_taxes);
+
+        v_final_subtotal := v_subtotal;
+        IF v_shipping_cost = 0 THEN
+            v_final_subtotal := v_payment.amount_in_cents - v_taxes;
+        END IF;
+
+        INSERT INTO orders (
+            payment_id,
+            status,
+            subtotal,
+            discount,
+            shipping_cost,
+            taxes,
+            total,
+            shipping_address_id,
+            coupon_id,
+            coupon_discount,
+            user_id,
+            updated_by,
+            created_at,
+            updated_at
+        ) VALUES (
+            p_payment_id,
+            CASE
+                WHEN v_payment.payment_status = 'APPROVED' THEN 'paid'::orders_status_enum
+                ELSE 'pending'::orders_status_enum
+            END,
+            v_final_subtotal,
+            0,
+            v_shipping_cost,
+            v_taxes,
+            v_payment.amount_in_cents,
+            p_shipping_address_id,
+            p_coupon_id,
+            0,
+            v_payment.user_id,
+            v_payment.user_id,
+            NOW(),
+            NOW()
+        ) RETURNING id INTO v_new_order_id;
+    END;
 
     SELECT 
         result.items_created, 

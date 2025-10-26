@@ -80,6 +80,16 @@ export const getUserByIdService = async (id: number | undefined) => {
     },
   });
 
+  const cart = await prisma.cart.findUnique({
+    where: { id },
+    select: {
+      id: true,
+    },
+  });
+  if (!cart) {
+    await prisma.$executeRaw`CALL sp_create_cart(${id}::int)`;
+  }
+
   return user;
 };
 

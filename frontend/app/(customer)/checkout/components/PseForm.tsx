@@ -19,6 +19,8 @@ import {
     convertToCents,
     type PSEFinancialInstitution,
 } from "../services/paymentsApi";
+import { useCart } from "../../(cart)/hooks/useCart";
+import { CartProductsInfo } from "../../types";
 
 interface PSEFormData {
     user_type: 0 | 1;
@@ -49,6 +51,7 @@ export default function WompiPSEForm({
     userId,
     acceptanceTokens,
 }: WompiPSEFormProps) {
+    const { cartProducts } = useCart();
     const [financialInstitutions, setFinancialInstitutions] = useState<PSEFinancialInstitution[]>([]);
     const [loading, setLoading] = useState(false);
     const [loadingInstitutions, setLoadingInstitutions] = useState(true);
@@ -182,12 +185,22 @@ export default function WompiPSEForm({
                 financialInstitutionCode: formData.financial_institution_code,
             };
 
+            const cartData =
+                cartProducts?.map((product: CartProductsInfo) => ({
+                    product_id: product.id,
+                    quantity: product.quantity,
+                    price: product.price,
+                    name: product.name || product.title,
+                    color_code: product.color_code || "",
+                    size: product.size || "",
+                })) || []
+
             const response = await processPSEPaymentFlow(
                 customerData,
                 orderData,
                 pseData,
                 undefined,
-                []
+                cartData
             );
 
             if (!response.success || !response.data) {

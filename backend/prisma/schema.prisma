@@ -138,11 +138,11 @@ model orders {
   id                           Int                @id @default(autoincrement())
   payment_id                   Int
   status                       orders_status_enum @default(pending)
-  subtotal                     Int
+  subtotal                     BigInt
   discount                     Int?               @default(0)
   shipping_cost                Int
   taxes                        Int
-  total                        Int
+  total                        BigInt
   shipping_address_id          Int
   user_note                    String?            @db.VarChar(500)
   admin_notes                  String?
@@ -307,7 +307,7 @@ model payments {
   id                       Int                 @id @default(autoincrement())
   transaction_id           String?             @unique @db.VarChar(255)
   reference                String              @unique @db.VarChar(255)
-  amount_in_cents          Int
+  amount_in_cents          BigInt
   currency                 String              @default("COP") @db.VarChar(3)
   payment_status           payment_status_enum @default(PENDING)
   status_message           String?             @db.VarChar(500)
@@ -383,10 +383,4 @@ enum payment_status_enum {
   DECLINED
   VOIDED
   ERROR
-}
-
-enum orders_paymentmethod_enum {
-  paypal
-  nequi
-  efecty
 }

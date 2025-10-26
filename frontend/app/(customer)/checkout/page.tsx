@@ -63,7 +63,7 @@ export default function CheckoutPage() {
   useEffect(() => {
     const timer = setTimeout(() => {
       setIsInitializing(false);
-    }, 500);
+    }, 600);
 
     return () => clearTimeout(timer);
   }, []);

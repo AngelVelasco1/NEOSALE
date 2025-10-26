@@ -10,7 +10,7 @@ interface CreateOrderFromPaymentRequest {
 interface CreateOrderFromPaymentResponse {
   order_id: number;
   payment_id: number;
-  total_amount: number;
+  total_amount: bigint;
   success: boolean;
   message: string;
 }
@@ -84,7 +84,7 @@ export const createOrderService = async ({
       message: orderResult.message,
     };
   } catch (error) {
-    console.error("❌ Error en createOrderFromPaymentService:", error);
+    console.error("Error en createOrderFromPaymentService:", error);
     throw new Error(
       error instanceof Error
         ? error.message
