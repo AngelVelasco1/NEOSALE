@@ -301,14 +301,14 @@ CREATE TABLE addresses (
 
 
 CREATE TABLE orders (
-    id SERIAL PRIMARY KEY,  
-    payment_id INTEGER NOT NULL REFERENCES payments(id) ON DELETE CASCADE, 
-    status orders_status_enum NOT NULL DEFAULT 'pending',  
-    subtotal BIGINT NOT NULL,
+    id SERIAL PRIMARY KEY,
+    payment_id INTEGER NOT NULL REFERENCES payments(id) ON DELETE CASCADE,
+    status orders_status_enum NOT NULL DEFAULT 'pending',
+    subtotal INTEGER NOT NULL,
     discount INTEGER DEFAULT 0,
     shipping_cost INTEGER NOT NULL,
     taxes INTEGER NOT NULL,
-    total BIGINT NOT NULL,
+    total INTEGER NOT NULL,
     
     -- Información de envío
     shipping_address_id INTEGER NOT NULL REFERENCES addresses(id),
@@ -398,7 +398,7 @@ CREATE TABLE order_items (
     order_id INTEGER NOT NULL REFERENCES orders(id) ON DELETE NO ACTION,
     created_at TIMESTAMP(6) DEFAULT CURRENT_TIMESTAMP NOT NULL,
     updated_at TIMESTAMP(6),
-    
+
     CONSTRAINT chk_order_item_price CHECK (price >= 0),
     CONSTRAINT chk_order_item_quantity CHECK (quantity > 0),
     CONSTRAINT chk_order_item_subtotal CHECK (subtotal >= 0)

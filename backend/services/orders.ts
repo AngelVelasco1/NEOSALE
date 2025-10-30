@@ -10,7 +10,7 @@ interface CreateOrderFromPaymentRequest {
 interface CreateOrderFromPaymentResponse {
   order_id: number;
   payment_id: number;
-  total_amount: bigint;
+  total: number;
   success: boolean;
   message: string;
 }
@@ -28,7 +28,7 @@ interface ProcessOrderResult {
   orderId?: number;
   success: boolean;
   message: string;
-  totalAmount?: number;
+  total?: number;
 }
 
 interface PaymentInfo {
@@ -47,7 +47,7 @@ interface PaymentWithOrder {
   id: number;
   transaction_id: string;
   payment_status: string;
-  amount_in_cents: number;
+  amount_in_cents: bigint;
   user_id: number;
   order_id?: number;
 }
@@ -79,7 +79,7 @@ export const createOrderService = async ({
     return {
       order_id: orderResult.order_id,
       payment_id: orderResult.payment_id,
-      total_amount: orderResult.total_amount,
+      total: orderResult.total,
       success: orderResult.success,
       message: orderResult.message,
     };
@@ -169,11 +169,11 @@ export const getOrderWithPaymentService = async (orderId: number) => {
 
     let payment: PaymentInfo | null = null;
     const paymentResult = await prisma.$queryRaw<PaymentInfo[]>`
-      SELECT 
-        id, transaction_id, payment_status, payment_method, 
-        amount_in_cents, currency, checkout_url, customer_email,
+      SELECT
+        id, transaction_id, payment_status, payment_method,
+        (amount_in_cents / 100)::INTEGER as amount_in_cents, currency, checkout_url, customer_email,
         created_at, approved_at
-      FROM payments 
+      FROM payments
       WHERE id = (SELECT payment_id FROM orders WHERE id = ${orderId}::INTEGER)
     `;
 
@@ -220,11 +220,11 @@ export const getUserOrdersWithPaymentsService = async (userId: number) => {
       orders.map(async (order) => {
         let payment: PaymentInfo | null = null;
         const paymentResult = await prisma.$queryRaw<PaymentInfo[]>`
-          SELECT 
-            id, transaction_id, payment_status, payment_method, 
-            amount_in_cents, currency, customer_email,
+          SELECT
+            id, transaction_id, payment_status, payment_method,
+            (amount_in_cents / 100)::INTEGER as amount_in_cents, currency, customer_email,
             created_at, approved_at
-          FROM payments 
+          FROM payments
           WHERE id = (SELECT payment_id FROM orders WHERE id = ${order.id}::INTEGER)
         `;
 
@@ -547,7 +547,7 @@ export const processWompiOrderWebhook = async (
           orderId: orderResult.order_id,
           success: orderResult.success,
           message: orderResult.message,
-          totalAmount: orderResult.total_amount,
+          total: orderResult.total,
         };
       } catch (orderError) {
         console.error("Error creando orden desde webhook:", orderError);
@@ -585,7 +585,7 @@ export const processWompiOrderWebhook = async (
         orderId: payment.order_id,
         success: true,
         message: `Orden ${payment.order_id} actualizada a ${newOrderStatus}`,
-        totalAmount: payment.amount_in_cents,
+        total: Number(payment.amount_in_cents),
       };
     }
 

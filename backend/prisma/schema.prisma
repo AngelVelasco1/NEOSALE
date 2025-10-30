@@ -138,11 +138,11 @@ model orders {
   id                           Int                @id @default(autoincrement())
   payment_id                   Int
   status                       orders_status_enum @default(pending)
-  subtotal                     BigInt
+  subtotal                     Int
   discount                     Int?               @default(0)
   shipping_cost                Int
   taxes                        Int
-  total                        BigInt
+  total                        Int
   shipping_address_id          Int
   user_note                    String?            @db.VarChar(500)
   admin_notes                  String?
