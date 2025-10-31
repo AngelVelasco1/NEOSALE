@@ -1,7 +1,7 @@
-import { SupabaseClient } from "@supabase/supabase-js";
-
-import { Database } from "@/types/supabase";
-import { queryPaginatedTable } from "@/helpers/queryPaginatedTable";
+// TODO: Migrado a Prisma - Usa API routes
+// import { SupabaseClient } from "@supabase/supabase-js";
+// import { Database } from "@/types/supabase";
+// import { queryPaginatedTable } from "@/helpers/queryPaginatedTable";
 import {
   Order,
   FetchOrdersParams,
@@ -9,9 +9,12 @@ import {
   OrderDetails,
 } from "./types";
 
+// Migrado a Prisma - Usa API routes
 export async function fetchOrders(
-  client: SupabaseClient<Database>,
-  {
+  params: FetchOrdersParams,
+  _client?: any // No se usa más, mantenido por compatibilidad
+): Promise<FetchOrdersResponse> {
+  const {
     page = 1,
     limit = 10,
     search,
@@ -19,8 +22,27 @@ export async function fetchOrders(
     method,
     startDate,
     endDate,
-  }: FetchOrdersParams
-): Promise<FetchOrdersResponse> {
+  } = params;
+  
+  const queryParams = new URLSearchParams({
+    page: page.toString(),
+    limit: limit.toString(),
+    ...(search && { search }),
+    ...(status && { status }),
+    ...(method && { method }),
+    ...(startDate && { startDate }),
+    ...(endDate && { endDate }),
+  });
+
+  const response = await fetch(`/api/orders?${queryParams.toString()}`);
+  
+  if (!response.ok) {
+    throw new Error("Failed to fetch orders");
+  }
+
+  return response.json();
+  
+  /* CÓDIGO ORIGINAL CON SUPABASE - ARCHIVADO
   const selectQuery = `
     *,
     customers!inner (
@@ -102,4 +124,14 @@ export async function fetchOrderDetails(
   return {
     order: data as OrderDetails,
   };
+  */
+}
+
+// Stub temporal para fetchOrderDetails
+export async function fetchOrderDetails(
+  params: { id: string },
+  _client?: any
+): Promise<{ order: OrderDetails | null }> {
+  // TODO: Implementar con Prisma
+  return { order: null };
 }

@@ -11,10 +11,10 @@ import {
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 
 import { Settings, LogOut, LayoutGrid } from "lucide-react";
-import { useUser } from "@/contexts/UserContext";
+import { useUserSafe } from "@/app/(auth)/hooks/useUserSafe";
 
 export default function Profile() {
-  const { profile } = useUser();
+  const { userProfile } = useUserSafe();
 
   const getInitials = (name: string | null | undefined): string => {
     if (!name) return "??";
@@ -31,11 +31,11 @@ export default function Profile() {
         <DropdownMenuTrigger className="rounded-full ring-offset-background focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2">
           <Avatar>
             <AvatarImage
-              src={profile?.image_url ?? undefined}
-              alt={profile?.name ?? "User avatar"}
+              src={undefined}
+              alt={userProfile?.name ?? "User avatar"}
               className="object-cover object-center"
             />
-            <AvatarFallback>{getInitials(profile?.name)}</AvatarFallback>
+            <AvatarFallback>{getInitials(userProfile?.name)}</AvatarFallback>
           </Avatar>
         </DropdownMenuTrigger>
 

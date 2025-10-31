@@ -2,7 +2,7 @@ import React from "react";
 import Link from "next/link";
 
 import { cn } from "@/lib/utils";
-import { TypographyProps } from "@/types/typography";
+import { TypographyProps } from "@/app/(admin)/types/typography";
 
 const Typography = ({
   variant = "span",
@@ -17,6 +17,8 @@ const Typography = ({
     h2: "text-xl md:text-2xl font-semibold",
     h3: "text-lg md:text-xl font-semibold",
     h4: "text-base md:text-lg font-semibold",
+    h5: "text-sm md:text-base font-semibold",
+    h6: "text-xs md:text-sm font-semibold",
     p: "text-sm md:text-base",
     span: "",
     a: "text-sm md:text-base text-primary underline-offset-4 hover:underline transition-colors",

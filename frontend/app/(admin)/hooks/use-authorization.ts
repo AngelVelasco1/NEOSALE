@@ -1,36 +1,40 @@
-import { useUser, UserRole } from "../contexts/UserContext";
+import { useUserSafe } from "@/app/(auth)/hooks/useUserSafe";
+import { useSession } from "next-auth/react";
+
+// Tipos de roles basados en Prisma
+type UserRole = "user" | "admin";
 
 const permissions = {
   orders: {
-    canChangeStatus: ["super_admin", "admin", "cashier"],
-    canPrint: ["super_admin", "admin", "cashier"],
+    canChangeStatus: ["admin"],
+    canPrint: ["admin"],
   },
   categories: {
-    canCreate: ["super_admin", "admin"],
-    canDelete: ["super_admin", "admin"],
-    canEdit: ["super_admin", "admin"],
-    canTogglePublished: ["super_admin", "admin"],
+    canCreate: ["admin"],
+    canDelete: ["admin"],
+    canEdit: ["admin"],
+    canTogglePublished: ["admin"],
   },
   coupons: {
-    canCreate: ["super_admin", "admin"],
-    canDelete: ["super_admin", "admin"],
-    canEdit: ["super_admin", "admin"],
-    canTogglePublished: ["super_admin", "admin"],
+    canCreate: ["admin"],
+    canDelete: ["admin"],
+    canEdit: ["admin"],
+    canTogglePublished: ["admin"],
   },
   customers: {
-    canDelete: ["super_admin"],
-    canEdit: ["super_admin", "admin"],
+    canDelete: ["admin"],
+    canEdit: ["admin"],
   },
   products: {
-    canCreate: ["super_admin", "admin"],
-    canDelete: ["super_admin", "admin"],
-    canEdit: ["super_admin", "admin"],
-    canTogglePublished: ["super_admin", "admin"],
+    canCreate: ["admin"],
+    canDelete: ["admin"],
+    canEdit: ["admin"],
+    canTogglePublished: ["admin"],
   },
   staff: {
-    canDelete: ["super_admin"],
-    canEdit: ["super_admin"],
-    canTogglePublished: ["super_admin"],
+    canDelete: ["admin"],
+    canEdit: ["admin"],
+    canTogglePublished: ["admin"],
   },
 } as const;
 
@@ -38,20 +42,26 @@ type PermissionMap = typeof permissions;
 type Feature = keyof PermissionMap;
 
 export function useAuthorization() {
-  const { user, profile, isLoading } = useUser();
+  const { data: session } = useSession();
+  const { isLoading } = useUserSafe();
 
   const hasPermission = <F extends Feature>(
     feature: F,
     action: keyof PermissionMap[F]
   ): boolean => {
-    if (isLoading || !profile || !profile.role) return false;
+    if (isLoading || !session?.user) return false;
+
+    // Obtener el rol del usuario desde la sesión de NextAuth
+    const userRole = (session.user as any).role as UserRole;
+    
+    if (!userRole) return false;
 
     const allowedRoles = permissions[feature][action];
-    return (allowedRoles as UserRole[]).includes(profile.role);
+    return (allowedRoles as UserRole[]).includes(userRole);
   };
 
-  const isSelf = (staffId: string) => {
-    return user?.id === staffId;
+  const isSelf = (userId: string) => {
+    return session?.user?.id === userId;
   };
 
   return { hasPermission, isSelf, isLoading };

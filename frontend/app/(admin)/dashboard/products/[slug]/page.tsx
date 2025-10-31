@@ -2,14 +2,14 @@ import Image from "next/image";
 import { Metadata } from "next";
 import { notFound } from "next/navigation";
 
-import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
-import Typography from "@/components/ui/typography";
-import PageTitle from "@/components/shared/PageTitle";
-import { ProductBadgeVariants } from "@/constants/badge";
+import { Badge } from "@/app/(admin)/components/ui/badge";
+import { Button } from "@/app/(admin)/components/ui/button";
+import Typography from "@/app/(admin)/components/ui/typography";
+import PageTitle from "@/app/(admin)/components/shared/PageTitle";
+import { ProductBadgeVariants } from "@/app/(admin)/constants/badge";
 import { EditProductSheet } from "./_components/EditProductSheet";
 
-import { fetchProductDetails } from "@/services/products";
+import { fetchProductDetails } from "@/app/(admin)/services/products";
 import { createServerClient } from "@/lib/supabase/server";
 
 type PageParams = {
@@ -63,7 +63,7 @@ export default async function ProductDetails({ params: { slug } }: PageParams) {
               <Badge
                 variant={
                   ProductBadgeVariants[
-                    product.stock > 0 ? "selling" : "out-of-stock"
+                  product.stock > 0 ? "selling" : "out-of-stock"
                   ]
                 }
                 className="flex-shrink-0 text-xs"

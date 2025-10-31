@@ -1,6 +1,6 @@
 import { Loader2, ShieldAlert } from "lucide-react";
 
-import Typography from "@/components/ui/typography";
+import Typography from "@/app/(admin)/components/ui/typography";
 
 type Props = {
   children: React.ReactNode;

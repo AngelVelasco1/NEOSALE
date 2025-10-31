@@ -2,27 +2,27 @@ import { PenSquare, Trash2 } from "lucide-react";
 import { ColumnDef } from "@tanstack/react-table";
 import { toast } from "sonner";
 
-import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
-import Typography from "@/components/ui/typography";
-import { Skeleton } from "@/components/ui/skeleton";
+import { Badge } from "@/app/(admin)/components/ui/badge";
+import { Button } from "@/app/(admin)/components/ui/button";
+import Typography from "@/app/(admin)/components/ui/typography";
+import { Skeleton } from "@/app/(admin)/components/ui/skeleton";
 import noProfilePicture from "public/assets/no-profile-picture.jpg";
 
-import { TableSwitch } from "@/components/shared/table/TableSwitch";
-import { ImagePlaceholder } from "@/components/shared/ImagePlaceholder";
-import { TooltipWrapper } from "@/components/shared/table/TableActionTooltip";
-import { SheetTooltip } from "@/components/shared/table/TableActionTooltip";
-import { TableActionAlertDialog } from "@/components/shared/table/TableActionAlertDialog";
+import { TableSwitch } from "@/app/(admin)/components/shared/table/TableSwitch";
+import { ImagePlaceholder } from "@/app/(admin)/components/shared/ImagePlaceholder";
+import { TooltipWrapper } from "@/app/(admin)/components/shared/table/TableActionTooltip";
+import { SheetTooltip } from "@/app/(admin)/components/shared/table/TableActionTooltip";
+import { TableActionAlertDialog } from "@/app/(admin)/components/shared/table/TableActionAlertDialog";
 import StaffFormSheet from "../form/StaffFormSheet";
-import { StaffBadgeVariants } from "@/constants/badge";
-import { SkeletonColumn } from "@/types/skeleton";
-import { Staff } from "@/services/staff/types";
+import { StaffBadgeVariants } from "@/app/(admin)/constants/badge";
+import { SkeletonColumn } from "@/app/(admin)/types/skeleton";
+import { Staff } from "@/app/(admin)/services/staff/types";
 import { format } from "date-fns";
 
-import { editStaff } from "@/actions/staff/editStaff";
-import { deleteStaff } from "@/actions/staff/deleteStaff";
-import { toggleStaffPublishedStatus } from "@/actions/staff/toggleStaffStatus";
-import { HasPermission, IsSelf } from "@/hooks/use-authorization";
+import { editStaff } from "@/app/(admin)/actions/staff/editStaff";
+import { deleteStaff } from "@/app/(admin)/actions/staff/deleteStaff";
+import { toggleStaffPublishedStatus } from "@/app/(admin)/actions/staff/toggleStaffStatus";
+import { HasPermission, IsSelf } from "@/app/(admin)/hooks/use-authorization";
 
 const handleDemoDelete = () => {
   toast.error("Sorry, this feature is not allowed in demo mode", {

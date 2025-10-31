@@ -1,9 +1,9 @@
 import { cookies } from "next/headers";
 
-import Header from "@/components/shared/header";
-import Container from "@/components/ui/container";
-import AppSidebar from "@/components/shared/sidebar/AppSidebar";
-import { SidebarProvider } from "@/components/ui/sidebar";
+import Header from "@/app/(admin)/components/shared/header";
+import Container from "@/app/(admin)/components/ui/container";
+import AppSidebar from "@/app/(admin)/components/shared/sidebar/AppSidebar";
+import { SidebarProvider } from "@/app/(admin)/components/ui/sidebar";
 
 export default async function RootLayout({
   children,

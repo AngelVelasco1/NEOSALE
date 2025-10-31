@@ -2,15 +2,20 @@
 
 import { revalidatePath } from "next/cache";
 
-import { createServerActionClient } from "@/lib/supabase/server-action";
-import { productFormSchema } from "@/app/(dashboard)/products/_components/form/schema";
-import { formatValidationErrors } from "@/helpers/formatValidationErrors";
-import { ProductServerActionResponse } from "@/types/server-action";
+// TODO: Migrar a Prisma
+// import { createServerActionClient } from "@/lib/supabase/server-action";
+// import { productFormSchema } from "@/app/(dashboard)/products/_components/form/schema";
+// import { formatValidationErrors } from "@/app/(admin)/helpers/formatValidationErrors";
+import { ProductServerActionResponse } from "@/app/(admin)/types/server-action";
 
 export async function editProduct(
   productId: string,
   formData: FormData
 ): Promise<ProductServerActionResponse> {
+  // TODO: Implementar con Prisma
+  return { dbError: "Edit product not implemented yet. Migration to Prisma pending." };
+  
+  /* CÓDIGO ORIGINAL CON SUPABASE - PENDIENTE DE MIGRACIÓN
   const supabase = createServerActionClient();
 
   const parsedData = productFormSchema.safeParse({
@@ -124,4 +129,5 @@ export async function editProduct(
   revalidatePath(`/products/${updatedProduct.slug}`);
 
   return { success: true, product: updatedProduct };
+  */
 }

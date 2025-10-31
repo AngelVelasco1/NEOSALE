@@ -3,8 +3,8 @@
 import axios from "axios";
 import { useEffect } from "react";
 import { toast } from "sonner";
-import { redirect, useSearchParams } from "next/navigation";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { redirect } from "next/navigation";
+import { useMutation } from "@tanstack/react-query";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import * as z from "zod";
@@ -16,44 +16,38 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
-} from "@/components/ui/form";
-import Typography from "@/components/ui/typography";
-import { Input } from "@/components/ui/input";
-import { Separator } from "@/components/ui/separator";
-import { FormSubmitButton } from "@/components/shared/form/FormSubmitButton";
+} from "@/app/(admin)/components/ui/form";
+import Typography from "@/app/(admin)/components/ui/typography";
+import { Input } from "@/app/(admin)/components/ui/input";
+import { FormSubmitButton } from "@/app/(admin)/components/shared/form/FormSubmitButton";
 
-import { loginFields } from "./fields";
-import { loginFormSchema } from "./schema";
-import AuthProviders from "@/components/shared/auth/AuthProviders";
+import { passwordResetFields } from "./fields";
+import { passwordResetFormSchema } from "./schema";
 
-type FormData = z.infer<typeof loginFormSchema>;
+type FormData = z.infer<typeof passwordResetFormSchema>;
 
-export default function LoginForm() {
-  const queryClient = useQueryClient();
-  const searchParams = useSearchParams();
-
+export default function PasswordResetForm() {
   const form = useForm<FormData>({
-    resolver: zodResolver(loginFormSchema),
+    resolver: zodResolver(passwordResetFormSchema),
     defaultValues: {
-      email: "test@admin.com",
-      password: "test12345",
+      email: "",
     },
   });
 
   const { mutate, isPending, isSuccess } = useMutation({
     mutationFn: async (formData: FormData) => {
-      await axios.post("/auth/sign-in", formData);
+      await axios.post("/auth/forgot-password", formData);
     },
     onSuccess: () => {
-      toast.success("Login Success!", {
-        description: searchParams.get("redirect_to")
-          ? "Redirecting to your page..."
-          : "Redirecting to the dashboard...",
-        position: "top-center",
-      });
+      toast.success(
+        "We've sent you an email with instructions to reset your password. Please check your inbox and follow the instructions.",
+        {
+          position: "top-center",
+          duration: 7000,
+        }
+      );
 
       form.reset();
-      queryClient.invalidateQueries({ queryKey: ["user-profile"] });
     },
     onError: (error) => {
       if (axios.isAxiosError(error)) {
@@ -78,21 +72,19 @@ export default function LoginForm() {
 
   useEffect(() => {
     if (isSuccess) {
-      const redirectTo = searchParams.get("redirect_to");
-
-      return redirect(redirectTo || "/");
+      return redirect("/login");
     }
-  }, [isSuccess, searchParams]);
+  }, [isSuccess]);
 
   return (
     <div className="w-full">
-      <Typography variant="h2" className="mb-8">
-        Login
+      <Typography variant="h2" className="mb-4">
+        Forgot Password?
       </Typography>
 
       <Form {...form}>
-        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-          {loginFields.map((formField) => (
+        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4 pb-6">
+          {passwordResetFields.map((formField) => (
             <FormField
               key={`form-field-${formField.name}`}
               control={form.control}
@@ -115,21 +107,14 @@ export default function LoginForm() {
           ))}
 
           <FormSubmitButton isPending={isPending} className="w-full">
-            Login
+            Recover password
           </FormSubmitButton>
         </form>
       </Form>
 
-      <Separator className="my-12" />
-
-      <AuthProviders />
-
-      <div className="flex flex-wrap justify-between gap-4 w-full">
-        <Typography variant="a" href="/forgot-password" className="md:!text-sm">
-          Forgot password?
-        </Typography>
+      <div>
         <Typography variant="a" href="/signup" className="md:!text-sm">
-          Create an account
+          Don&apos;t have an account? Create one now
         </Typography>
       </div>
     </div>

@@ -10,7 +10,6 @@ import TableError from "@/components/shared/table/TableError";
 
 import { getSearchParams } from "@/helpers/getSearchParams";
 import { fetchProducts } from "@/services/products";
-import { createBrowserClient } from "@/lib/supabase/client";
 import { RowSelectionProps } from "@/types/data-table";
 import { useAuthorization } from "@/hooks/use-authorization";
 
@@ -41,7 +40,7 @@ export default function AllProducts({
       date,
     ],
     queryFn: () =>
-      fetchProducts(createBrowserClient(), {
+      fetchProducts({
         page,
         limit,
         search,

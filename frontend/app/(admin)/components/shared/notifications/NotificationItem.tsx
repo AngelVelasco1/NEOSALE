@@ -8,11 +8,11 @@ import { X, Loader2 } from "lucide-react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 
 import { Badge } from "@/components/ui/badge";
-import Typography from "@/components/ui/typography";
-import { Button } from "@/components/ui/button";
-import { Notification } from "@/services/notifications/types";
-import { deleteNotification } from "@/services/notifications";
-import { createBrowserClient } from "@/lib/supabase/client";
+import Typography from "@/app/(admin)/components/ui/typography";
+import { Button } from "@/app/(admin)/components/ui/button";
+import { Notification } from "@/app/(admin)/services/notifications/types";
+import { deleteNotification } from "@/app/(admin)/services/notifications";
+import { createBrowserClient } from "@/app/(admin)/lib/supabase/client";
 
 type Props = {
   notification: Notification;

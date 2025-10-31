@@ -2,9 +2,9 @@
 
 import { revalidatePath } from "next/cache";
 
-import { createServerActionClient } from "@/lib/supabase/server-action";
-import { ServerActionResponse } from "@/types/server-action";
-import { OrderStatus } from "@/services/orders/types";
+import { createServerActionClient } from "@/app/(admin)/lib/supabase/server-action";
+import { ServerActionResponse } from "@/app/(admin)/types/server-action";
+import { OrderStatus } from "@/app/(admin)/services/orders/types";
 
 export async function changeOrderStatus(
   orderId: string,

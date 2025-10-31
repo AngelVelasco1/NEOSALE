@@ -2,15 +2,20 @@
 
 import { revalidatePath } from "next/cache";
 
-import { createServerActionClient } from "@/lib/supabase/server-action";
-import { productBulkFormSchema } from "@/app/(dashboard)/products/_components/form/schema";
-import { formatValidationErrors } from "@/helpers/formatValidationErrors";
-import { VServerActionResponse } from "@/types/server-action";
+// TODO: Migrar a Prisma
+// import { createServerActionClient } from "@/lib/supabase/server-action";
+// import { productBulkFormSchema } from "@/app/(dashboard)/products/_components/form/schema";
+// import { formatValidationErrors } from "@/app/(admin)/helpers/formatValidationErrors";
+import { VServerActionResponse } from "@/app/(admin)/types/server-action";
 
 export async function editProducts(
   productIds: string[],
   formData: FormData
 ): Promise<VServerActionResponse> {
+  // TODO: Implementar con Prisma
+  return { dbError: "Bulk edit not implemented yet. Migration to Prisma pending." };
+  
+  /* CÓDIGO ORIGINAL CON SUPABASE - PENDIENTE DE MIGRACIÓN
   const supabase = createServerActionClient();
 
   const parsedData = productBulkFormSchema.safeParse({
@@ -48,4 +53,5 @@ export async function editProducts(
   revalidatePath("/products");
 
   return { success: true };
+  */
 }

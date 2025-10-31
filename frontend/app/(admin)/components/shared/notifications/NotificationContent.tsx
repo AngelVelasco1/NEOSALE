@@ -2,11 +2,11 @@
 
 import { useQuery } from "@tanstack/react-query";
 
-import Typography from "@/components/ui/typography";
+import Typography from "@/app/(admin)/components/ui/typography";
 import NotificationItem from "./NotificationItem";
 import NotificationItemSkeleton from "./NotificationItemSkeleton";
-import { fetchNotifications } from "@/services/notifications";
-import { createBrowserClient } from "@/lib/supabase/client";
+import { fetchNotifications } from "@/app/(admin)/services/notifications";
+import { createBrowserClient } from "@/app/(admin)/lib/supabase/client";
 
 export default function NotificationContent({ staffId }: { staffId: string }) {
   const {

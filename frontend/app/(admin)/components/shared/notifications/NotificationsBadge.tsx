@@ -3,9 +3,9 @@
 import { useQuery } from "@tanstack/react-query";
 
 import { cn } from "@/lib/utils";
-import Typography from "@/components/ui/typography";
-import { fetchNotificationsCount } from "@/services/notifications";
-import { createBrowserClient } from "@/lib/supabase/client";
+import Typography from "@/app/(admin)/components/ui/typography";
+import { fetchNotificationsCount } from "@/app/(admin)/services/notifications";
+import { createBrowserClient } from "@/app/(admin)/lib/supabase/client";
 
 const NotificationsBadge = ({ staffId }: { staffId: string }) => {
   const {

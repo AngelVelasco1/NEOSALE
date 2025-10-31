@@ -25,20 +25,21 @@ export const productFormSchema = z
     name: z
       .string()
       .min(1, { message: "Product name is required" })
-      .max(100, "Product name must be 100 characters or less"),
+      .max(255, "Product name must be 255 characters or less"),
     description: z
       .string()
       .min(1, { message: "Product description is required" })
-      .max(1000, "Product description must be 1000 characters or less"),
+      .max(500, "Product description must be 500 characters or less"),
     image: z.union([fileSchema, z.string().url()]),
     sku: z
       .string()
       .min(1, { message: "SKU is required" })
-      .max(30, "SKU must be 30 characters or less")
+      .max(100, "SKU must be 100 characters or less")
       .regex(/^[A-Z0-9-]+$/, {
         message: "SKU must be alphanumeric (uppercase) and can contain hyphens",
       }),
     category: z.string().min(1, { message: "Category is required" }),
+    brand: z.string().min(1, { message: "Brand is required" }),
     costPrice: z.coerce
       .number({
         invalid_type_error: "Cost price must be a number",
@@ -57,19 +58,25 @@ export const productFormSchema = z
       })
       .int({ message: "Stock must be a whole number" })
       .min(0, { message: "Stock cannot be negative" }),
-    minStockThreshold: z.coerce
+    weightGrams: z.coerce
       .number({
-        invalid_type_error: "Min stock must be a number",
+        invalid_type_error: "Weight must be a number",
       })
-      .int({ message: "Min stock threshold must be a whole number" })
-      .min(0, { message: "Min stock threshold cannot be negative" }),
-    slug: z
+      .int({ message: "Weight must be a whole number" })
+      .positive({ message: "Weight must be greater than zero" }),
+    sizes: z
       .string()
-      .min(1, { message: "Product slug is required" })
-      .max(100, "Product slug must be 100 characters or less")
-      .regex(/^[a-z0-9-]+$/, {
-        message:
-          "Slug must be lowercase, alphanumeric, and use hyphens for spaces",
+      .min(1, { message: "At least one size is required" })
+      .max(255, "Sizes must be 255 characters or less"),
+    color: z
+      .string()
+      .min(1, { message: "Color name is required" })
+      .max(255, "Color name must be 255 characters or less"),
+    colorCode: z
+      .string()
+      .min(1, { message: "Color code is required" })
+      .regex(/^#[0-9A-Fa-f]{6}$/, {
+        message: "Color code must be a valid hex color (e.g., #FF5733)",
       }),
   })
   .superRefine((data, ctx) => {
@@ -78,15 +85,6 @@ export const productFormSchema = z
         code: z.ZodIssueCode.custom,
         message: "Sales price must be greater than cost price",
         path: ["salesPrice"],
-      });
-    }
-
-    if (data.minStockThreshold > data.stock) {
-      ctx.addIssue({
-        code: z.ZodIssueCode.custom,
-        message:
-          "Minimum stock threshold cannot be greater than the total stock",
-        path: ["minStockThreshold"],
       });
     }
   });

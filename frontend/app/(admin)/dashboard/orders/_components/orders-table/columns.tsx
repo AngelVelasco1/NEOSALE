@@ -19,8 +19,8 @@ import { OrderBadgeVariants } from "../../../../constants/badge";
 import { Order, OrderStatus } from "../../../../services/orders/types";
 import { SkeletonColumn } from "../../../../types/skeleton";
 
-import { changeOrderStatus } from "../../../../actions/orders/changeOrderStatus";
-import { PrintInvoiceButton } from "./PrintInvoiceButton";
+/* import { changeOrderStatus } from "../../../../actions/orders/changeOrderStatus";
+ */import { PrintInvoiceButton } from "./PrintInvoiceButton";
 import { HasPermission } from "../../../../hooks/use-authorization";
 
 export const getColumns = ({
@@ -117,8 +117,9 @@ export const getColumns = ({
             toastSuccessMessage="Order status updated successfully."
             queryKey="orders"
             onValueChange={(value) =>
-              changeOrderStatus(row.original.id, value as OrderStatus)
-            }
+              console.log(value)
+/*               changeOrderStatus(row.original.id, value as OrderStatus)
+ */            }
           >
             <SelectItem value="pending">Pending</SelectItem>
             <SelectItem value="processing">Processing</SelectItem>

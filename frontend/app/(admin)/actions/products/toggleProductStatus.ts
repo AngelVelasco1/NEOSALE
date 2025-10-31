@@ -2,13 +2,18 @@
 
 import { revalidatePath } from "next/cache";
 
-import { createServerActionClient } from "@/lib/supabase/server-action";
-import { ServerActionResponse } from "@/types/server-action";
+// TODO: Migrar a Prisma
+// import { createServerActionClient } from "@/lib/supabase/server-action";
+import { ServerActionResponse } from "@/app/(admin)/types/server-action";
 
 export async function toggleProductPublishedStatus(
   productId: string,
   currentPublishedStatus: boolean
 ): Promise<ServerActionResponse> {
+  // TODO: Implementar con Prisma
+  return { dbError: "Toggle product status not implemented yet. Migration to Prisma pending." };
+  
+  /* CÓDIGO ORIGINAL CON SUPABASE - PENDIENTE DE MIGRACIÓN
   const supabase = createServerActionClient();
 
   const newPublishedStatus = !currentPublishedStatus;
@@ -26,4 +31,5 @@ export async function toggleProductPublishedStatus(
   revalidatePath("/products");
 
   return { success: true };
+  */
 }

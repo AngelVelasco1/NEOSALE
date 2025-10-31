@@ -1,7 +1,7 @@
-import { SupabaseClient } from "@supabase/supabase-js";
-
-import { Database } from "@/types/supabase";
-import { queryPaginatedTable } from "@/helpers/queryPaginatedTable";
+// TODO: Migrar a Prisma - Servicio temporalmente deshabilitado
+// import { SupabaseClient } from "@supabase/supabase-js";
+// import { Database } from "@/types/supabase";
+// import { queryPaginatedTable } from "@/helpers/queryPaginatedTable";
 import {
   Product,
   FetchProductsParams,
@@ -9,9 +9,12 @@ import {
   ProductDetails,
 } from "./types";
 
+// Migrado a Prisma - Usa API routes
 export async function fetchProducts(
-  client: SupabaseClient<Database>,
-  {
+  params: FetchProductsParams,
+  _client?: any // No se usa más, mantenido por compatibilidad
+): Promise<FetchProductsResponse> {
+  const {
     page = 1,
     limit = 10,
     search,
@@ -20,8 +23,26 @@ export async function fetchProducts(
     status,
     published,
     dateSort,
-  }: FetchProductsParams
-): Promise<FetchProductsResponse> {
+  } = params;
+  
+  const queryParams = new URLSearchParams({
+    page: page.toString(),
+    limit: limit.toString(),
+    ...(search && { search }),
+    ...(category && { category }),
+    ...(status && { status }),
+    ...(published !== undefined && { published: published.toString() }),
+  });
+
+  const response = await fetch(`/api/products?${queryParams.toString()}`);
+  
+  if (!response.ok) {
+    throw new Error("Failed to fetch products");
+  }
+
+  return response.json();
+  
+  /* CÓDIGO ORIGINAL CON SUPABASE - ARCHIVADO
   const selectQuery = `
     *,
     categories!inner (
@@ -113,4 +134,14 @@ export async function fetchProductDetails(
   return {
     product: data as ProductDetails,
   };
+  */
+}
+
+// Stub temporal para fetchProductDetails
+export async function fetchProductDetails(
+  client: any,
+  slug: string
+): Promise<{ product: ProductDetails | null }> {
+  // TODO: Implementar con Prisma
+  return { product: null };
 }

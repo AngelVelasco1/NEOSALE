@@ -3,12 +3,12 @@ import { notFound } from "next/navigation";
 import { IoBagHandle } from "react-icons/io5";
 
 import { Card } from "@/components/ui/card";
-import Typography from "@/components/ui/typography";
-import PageTitle from "@/components/shared/PageTitle";
+import Typography from "@/app/(admin)/components/ui/typography";
+import PageTitle from "@/app/(admin)/components/shared/PageTitle";
 
 import CustomerOrdersTable from "./_components/Table";
-import { createServerClient } from "@/lib/supabase/server";
-import { fetchCustomerOrders } from "@/services/customers";
+import { createServerClient } from "@/app/(admin)/lib/supabase/server";
+import { fetchCustomerOrders } from "@/app/(admin)/services/customers";
 
 type PageParams = {
   params: {

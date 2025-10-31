@@ -3,10 +3,10 @@ import { notFound } from "next/navigation";
 import { FaBagShopping } from "react-icons/fa6";
 import { format } from "date-fns";
 
-import PageTitle from "@/components/shared/PageTitle";
-import Typography from "@/components/ui/typography";
-import { Card } from "@/components/ui/card";
-import { Separator } from "@/components/ui/separator";
+import PageTitle from "@/app/(admin)/components/shared/PageTitle";
+import Typography from "@/app/(admin)/components/ui/typography";
+import { Card } from "@/app/(admin)/components/ui/card";
+import { Separator } from "@/app/(admin)/components/ui/separator";
 import {
   Table,
   TableBody,
@@ -14,12 +14,12 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from "@/components/ui/table";
-import { Badge } from "@/components/ui/badge";
+} from "@/app/(admin)/components/ui/table";
+import { Badge } from "@/app/(admin)/components/ui/badge";
 
-import { getDiscount } from "@/helpers/getDiscount";
-import { OrderBadgeVariants } from "@/constants/badge";
-import { fetchOrderDetails } from "@/services/orders";
+import { getDiscount } from "@/app/(admin)/helpers/getDiscount";
+import { OrderBadgeVariants } from "@/app/(admin)/constants/badge";
+import { fetchOrderDetails } from "@/app/(admin)/services/orders";
 import { createServerClient } from "@/lib/supabase/server";
 import { InvoiceActions } from "./_components/InvoiceActions";
 

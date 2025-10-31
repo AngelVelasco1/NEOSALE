@@ -1,9 +1,9 @@
 import { FaBagShopping } from "react-icons/fa6";
 import { format } from "date-fns";
 
-import Typography from "@/components/ui/typography";
-import { Card } from "@/components/ui/card";
-import { Separator } from "@/components/ui/separator";
+import Typography from "@/app/(admin)/components/ui/typography";
+import { Card } from "@/app/(admin)/components/ui/card";
+import { Separator } from "@/app/(admin)/components/ui/separator";
 import {
   Table,
   TableBody,
@@ -11,11 +11,11 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from "@/components/ui/table";
-import { Badge } from "@/components/ui/badge";
+} from "@/app/(admin)/components/ui/table";
+import { Badge } from "@/app/(admin)/components/ui/badge";
 
-import { OrderDetails } from "@/services/orders/types";
-import { OrderBadgeVariants } from "@/constants/badge";
+import { OrderDetails } from "@/app/(admin)/services/orders/types";
+import { OrderBadgeVariants } from "@/app/(admin)/constants/badge";
 
 export default function InvoicePdfTemplate({ order }: { order: OrderDetails }) {
   return (
@@ -219,10 +219,10 @@ export default function InvoicePdfTemplate({ order }: { order: OrderDetails }) {
               ? order.coupons.discount_type === "fixed"
                 ? order.coupons.discount_value.toFixed(2)
                 : (
-                    ((order.total_amount - order.shipping_cost) * 100) /
-                      (100 - order.coupons.discount_value) -
-                    (order.total_amount - order.shipping_cost)
-                  ).toFixed(2)
+                  ((order.total_amount - order.shipping_cost) * 100) /
+                  (100 - order.coupons.discount_value) -
+                  (order.total_amount - order.shipping_cost)
+                ).toFixed(2)
               : "0.00"}
           </Typography>
         </div>

@@ -2,12 +2,17 @@
 
 import { revalidatePath } from "next/cache";
 
-import { createServerActionClient } from "@/lib/supabase/server-action";
-import { ServerActionResponse } from "@/types/server-action";
+// TODO: Migrar a Prisma
+// import { createServerActionClient } from "@/lib/supabase/server-action";
+import { ServerActionResponse } from "@/app/(admin)/types/server-action";
 
 export async function deleteProducts(
   productIds: string[]
 ): Promise<ServerActionResponse> {
+  // TODO: Implementar con Prisma
+  return { dbError: "Bulk delete not implemented yet. Migration to Prisma pending." };
+  
+  /* CÓDIGO ORIGINAL CON SUPABASE - PENDIENTE DE MIGRACIÓN
   const supabase = createServerActionClient();
 
   const { data: productsData, error: fetchError } = await supabase
@@ -49,4 +54,5 @@ export async function deleteProducts(
   revalidatePath("/products");
 
   return { success: true };
+  */
 }

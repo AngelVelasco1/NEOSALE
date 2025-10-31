@@ -7,8 +7,8 @@ import { BsTruck } from "react-icons/bs";
 
 import { cn } from "@/lib/utils";
 import { Card, CardContent } from "@/components/ui/card";
-import Typography from "@/components/ui/typography";
-import { DashboardCard } from "@/types/card";
+import Typography from "@/app/(admin)/components/ui/typography";
+import { DashboardCard } from "@/app/(admin)/types/card";
 
 export default function StatusOverview() {
   const cards: DashboardCard[] = [

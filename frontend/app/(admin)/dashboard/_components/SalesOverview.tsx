@@ -2,8 +2,8 @@ import { HiOutlineRefresh } from "react-icons/hi";
 import { HiOutlineSquare3Stack3D, HiCalendarDays } from "react-icons/hi2";
 
 import { cn } from "@/lib/utils";
-import Typography from "@/components/ui/typography";
-import { DashboardCard } from "@/types/card";
+import Typography from "@/app/(admin)/components/ui/typography";
+import { DashboardCard } from "@/app/(admin)/types/card";
 
 export default function SalesOverview() {
   const cards: DashboardCard[] = [

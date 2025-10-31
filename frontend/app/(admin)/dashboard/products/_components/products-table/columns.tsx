@@ -3,26 +3,26 @@ import { ZoomIn, PenSquare, Trash2 } from "lucide-react";
 import { ColumnDef } from "@tanstack/react-table";
 
 import { cn } from "@/lib/utils";
-import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
-import { Checkbox } from "@/components/ui/checkbox";
-import Typography from "@/components/ui/typography";
-import { Skeleton } from "@/components/ui/skeleton";
-import { formatAmount } from "@/helpers/formatAmount";
+import { Badge } from "@/app/(admin)/components/ui/badge";
+import { Button } from "@/app/(admin)/components/ui/button";
+import { Checkbox } from "@/app/(admin)/components/ui/checkbox";
+import Typography from "@/app/(admin)/components/ui/typography";
+import { Skeleton } from "@/app/(admin)/components/ui/skeleton";
+import { formatAmount } from "@/app/(admin)/helpers/formatAmount";
 
-import { TableSwitch } from "@/components/shared/table/TableSwitch";
-import { ImagePlaceholder } from "@/components/shared/ImagePlaceholder";
-import { SheetTooltip } from "@/components/shared/table/TableActionTooltip";
-import { TableActionAlertDialog } from "@/components/shared/table/TableActionAlertDialog";
+import { TableSwitch } from "@/app/(admin)/components/shared/table/TableSwitch";
+import { ImagePlaceholder } from "@/app/(admin)/components/shared/ImagePlaceholder";
+import { SheetTooltip } from "@/app/(admin)/components/shared/table/TableActionTooltip";
+import { TableActionAlertDialog } from "@/app/(admin)/components/shared/table/TableActionAlertDialog";
 import ProductFormSheet from "../form/ProductFormSheet";
-import { ProductBadgeVariants } from "@/constants/badge";
-import { Product } from "@/services/products/types";
-import { SkeletonColumn } from "@/types/skeleton";
+import { ProductBadgeVariants } from "@/app/(admin)/constants/badge";
+import { Product } from "@/app/(admin)/services/products/types";
+import { SkeletonColumn } from "@/app/(admin)/types/skeleton";
 
-import { editProduct } from "@/actions/products/editProduct";
-import { deleteProduct } from "@/actions/products/deleteProduct";
-import { toggleProductPublishedStatus } from "@/actions/products/toggleProductStatus";
-import { HasPermission } from "@/hooks/use-authorization";
+import { editProduct } from "@/app/(admin)/actions/products/editProduct";
+import { deleteProduct } from "@/app/(admin)/actions/products/deleteProduct";
+import { toggleProductPublishedStatus } from "@/app/(admin)/actions/products/toggleProductStatus";
+import { HasPermission } from "@/app/(admin)/hooks/use-authorization";
 
 export const getColumns = ({
   hasPermission,

@@ -4,22 +4,22 @@ import { format } from "date-fns";
 
 import { Checkbox } from "@/components/ui/checkbox";
 import { Skeleton } from "@/components/ui/skeleton";
-import Typography from "@/components/ui/typography";
+import Typography from "@/app/(admin)/components/ui/typography";
 import { Badge } from "@/components/ui/badge";
 
-import { TableSwitch } from "@/components/shared/table/TableSwitch";
-import { ImagePlaceholder } from "@/components/shared/ImagePlaceholder";
-import { SheetTooltip } from "@/components/shared/table/TableActionTooltip";
-import { TableActionAlertDialog } from "@/components/shared/table/TableActionAlertDialog";
+import { TableSwitch } from "@/app/(admin)/components/shared/table/TableSwitch";
+import { ImagePlaceholder } from "@/app/(admin)/components/shared/ImagePlaceholder";
+import { SheetTooltip } from "@/app/(admin)/components/shared/table/TableActionTooltip";
+import { TableActionAlertDialog } from "@/app/(admin)/components/shared/table/TableActionAlertDialog";
 import CouponFormSheet from "../form/CouponFormSheet";
-import { CouponBadgeVariants } from "@/constants/badge";
-import { SkeletonColumn } from "@/types/skeleton";
-import { Coupon, CouponStatus } from "@/services/coupons/types";
+import { CouponBadgeVariants } from "@/app/(admin)/constants/badge";
+import { SkeletonColumn } from "@/app/(admin)/types/skeleton";
+import { Coupon, CouponStatus } from "@/app/(admin)/services/coupons/types";
 
-import { editCoupon } from "@/actions/coupons/editCoupon";
-import { deleteCoupon } from "@/actions/coupons/deleteCoupon";
-import { toggleCouponPublishedStatus } from "@/actions/coupons/toggleCouponStatus";
-import { HasPermission } from "@/hooks/use-authorization";
+import { editCoupon } from "@/app/(admin)/actions/coupons/editCoupon";
+import { deleteCoupon } from "@/app/(admin)/actions/coupons/deleteCoupon";
+import { toggleCouponPublishedStatus } from "@/app/(admin)/actions/coupons/toggleCouponStatus";
+import { HasPermission } from "@/app/(admin)/hooks/use-authorization";
 
 export const getColumns = ({
   hasPermission,

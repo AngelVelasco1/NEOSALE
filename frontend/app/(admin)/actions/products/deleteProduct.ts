@@ -2,52 +2,67 @@
 
 import { revalidatePath } from "next/cache";
 
-import { createServerActionClient } from "@/lib/supabase/server-action";
-import { ServerActionResponse } from "@/types/server-action";
+import { prisma } from "@/lib/prisma";
+import { auth } from "@/app/(auth)/auth";
+import { deleteImageFromCloudinary } from "@/lib/cloudinary";
+import { ServerActionResponse } from "@/app/(admin)/types/server-action";
 
 export async function deleteProduct(
   productId: string
 ): Promise<ServerActionResponse> {
-  const supabase = createServerActionClient();
-
-  const { data: productData, error: fetchError } = await supabase
-    .from("products")
-    .select("image_url")
-    .eq("id", productId)
-    .single();
-
-  if (fetchError) {
-    console.error("Failed to fetch product for deletion:", fetchError);
-    return { dbError: "Could not find the product to delete." };
+  // Verificar autenticación
+  const session = await auth();
+  if (!session?.user?.id) {
+    return { dbError: "Unauthorized. Please log in." };
   }
 
-  const imageUrl = productData?.image_url;
+  const userId = parseInt(session.user.id);
 
-  if (imageUrl) {
-    const imageFileName = `products/${imageUrl.split("/").pop()}`;
+  // Verificar permisos de admin
+  const user = await prisma.user.findUnique({
+    where: { id: userId },
+    select: { role: true, active: true },
+  });
 
-    if (imageFileName) {
-      const { error: storageError } = await supabase.storage
-        .from("assets")
-        .remove([imageFileName]);
+  if (!user || !user.active || user.role !== "admin") {
+    return { dbError: "Unauthorized. Admin access required." };
+  }
 
-      if (storageError) {
-        console.error("Failed to delete product image:", storageError);
+  try {
+    const productIdInt = parseInt(productId);
+
+    // Obtener el producto con sus imágenes
+    const product = await prisma.products.findUnique({
+      where: { id: productIdInt },
+      include: { images: true },
+    });
+
+    if (!product) {
+      return { dbError: "Product not found." };
+    }
+
+    // Eliminar imágenes de Cloudinary
+    if (product.images && product.images.length > 0) {
+      for (const image of product.images) {
+        try {
+          await deleteImageFromCloudinary(image.image_url);
+        } catch (error) {
+          console.error("Failed to delete image from Cloudinary:", error);
+          // Continuar aunque falle la eliminación de la imagen
+        }
       }
     }
-  }
 
-  const { error: dbError } = await supabase
-    .from("products")
-    .delete()
-    .eq("id", productId);
+    // Eliminar el producto (Prisma eliminará automáticamente las imágenes y variantes por CASCADE)
+    await prisma.products.delete({
+      where: { id: productIdInt },
+    });
 
-  if (dbError) {
-    console.error("Database delete failed:", dbError);
+    revalidatePath("/products");
+
+    return { success: true };
+  } catch (error) {
+    console.error("Failed to delete product:", error);
     return { dbError: "Something went wrong. Could not delete the product." };
   }
-
-  revalidatePath("/products");
-
-  return { success: true };
 }

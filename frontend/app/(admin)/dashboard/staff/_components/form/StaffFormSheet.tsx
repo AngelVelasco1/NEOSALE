@@ -30,7 +30,7 @@ import { FormSubmitButton } from "@/components/shared/form/FormSubmitButton";
 import { staffFormSchema, StaffFormData } from "./schema";
 import { objectToFormData } from "@/helpers/objectToFormData";
 import { StaffServerActionResponse } from "@/types/server-action";
-import { useUser } from "@/contexts/UserContext";
+import { useSession } from "next-auth/react";
 
 type BaseStaffFormProps = {
   title: string;
@@ -64,7 +64,8 @@ export default function StaffFormSheet({
   const [isPending, startTransition] = useTransition();
   const [isSheetOpen, setIsSheetOpen] = useState(false);
   const imageDropzoneRef = useRef<HTMLDivElement>(null);
-  const { user } = useUser();
+  const { data: session } = useSession();
+  const user = session?.user;
 
   const form = useForm<StaffFormData>({
     resolver: zodResolver(staffFormSchema),

@@ -1,8 +1,13 @@
 "use server";
 
-import { createServerActionClient } from "@/lib/supabase/server-action";
+// TODO: Migrar a Prisma
+// import { createServerActionClient } from "@/lib/supabase/server-action";
 
 export async function exportProducts() {
+  // TODO: Implementar con Prisma
+  return { error: "Export products not implemented yet. Migration to Prisma pending." };
+  
+  /* CÓDIGO ORIGINAL CON SUPABASE - PENDIENTE DE MIGRACIÓN
   const supabase = createServerActionClient();
 
   const selectQuery = `
@@ -18,4 +23,5 @@ export async function exportProducts() {
   }
 
   return { data };
+  */
 }

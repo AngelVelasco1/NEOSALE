@@ -4,16 +4,16 @@ import { format } from "date-fns";
 import { cn } from "@/lib/utils";
 import { Badge } from "@/components/ui/badge";
 import { SelectItem } from "@/components/ui/select";
-import { formatAmount } from "@/helpers/formatAmount";
+import { formatAmount } from "@/app/(admin)/helpers/formatAmount";
 
-import Typography from "@/components/ui/typography";
-import { TableSelect } from "@/components/shared/table/TableSelect";
-import { OrderBadgeVariants } from "@/constants/badge";
-import { OrderStatus } from "@/services/orders/types";
-import { CustomerOrder } from "@/services/customers/types";
+import Typography from "@/app/(admin)/components/ui/typography";
+import { TableSelect } from "@/app/(admin)/components/shared/table/TableSelect";
+import { OrderBadgeVariants } from "@/app/(admin)/constants/badge";
+import { OrderStatus } from "@/app/(admin)/services/orders/types";
+import { CustomerOrder } from "@/app/(admin)/services/customers/types";
 
-import { changeOrderStatus } from "@/actions/orders/changeOrderStatus";
-import { HasPermission } from "@/hooks/use-authorization";
+import { changeOrderStatus } from "@/app/(admin)/actions/orders/changeOrderStatus";
+import { HasPermission } from "@/app/(admin)/hooks/use-authorization";
 
 export const getColumns = ({
   hasPermission,

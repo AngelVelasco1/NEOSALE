@@ -1,6 +1,6 @@
 import { cn } from "@/lib/utils";
-import Typography from "@/components/ui/typography";
-import { HeadingVariants } from "@/types/typography";
+import Typography from "@/app/(admin)/components/ui/typography";
+import { HeadingVariants } from "@/app/(admin)/types/typography";
 
 type Props = {
   children: string;

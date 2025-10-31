@@ -6,11 +6,11 @@ import { usePathname } from "next/navigation";
 import { FaBagShopping } from "react-icons/fa6";
 
 import { cn } from "@/lib/utils";
-import { navItems } from "@/components/shared/sidebar/navItems";
-import Typography from "@/components/ui/typography";
-import { Button, buttonVariants } from "@/components/ui/button";
-import { Sidebar, SidebarContent } from "@/components/ui/sidebar";
-import { useSidebar } from "@/components/ui/sidebar";
+import { navItems } from "./navItems";
+import Typography from "@/app/(admin)/components/ui/typography";
+import { Button, buttonVariants } from "@/app/(admin)/components/ui/button";
+import { Sidebar, SidebarContent } from "@/app/(admin)/components/ui/sidebar";
+import { useSidebar } from "@/app/(admin)/components/ui/sidebar";
 
 export default function AppSidebar() {
   const pathname = usePathname();
@@ -42,7 +42,7 @@ export default function AppSidebar() {
                       buttonVariants({ variant: "ghost" }),
                       "relative w-full justify-start px-5 py-4 gap-x-2.5 [&_svg]:size-6 [&_svg]:flex-shrink-0 font-medium text-base focus-visible:bg-accent focus-visible:text-accent-foreground",
                       pathname === navItem.url &&
-                        "bg-accent text-accent-foreground after:content-[''] after:absolute after:top-0 after:left-0 after:h-full after:w-1 after:bg-primary after:rounded-r-lg"
+                      "bg-accent text-accent-foreground after:content-[''] after:absolute after:top-0 after:left-0 after:h-full after:w-1 after:bg-primary after:rounded-r-lg"
                     )}
                   >
                     {navItem.icon} {navItem.title}

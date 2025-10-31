@@ -7,18 +7,18 @@ import { toast } from "sonner";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
-import Typography from "@/components/ui/typography";
+import Typography from "@/app/(admin)/components/ui/typography";
 
-import { SheetTooltip } from "@/components/shared/table/TableActionTooltip";
-import { TableActionAlertDialog } from "@/components/shared/table/TableActionAlertDialog";
+import { SheetTooltip } from "@/app/(admin)/components/shared/table/TableActionTooltip";
+import { TableActionAlertDialog } from "@/app/(admin)/components/shared/table/TableActionAlertDialog";
 import CustomerFormSheet from "../form/CustomerFormSheet";
-import { Customer } from "@/services/customers/types";
-import { SkeletonColumn } from "@/types/skeleton";
-import { TooltipWrapper } from "@/components/shared/table/TableActionTooltip";
+import { Customer } from "@/app/(admin)/services/customers/types";
+import { SkeletonColumn } from "@/app/(admin)/types/skeleton";
+import { TooltipWrapper } from "@/app/(admin)/components/shared/table/TableActionTooltip";
 
-import { editCustomer } from "@/actions/customers/editCustomer";
-import { deleteCustomer } from "@/actions/customers/deleteCustomer";
-import { HasPermission } from "@/hooks/use-authorization";
+import { editCustomer } from "@/app/(admin)/actions/customers/editCustomer";
+import { deleteCustomer } from "@/app/(admin)/actions/customers/deleteCustomer";
+import { HasPermission } from "@/app/(admin)/hooks/use-authorization";
 
 const handleDemoDelete = () => {
   toast.error("Sorry, this feature is not allowed in demo mode", {
