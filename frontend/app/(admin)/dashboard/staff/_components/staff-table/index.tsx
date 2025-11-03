@@ -5,13 +5,12 @@ import { useQuery, keepPreviousData } from "@tanstack/react-query";
 
 import StaffTable from "./Table";
 import { getColumns, skeletonColumns } from "./columns";
-import TableError from "@/components/shared/table/TableError";
-import TableSkeleton from "@/components/shared/table/TableSkeleton";
+import TableError from "@/app/(admin)/components/shared/table/TableError";
+import TableSkeleton from "@/app/(admin)/components/shared/table/TableSkeleton";
 
-import { getSearchParams } from "@/helpers/getSearchParams";
-import { fetchStaff } from "@/services/staff";
-import { createBrowserClient } from "@/lib/supabase/client";
-import { useAuthorization } from "@/hooks/use-authorization";
+import { getSearchParams } from "@/app/(admin)/helpers/getSearchParams";
+import { fetchStaff } from "@/app/(admin)/services/staff";
+import { useAuthorization } from "@/app/(admin)/hooks/use-authorization";
 
 export default function AllStaff() {
   const { hasPermission, isSelf } = useAuthorization();
@@ -25,8 +24,7 @@ export default function AllStaff() {
     refetch,
   } = useQuery({
     queryKey: ["staff", page, limit, search, role],
-    queryFn: () =>
-      fetchStaff(createBrowserClient(), { page, limit, search, role }),
+    queryFn: () => fetchStaff({ page, limit, search, role }),
     placeholderData: keepPreviousData,
   });
 

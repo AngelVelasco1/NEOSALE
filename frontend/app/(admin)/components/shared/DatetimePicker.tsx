@@ -6,13 +6,13 @@ import { CalendarIcon, Clock } from "lucide-react";
 
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
-import { Calendar } from "@/components/ui/calendar";
+import { Calendar } from "@/app/(admin)/components/ui/calendar";
 import { Input } from "@/components/ui/input";
 import {
   Popover,
   PopoverContent,
   PopoverTrigger,
-} from "@/components/ui/popover";
+} from "@/app/(admin)/components/ui/popover";
 
 type Props = {
   date: Date;

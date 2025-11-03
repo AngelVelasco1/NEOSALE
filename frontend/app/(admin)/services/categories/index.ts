@@ -1,49 +1,32 @@
-import { SupabaseClient } from "@supabase/supabase-js";
-
-import { Database } from "@/types/supabase";
 import {
-  Category,
-  CategoryDropdown,
+  getCategories,
+  getCategoriesDropdown,
+  getSubcategoriesByCategory as getSubcategoriesByCategoryAction,
+  getCategoryById as getCategoryByIdAction,
+} from "@/app/(admin)/actions/categories/getCategories";
+import {
   FetchCategoriesParams,
   FetchCategoriesResponse,
 } from "./types";
-import { queryPaginatedTable } from "@/helpers/queryPaginatedTable";
 
+// Obtener todas las categorías con subcategorías (con paginación y búsqueda)
 export async function fetchCategories(
-  client: SupabaseClient<Database>,
-  { page = 1, limit = 10, search }: FetchCategoriesParams
+  params: FetchCategoriesParams
 ): Promise<FetchCategoriesResponse> {
-  let query = client.from("categories").select("*", { count: "exact" });
-
-  if (search) {
-    query = query.ilike("name", `%${search}%`);
-  }
-
-  query = query.order("created_at", { ascending: false });
-
-  const paginatedCategories = await queryPaginatedTable<Category, "categories">(
-    {
-      name: "categories",
-      page,
-      limit,
-      query,
-    }
-  );
-
-  return paginatedCategories;
+  return getCategories(params);
 }
 
-export async function fetchCategoriesDropdown(
-  client: SupabaseClient<Database>
-): Promise<CategoryDropdown[]> {
-  const { data, error } = await client
-    .from("categories")
-    .select("id, name, slug");
+// Obtener solo categorías activas para dropdown (sin subcategorías)
+export async function fetchCategoriesDropdown() {
+  return getCategoriesDropdown();
+}
 
-  if (error) {
-    console.error("Error fetching categories:", error.message);
-    throw new Error(error.message);
-  }
+// Obtener subcategorías de una categoría específica
+export async function fetchSubcategoriesByCategory(categoryId: number) {
+  return getSubcategoriesByCategoryAction(categoryId);
+}
 
-  return data ?? [];
+// Obtener una categoría específica por ID con sus subcategorías
+export async function fetchCategoryById(categoryId: number) {
+  return getCategoryByIdAction(categoryId);
 }

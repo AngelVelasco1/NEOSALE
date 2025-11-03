@@ -10,22 +10,22 @@ import {
   SheetContent,
   SheetDescription,
   SheetTitle,
-} from "@/components/ui/sheet";
+} from "@/app/(admin)/components/ui/sheet";
 import { toast } from "sonner";
-import { Form } from "@/components/ui/form";
+import { Form } from "@/app/(admin)/components/ui/form";
 
 import {
   FormSheetContent,
   FormSheetBody,
   FormSheetHeader,
   FormSheetFooter,
-} from "@/components/shared/form/FormSheet";
-import { FormSwitch } from "@/components/shared/form";
-import { FormSubmitButton } from "@/components/shared/form/FormSubmitButton";
+} from "@/app/(admin)/components/shared/form/FormSheet";
+import { FormSwitch } from "@/app/(admin)/components/shared/form";
+import { FormSubmitButton } from "@/app/(admin)/components/shared/form/FormSubmitButton";
 
 import { categoryBulkFormSchema, CategoryBulkFormData } from "./schema";
-import { objectToFormData } from "@/helpers/objectToFormData";
-import { VServerActionResponse } from "@/types/server-action";
+import { objectToFormData } from "@/app/(admin)/helpers/objectToFormData";
+import { VServerActionResponse } from "@/app/(admin)/types/server-action";
 
 type Props = {
   children: React.ReactNode;

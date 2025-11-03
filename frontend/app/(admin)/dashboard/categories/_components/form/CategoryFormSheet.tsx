@@ -19,18 +19,18 @@ import {
   FormSheetBody,
   FormSheetHeader,
   FormSheetFooter,
-} from "@/components/shared/form/FormSheet";
+} from "@/app/(admin)/components/shared/form/FormSheet";
 import {
   FormTextInput,
   FormImageInput,
   FormSlugInput,
   FormTextarea,
-} from "@/components/shared/form";
-import { FormSubmitButton } from "@/components/shared/form/FormSubmitButton";
+} from "@/app/(admin)/components/shared/form";
+import { FormSubmitButton } from "@/app/(admin)/components/shared/form/FormSubmitButton";
 
 import { categoryFormSchema, CategoryFormData } from "./schema";
-import { objectToFormData } from "@/helpers/objectToFormData";
-import { CategoryServerActionResponse } from "@/types/server-action";
+import { objectToFormData } from "@/app/(admin)/helpers/objectToFormData";
+import { CategoryServerActionResponse } from "@/app/(admin)/types/server-action";
 
 type BaseCategoryFormProps = {
   title: string;

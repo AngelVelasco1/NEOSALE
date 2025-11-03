@@ -1,59 +1,85 @@
-import { SupabaseClient } from "@supabase/supabase-js";
-
-import { Database } from "@/types/supabase";
 import { Notification } from "./types";
 
-export async function fetchNotifications(
-  client: SupabaseClient<Database>,
-  { staffId }: { staffId: string }
-): Promise<Notification[]> {
-  const { data, error } = await client
-    .from("notifications")
-    .select("*")
-    .eq("staff_id", staffId)
-    .eq("published", true)
-    .order("created_at", { ascending: false });
+// TODO: Implementar backend de notificaciones
+export async function fetchNotifications({
+  staffId,
+}: {
+  staffId: string;
+}): Promise<Notification[]> {
+  // Mock: Retornar array vacío mientras no existe el backend
+  console.log("[MOCK] fetchNotifications called with staffId:", staffId);
+  return [];
+  
+  /* // Implementación real cuando el backend esté listo:
+  const queryParams = new URLSearchParams({
+    staffId,
+    published: "true",
+  });
 
-  if (error) {
-    console.error("Error fetching notifications:", error.message);
-    throw new Error(error.message);
+  const response = await fetch(`/api/notifications?${queryParams.toString()}`);
+
+  if (!response.ok) {
+    const errorMessage = await response.text();
+    console.error("Error fetching notifications:", errorMessage);
+    throw new Error("Failed to fetch notifications");
   }
 
-  return data;
+  return response.json();
+  */
 }
 
-export async function deleteNotification(
-  client: SupabaseClient<Database>,
-  { notificationId }: { notificationId: string }
-) {
-  const { error } = await client
-    .from("notifications")
-    .update({ published: false })
-    .eq("id", notificationId);
+// TODO: Implementar backend de notificaciones
+export async function deleteNotification({
+  notificationId,
+}: {
+  notificationId: string;
+}) {
+  // Mock: Simular eliminación exitosa
+  console.log("[MOCK] deleteNotification called with id:", notificationId);
+  return;
+  
+  /* // Implementación real cuando el backend esté listo:
+  const response = await fetch(`/api/notifications/${notificationId}`, {
+    method: "DELETE",
+  });
 
-  if (error) {
-    console.error("Error deleting notification:", error.message);
+  if (!response.ok) {
+    const errorMessage = await response.text();
+    console.error("Error deleting notification:", errorMessage);
     throw new Error("Could not dismiss the notification.");
   }
 
   return;
+  */
 }
 
-export async function fetchNotificationsCount(
-  client: SupabaseClient<Database>,
-  { staffId }: { staffId: string }
-): Promise<number> {
-  const { count, error } = await client
-    .from("notifications")
-    .select("*", { count: "exact", head: true })
-    .eq("staff_id", staffId)
-    .eq("is_read", false)
-    .eq("published", true);
+// TODO: Implementar backend de notificaciones
+export async function fetchNotificationsCount({
+  staffId,
+}: {
+  staffId: string;
+}): Promise<number> {
+  // Mock: Retornar 0 notificaciones mientras no existe el backend
+  console.log("[MOCK] fetchNotificationsCount called with staffId:", staffId);
+  return 0;
+  
+  /* // Implementación real cuando el backend esté listo:
+  const queryParams = new URLSearchParams({
+    staffId,
+    isRead: "false",
+    published: "true",
+    count: "true",
+  });
 
-  if (error) {
-    console.error("Error fetching notification count:", error.message);
+  const response = await fetch(`/api/notifications?${queryParams.toString()}`);
+
+  if (!response.ok) {
+    const errorMessage = await response.text();
+    console.error("Error fetching notification count:", errorMessage);
     throw new Error("Could not fetch notification count.");
   }
 
-  return count ?? 0;
+  const data = await response.json();
+  return data.count ?? 0;
+  */
 }

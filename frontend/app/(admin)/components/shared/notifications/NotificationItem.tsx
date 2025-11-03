@@ -12,7 +12,6 @@ import Typography from "@/app/(admin)/components/ui/typography";
 import { Button } from "@/app/(admin)/components/ui/button";
 import { Notification } from "@/app/(admin)/services/notifications/types";
 import { deleteNotification } from "@/app/(admin)/services/notifications";
-import { createBrowserClient } from "@/app/(admin)/lib/supabase/client";
 
 type Props = {
   notification: Notification;
@@ -27,7 +26,7 @@ export default function NotificationItem({ notification }: Props) {
     isError,
   } = useMutation({
     mutationFn: () =>
-      deleteNotification(createBrowserClient(), {
+      deleteNotification({
         notificationId: notification.id,
       }),
     onSuccess: () => {

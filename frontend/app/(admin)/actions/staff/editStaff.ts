@@ -2,10 +2,10 @@
 
 import { revalidatePath } from "next/cache";
 
-import { createServerActionClient } from "@/lib/supabase/server-action";
-import { staffFormSchema } from "@/app/(dashboard)/staff/_components/form/schema";
-import { formatValidationErrors } from "@/helpers/formatValidationErrors";
-import { StaffServerActionResponse } from "@/types/server-action";
+import { createServerActionClient } from "@/app/(admin)/lib/supabase/server-action";
+import { staffFormSchema } from "@/app/(admin)/dashboard/staff/_components/form/schema";
+import { formatValidationErrors } from "@/app/(admin)/helpers/formatValidationErrors";
+import { StaffServerActionResponse } from "@/app/(admin)/types/server-action";
 
 export async function editStaff(
   staffId: string,

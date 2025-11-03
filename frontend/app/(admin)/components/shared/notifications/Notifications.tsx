@@ -1,23 +1,33 @@
+"use client";
+
 import { Bell } from "lucide-react";
-import { redirect } from "next/navigation";
+import { useRouter } from "next/navigation";
+import { useEffect } from "react";
 
 import {
   Popover,
   PopoverContent,
   PopoverTrigger,
-} from "@/components/ui/popover";
-import { Button } from "@/components/ui/button";
-import { ScrollArea } from "@/components/ui/scroll-area";
+} from "@/app/(admin)/components/ui/popover";
+import { Button } from "@/app/(admin)/components/ui/button";
+import { ScrollArea } from "@/app/(admin)/components/ui/scroll-area";
 import NotificationsBadge from "./NotificationsBadge";
 import NotificationContent from "./NotificationContent";
-import { getUser } from "@/helpers/getUser";
+import { useUserSafe } from "@/app/(auth)/hooks/useUserSafe";
 
-export default async function Notifications() {
-  const user = await getUser();
-  const staffId = user?.id;
+export default function Notifications() {
+  const { userProfile, isLoading } = useUserSafe();
+  const router = useRouter();
+  const staffId = userProfile?.id?.toString();
 
-  if (!staffId) {
-    redirect("/login");
+  useEffect(() => {
+    if (!isLoading && !staffId) {
+      router.push("/login");
+    }
+  }, [isLoading, staffId, router]);
+
+  if (isLoading || !staffId) {
+    return null;
   }
 
   return (

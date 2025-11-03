@@ -1,0 +1,9 @@
+[install]
+# Configuración de instalación de bun
+cache = true
+production = false
+
+[install.lockfile]
+# Guardar lockfile
+save = true
+print = "yarn"

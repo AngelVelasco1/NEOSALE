@@ -1,5 +1,3 @@
-process.loadEnvFile();
-
 const {
   HOST = "localhost",
   PORT = "8000",

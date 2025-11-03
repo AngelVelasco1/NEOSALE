@@ -19,13 +19,13 @@ import {
   FormSheetBody,
   FormSheetHeader,
   FormSheetFooter,
-} from "@/components/shared/form/FormSheet";
-import { FormSwitch, FormCategoryInput } from "@/components/shared/form";
-import { FormSubmitButton } from "@/components/shared/form/FormSubmitButton";
+} from "@/app/(admin)/components/shared/form/FormSheet";
+import { FormSwitch, FormCategoryInput } from "@/app/(admin)/components/shared/form";
+import { FormSubmitButton } from "@/app/(admin)/components/shared/form/FormSubmitButton";
 
 import { productBulkFormSchema, ProductBulkFormData } from "./schema";
-import { objectToFormData } from "@/helpers/objectToFormData";
-import { VServerActionResponse } from "@/types/server-action";
+import { objectToFormData } from "@/app/(admin)/helpers/objectToFormData";
+import { VServerActionResponse } from "@/app/(admin)/types/server-action";
 
 type Props = {
   children: React.ReactNode;

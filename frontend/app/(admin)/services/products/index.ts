@@ -1,18 +1,16 @@
-// TODO: Migrar a Prisma - Servicio temporalmente deshabilitado
-// import { SupabaseClient } from "@supabase/supabase-js";
-// import { Database } from "@/types/supabase";
-// import { queryPaginatedTable } from "@/helpers/queryPaginatedTable";
 import {
-  Product,
+  getProducts,
+  getProductById as getProductByIdAction,
+} from "@/app/(admin)/actions/products/getProducts";
+import {
   FetchProductsParams,
   FetchProductsResponse,
   ProductDetails,
 } from "./types";
 
-// Migrado a Prisma - Usa API routes
+// Migrado a Server Actions con Prisma
 export async function fetchProducts(
-  params: FetchProductsParams,
-  _client?: any // No se usa más, mantenido por compatibilidad
+  params: FetchProductsParams
 ): Promise<FetchProductsResponse> {
   const {
     page = 1,
@@ -24,23 +22,37 @@ export async function fetchProducts(
     published,
     dateSort,
   } = params;
-  
-  const queryParams = new URLSearchParams({
-    page: page.toString(),
-    limit: limit.toString(),
-    ...(search && { search }),
-    ...(category && { category }),
-    ...(status && { status }),
-    ...(published !== undefined && { published: published.toString() }),
+
+  // Mapear parámetros al formato de la Server Action
+  const sortBy = priceSort
+    ? "price"
+    : dateSort
+    ? dateSort.includes("added")
+      ? "created_at"
+      : "updated_at"
+    : "created_at";
+
+  const sortOrder =
+    priceSort === "lowest-first" || dateSort?.includes("asc")
+      ? "asc"
+      : "desc";
+
+  const stockStatus = status
+    ? status === "selling"
+      ? "in-stock"
+      : "out-of-stock"
+    : undefined;
+
+  return getProducts({
+    page,
+    limit,
+    search,
+    category: category ? parseInt(category) : undefined,
+    active: published,
+    stockStatus: stockStatus as "in-stock" | "out-of-stock" | undefined,
+    sortBy: sortBy as "price" | "created_at" | "updated_at",
+    sortOrder: sortOrder as "asc" | "desc",
   });
-
-  const response = await fetch(`/api/products?${queryParams.toString()}`);
-  
-  if (!response.ok) {
-    throw new Error("Failed to fetch products");
-  }
-
-  return response.json();
   
   /* CÓDIGO ORIGINAL CON SUPABASE - ARCHIVADO
   const selectQuery = `
@@ -137,11 +149,9 @@ export async function fetchProductDetails(
   */
 }
 
-// Stub temporal para fetchProductDetails
 export async function fetchProductDetails(
-  client: any,
-  slug: string
+  productId: number
 ): Promise<{ product: ProductDetails | null }> {
-  // TODO: Implementar con Prisma
-  return { product: null };
+  const product = await getProductByIdAction(productId);
+  return { product: product as ProductDetails | null };
 }

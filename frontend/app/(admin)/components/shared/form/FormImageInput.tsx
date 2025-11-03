@@ -8,7 +8,7 @@ import {
   FormMessage,
   FormControl,
 } from "@/components/ui/form";
-import { ImageDropzone } from "@/components/shared/ImageDropzone";
+import { ImageDropzone } from "@/app/(admin)/components/shared/ImageDropzone";
 
 type FormImageInputProps<TFormData extends FieldValues> = {
   control: Control<TFormData>;

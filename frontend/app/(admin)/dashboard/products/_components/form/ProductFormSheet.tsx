@@ -19,7 +19,7 @@ import {
   FormSheetBody,
   FormSheetHeader,
   FormSheetFooter,
-} from "@/components/shared/form/FormSheet";
+} from "@/app/(admin)/components/shared/form/FormSheet";
 import {
   FormTextInput,
   FormCategoryInput,
@@ -27,12 +27,12 @@ import {
   FormPriceInput,
   FormSlugInput,
   FormTextarea,
-} from "@/components/shared/form";
-import { FormSubmitButton } from "@/components/shared/form/FormSubmitButton";
+} from "@/app/(admin)/components/shared/form";
+import { FormSubmitButton } from "@/app/(admin)/components/shared/form/FormSubmitButton";
 
 import { productFormSchema, ProductFormData } from "./schema";
-import { objectToFormData } from "@/helpers/objectToFormData";
-import { ProductServerActionResponse } from "@/types/server-action";
+import { objectToFormData } from "@/app/(admin)/helpers/objectToFormData";
+import { ProductServerActionResponse } from "@/app/(admin)/types/server-action";
 
 type BaseProductFormProps = {
   title: string;

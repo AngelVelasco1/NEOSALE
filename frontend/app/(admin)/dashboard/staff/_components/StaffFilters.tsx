@@ -14,10 +14,8 @@ import {
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import FetchDropdownContainer from "@/components/shared/FetchDropdownContainer";
-
-import { createBrowserClient } from "@/lib/supabase/client";
-import { fetchStaffRolesDropdown } from "@/services/staff";
+import FetchDropdownContainer from "@/app/(admin)/components/shared/FetchDropdownContainer";
+import { fetchStaffRolesDropdown } from "@/app/(admin)/services/staff";
 
 export default function StaffFilters() {
   const router = useRouter();
@@ -32,7 +30,7 @@ export default function StaffFilters() {
     isError,
   } = useQuery({
     queryKey: ["staff_roles"],
-    queryFn: () => fetchStaffRolesDropdown(createBrowserClient()),
+    queryFn: () => fetchStaffRolesDropdown(),
     staleTime: 5 * 60 * 1000,
   });
 

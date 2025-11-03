@@ -19,9 +19,8 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 
-import { createBrowserClient } from "@/lib/supabase/client";
-import { fetchCategoriesDropdown } from "@/services/categories";
-import FetchDropdownContainer from "@/components/shared/FetchDropdownContainer";
+import { fetchCategoriesDropdown } from "@/app/(admin)/services/categories";
+import FetchDropdownContainer from "@/app/(admin)/components/shared/FetchDropdownContainer";
 
 type FormCategoryInputProps<TFormData extends FieldValues> = {
   control: Control<TFormData>;
@@ -42,7 +41,7 @@ const FormCategoryInput = forwardRef(function FormCategoryInputRender<
     isError,
   } = useQuery({
     queryKey: ["categories", "dropdown"],
-    queryFn: () => fetchCategoriesDropdown(createBrowserClient()),
+    queryFn: () => fetchCategoriesDropdown(),
     staleTime: 5 * 60 * 1000,
   });
 
@@ -81,7 +80,7 @@ const FormCategoryInput = forwardRef(function FormCategoryInputRender<
                     !isError &&
                     categories &&
                     categories!.map((category) => (
-                      <SelectItem key={category.id} value={category.id}>
+                      <SelectItem key={category.id} value={category.id.toString()}>
                         {category.name}
                       </SelectItem>
                     ))}

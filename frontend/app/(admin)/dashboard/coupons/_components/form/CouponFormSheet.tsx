@@ -19,18 +19,18 @@ import {
   FormSheetBody,
   FormSheetHeader,
   FormSheetFooter,
-} from "@/components/shared/form/FormSheet";
+} from "@/app/(admin)/components/shared/form/FormSheet";
 import {
   FormTextInput,
   FormImageInput,
   FormDatetimeInput,
   FormDiscountInput,
-} from "@/components/shared/form";
-import { FormSubmitButton } from "@/components/shared/form/FormSubmitButton";
+} from "@/app/(admin)/components/shared/form";
+import { FormSubmitButton } from "@/app/(admin)/components/shared/form/FormSubmitButton";
 
 import { couponFormSchema, CouponFormData } from "./schema";
-import { objectToFormData } from "@/helpers/objectToFormData";
-import { CouponServerActionResponse } from "@/types/server-action";
+import { objectToFormData } from "@/app/(admin)/helpers/objectToFormData";
+import { CouponServerActionResponse } from "@/app/(admin)/types/server-action";
 
 type BaseCouponFormProps = {
   title: string;

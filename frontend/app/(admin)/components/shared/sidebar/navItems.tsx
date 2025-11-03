@@ -9,37 +9,37 @@ import { MdOutlineShoppingCart } from "react-icons/md";
 export const navItems = [
   {
     title: "Dashboard",
-    url: "/",
+    url: "/dashboard",
     icon: <MdOutlineDashboard />,
   },
   {
     title: "Products",
-    url: "/products",
+    url: "/dashboard/products",
     icon: <MdOutlineShoppingCart />,
   },
   {
     title: "Categories",
-    url: "/categories",
+    url: "/dashboard/categories",
     icon: <TbTag />,
   },
   {
     title: "Customers",
-    url: "/customers",
+    url: "/dashboard/customers",
     icon: <LuUsers />,
   },
   {
     title: "Orders",
-    url: "/orders",
+    url: "/dashboard/orders",
     icon: <TbTruckDelivery />,
   },
   {
     title: "Coupons",
-    url: "/coupons",
+    url: "/dashboard/coupons",
     icon: <RiCoupon2Line />,
   },
   {
     title: "Staff",
-    url: "/staff",
+    url: "/dashboard/staff",
     icon: <TbBriefcase />,
   },
 ];

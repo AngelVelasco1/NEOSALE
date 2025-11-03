@@ -1,18 +1,12 @@
-import { User } from "@supabase/auth-helpers-nextjs";
+import { auth } from "@/app/(auth)/auth";
 
-import { createServerClient } from "@/lib/supabase/server";
 /**
- * getUser - Function to retrieve user information from Supabase.
- * @returns A Promise that resolves to the user data.
+ * getUser - Function to retrieve user information from NextAuth session.
+ * @returns A Promise that resolves to the user data from the session.
  */
-export async function getUser(): Promise<User | null> {
-  const supabase = createServerClient();
-
-  // Call Supabase's getUser() method to retrieve user data.
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-
-  // Return the user data obtained from Supabase.
-  return user;
+export async function getUser() {
+  const session = await auth();
+  
+  // Return the user data from the NextAuth session
+  return session?.user ?? null;
 }

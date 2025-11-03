@@ -19,17 +19,17 @@ import {
   FormSheetBody,
   FormSheetHeader,
   FormSheetFooter,
-} from "@/components/shared/form/FormSheet";
+} from "@/app/(admin)/components/shared/form/FormSheet";
 import {
   FormTextInput,
   FormImageInput,
   FormReadonly,
-} from "@/components/shared/form";
-import { FormSubmitButton } from "@/components/shared/form/FormSubmitButton";
+} from "@/app/(admin)/components/shared/form";
+import { FormSubmitButton } from "@/app/(admin)/components/shared/form/FormSubmitButton";
 
 import { staffFormSchema, StaffFormData } from "./schema";
-import { objectToFormData } from "@/helpers/objectToFormData";
-import { StaffServerActionResponse } from "@/types/server-action";
+import { objectToFormData } from "@/app/(admin)/helpers/objectToFormData";
+import { StaffServerActionResponse } from "@/app/(admin)/types/server-action";
 import { useSession } from "next-auth/react";
 
 type BaseStaffFormProps = {

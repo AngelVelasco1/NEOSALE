@@ -14,11 +14,10 @@ import {
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import FetchDropdownContainer from "@/components/shared/FetchDropdownContainer";
+import FetchDropdownContainer from "@/app/(admin)/components/shared/FetchDropdownContainer";
 
 import { sortToParamsMap, getSortFromParams } from "./sortParams";
-import { createBrowserClient } from "@/lib/supabase/client";
-import { fetchCategoriesDropdown } from "@/services/categories";
+import { fetchCategoriesDropdown } from "@/app/(admin)/services/categories";
 
 export default function ProductFilters() {
   const router = useRouter();
@@ -36,7 +35,7 @@ export default function ProductFilters() {
     isError,
   } = useQuery({
     queryKey: ["categories", "dropdown"],
-    queryFn: () => fetchCategoriesDropdown(createBrowserClient()),
+    queryFn: () => fetchCategoriesDropdown(),
     staleTime: 5 * 60 * 1000,
   });
 
@@ -100,7 +99,7 @@ export default function ProductFilters() {
                 !isError &&
                 categories &&
                 categories!.map((category) => (
-                  <SelectItem key={category.slug} value={category.slug}>
+                  <SelectItem key={category.id} value={category.id.toString()}>
                     {category.name}
                   </SelectItem>
                 ))}
