@@ -3,10 +3,10 @@
 import { getCoreRowModel, useReactTable } from "@tanstack/react-table";
 
 import { getColumns } from "./columns";
-import DataTable from "@/components/shared/table/DataTable";
-import { DataTableProps } from "@/types/data-table";
-import { CustomerOrder } from "@/services/customers/types";
-import { useAuthorization } from "@/hooks/use-authorization";
+import DataTable from "@/app/(admin)/components/shared/table/DataTable";
+import { DataTableProps } from "@/app/(admin)/types/data-table";
+import { CustomerOrder } from "@/app/(admin)/services/customers/types";
+import { useAuthorization } from "@/app/(admin)/hooks/use-authorization";
 
 export default function CustomerOrdersTable({
   data,

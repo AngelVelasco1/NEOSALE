@@ -1,6 +1,6 @@
 import { Metadata } from "next";
 
-import PageTitle from "@/components/shared/PageTitle";
+import PageTitle from "@/app/(admin)/components/shared/PageTitle";
 import AllCustomers from "./_components/customers-table";
 import CustomerActions from "./_components/CustomerActions";
 import CustomerFilters from "./_components/CustomerFilters";

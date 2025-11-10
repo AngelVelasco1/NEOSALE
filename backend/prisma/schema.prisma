@@ -15,6 +15,9 @@ model brands {
   active      Boolean    @default(true)
   image_url   String?    @db.VarChar(255)
   products    products[]
+
+  @@index([active], map: "idx_brand_active")
+  @@index([name], map: "idx_brand_name")
 }
 
 model cart {
@@ -26,6 +29,8 @@ model cart {
   expires_at    DateTime?    @db.Timestamp(6)
   users         User?        @relation(fields: [user_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
   cart_items    cart_items[]
+
+  @@index([user_id], map: "idx_cart_user")
 }
 
 model cart_items {
@@ -38,6 +43,9 @@ model cart_items {
   size       String   @db.VarChar(25)
   cart       cart     @relation(fields: [cart_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
   products   products @relation(fields: [product_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+
+  @@index([cart_id], map: "idx_cart_item_cart")
+  @@index([product_id], map: "idx_cart_item_product")
 }
 
 model categories {
@@ -49,6 +57,9 @@ model categories {
   subcategory          subcategories?         @relation(fields: [id_subcategory], references: [id], onDelete: NoAction, onUpdate: NoAction)
   category_subcategory category_subcategory[]
   products             products[]
+
+  @@index([active], map: "idx_category_active")
+  @@index([id_subcategory], map: "idx_category_subcategory")
 }
 
 model category_subcategory {
@@ -75,6 +86,8 @@ model coupons {
   created_at          DateTime @default(now()) @db.Timestamp(6)
   expires_at          DateTime @db.Timestamp(6)
   orders              orders[]
+
+  @@index([code], map: "idx_coupon_code")
 }
 
 /// This model contains an expression index which requires additional setup for migrations. Visit https://pris.ly/d/expression-indexes for more info.
@@ -106,6 +119,12 @@ model products {
   brands           brands             @relation(fields: [brand_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
   categories       categories         @relation(fields: [category_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
   reviews          reviews[]
+
+  @@index([active], map: "idx_product_active")
+  @@index([brand_id], map: "idx_product_brand")
+  @@index([category_id], map: "idx_product_category")
+  @@index([price], map: "idx_product_price")
+  @@index([active, in_offer], map: "idx_product_status")
 }
 
 model User {
@@ -132,6 +151,10 @@ model User {
   orders                         orders[]
   payments                       payments[]
   reviews                        reviews[]
+
+  @@index([active], map: "idx_user_active")
+  @@index([email], map: "idx_user_email")
+  @@index([phone_number], map: "idx_user_phone")
 }
 
 model orders {
@@ -165,6 +188,11 @@ model orders {
   addresses                    addresses          @relation(fields: [shipping_address_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
   User_orders_updated_byToUser User               @relation("orders_updated_byToUser", fields: [updated_by], references: [id], onDelete: NoAction, onUpdate: NoAction)
   users                        User               @relation(fields: [user_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+
+  @@index([shipping_address_id], map: "idx_order_address")
+  @@index([status], map: "idx_order_status")
+  @@index([updated_at], map: "idx_order_updated")
+  @@index([user_id], map: "idx_order_user")
 }
 
 model subcategories {
@@ -173,6 +201,8 @@ model subcategories {
   active               Boolean                @default(true)
   categories           categories[]
   category_subcategory category_subcategory[]
+
+  @@index([active], map: "idx_subcategory_active")
 }
 
 /// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
@@ -193,6 +223,7 @@ model product_variants {
   products     products  @relation(fields: [product_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
 
   @@unique([product_id, color_code, size], map: "unq_product_variant")
+  @@index([product_id], map: "idx_variant_product")
 }
 
 model Account {
@@ -225,6 +256,8 @@ model addresses {
   created_at DateTime @default(now()) @db.Timestamp(6)
   User       User     @relation(fields: [user_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
   orders     orders[]
+
+  @@index([user_id], map: "idx_address_user")
 }
 
 model favorites {
@@ -236,6 +269,8 @@ model favorites {
   User       User     @relation(fields: [user_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
 
   @@unique([user_id, product_id], map: "unq_user_product_favorite")
+  @@index([product_id], map: "idx_favorite_product")
+  @@index([user_id], map: "idx_favorite_user")
 }
 
 model images {
@@ -248,6 +283,8 @@ model images {
   variant_id       Int?
   products         products          @relation(fields: [product_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
   product_variants product_variants? @relation(fields: [variant_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+
+  @@index([product_id], map: "idx_image_product")
 }
 
 model order_items {
@@ -263,6 +300,9 @@ model order_items {
   updated_at DateTime? @db.Timestamp(6)
   orders     orders    @relation(fields: [order_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
   products   products  @relation(fields: [product_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+
+  @@index([order_id], map: "idx_order_item_order")
+  @@index([product_id], map: "idx_order_item_product")
 }
 
 /// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
@@ -278,6 +318,9 @@ model order_logs {
   user_type       String?            @default("admin") @db.VarChar(20)
   orders          orders             @relation(fields: [order_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
   User            User               @relation(fields: [updated_by], references: [id], onDelete: NoAction, onUpdate: NoAction)
+
+  @@index([order_id], map: "idx_order_log_order")
+  @@index([new_status], map: "idx_order_log_status")
 }
 
 model review_images {
@@ -286,6 +329,8 @@ model review_images {
   image_url  String   @db.VarChar(500)
   created_at DateTime @default(now()) @db.Timestamp(6)
   reviews    reviews  @relation(fields: [review_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+
+  @@index([review_id], map: "idx_review_image_review")
 }
 
 /// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
@@ -300,6 +345,10 @@ model reviews {
   review_images review_images[]
   products      products        @relation(fields: [product_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
   User          User            @relation(fields: [user_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+
+  @@index([product_id], map: "idx_review_product")
+  @@index([rating], map: "idx_review_rating")
+  @@index([user_id], map: "idx_review_user")
 }
 
 /// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.

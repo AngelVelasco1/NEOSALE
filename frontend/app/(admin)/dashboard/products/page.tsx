@@ -1,6 +1,6 @@
 import { Metadata } from "next";
 
-import PageTitle from "@/components/shared/PageTitle";
+import PageTitle from "@/app/(admin)/components/shared/PageTitle";
 import Products from "./_components";
 
 export const metadata: Metadata = {

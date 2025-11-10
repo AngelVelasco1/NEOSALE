@@ -1,7 +1,7 @@
 import { Metadata } from "next";
 import { redirect } from "next/navigation";
 
-import PageTitle from "@/components/shared/PageTitle";
+import PageTitle from "@/app/(admin)/components/shared/PageTitle";
 import EditProfileForm from "./_components/EditProfileForm";
 import { fetchStaffDetails } from "@/services/staff";
 import { createServerClient } from "@/lib/supabase/server";

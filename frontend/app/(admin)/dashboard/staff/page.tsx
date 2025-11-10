@@ -1,6 +1,6 @@
 import { Metadata } from "next";
 
-import PageTitle from "@/components/shared/PageTitle";
+import PageTitle from "@/app/(admin)/components/shared/PageTitle";
 import StaffTable from "./_components/staff-table";
 import StaffFilters from "./_components/StaffFilters";
 

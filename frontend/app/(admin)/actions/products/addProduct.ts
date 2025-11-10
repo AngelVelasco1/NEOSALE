@@ -6,9 +6,9 @@ import { Prisma } from "@prisma/client";
 import { prisma } from "@/lib/prisma";
 import { auth } from "@/app/(auth)/auth";
 import { uploadImageToCloudinary } from "@/lib/cloudinary";
-import { productFormSchema } from "@/app/(dashboard)/products/_components/form/schema";
-import { formatValidationErrors } from "@/helpers/formatValidationErrors";
-import { ProductServerActionResponse } from "@/types/server-action";
+import { productFormSchema } from "@/app/(admin)/dashboard/products/_components/form/schema";
+import { formatValidationErrors } from "@/app/(admin)/helpers/formatValidationErrors";
+import { ProductServerActionResponse } from "@/app/(admin)/types/server-action";
 
 export async function addProduct(
   formData: FormData
@@ -63,7 +63,7 @@ export async function addProduct(
 
   // Subir imagen a Cloudinary
   let imageUrl: string | undefined;
-  
+
   if (typeof image === "string") {
     // Si ya es una URL, la usamos directamente
     imageUrl = image;
@@ -73,10 +73,10 @@ export async function addProduct(
       imageUrl = await uploadImageToCloudinary(image, "neosale/products");
     } catch (error) {
       console.error("Image upload failed:", error);
-      return { 
-        validationErrors: { 
-          image: "Failed to upload image. Please try again." 
-        } 
+      return {
+        validationErrors: {
+          image: "Failed to upload image. Please try again.",
+        },
       };
     }
   }
@@ -143,17 +143,18 @@ export async function addProduct(
 
     revalidatePath("/products");
 
-    return { 
-      success: true, 
+    return {
+      success: true,
       product: {
         id: newProduct!.id.toString(),
         name: newProduct!.name,
         price: newProduct!.price,
         stock: newProduct!.stock,
         color: newProduct!.product_variants[0]?.color || productData.color,
-        color_code: newProduct!.product_variants[0]?.color_code || productData.colorCode,
+        color_code:
+          newProduct!.product_variants[0]?.color_code || productData.colorCode,
         image_url: newProduct!.images[0]?.image_url,
-      }
+      },
     };
   } catch (error) {
     // Manejar errores de Prisma
@@ -161,7 +162,7 @@ export async function addProduct(
       // Error de constraint único (P2002)
       if (error.code === "P2002") {
         const target = error.meta?.target as string[] | undefined;
-        
+
         if (target?.includes("sku")) {
           return {
             validationErrors: {
@@ -170,19 +171,20 @@ export async function addProduct(
           };
         }
       }
-      
+
       // Error de foreign key (P2003)
       if (error.code === "P2003") {
         const field = error.meta?.field_name as string | undefined;
-        
+
         if (field?.includes("category")) {
           return {
             validationErrors: {
-              category: "Invalid category selected. Please choose a valid category.",
+              category:
+                "Invalid category selected. Please choose a valid category.",
             },
           };
         }
-        
+
         if (field?.includes("brand")) {
           return {
             validationErrors: {

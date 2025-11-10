@@ -3,9 +3,9 @@
 import * as React from "react";
 import { getCoreRowModel, useReactTable } from "@tanstack/react-table";
 
-import DataTable from "@/components/shared/table/DataTable";
-import { DataTableProps } from "@/types/data-table";
-import { Staff } from "@/services/staff/types";
+import DataTable from "@/app/(admin)//components/shared/table/DataTable";
+import { DataTableProps } from "@/app/(admin)//types/data-table";
+import { Staff } from "@/app/(admin)//services/staff/types";
 
 export default function StaffTable({
   data,
