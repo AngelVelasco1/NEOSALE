@@ -8,11 +8,13 @@ import {
   removeFavorite,
   checkIsFavorite,
   getUserFavorites,
+  getUsers,
 } from "../controllers/users";
 
 export const usersRoutes = () =>
   Router()
     .post("/register", registerUser)
+    .get("/getUsers", getUsers)
     .get("/getUser", getUserById)
     .put("/updateUser", updateUser)
     .put("/updatePassword", updatePassword)

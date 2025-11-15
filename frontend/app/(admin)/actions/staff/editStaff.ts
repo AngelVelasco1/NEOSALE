@@ -1,8 +1,9 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
+import { Prisma } from "@prisma/client";
 
-import { createServerActionClient } from "@/app/(admin)/lib/supabase/server-action";
+import { prisma } from "@/lib/prisma";
 import { staffFormSchema } from "@/app/(admin)/dashboard/staff/_components/form/schema";
 import { formatValidationErrors } from "@/app/(admin)/helpers/formatValidationErrors";
 import { StaffServerActionResponse } from "@/app/(admin)/types/server-action";
@@ -11,8 +12,6 @@ export async function editStaff(
   staffId: string,
   formData: FormData
 ): Promise<StaffServerActionResponse> {
-  const supabase = createServerActionClient();
-
   const parsedData = staffFormSchema.safeParse({
     name: formData.get("name"),
     phone: formData.get("phone"),
@@ -31,64 +30,43 @@ export async function editStaff(
 
   let imageUrl: string | undefined;
 
+  // TODO: Implementar upload de imagen con Cloudinary
   if (image instanceof File && image.size > 0) {
-    const { data: oldStaffData, error: fetchError } = await supabase
-      .from("staff")
-      .select("email, image_url")
-      .eq("id", staffId)
-      .single();
+    // Por ahora, guardamos el nombre del archivo
+    // Implementa tu solución de storage preferida aquí (Cloudinary, etc.)
+    imageUrl = `/uploads/staff/${image.name}`;
+  }
 
-    if (fetchError) {
-      console.error("Failed to fetch old staff data:", fetchError);
-      return { dbError: "Could not find the staff to update." };
-    }
+  try {
+    const updatedStaff = await prisma.user.update({
+      where: { id: parseInt(staffId) },
+      data: {
+        name: staffData.name,
+        phone_number: staffData.phone,
+        // ...(imageUrl && { image: imageUrl }), // TODO: Descomentar cuando necesites actualizar la imagen
+      },
+    });
 
-    const oldImageUrl = oldStaffData.image_url;
+    revalidatePath("/staff");
 
-    const fileExt = image.name.split(".").pop();
-    const fileName = `staff/${oldStaffData.email}-${Date.now()}.${fileExt}`;
+    return { success: true, staff: updatedStaff };
+  } catch (error) {
+    // Manejar errores de unique constraint de Prisma
+    if (error instanceof Prisma.PrismaClientKnownRequestError) {
+      if (error.code === "P2002") {
+        const target = error.meta?.target as string[];
 
-    const { data: uploadData, error: uploadError } = await supabase.storage
-      .from("assets")
-      .upload(fileName, image);
-
-    if (uploadError) {
-      console.error("Image upload failed:", uploadError);
-      return { validationErrors: { image: "Failed to upload image" } };
-    }
-
-    const { data: publicUrlData } = supabase.storage
-      .from("assets")
-      .getPublicUrl(uploadData.path);
-
-    imageUrl = publicUrlData.publicUrl;
-
-    if (oldImageUrl) {
-      const oldImageFileName = `staff/${oldImageUrl.split("/").pop()}`;
-
-      if (oldImageFileName) {
-        await supabase.storage.from("assets").remove([oldImageFileName]);
+        if (target?.includes("phone_number")) {
+          return {
+            validationErrors: {
+              phone: "This phone number is already in use.",
+            },
+          };
+        }
       }
     }
-  }
 
-  const { data: updatedStaff, error: dbError } = await supabase
-    .from("staff")
-    .update({
-      name: staffData.name,
-      phone: staffData.phone,
-      ...(imageUrl && { image_url: imageUrl }),
-    })
-    .eq("id", staffId)
-    .select()
-    .single();
-
-  if (dbError) {
-    console.error("Database update failed:", dbError);
+    console.error("Database update failed:", error);
     return { dbError: "Something went wrong. Please try again later." };
   }
-
-  revalidatePath("/staff");
-
-  return { success: true, staff: updatedStaff };
 }

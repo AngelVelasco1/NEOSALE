@@ -1,17 +1,16 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
+import { Prisma } from "@prisma/client";
 
-import { createServerActionClient } from "@/lib/supabase/server-action";
+import { prisma } from "@/lib/prisma";
 import { couponFormSchema } from "@/app/(dashboard)/coupons/_components/form/schema";
-import { formatValidationErrors } from "@/helpers/formatValidationErrors";
-import { CouponServerActionResponse } from "@/types/server-action";
+import { formatValidationErrors } from "@/app/(admin)/helpers/formatValidationErrors";
+import { CouponServerActionResponse } from "@/app/(admin)/types/server-action";
 
 export async function addCoupon(
   formData: FormData
 ): Promise<CouponServerActionResponse> {
-  const supabase = createServerActionClient();
-
   const parsedData = couponFormSchema.safeParse({
     name: formData.get("name"),
     code: formData.get("code"),
@@ -34,60 +33,49 @@ export async function addCoupon(
 
   let imageUrl: string | undefined;
 
+  // TODO: Implementar upload de imagen con Cloudinary
   if (image instanceof File && image.size > 0) {
-    const fileExt = image.name.split(".").pop();
-    const fileName = `coupons/${parsedData.data.name}-${Date.now()}.${fileExt}`;
-
-    const { error: uploadError, data: uploadData } = await supabase.storage
-      .from("assets")
-      .upload(fileName, image);
-
-    if (uploadError) {
-      console.error("Image upload failed:", uploadError);
-      return { validationErrors: { image: "Failed to upload image" } };
-    }
-
-    const { data: publicUrlData } = supabase.storage
-      .from("assets")
-      .getPublicUrl(uploadData.path);
-
-    imageUrl = publicUrlData.publicUrl;
+    // Por ahora, guardamos el nombre del archivo
+    // Implementa tu solución de storage preferida aquí (Cloudinary, etc.)
+    imageUrl = `/uploads/coupons/${image.name}`;
   }
 
-  const { data: newCoupon, error: dbError } = await supabase
-    .from("coupons")
-    .insert({
-      campaign_name: couponData.name,
-      code: couponData.code,
-      start_date: couponData.startDate.toISOString(),
-      end_date: couponData.endDate.toISOString(),
-      discount_type: couponData.isPercentageDiscount ? "percentage" : "fixed",
-      discount_value: couponData.discountValue,
-      published: false,
-      image_url: imageUrl as string,
-    })
-    .select()
-    .single();
+  try {
+    // TODO: Ajustar campos según necesites (created_by, min_purchase_amount, usage_limit, etc.)
+    const newCoupon = await prisma.coupons.create({
+      data: {
+        name: couponData.name,
+        code: couponData.code,
+        expires_at: couponData.endDate,
+        discount_type: couponData.isPercentageDiscount ? "percentage" : "fixed",
+        discount_value: couponData.discountValue,
+        active: false,
+        created_by: 1, // TODO: Obtener del usuario autenticado
+        // created_at: couponData.startDate, // TODO: Ajustar según necesites
+        // image_url: imageUrl, // TODO: Descomentar cuando agregues el campo
+      },
+    });
 
-  if (dbError) {
-    if (dbError.code === "23505") {
-      const match = dbError.details.match(/\(([^)]+)\)/);
-      const uniqueColumn = match ? match[1] : null;
+    revalidatePath("/coupons");
 
-      if (uniqueColumn === "code") {
-        return {
-          validationErrors: {
-            code: "This coupon code is already in use. Please create a unique code for your new coupon.",
-          },
-        };
+    return { success: true, coupon: newCoupon };
+  } catch (error) {
+    // Manejar errores de unique constraint de Prisma
+    if (error instanceof Prisma.PrismaClientKnownRequestError) {
+      if (error.code === "P2002") {
+        const target = error.meta?.target as string[];
+
+        if (target?.includes("code")) {
+          return {
+            validationErrors: {
+              code: "This coupon code is already in use. Please create a unique code for your new coupon.",
+            },
+          };
+        }
       }
     }
 
-    console.error("Database insert failed:", dbError);
+    console.error("Database insert failed:", error);
     return { dbError: "Something went wrong. Please try again later." };
   }
-
-  revalidatePath("/coupons");
-
-  return { success: true, coupon: newCoupon };
 }

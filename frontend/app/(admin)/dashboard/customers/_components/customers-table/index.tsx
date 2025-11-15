@@ -23,7 +23,7 @@ export default function AllCustomers() {
     isError,
     refetch,
   } = useQuery({
-    queryKey: ["customers", page, limit, search],
+    queryKey: ["User", page, limit, search],
     queryFn: () => fetchCustomers({ page, limit, search }),
     placeholderData: keepPreviousData,
   });

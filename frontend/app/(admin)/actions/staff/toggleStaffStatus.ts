@@ -2,28 +2,26 @@
 
 import { revalidatePath } from "next/cache";
 
-import { createServerActionClient } from "@/lib/supabase/server-action";
-import { ServerActionResponse } from "@/types/server-action";
+import { prisma } from "@/lib/prisma";
+import { ServerActionResponse } from "@/app/(admin)/types/server-action";
 
 export async function toggleStaffPublishedStatus(
   staffId: string,
   currentPublishedStatus: boolean
 ): Promise<ServerActionResponse> {
-  const supabase = createServerActionClient();
+  try {
+    const newPublishedStatus = !currentPublishedStatus;
 
-  const newPublishedStatus = !currentPublishedStatus;
+    await prisma.user.update({
+      where: { id: parseInt(staffId), role: "admin" },
+      data: { active: newPublishedStatus },
+    });
 
-  const { error: dbError } = await supabase
-    .from("staff")
-    .update({ published: newPublishedStatus })
-    .eq("id", staffId);
+    revalidatePath("/staff");
 
-  if (dbError) {
-    console.error("Database update failed:", dbError);
+    return { success: true };
+  } catch (error) {
+    console.error("Database update failed:", error);
     return { dbError: "Failed to update staff status." };
   }
-
-  revalidatePath("/staff");
-
-  return { success: true };
 }

@@ -1,18 +1,17 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
+import { Prisma } from "@prisma/client";
 
-import { createServerActionClient } from "@/lib/supabase/server-action";
-import { categoryFormSchema } from "@/app/(dashboard)/categories/_components/form/schema";
-import { formatValidationErrors } from "@/helpers/formatValidationErrors";
-import { CategoryServerActionResponse } from "@/types/server-action";
+import { prisma } from "@/lib/prisma";
+import { categoryFormSchema } from "@/app/(admin)/dashboard/categories/_components/form/schema";
+import { formatValidationErrors } from "@/app/(admin)/helpers/formatValidationErrors";
+import { CategoryServerActionResponse } from "@/app/(admin)/types/server-action";
 
 export async function editCategory(
   categoryId: string,
   formData: FormData
 ): Promise<CategoryServerActionResponse> {
-  const supabase = createServerActionClient();
-
   const parsedData = categoryFormSchema.safeParse({
     name: formData.get("name"),
     description: formData.get("description"),
@@ -32,84 +31,44 @@ export async function editCategory(
 
   let imageUrl: string | undefined;
 
+  // TODO: Implementar upload de imagen con Cloudinary
   if (image instanceof File && image.size > 0) {
-    const { data: oldCategoryData, error: fetchError } = await supabase
-      .from("categories")
-      .select("image_url")
-      .eq("id", categoryId)
-      .single();
-
-    if (fetchError) {
-      console.error("Failed to fetch old category data:", fetchError);
-      return { dbError: "Could not find the category to update." };
-    }
-
-    const oldImageUrl = oldCategoryData.image_url;
-
-    const fileExt = image.name.split(".").pop();
-    const fileName = `categories/${categoryData.slug}-${Date.now()}.${fileExt}`;
-
-    const { data: uploadData, error: uploadError } = await supabase.storage
-      .from("assets")
-      .upload(fileName, image);
-
-    if (uploadError) {
-      console.error("Image upload failed:", uploadError);
-      return { validationErrors: { image: "Failed to upload image" } };
-    }
-
-    const { data: publicUrlData } = supabase.storage
-      .from("assets")
-      .getPublicUrl(uploadData.path);
-
-    imageUrl = publicUrlData.publicUrl;
-
-    if (oldImageUrl) {
-      const oldImageFileName = `categories/${oldImageUrl.split("/").pop()}`;
-
-      if (oldImageFileName) {
-        await supabase.storage.from("assets").remove([oldImageFileName]);
-      }
-    }
+    // Por ahora, guardamos el nombre del archivo
+    // Implementa tu solución de storage preferida aquí (Cloudinary, etc.)
+    imageUrl = `/uploads/categories/${image.name}`;
   }
 
-  const { data: updatedCategory, error: dbError } = await supabase
-    .from("categories")
-    .update({
-      name: categoryData.name,
-      description: categoryData.description,
-      slug: categoryData.slug,
-      ...(imageUrl && { image_url: imageUrl }),
-    })
-    .eq("id", categoryId)
-    .select()
-    .single();
+  try {
+    const updatedCategory = await prisma.categories.update({
+      where: { id: parseInt(categoryId) },
+      data: {
+        name: categoryData.name,
+        description: categoryData.description,
+        // slug: categoryData.slug, // TODO: Agregar campo slug al schema si lo necesitas
+        // ...(imageUrl && { image_url: imageUrl }), // Descomentar cuando tengas el campo
+      },
+    });
 
-  if (dbError) {
-    if (dbError.code === "23505") {
-      const match = dbError.details.match(/\(([^)]+)\)/);
-      const uniqueColumn = match ? match[1] : null;
+    revalidatePath("/categories");
 
-      if (uniqueColumn === "slug") {
-        return {
-          validationErrors: {
-            slug: "This category slug is already in use. Please choose a different one.",
-          },
-        };
-      } else if (uniqueColumn === "name") {
-        return {
-          validationErrors: {
-            name: "A category with this name already exists. Please enter a unique name for this category.",
-          },
-        };
+    return { success: true, category: updatedCategory };
+  } catch (error) {
+    // Manejar errores de unique constraint de Prisma
+    if (error instanceof Prisma.PrismaClientKnownRequestError) {
+      if (error.code === "P2002") {
+        const target = error.meta?.target as string[];
+
+        if (target?.includes("name")) {
+          return {
+            validationErrors: {
+              name: "A category with this name already exists. Please enter a unique name for this category.",
+            },
+          };
+        }
       }
     }
 
-    console.error("Database update failed:", dbError);
+    console.error("Database update failed:", error);
     return { dbError: "Something went wrong. Please try again later." };
   }
-
-  revalidatePath("/categories");
-
-  return { success: true, category: updatedCategory };
 }

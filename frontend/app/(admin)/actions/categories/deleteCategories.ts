@@ -2,53 +2,32 @@
 
 import { revalidatePath } from "next/cache";
 
-import { createServerActionClient } from "@/lib/supabase/server-action";
+import { prisma } from "@/lib/prisma";
 import { ServerActionResponse } from "@/types/server-action";
 
 export async function deleteCategories(
   categoryIds: string[]
 ): Promise<ServerActionResponse> {
-  const supabase = createServerActionClient();
+  try {
+    // TODO: Si usas Cloudinary u otro servicio, elimina las imágenes aquí
+    // const categories = await prisma.categories.findMany({
+    //   where: { id: { in: categoryIds.map(id => parseInt(id)) } },
+    //   select: { image_url: true }
+    // });
 
-  const { data: categoriesData, error: fetchError } = await supabase
-    .from("categories")
-    .select("image_url")
-    .in("id", categoryIds);
+    await prisma.categories.deleteMany({
+      where: {
+        id: { in: categoryIds.map((id) => parseInt(id)) },
+      },
+    });
 
-  if (fetchError) {
-    console.error("Failed to fetch categories for deletion:", fetchError);
-    return { dbError: "Could not find the categories to delete." };
-  }
+    revalidatePath("/categories");
 
-  const imageFileNames =
-    categoriesData
-      ?.map((category) => category.image_url)
-      .filter(Boolean)
-      .map((url) => `categories/${url.split("/").pop()}`) ?? [];
-
-  if (imageFileNames.length > 0) {
-    const { error: storageError } = await supabase.storage
-      .from("assets")
-      .remove(imageFileNames);
-
-    if (storageError) {
-      console.error("Failed to delete category images:", storageError);
-    }
-  }
-
-  const { error: dbError } = await supabase
-    .from("categories")
-    .delete()
-    .in("id", categoryIds);
-
-  if (dbError) {
-    console.error("Database bulk delete failed:", dbError);
+    return { success: true };
+  } catch (error) {
+    console.error("Database bulk delete failed:", error);
     return {
       dbError: "Something went wrong. Could not delete the categories.",
     };
   }
-
-  revalidatePath("/categories");
-
-  return { success: true };
 }

@@ -2,34 +2,26 @@
 
 import { revalidatePath } from "next/cache";
 
-// TODO: Migrar a Prisma
-// import { createServerActionClient } from "@/lib/supabase/server-action";
+import { prisma } from "@/lib/prisma";
 import { ServerActionResponse } from "@/app/(admin)/types/server-action";
 
 export async function toggleProductPublishedStatus(
   productId: string,
   currentPublishedStatus: boolean
 ): Promise<ServerActionResponse> {
-  // TODO: Implementar con Prisma
-  return { dbError: "Toggle product status not implemented yet. Migration to Prisma pending." };
-  
-  /* CÓDIGO ORIGINAL CON SUPABASE - PENDIENTE DE MIGRACIÓN
-  const supabase = createServerActionClient();
+  try {
+    const newPublishedStatus = !currentPublishedStatus;
 
-  const newPublishedStatus = !currentPublishedStatus;
+    await prisma.products.update({
+      where: { id: parseInt(productId) },
+      data: { active: newPublishedStatus },
+    });
 
-  const { error: dbError } = await supabase
-    .from("products")
-    .update({ published: newPublishedStatus })
-    .eq("id", productId);
+    revalidatePath("/products");
 
-  if (dbError) {
-    console.error("Database update failed:", dbError);
+    return { success: true };
+  } catch (error) {
+    console.error("Database update failed:", error);
     return { dbError: "Failed to update product status." };
   }
-
-  revalidatePath("/products");
-
-  return { success: true };
-  */
 }

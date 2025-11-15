@@ -9,6 +9,9 @@ import {
   OrderDetails,
 } from "./types";
 
+const BACKEND_URL =
+  process.env.NEXT_PUBLIC_BACKEND_URL || "http://localhost:8000";
+
 // Migrado a Prisma - Usa API routes
 export async function fetchOrders(
   params: FetchOrdersParams,
@@ -23,7 +26,7 @@ export async function fetchOrders(
     startDate,
     endDate,
   } = params;
-  
+
   const queryParams = new URLSearchParams({
     page: page.toString(),
     limit: limit.toString(),
@@ -34,14 +37,16 @@ export async function fetchOrders(
     ...(endDate && { endDate }),
   });
 
-  const response = await fetch(`/api/orders?${queryParams.toString()}`);
-  
+  const response = await fetch(
+    `${BACKEND_URL}/api/orders?${queryParams.toString()}`
+  );
+
   if (!response.ok) {
     throw new Error("Failed to fetch orders");
   }
 
   return response.json();
-  
+
   /* CÓDIGO ORIGINAL CON SUPABASE - ARCHIVADO
   const selectQuery = `
     *,

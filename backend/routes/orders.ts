@@ -1,5 +1,6 @@
 import { Router } from "express";
 import {
+  getOrders,
   getProductWithVariants,
   checkVariantAvailability,
   getOrderById,
@@ -8,19 +9,14 @@ import {
 } from "../controllers/orders";
 
 export const ordersRoutes = () => {
-  const app = Router();
-
-  // Rutas de productos (estas funcionan)
-  app.get("/product/:productId/variants", getProductWithVariants);
-  app.get(
-    "/product/:productId/variants/:colorCode/:size",
-    checkVariantAvailability
-  );
-
-  // Rutas de órdenes básicas (estas funcionan)
-  app.get("/user-orders-with-payments", getUserOrdersWithPayments);
-  app.get("/:orderId", getOrderById);
-  app.patch("/:orderId/status", updateOrderStatus);
-
-  return app;
+  return Router()
+    .get("/", getOrders)
+    .get("/product/:productId/variants", getProductWithVariants)
+    .get(
+      "/product/:productId/variants/:colorCode/:size",
+      checkVariantAvailability
+    )
+    .get("/user-orders-with-payments", getUserOrdersWithPayments)
+    .get("/:orderId", getOrderById)
+    .patch("/:orderId/status", updateOrderStatus);
 };

@@ -1,16 +1,14 @@
 "use server";
 
-import { createServerActionClient } from "@/lib/supabase/server-action";
+import { prisma } from "@/lib/prisma";
 
 export async function exportCoupons() {
-  const supabase = createServerActionClient();
+  try {
+    const data = await prisma.coupons.findMany();
 
-  const { data, error } = await supabase.from("coupons").select("*");
-
-  if (error) {
+    return { data };
+  } catch (error) {
     console.error(`Error fetching coupons:`, error);
     return { error: `Failed to fetch data for coupons.` };
   }
-
-  return { data };
 }

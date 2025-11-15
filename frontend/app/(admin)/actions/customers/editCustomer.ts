@@ -1,18 +1,17 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
+import { Prisma } from "@prisma/client";
 
-import { createServerActionClient } from "@/lib/supabase/server-action";
-import { customerFormSchema } from "@/app/(dashboard)/customers/_components/form/schema";
-import { formatValidationErrors } from "@/helpers/formatValidationErrors";
-import { CustomerServerActionResponse } from "@/types/server-action";
+import { prisma } from "@/lib/prisma";
+import { customerFormSchema } from "@/app/(admin)/dashboard/customers/_components/form/schema";
+import { formatValidationErrors } from "@/app/(admin)/helpers/formatValidationErrors";
+import { CustomerServerActionResponse } from "@/app/(admin)/types/server-action";
 
 export async function editCustomer(
   customerId: string,
   formData: FormData
 ): Promise<CustomerServerActionResponse> {
-  const supabase = createServerActionClient();
-
   const parsedData = customerFormSchema.safeParse({
     name: formData.get("name"),
     email: formData.get("email"),
@@ -29,24 +28,44 @@ export async function editCustomer(
 
   const customerData = parsedData.data;
 
-  const { data: updatedCustomer, error: dbError } = await supabase
-    .from("customers")
-    .update({
-      name: customerData.name,
-      email: customerData.email,
-      phone: customerData.phone,
-    })
-    .eq("id", customerId)
-    .select()
-    .single();
+  try {
+    const updatedCustomer = await prisma.user.update({
+      where: { id: parseInt(customerId), role: "user" },
+      data: {
+        name: customerData.name,
+        email: customerData.email,
+        phone_number: customerData.phone,
+      },
+    });
 
-  if (dbError) {
-    console.error("Database update failed:", dbError);
+    revalidatePath("/customers");
+    revalidatePath(`/customer-orders/${updatedCustomer.id}`);
+
+    return { success: true, customer: updatedCustomer };
+  } catch (error) {
+    // Manejar errores de unique constraint de Prisma
+    if (error instanceof Prisma.PrismaClientKnownRequestError) {
+      if (error.code === "P2002") {
+        const target = error.meta?.target as string[];
+
+        if (target?.includes("email")) {
+          return {
+            validationErrors: {
+              email: "This email is already in use.",
+            },
+          };
+        }
+        if (target?.includes("phone_number")) {
+          return {
+            validationErrors: {
+              phone: "This phone number is already in use.",
+            },
+          };
+        }
+      }
+    }
+
+    console.error("Database update failed:", error);
     return { dbError: "Something went wrong. Please try again later." };
   }
-
-  revalidatePath("/customers");
-  revalidatePath(`/customer-orders/${updatedCustomer.id}`);
-
-  return { success: true, customer: updatedCustomer };
 }

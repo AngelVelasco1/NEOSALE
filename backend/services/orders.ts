@@ -501,6 +501,163 @@ export const getUserOrdersService = async (userId: number) => {
   }
 };
 
+interface GetOrdersParams {
+  page: number;
+  limit: number;
+  search?: string;
+  status?: string;
+  method?: string;
+  startDate?: string;
+  endDate?: string;
+}
+
+export const getOrdersService = async ({
+  page,
+  limit,
+  search,
+  status,
+  method,
+  startDate,
+  endDate,
+}: GetOrdersParams) => {
+  try {
+    const skip = (page - 1) * limit;
+
+    // Construir filtro base
+    const where: any = {};
+
+    // Filtro por búsqueda (nombre de usuario o email)
+    if (search) {
+      where.users = {
+        OR: [
+          { name: { contains: search, mode: "insensitive" as const } },
+          { email: { contains: search, mode: "insensitive" as const } },
+        ],
+      };
+    }
+
+    // Filtro por estado
+    if (status) {
+      where.status = status;
+    }
+
+    // Filtro por rango de fechas
+    if (startDate || endDate) {
+      where.created_at = {};
+      if (startDate) {
+        where.created_at.gte = new Date(startDate);
+      }
+      if (endDate) {
+        where.created_at.lte = new Date(endDate);
+      }
+    }
+
+    // Obtener órdenes con paginación
+    const [orders, total] = await Promise.all([
+      prisma.orders.findMany({
+        where,
+        skip,
+        take: limit,
+        include: {
+          users: {
+            select: {
+              id: true,
+              name: true,
+              email: true,
+            },
+          },
+          coupons: {
+            select: {
+              id: true,
+              code: true,
+              discount_value: true,
+              discount_type: true,
+            },
+          },
+          order_items: {
+            include: {
+              products: {
+                select: {
+                  id: true,
+                  name: true,
+                  price: true,
+                },
+              },
+            },
+          },
+        },
+        orderBy: { created_at: "desc" },
+      }),
+      prisma.orders.count({ where }),
+    ]);
+
+    // Obtener información de payment para cada orden con filtro de método si aplica
+    const ordersWithPayments = await Promise.all(
+      orders.map(async (order) => {
+        let paymentResult: PaymentInfo[];
+
+        if (method) {
+          // Si hay filtro de método, incluirlo en la query
+          paymentResult = await prisma.$queryRaw<PaymentInfo[]>`
+            SELECT
+              id, transaction_id, payment_status, payment_method,
+              (amount_in_cents / 100)::INTEGER as amount_in_cents, currency, customer_email,
+              created_at, approved_at
+            FROM payments
+            WHERE id = (SELECT payment_id FROM orders WHERE id = ${order.id}::INTEGER)
+              AND payment_method = ${method}
+          `;
+        } else {
+          // Sin filtro de método
+          paymentResult = await prisma.$queryRaw<PaymentInfo[]>`
+            SELECT
+              id, transaction_id, payment_status, payment_method,
+              (amount_in_cents / 100)::INTEGER as amount_in_cents, currency, customer_email,
+              created_at, approved_at
+            FROM payments
+            WHERE id = (SELECT payment_id FROM orders WHERE id = ${order.id}::INTEGER)
+          `;
+        }
+
+        let payment: PaymentInfo | null = null;
+        if (paymentResult && paymentResult.length > 0) {
+          payment = paymentResult[0];
+        }
+
+        // Si hay filtro de método y no hay payment, retornar null
+        if (method && !payment) {
+          return null;
+        }
+
+        return {
+          ...order,
+          payment,
+        };
+      })
+    );
+
+    // Filtrar órdenes que no cumplen con el filtro de método de pago
+    const filteredOrders = ordersWithPayments.filter(
+      (order): order is NonNullable<typeof order> => order !== null
+    );
+
+    return {
+      data: filteredOrders,
+      pagination: {
+        total: method ? filteredOrders.length : total,
+        page,
+        limit,
+        totalPages: Math.ceil((method ? filteredOrders.length : total) / limit),
+      },
+    };
+  } catch (error) {
+    console.error("Error en getOrdersService:", error);
+    throw new Error(
+      error instanceof Error ? error.message : "Error al obtener las órdenes"
+    );
+  }
+};
+
 export const processWompiOrderWebhook = async (
   transactionId: string,
   paymentStatus: "PENDING" | "APPROVED" | "DECLINED" | "VOIDED" | "ERROR"

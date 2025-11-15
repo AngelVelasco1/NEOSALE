@@ -36,8 +36,8 @@ export const getColumns = ({
     {
       header: "order time",
       cell: ({ row }) =>
-        `${format(row.original.order_time, "PP")} ${format(
-          row.original.order_time,
+        `${format(row.original.created_at, "PP")} ${format(
+          row.original.created_at,
           "p"
         )}`,
     },

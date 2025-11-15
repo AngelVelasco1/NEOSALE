@@ -2,7 +2,7 @@
 
 import { revalidatePath } from "next/cache";
 
-import { createServerActionClient } from "@/app/(admin)/lib/supabase/server-action";
+import { prisma } from "@/lib/prisma";
 import { ServerActionResponse } from "@/app/(admin)/types/server-action";
 import { OrderStatus } from "@/app/(admin)/services/orders/types";
 
@@ -10,20 +10,18 @@ export async function changeOrderStatus(
   orderId: string,
   newOrderStatus: OrderStatus
 ): Promise<ServerActionResponse> {
-  const supabase = createServerActionClient();
+  try {
+    await prisma.orders.update({
+      where: { id: parseInt(orderId) },
+      data: { status: newOrderStatus as any }, // TODO: Ajustar tipo según tu enum
+    });
 
-  const { error: dbError } = await supabase
-    .from("orders")
-    .update({ status: newOrderStatus })
-    .eq("id", orderId);
+    revalidatePath("/orders");
+    revalidatePath(`/orders/${orderId}`);
 
-  if (dbError) {
-    console.error("Database update failed:", dbError);
+    return { success: true };
+  } catch (error) {
+    console.error("Database update failed:", error);
     return { dbError: "Failed to update order status." };
   }
-
-  revalidatePath("/orders");
-  revalidatePath(`/orders/${orderId}`);
-
-  return { success: true };
 }

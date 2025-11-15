@@ -7,7 +7,8 @@ import {
   addFavoriteService,
   removeFavoriteService,
   checkIsFavoriteService,
-  getUserFavoritesService
+  getUserFavoritesService,
+  getUsersService,
 } from "../services/users";
 
 export const registerUser = async (
@@ -42,6 +43,22 @@ export const registerUser = async (
   }
 };
 
+export const getUsers = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  try {
+    const page = parseInt(req.query.page as string) || 1;
+    const limit = parseInt(req.query.limit as string) || 10;
+    const search = req.query.search as string;
+    const users = await getUsersService(page, limit, search);
+    res.json(users);
+  } catch (error) {
+    next(error);
+  }
+};
+
 export const getUserById = async (
   req: Request,
   res: Response,
@@ -63,7 +80,8 @@ export const updateUser = async (
   next: NextFunction
 ) => {
   try {
-    const { id, name, email, email_verified, phone_number, identification } = req.body;
+    const { id, name, email, email_verified, phone_number, identification } =
+      req.body;
 
     const updatedUser = await updateUserService({
       id,
@@ -80,18 +98,26 @@ export const updateUser = async (
   }
 };
 
-export const updatePassword = async (req: Request, res: Response, next: NextFunction) => {
+export const updatePassword = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
   try {
     const { id, newPassword } = req.body;
 
     const result = await updatePasswordService({ id, newPassword });
     res.json(result);
   } catch (error) {
-    next(error)
+    next(error);
   }
 };
 
-export const addFavorite = async (req: Request, res: Response, next: NextFunction) => {
+export const addFavorite = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
   try {
     const { userId, productId } = req.body;
 
@@ -100,9 +126,13 @@ export const addFavorite = async (req: Request, res: Response, next: NextFunctio
   } catch (error) {
     next(error);
   }
-}
+};
 
-export const removeFavorite = async (req: Request, res: Response, next: NextFunction) => {
+export const removeFavorite = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
   try {
     const { userId, productId } = req.body;
 
@@ -111,21 +141,31 @@ export const removeFavorite = async (req: Request, res: Response, next: NextFunc
   } catch (error) {
     next(error);
   }
-}
+};
 
-export const checkIsFavorite = async (req: Request, res: Response, next: NextFunction) => {
+export const checkIsFavorite = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
   try {
     const userId = req.params.userId ? Number(req.params.userId) : undefined;
-    const productId = req.params.productId ? Number(req.params.productId) : undefined;
+    const productId = req.params.productId
+      ? Number(req.params.productId)
+      : undefined;
 
     const isFavorite = await checkIsFavoriteService(userId, productId);
     res.json({ isFavorite });
   } catch (error) {
     next(error);
   }
-}
+};
 
-export const getUserFavorites = async (req: Request, res: Response, next: NextFunction) => {
+export const getUserFavorites = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
   try {
     const userId = req.params.userId ? Number(req.params.userId) : undefined;
 
@@ -134,4 +174,4 @@ export const getUserFavorites = async (req: Request, res: Response, next: NextFu
   } catch (error) {
     next(error);
   }
-}
+};

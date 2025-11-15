@@ -1,16 +1,16 @@
 "use server";
 
-import { createServerActionClient } from "@/lib/supabase/server-action";
+import { prisma } from "@/lib/prisma";
 
 export async function exportCustomers() {
-  const supabase = createServerActionClient();
+  try {
+    const data = await prisma.user.findMany({
+      where: { role: "user" },
+    });
 
-  const { data, error } = await supabase.from("customers").select("*");
-
-  if (error) {
+    return { data };
+  } catch (error) {
     console.error(`Error fetching customers:`, error);
     return { error: `Failed to fetch data for customers.` };
   }
-
-  return { data };
 }

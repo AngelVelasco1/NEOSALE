@@ -2,51 +2,30 @@
 
 import { revalidatePath } from "next/cache";
 
-import { createServerActionClient } from "@/lib/supabase/server-action";
-import { ServerActionResponse } from "@/types/server-action";
+import { prisma } from "@/lib/prisma";
+import { ServerActionResponse } from "@/app/(admin)/types/server-action";
 
 export async function deleteCoupons(
   couponIds: string[]
 ): Promise<ServerActionResponse> {
-  const supabase = createServerActionClient();
+  try {
+    // TODO: Si usas Cloudinary u otro servicio, elimina las imágenes aquí
+    // const coupons = await prisma.coupons.findMany({
+    //   where: { id: { in: couponIds.map(id => parseInt(id)) } },
+    //   select: { image_url: true }
+    // });
 
-  const { data: couponsData, error: fetchError } = await supabase
-    .from("coupons")
-    .select("image_url")
-    .in("id", couponIds);
+    await prisma.coupons.deleteMany({
+      where: {
+        id: { in: couponIds.map((id) => parseInt(id)) },
+      },
+    });
 
-  if (fetchError) {
-    console.error("Failed to fetch coupons for deletion:", fetchError);
-    return { dbError: "Could not find the coupons to delete." };
-  }
+    revalidatePath("/coupons");
 
-  const imageFileNames =
-    couponsData
-      ?.map((coupon) => coupon.image_url)
-      .filter(Boolean)
-      .map((url) => `coupons/${url.split("/").pop()}`) ?? [];
-
-  if (imageFileNames.length > 0) {
-    const { error: storageError } = await supabase.storage
-      .from("assets")
-      .remove(imageFileNames);
-
-    if (storageError) {
-      console.error("Failed to delete coupon images:", storageError);
-    }
-  }
-
-  const { error: dbError } = await supabase
-    .from("coupons")
-    .delete()
-    .in("id", couponIds);
-
-  if (dbError) {
-    console.error("Database bulk delete failed:", dbError);
+    return { success: true };
+  } catch (error) {
+    console.error("Database bulk delete failed:", error);
     return { dbError: "Something went wrong. Could not delete the coupons." };
   }
-
-  revalidatePath("/coupons");
-
-  return { success: true };
 }

@@ -4,7 +4,7 @@ import { revalidatePath } from "next/cache";
 import { Prisma } from "@prisma/client";
 
 import { prisma } from "@/lib/prisma";
-import { categoryFormSchema } from "@/app/(dashboard)/categories/_components/form/schema";
+import { categoryFormSchema } from "@/app/(admin)/dashboard/categories/_components/form/schema";
 import { formatValidationErrors } from "@/app/(admin)/helpers/formatValidationErrors";
 import { CategoryServerActionResponse } from "@/app/(admin)/types/server-action";
 
@@ -54,7 +54,7 @@ export async function addCategory(
     if (error instanceof Prisma.PrismaClientKnownRequestError) {
       if (error.code === "P2002") {
         const target = error.meta?.target as string[];
-        
+
         if (target?.includes("name")) {
           return {
             validationErrors: {

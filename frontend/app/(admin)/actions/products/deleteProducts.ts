@@ -2,57 +2,30 @@
 
 import { revalidatePath } from "next/cache";
 
-// TODO: Migrar a Prisma
-// import { createServerActionClient } from "@/lib/supabase/server-action";
+import { prisma } from "@/lib/prisma";
 import { ServerActionResponse } from "@/app/(admin)/types/server-action";
 
 export async function deleteProducts(
   productIds: string[]
 ): Promise<ServerActionResponse> {
-  // TODO: Implementar con Prisma
-  return { dbError: "Bulk delete not implemented yet. Migration to Prisma pending." };
-  
-  /* CÓDIGO ORIGINAL CON SUPABASE - PENDIENTE DE MIGRACIÓN
-  const supabase = createServerActionClient();
+  try {
+    // TODO: Si usas Cloudinary u otro servicio, elimina las imágenes aquí
+    // const products = await prisma.products.findMany({
+    //   where: { id: { in: productIds.map(id => parseInt(id)) } },
+    //   include: { images: true }
+    // });
 
-  const { data: productsData, error: fetchError } = await supabase
-    .from("products")
-    .select("image_url")
-    .in("id", productIds);
+    await prisma.products.deleteMany({
+      where: {
+        id: { in: productIds.map((id) => parseInt(id)) },
+      },
+    });
 
-  if (fetchError) {
-    console.error("Failed to fetch products for deletion:", fetchError);
-    return { dbError: "Could not find the products to delete." };
-  }
+    revalidatePath("/products");
 
-  const imageFileNames =
-    productsData
-      ?.map((product) => product.image_url)
-      .filter(Boolean)
-      .map((url) => `products/${url.split("/").pop()}`) ?? [];
-
-  if (imageFileNames.length > 0) {
-    const { error: storageError } = await supabase.storage
-      .from("assets")
-      .remove(imageFileNames);
-
-    if (storageError) {
-      console.error("Failed to delete product images:", storageError);
-    }
-  }
-
-  const { error: dbError } = await supabase
-    .from("products")
-    .delete()
-    .in("id", productIds);
-
-  if (dbError) {
-    console.error("Database bulk delete failed:", dbError);
+    return { success: true };
+  } catch (error) {
+    console.error("Database bulk delete failed:", error);
     return { dbError: "Something went wrong. Could not delete the products." };
   }
-
-  revalidatePath("/products");
-
-  return { success: true };
-  */
 }

@@ -2,17 +2,15 @@
 
 import { revalidatePath } from "next/cache";
 
-import { createServerActionClient } from "@/lib/supabase/server-action";
-import { categoryBulkFormSchema } from "@/app/(dashboard)/categories/_components/form/schema";
-import { formatValidationErrors } from "@/helpers/formatValidationErrors";
-import { VServerActionResponse } from "@/types/server-action";
+import { prisma } from "@/lib/prisma";
+import { categoryBulkFormSchema } from "@/app/(admin)/dashboard/categories/_components/form/schema";
+import { formatValidationErrors } from "@/app/(admin)/helpers/formatValidationErrors";
+import { VServerActionResponse } from "@/app/(admin)/types/server-action";
 
 export async function editCategories(
   categoryIds: string[],
   formData: FormData
 ): Promise<VServerActionResponse> {
-  const supabase = createServerActionClient();
-
   const parsedData = categoryBulkFormSchema.safeParse({
     published: !!(formData.get("published") === "true"),
   });
@@ -27,17 +25,17 @@ export async function editCategories(
 
   const { published } = parsedData.data;
 
-  const { error: dbError } = await supabase
-    .from("categories")
-    .update({ published })
-    .in("id", categoryIds);
+  try {
+    await prisma.categories.updateMany({
+      where: { id: { in: categoryIds.map((id) => parseInt(id)) } },
+      data: { active: published },
+    });
 
-  if (dbError) {
-    console.error("Database update failed:", dbError);
+    revalidatePath("/categories");
+
+    return { success: true };
+  } catch (error) {
+    console.error("Database update failed:", error);
     return { dbError: "Something went wrong. Please try again later." };
   }
-
-  revalidatePath("/categories");
-
-  return { success: true };
 }

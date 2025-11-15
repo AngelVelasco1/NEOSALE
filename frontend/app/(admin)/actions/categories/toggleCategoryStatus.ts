@@ -2,28 +2,26 @@
 
 import { revalidatePath } from "next/cache";
 
-import { createServerActionClient } from "@/lib/supabase/server-action";
-import { ServerActionResponse } from "@/types/server-action";
+import { prisma } from "@/lib/prisma";
+import { ServerActionResponse } from "@/app/(admin)/types/server-action";
 
 export async function toggleCategoryPublishedStatus(
   categoryId: string,
   currentPublishedStatus: boolean
 ): Promise<ServerActionResponse> {
-  const supabase = createServerActionClient();
+  try {
+    const newPublishedStatus = !currentPublishedStatus;
 
-  const newPublishedStatus = !currentPublishedStatus;
+    await prisma.categories.update({
+      where: { id: parseInt(categoryId) },
+      data: { active: newPublishedStatus },
+    });
 
-  const { error: dbError } = await supabase
-    .from("categories")
-    .update({ published: newPublishedStatus })
-    .eq("id", categoryId);
+    revalidatePath("/categories");
 
-  if (dbError) {
-    console.error("Database update failed:", dbError);
+    return { success: true };
+  } catch (error) {
+    console.error("Database update failed:", error);
     return { dbError: "Failed to update category status." };
   }
-
-  revalidatePath("/categories");
-
-  return { success: true };
 }

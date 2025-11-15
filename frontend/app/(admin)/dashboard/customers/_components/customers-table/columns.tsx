@@ -36,13 +36,9 @@ export const getColumns = ({
       header: "id",
       cell: ({ row }) => (
         <Typography className="uppercase">
-          {row.original.id.slice(-4)}
+          {row.id.slice(-4)}
         </Typography>
       ),
-    },
-    {
-      header: "joining date",
-      cell: ({ row }) => format(row.original.created_at, "PP"),
     },
     {
       header: "name",
@@ -61,7 +57,7 @@ export const getColumns = ({
       id: "phone",
       cell: ({ row }) => (
         <Typography className="block text-center">
-          {row.original.phone || "—"}
+          {row.original.phone_number || "—"}
         </Typography>
       ),
     },
@@ -78,7 +74,7 @@ export const getColumns = ({
                 variant="ghost"
                 className="text-foreground"
               >
-                <Link href={`/customer-orders/${row.original.id}`}>
+                <Link href={`/customer-orders/${row.id}`}>
                   <ZoomIn className="size-5" />
                 </Link>
               </Button>
@@ -86,7 +82,7 @@ export const getColumns = ({
 
             {hasPermission("customers", "canEdit") && (
               <CustomerFormSheet
-                key={row.original.id}
+                key={row.id}
                 title="Update Customers"
                 description="Update necessary customer information here"
                 submitButtonText="Update Customer"
@@ -94,9 +90,9 @@ export const getColumns = ({
                 initialData={{
                   name: row.original.name,
                   email: row.original.email,
-                  phone: row.original.phone ?? "",
+                  phone: row.original.phone_number ?? "",
                 }}
-                action={(formData) => editCustomer(row.original.id, formData)}
+                action={(formData) => editCustomer(row.id, formData)}
               >
                 <SheetTooltip content="Edit Customer">
                   <PenSquare className="size-5" />
@@ -117,13 +113,13 @@ export const getColumns = ({
               </TooltipWrapper>
 
               // <TableActionAlertDialog
-              //   title={`Delete ${row.original.name}?`}
+              //   title={`Delete ${row.name}?`}
               //   description="This action cannot be undone. This will permanently delete this customer and associated data from the database."
               //   tooltipContent="Delete Customer"
               //   actionButtonText="Delete Customer"
-              //   toastSuccessMessage={`Customer "${row.original.name}" deleted successfully!`}
+              //   toastSuccessMessage={`Customer "${row.name}" deleted successfully!`}
               //   queryKey="customers"
-              //   action={() => deleteCustomer(row.original.id)}
+              //   action={() => deleteCustomer(row.id)}
               // >
               //   <Trash2 className="size-5" />
               // </TableActionAlertDialog>

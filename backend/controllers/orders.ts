@@ -9,6 +9,7 @@ import {
   getOrderWithPaymentService,
   processWompiOrderWebhook,
   getUserOrdersWithPaymentsService,
+  getOrdersService,
 } from "../services/orders";
 import { Request, Response } from "express";
 
@@ -63,6 +64,39 @@ import { Request, Response } from "express";
   }
 };
  */
+
+export const getOrders = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  try {
+    const page = parseInt(req.query.page as string) || 1;
+    const limit = parseInt(req.query.limit as string) || 10;
+    const search = req.query.search as string;
+    const status = req.query.status as string;
+    const method = req.query.method as string;
+    const startDate = req.query.startDate as string;
+    const endDate = req.query.endDate as string;
+
+    const result = await getOrdersService({
+      page,
+      limit,
+      search,
+      status,
+      method,
+      startDate,
+      endDate,
+    });
+
+    res.json({
+      success: true,
+      ...result,
+    });
+  } catch (err) {
+    next(err);
+  }
+};
 export const getProductWithVariants = async (
   req: Request,
   res: Response,
@@ -210,7 +244,6 @@ export const getUserOrdersWithPayments = async (
         message: "user_id es requerido como query parameter o X-User-ID header",
       });
     }
-
 
     const orders = await getUserOrdersWithPaymentsService(userId);
 

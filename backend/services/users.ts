@@ -53,6 +53,55 @@ export const registerUserService = async ({
   };
 };
 
+export const getUsersService = async (
+  page: number,
+  limit: number,
+  search?: string
+) => {
+  const skip = (page - 1) * limit;
+
+  // Construir filtro de búsqueda
+  const where = search
+    ? {
+        role: "user" as roles_enum,
+        OR: [
+          { name: { contains: search, mode: "insensitive" as const } },
+          { email: { contains: search, mode: "insensitive" as const } },
+        ],
+      }
+    : { role: "user" as roles_enum };
+
+  // Obtener usuarios con paginación
+  const [users, total] = await Promise.all([
+    prisma.user.findMany({
+      where,
+      skip,
+      take: limit,
+      select: {
+        id: true,
+        name: true,
+        email: true,
+        phone_number: true,
+        image: true,
+        active: true,
+        created_at: true,
+      },
+      orderBy: { created_at: "desc" },
+    }),
+    prisma.user.count({ where }),
+  ]);
+
+  return {
+    data: users,
+    pagination: {
+      total,
+      page,
+      limit,
+      totalPages: Math.ceil(total / limit),
+    },
+  };
+};
+
 export const getUserByIdService = async (id: number | undefined) => {
   if (!id) {
     throw new Error("ID de usuario requerido");

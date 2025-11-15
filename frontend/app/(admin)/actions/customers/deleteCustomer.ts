@@ -2,25 +2,22 @@
 
 import { revalidatePath } from "next/cache";
 
-import { createServerActionClient } from "@/lib/supabase/server-action";
-import { ServerActionResponse } from "@/types/server-action";
+import { prisma } from "@/lib/prisma";
+import { ServerActionResponse } from "@/app/(admin)/types/server-action";
 
 export async function deleteCustomer(
   customerId: string
 ): Promise<ServerActionResponse> {
-  const supabase = createServerActionClient();
+  try {
+    await prisma.user.delete({
+      where: { id: parseInt(customerId) },
+    });
 
-  const { error: dbError } = await supabase
-    .from("customers")
-    .delete()
-    .eq("id", customerId);
+    revalidatePath("/customers");
 
-  if (dbError) {
-    console.error("Database delete failed:", dbError);
+    return { success: true };
+  } catch (error) {
+    console.error("Database delete failed:", error);
     return { dbError: "Something went wrong. Could not delete the customer." };
   }
-
-  revalidatePath("/customers");
-
-  return { success: true };
 }

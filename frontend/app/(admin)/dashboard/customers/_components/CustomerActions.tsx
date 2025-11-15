@@ -1,6 +1,6 @@
 import { Card } from "@/components/ui/card";
-import { exportCustomers } from "@/actions/customers/exportCustomers";
-import { ExportDataButtons } from "@/components/shared/ExportDataButtons";
+import { exportCustomers } from "@/app/(admin)/actions/customers/exportCustomers";
+import { ExportDataButtons } from "@/app/(admin)/components/shared/ExportDataButtons";
 
 export default function CustomerActions() {
   return (

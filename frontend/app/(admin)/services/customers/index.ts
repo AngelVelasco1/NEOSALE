@@ -5,16 +5,23 @@ import {
   CustomerOrder,
 } from "./types";
 
-export async function fetchCustomers(
-  { page = 1, limit = 10, search }: FetchCustomersParams
-): Promise<FetchCustomersResponse> {
+const BACKEND_URL =
+  process.env.NEXT_PUBLIC_BACKEND_URL || "http://localhost:8000";
+
+export async function fetchCustomers({
+  page = 1,
+  limit = 10,
+  search,
+}: FetchCustomersParams): Promise<FetchCustomersResponse> {
   const queryParams = new URLSearchParams({
     page: page.toString(),
     limit: limit.toString(),
     ...(search && { search }),
   });
 
-  const response = await fetch(`/api/customers?${queryParams.toString()}`);
+  const response = await fetch(
+    `${BACKEND_URL}/api/users/getUsers?${queryParams.toString()}`
+  );
 
   if (!response.ok) {
     throw new Error("Failed to fetch customers");
