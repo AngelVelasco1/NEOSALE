@@ -6,7 +6,6 @@ import { Badge } from "@/app/(admin)/components/ui/badge";
 import { Button } from "@/app/(admin)/components/ui/button";
 import Typography from "@/app/(admin)/components/ui/typography";
 import { Skeleton } from "@/app/(admin)/components/ui/skeleton";
-import noProfilePicture from "public/assets/no-profile-picture.jpg";
 
 import { TableSwitch } from "@/app/(admin)/components/shared/table/TableSwitch";
 import { ImagePlaceholder } from "@/app/(admin)/components/shared/ImagePlaceholder";
@@ -43,7 +42,7 @@ export const getColumns = ({
       cell: ({ row }) => (
         <div className="flex gap-2 items-center">
           <ImagePlaceholder
-            src={row.original.image_url || noProfilePicture}
+            src={row.original.image || "/imgs/person.png"}
             alt={row.original.name}
             width={32}
             height={32}
@@ -69,7 +68,7 @@ export const getColumns = ({
       id: "phone",
       cell: ({ row }) => (
         <Typography className="block text-center">
-          {row.original.phone || "—"}
+          {row.original.phone_number || "—"}
         </Typography>
       ),
     },
@@ -81,14 +80,14 @@ export const getColumns = ({
       header: "role",
       cell: ({ row }) => (
         <Typography className="capitalize font-medium">
-          {row.original.staff_roles?.display_name}
+          {row.original.role}
         </Typography>
       ),
     },
     {
       header: "status",
       cell: ({ row }) => {
-        const status = row.original.published ? "active" : "inactive";
+        const status = row.original.active ? "active" : "inactive";
 
         return (
           <Badge
@@ -102,26 +101,8 @@ export const getColumns = ({
     },
   ];
 
-  if (hasPermission("staff", "canTogglePublished")) {
-    columns.splice(6, 0, {
-      header: "published",
-      cell: ({ row }) => (
-        <div className="pl-5">
-          <TableSwitch
-            checked={row.original.published}
-            toastSuccessMessage="Staff status updated successfully."
-            queryKey="staff"
-            onCheckedChange={() =>
-              toggleStaffPublishedStatus(
-                row.original.id,
-                row.original.published
-              )
-            }
-          />
-        </div>
-      ),
-    });
-  }
+
+
 
   columns.splice(7, 0, {
     header: () => <span className="block text-center">actions</span>,
@@ -129,7 +110,7 @@ export const getColumns = ({
     cell: ({ row }) => {
       return (
         <div className="flex items-center justify-center gap-1">
-          {isSelf(row.original.id) && (
+          {isSelf(row.id) && (
             <StaffFormSheet
               key={row.original.id}
               title="Update Staff"
@@ -138,11 +119,11 @@ export const getColumns = ({
               actionVerb="updated"
               initialData={{
                 name: row.original.name,
-                phone: row.original.phone ?? "",
-                image: row.original.image_url ?? undefined,
+                phone: row.original.phone_number ?? "",
+                image: row.original.image ?? undefined,
               }}
               action={(formData) => editStaff(row.original.id, formData)}
-              previewImage={row.original.image_url ?? undefined}
+              previewImage={row.original.image ?? undefined}
               staffEmail={row.original.email}
             >
               <SheetTooltip

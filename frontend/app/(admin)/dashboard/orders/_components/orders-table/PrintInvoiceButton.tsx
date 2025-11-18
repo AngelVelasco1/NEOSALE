@@ -3,6 +3,7 @@ import { Printer, Loader2 } from "lucide-react";
 import {
   Tooltip,
   TooltipContent,
+  TooltipProvider,
   TooltipTrigger,
 } from "../../../../components/ui/tooltip";
 import { Button } from "../../../../components/ui/button";
@@ -19,21 +20,23 @@ export function PrintInvoiceButton({ orderId }: { orderId: string }) {
     );
 
   return (
-    <Tooltip>
-      <TooltipTrigger asChild>
-        <Button
-          variant="ghost"
-          size="icon"
-          onClick={() => printPage(`/orders/${orderId}`)}
-          className="text-foreground"
-        >
-          <Printer className="size-5" />
-        </Button>
-      </TooltipTrigger>
+    <TooltipProvider>
+      <Tooltip>
+        <TooltipTrigger asChild>
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={() => printPage(`/orders/${orderId}`)}
+            className="text-foreground"
+          >
+            <Printer className="size-5" />
+          </Button>
+        </TooltipTrigger>
 
-      <TooltipContent>
-        <p>Print Invoice</p>
-      </TooltipContent>
-    </Tooltip>
+        <TooltipContent>
+          <p>Print Invoice</p>
+        </TooltipContent>
+      </Tooltip>
+    </TooltipProvider>
   );
 }

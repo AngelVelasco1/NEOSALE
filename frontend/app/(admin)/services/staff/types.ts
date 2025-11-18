@@ -1,16 +1,30 @@
-import { Database } from "@/types/supabase";
 import { Pagination } from "@/types/pagination";
 
 export type StaffStatus = "active" | "inactive";
 
-export type SBStaff = Database["public"]["Tables"]["staff"]["Row"];
-type SBStaffRole = Database["public"]["Tables"]["staff_roles"]["Row"];
+export type SBStaff = {
+  id: number;
+  name: string;
+  email: string;
+  phone_number: string | null;
+  identification: string | null;
+  identification_type: string | null;
+  role: string;
+  active: boolean;
+  email_notifications: boolean | null;
+  created_at: Date;
+  updated_at: Date;
+};
 
-export type Staff = SBStaff & {
-  staff_roles: {
-    name: string | null;
-    display_name: string | null;
-  } | null;
+export type Staff = {
+  id: number;
+  name: string;
+  email: string;
+  phone_number: string | null;
+  role: string;
+  active: boolean;
+  created_at: Date;
+  updated_at: Date;
 };
 
 export interface FetchStaffParams {
@@ -25,4 +39,7 @@ export interface FetchStaffResponse {
   pagination: Pagination;
 }
 
-export type StaffRolesDropdown = Pick<SBStaffRole, "name" | "display_name">;
+export type StaffRolesDropdown = {
+  name: string;
+  display_name: string;
+};

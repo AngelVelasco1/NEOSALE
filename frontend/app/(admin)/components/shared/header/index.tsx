@@ -1,23 +1,36 @@
-import Container from "@/app/(admin)/components/ui/container";
+import { Suspense } from "react";
+import { Menu } from "lucide-react";
+import { Button } from "@/components/ui/button";
 import Profile from "@/app/(admin)/components/shared/header/Profile";
-import NavMenuToggle from "@/app/(admin)/components/shared/header/NavMenuToggle";
 import ThemeToggle from "@/app/(admin)/components/shared/header/ThemeToggle";
 import Notifications from "@/app/(admin)/components/shared/notifications/Notifications";
 
-export default function Header() {
-  return (
-    <header className="sticky top-0 left-0 w-full bg-popover py-4 shadow-sm z-40 print:hidden">
-      <Container>
-        <div className="flex justify-between">
-          <NavMenuToggle />
+interface HeaderProps {
+  onToggleSidebar: () => void;
+}
 
-          <div className="flex items-center gap-x-2 ml-auto">
-            <ThemeToggle />
-            <Notifications />
-            <Profile />
-          </div>
-        </div>
-      </Container>
+export default function Header({ onToggleSidebar }: HeaderProps) {
+  return (
+    <header className="flex h-16 shrink-0 items-center gap-4 border-b px-4 bg-background">
+      <Button
+        variant="ghost"
+        size="icon"
+        onClick={onToggleSidebar}
+        className="h-9 w-9"
+        aria-label="Toggle sidebar"
+      >
+        <Menu className="h-5 w-5" />
+      </Button>
+
+      <div className="flex items-center gap-x-2 ml-auto">
+        <ThemeToggle />
+        <Suspense fallback={<div className="w-9 h-9" />}>
+          <Notifications />
+        </Suspense>
+        <Suspense fallback={<div className="w-9 h-9 rounded-full bg-muted" />}>
+          <Profile />
+        </Suspense>
+      </div>
     </header>
   );
 }

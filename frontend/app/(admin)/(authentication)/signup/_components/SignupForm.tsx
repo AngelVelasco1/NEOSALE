@@ -17,15 +17,15 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
-import Typography from "@/components/ui/typography";
+import Typography from "@/app/(admin)/components/ui/typography";
 import { Input } from "@/components/ui/input";
 import { Separator } from "@/components/ui/separator";
 import { Checkbox } from "@/components/ui/checkbox";
-import { FormSubmitButton } from "@/components/shared/form/FormSubmitButton";
+import { FormSubmitButton } from "@/app/(admin)/components/shared/form/FormSubmitButton";
 
 import { signupFields } from "./fields";
 import { signupFormSchema } from "./schema";
-import AuthProviders from "@/components/shared/auth/AuthProviders";
+import AuthProviders from "@/app/(admin)/components/shared/auth/AuthProviders";
 
 type FormData = z.infer<typeof signupFormSchema>;
 

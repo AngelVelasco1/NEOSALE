@@ -14,7 +14,7 @@ import { Settings, LogOut, LayoutGrid } from "lucide-react";
 import { useUserSafe } from "@/app/(auth)/hooks/useUserSafe";
 
 export default function Profile() {
-  const { userProfile } = useUserSafe();
+  const { userProfile, isLoading } = useUserSafe();
 
   const getInitials = (name: string | null | undefined): string => {
     if (!name) return "??";
@@ -24,6 +24,15 @@ export default function Profile() {
     }
     return name.substring(0, 2).toUpperCase();
   };
+
+  // Evitar renderizar el dropdown durante la carga inicial
+  if (isLoading) {
+    return (
+      <div className="flex ml-2">
+        <div className="w-10 h-10 rounded-full bg-muted animate-pulse" />
+      </div>
+    );
+  }
 
   return (
     <div className="flex ml-2">
@@ -55,7 +64,7 @@ export default function Profile() {
 
           <DropdownMenuItem asChild>
             <Link
-              href="/edit-profile"
+              href="/dashboard/edit-profile"
               className="w-full justify-start py-3.5 pl-3 pr-8 tracking-wide !cursor-pointer"
             >
               <Settings className="mr-3 size-5" /> Edit Profile

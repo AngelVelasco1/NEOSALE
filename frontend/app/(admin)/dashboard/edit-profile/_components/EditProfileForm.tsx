@@ -8,17 +8,17 @@ import { useQueryClient } from "@tanstack/react-query";
 import { Form } from "@/components/ui/form";
 import { toast } from "sonner";
 import { Card } from "@/components/ui/card";
-import { FormSubmitButton } from "@/components/shared/form/FormSubmitButton";
+import { FormSubmitButton } from "@/app/(admin)/components/shared/form/FormSubmitButton";
 import {
   FormTextInput,
   FormImageInput,
   FormReadonly,
-} from "@/components/shared/form";
+} from "@/app/(admin)/components/shared/form";
 
 import { profileFormSchema, ProfileFormData } from "./schema";
-import { objectToFormData } from "@/helpers/objectToFormData";
-import { SBStaff } from "@/services/staff/types";
-import { editProfile } from "@/actions/profile/editProfile";
+import { objectToFormData } from "@/app/(admin)/helpers/objectToFormData";
+import { SBStaff } from "@/app/(admin)/services/staff/types";
+import { editProfile } from "@/app/(admin)/actions/profile/editProfile";
 
 export default function EditProfileForm({ profile }: { profile: SBStaff }) {
   const queryClient = useQueryClient();

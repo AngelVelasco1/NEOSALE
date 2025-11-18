@@ -4,7 +4,7 @@ import { revalidatePath } from "next/cache";
 import { Prisma } from "@prisma/client";
 
 import { prisma } from "@/lib/prisma";
-import { profileFormSchema } from "@/app/(dashboard)/edit-profile/_components/schema";
+import { profileFormSchema } from "@/app/(admin)/dashboard/edit-profile/_components/schema";
 import { formatValidationErrors } from "@/app/(admin)/helpers/formatValidationErrors";
 import { ProfileServerActionResponse } from "@/app/(admin)/types/server-action";
 
@@ -47,7 +47,7 @@ export async function editProfile(
       },
     });
 
-    revalidatePath("/edit-profile");
+    revalidatePath("/dashboard/edit-profile");
 
     return { success: true };
   } catch (error) {

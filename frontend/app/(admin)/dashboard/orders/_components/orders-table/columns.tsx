@@ -22,6 +22,7 @@ import { SkeletonColumn } from "../../../../types/skeleton";
 /* import { changeOrderStatus } from "../../../../actions/orders/changeOrderStatus";
  */import { PrintInvoiceButton } from "./PrintInvoiceButton";
 import { HasPermission } from "../../../../hooks/use-authorization";
+import { TooltipProvider } from "@radix-ui/react-tooltip";
 
 export const getColumns = ({
   hasPermission,
@@ -82,8 +83,7 @@ export const getColumns = ({
             {hasPermission("orders", "canPrint") && (
               <PrintInvoiceButton orderId={row.original.id} />
             )}
-
-            <Tooltip>
+            <TooltipProvider>  <Tooltip>
               <TooltipTrigger asChild>
                 <Button
                   variant="ghost"
@@ -100,7 +100,8 @@ export const getColumns = ({
               <TooltipContent>
                 <p>View Invoice</p>
               </TooltipContent>
-            </Tooltip>
+            </Tooltip></TooltipProvider>
+
           </div>
         );
       },

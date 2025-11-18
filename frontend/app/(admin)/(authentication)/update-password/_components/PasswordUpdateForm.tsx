@@ -17,9 +17,9 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
-import Typography from "@/components/ui/typography";
+import Typography from "@/app/(admin)/components/ui/typography";
 import { Input } from "@/components/ui/input";
-import { FormSubmitButton } from "@/components/shared/form/FormSubmitButton";
+import { FormSubmitButton } from "@/app/(admin)/components/shared/form/FormSubmitButton";
 
 import { passwordUpdateFields } from "./fields";
 import { passwordUpdateFormSchema } from "./schema";

@@ -3,15 +3,21 @@ import { redirect } from "next/navigation";
 
 import PageTitle from "@/app/(admin)/components/shared/PageTitle";
 import EditProfileForm from "./_components/EditProfileForm";
-import { fetchStaffDetails } from "@/services/staff";
-import { createServerClient } from "@/lib/supabase/server";
+import { fetchStaffDetails } from "@/app/(admin)/services/staff";
+import { auth } from "@/app/(auth)/auth";
 
 export const metadata: Metadata = {
   title: "Edit Profile",
 };
 
 export default async function EditProfilePage() {
-  const profile = await fetchStaffDetails(createServerClient());
+  const session = await auth();
+
+  if (!session?.user?.id) {
+    redirect("/login");
+  }
+
+  const profile = await fetchStaffDetails(parseInt(session.user.id));
 
   if (!profile) {
     redirect("/login");
