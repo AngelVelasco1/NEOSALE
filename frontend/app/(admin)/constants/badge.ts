@@ -11,8 +11,8 @@ export const OrderBadgeVariants: Record<OrderStatus, string> = {
 };
 
 export const ProductBadgeVariants: Record<ProductStatus, string> = {
-  selling: "success",
-  "out-of-stock": "destructive",
+  Disponible: "success",
+  agotado: "destructive",
 };
 
 export const CouponBadgeVariants: Record<CouponStatus, string> = {

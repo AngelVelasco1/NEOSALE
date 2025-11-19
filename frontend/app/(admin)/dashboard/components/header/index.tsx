@@ -2,60 +2,76 @@
 
 import Image from "next/image";
 import Link from "next/link";
+import { Search, Menu, Sparkles } from "lucide-react";
 import { useSidebarContext } from "../sidebar/sidebar-context";
-import { MenuIcon } from "./icons";
 import { Notification } from "./notification";
 import { ThemeToggleSwitch } from "./theme-toggle";
 import { UserInfo } from "./user-info";
 
 export function Header() {
-  const { toggleSidebar, /* isMobile */ } = useSidebarContext();
+  const { toggleSidebar } = useSidebarContext();
+
+  const getCurrentGreeting = () => {
+    const hour = new Date().getHours();
+    if (hour < 12) return "Good morning";
+    if (hour < 18) return "Good afternoon";
+    return "Good evening";
+  };
 
   return (
-    <header className="sticky top-0 z-30 flex items-center justify-between border-b border-stroke bg-white px-4 py-5 shadow-1 dark:border-stroke-dark dark:bg-gray-dark md:px-5 2xl:px-10">
-      <button
-        onClick={toggleSidebar}
-        className="rounded-lg border px-1.5 py-1 dark:border-stroke-dark dark:bg-[#020D1A] hover:dark:bg-[#FFFFFF1A] lg:hidden"
-      >
-        <MenuIcon />
-        <span className="sr-only">Toggle Sidebar</span>
-      </button>
+    <header className="sticky top-0 z-30 bg-white/80 dark:bg-slate-900/80 backdrop-blur-xl border-b border-slate-200 dark:border-slate-800 shadow-sm">
+      <div className="px-4 md:px-6 lg:px-8 py-4">
+        <div className="flex items-center justify-between gap-4">
+          {/* Left Section */}
+          <div className="flex items-center gap-4">
+            {/* Mobile Menu Button */}
+            <button
+              onClick={toggleSidebar}
+              className="lg:hidden p-2.5 rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-800 hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors"
+            >
+              <Menu className="size-5 text-slate-700 dark:text-slate-300" />
+              <span className="sr-only">Toggle Sidebar</span>
+            </button>
 
-  {/*     {isMobile && (
-        <Link href={"/"} className="ml-2 max-[430px]:hidden min-[375px]:ml-4">
-          <Image
-            src={"/images/logo/logo-icon.svg"}
-            width={32}
-            height={32}
-            alt=""
-            role="presentation"
-          />
-        </Link>
-      )} */}
+            {/* Page Title with Greeting */}
+            <div className="max-lg:hidden">
+              <div className="flex items-center gap-2 mb-1">
+                <h1 className="text-xl font-bold text-slate-900 dark:text-white">
+                  Dashboard
+                </h1>
+                <div className="px-2 py-0.5 bg-gradient-to-r from-blue-500 to-purple-600 rounded-md">
+                  <Sparkles className="size-3.5 text-white" />
+                </div>
+              </div>
+              <p className="text-sm text-slate-600 dark:text-slate-400 font-medium">
+                {getCurrentGreeting()}, welcome back!
+              </p>
+            </div>
+          </div>
 
-      <div className="max-xl:hidden">
-        <h1 className="mb-0.5 text-heading-5 font-bold text-dark dark:text-white">
-          Dashboard
-        </h1>
-        <p className="font-medium">Next.js Admin Dashboard Solution</p>
-      </div>
+          {/* Right Section */}
+          <div className="flex items-center gap-3">
+            {/* Search Bar */}
+            <div className="relative max-md:hidden">
+              <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 size-4 text-slate-400" />
+              <input
+                type="search"
+                placeholder="Search anything..."
+                className="w-[280px] lg:w-[320px] pl-10 pr-4 py-2.5 bg-slate-100 dark:bg-slate-800 border border-transparent rounded-xl text-sm text-slate-900 dark:text-white placeholder:text-slate-500 dark:placeholder:text-slate-400 outline-none transition-all duration-200 focus:bg-white dark:focus:bg-slate-900 focus:border-blue-500 dark:focus:border-blue-600 focus:ring-4 focus:ring-blue-100 dark:focus:ring-blue-900/30"
+              />
+            </div>
 
-      <div className="flex flex-1 items-center justify-end gap-2 min-[375px]:gap-4">
-        <div className="relative w-full max-w-[300px]">
-          <input
-            type="search"
-            placeholder="Search"
-            className="flex w-full items-center gap-3.5 rounded-full border bg-gray-2 py-3 pl-[53px] pr-5 outline-none transition-colors focus-visible:border-primary dark:border-dark-3 dark:bg-dark-2 dark:hover:border-dark-4 dark:hover:bg-dark-3 dark:hover:text-dark-6 dark:focus-visible:border-primary"
-          />
+            {/* Quick Actions */}
+            <div className="flex items-center gap-2">
+              <ThemeToggleSwitch />
+              <Notification />
 
-        </div>
+              {/* Divider */}
+              <div className="w-px h-8 bg-slate-200 dark:bg-slate-700 mx-1" />
 
-        <ThemeToggleSwitch />
-
-        <Notification />
-
-        <div className="shrink-0">
-          <UserInfo />
+              <UserInfo />
+            </div>
+          </div>
         </div>
       </div>
     </header>

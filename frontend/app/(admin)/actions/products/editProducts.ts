@@ -3,7 +3,7 @@
 import { revalidatePath } from "next/cache";
 
 import { prisma } from "@/lib/prisma";
-import { productBulkFormSchema } from "@/app/(dashboard)/products/_components/form/schema";
+import { productBulkFormSchema } from "@/app/(admin)/dashboard/products/_components/form/schema";
 import { formatValidationErrors } from "@/app/(admin)/helpers/formatValidationErrors";
 import { VServerActionResponse } from "@/app/(admin)/types/server-action";
 

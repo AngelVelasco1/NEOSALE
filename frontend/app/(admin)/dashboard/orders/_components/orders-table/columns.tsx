@@ -24,6 +24,10 @@ import { SkeletonColumn } from "../../../../types/skeleton";
 import { HasPermission } from "../../../../hooks/use-authorization";
 import { TooltipProvider } from "@radix-ui/react-tooltip";
 
+const removeLetters = (word) => {
+  return word.replace(/[^\d]/g, '')
+}
+
 export const getColumns = ({
   hasPermission,
 }: {
@@ -31,8 +35,8 @@ export const getColumns = ({
 }) => {
   const columns: ColumnDef<Order>[] = [
     {
-      header: "invoice no",
-      cell: ({ row }) => row.original.invoice_no,
+      header: "N.O",
+      cell: ({ row }) => { return removeLetters(row.original.payments.transaction_id) },
     },
     {
       header: "order time",
@@ -46,19 +50,19 @@ export const getColumns = ({
       header: "customer name",
       cell: ({ row }) => (
         <span className="block max-w-52 truncate">
-          {row.original.customers?.name}
+          {row.original.users?.name}
         </span>
       ),
     },
     {
       header: "method",
       cell: ({ row }) => (
-        <span className="capitalize">{row.original.payment_method}</span>
+        <span className="capitalize">{row.original.payments.payment_method}</span>
       ),
     },
     {
       header: "amount",
-      cell: ({ row }) => formatAmount(row.original.total_amount),
+      cell: ({ row }) => formatAmount(row.original.total),
     },
     {
       header: "status",

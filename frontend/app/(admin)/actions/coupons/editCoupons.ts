@@ -3,7 +3,7 @@
 import { revalidatePath } from "next/cache";
 
 import { prisma } from "@/lib/prisma";
-import { couponBulkFormSchema } from "@/app/(dashboard)/coupons/_components/form/schema";
+import { couponBulkFormSchema } from "@/app/(admin)/dashboard/coupons/_components/form/schema";
 import { formatValidationErrors } from "@/app/(admin)/helpers/formatValidationErrors";
 import { VServerActionResponse } from "@/app/(admin)/types/server-action";
 

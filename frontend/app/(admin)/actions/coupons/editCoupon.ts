@@ -4,7 +4,7 @@ import { revalidatePath } from "next/cache";
 import { Prisma } from "@prisma/client";
 
 import { prisma } from "@/lib/prisma";
-import { couponFormSchema } from "@/app/(dashboard)/coupons/_components/form/schema";
+import { couponFormSchema } from "@/app/(admin)/dashboard/coupons/_components/form/schema";
 import { formatValidationErrors } from "@/app/(admin)/helpers/formatValidationErrors";
 import { CouponServerActionResponse } from "@/app/(admin)/types/server-action";
 

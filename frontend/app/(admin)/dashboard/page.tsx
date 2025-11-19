@@ -13,9 +13,8 @@ export const metadata: Metadata = {
 
 export default async function DashboardPage() {
   return (
-    <Fragment>
-      <section>
-        <PageTitle>Dashboard Overview</PageTitle>
+    <>
+      <section className="">
 
         <div className="space-y-8 mb-8">
           <SalesOverview />
@@ -25,10 +24,11 @@ export default async function DashboardPage() {
       </section>
 
       <section>
-        <PageTitle component="h2">Recent Orders</PageTitle>
+        <PageTitle component="h2">Ordenes Recientes</PageTitle>
 
         <RecentOrders />
       </section>
-    </Fragment>
+    </>
+
   );
 }

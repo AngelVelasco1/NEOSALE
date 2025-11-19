@@ -34,17 +34,21 @@ export default function Notifications() {
     <div className="relative">
       <Popover>
         <PopoverTrigger asChild>
-          <Button variant="ghost" size="icon">
-            <Bell />
+          <Button
+            variant="ghost"
+            size="icon"
+            className="relative h-10 w-10 rounded-xl hover:bg-slate-100 dark:hover:bg-slate-800 transition-all duration-200 group hover:scale-105"
+          >
+            <Bell className="h-5 w-5 text-slate-700 dark:text-slate-300 group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors" />
             <span className="sr-only">Toggle notifications</span>
           </Button>
         </PopoverTrigger>
 
         <PopoverContent
           align="end"
-          alignOffset={-60}
-          asChild
-          className="flex flex-col p-0 w-[18rem] sm:w-[22rem]"
+          alignOffset={-5}
+          className="flex flex-col p-0 w-[18rem] sm:w-[22rem] rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 shadow-xl"
+          sideOffset={8}
         >
           <ScrollArea type="auto" className="h-full max-h-[22rem]">
             <NotificationContent staffId={staffId} />

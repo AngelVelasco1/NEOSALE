@@ -22,16 +22,21 @@ export default function ProductActions({
   setRowSelection,
 }: RowSelectionProps) {
   const { hasPermission } = useAuthorization();
+  const selectedCount = Object.keys(rowSelection).length;
 
   return (
-    <Card className="mb-5">
-      <div className="flex flex-col xl:flex-row xl:justify-between gap-4">
-        <ExportDataButtons action={exportProducts} tableName="products" />
+    <Card className="mb-6 p-5 border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 shadow-sm rounded-xl">
+      <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
+        {/* Export Section */}
+        <div className="flex flex-col sm:flex-row gap-2">
+          <ExportDataButtons action={exportProducts} tableName="products" />
+        </div>
 
+        {/* Action Buttons Section */}
         {(hasPermission("products", "canEdit") ||
           hasPermission("products", "canDelete") ||
           hasPermission("products", "canCreate")) && (
-            <div className="flex flex-col sm:flex-row gap-4">
+            <div className="flex flex-col sm:flex-row gap-2.5">
               {hasPermission("products", "canEdit") && (
                 <ProductBulkActionSheet
                   action={(formData) =>
@@ -41,13 +46,14 @@ export default function ProductActions({
                 >
                   <SheetTrigger asChild>
                     <Button
-                      variant="secondary"
-                      size="lg"
+                      variant="outline"
+                      size="default"
                       type="button"
-                      disabled={!Object.keys(rowSelection).length}
-                      className="sm:flex-grow xl:flex-grow-0 transition-opacity duration-300"
+                      disabled={!selectedCount}
+                      className="h-10 px-4 rounded-lg border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 hover:bg-slate-50 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 disabled:opacity-50 transition-all text-sm font-medium"
                     >
-                      <PenSquare className="mr-2 size-4" /> Bulk Action
+                      <PenSquare className="mr-2 h-4 w-4" />
+                      Editar {selectedCount > 0 && `(${selectedCount})`}
                     </Button>
                   </SheetTrigger>
                 </ProductBulkActionSheet>
@@ -55,42 +61,41 @@ export default function ProductActions({
 
               {hasPermission("products", "canDelete") && (
                 <ActionAlertDialog
-                  title={`Delete ${Object.keys(rowSelection).length} products?`}
-                  description="This action cannot be undone. This will permanently delete the products and their associated data from the database."
-                  actionButtonText="Delete Products"
-                  toastSuccessMessage="Products deleted successfully"
+                  title={`¿Eliminar ${selectedCount} producto${selectedCount !== 1 ? 's' : ''}?`}
+                  description="Esta acción no se puede deshacer. Los productos y sus datos asociados serán eliminados permanentemente de la base de datos."
+                  actionButtonText="Eliminar Productos"
+                  toastSuccessMessage="Productos eliminados exitosamente"
                   queryKey="products"
                   action={() => deleteProducts(Object.keys(rowSelection))}
                   onSuccess={() => setRowSelection({})}
                 >
                   <Button
-                    variant="destructive"
-                    size="lg"
+                    variant="outline"
+                    size="default"
                     type="button"
-                    disabled={!Object.keys(rowSelection).length}
-                    className="sm:flex-grow xl:flex-grow-0 transition-opacity duration-300"
+                    disabled={!selectedCount}
+                    className="h-10 px-4 rounded-lg border-red-300 dark:border-red-800 bg-white dark:bg-slate-800 hover:bg-red-50 dark:hover:bg-red-950/30 text-red-600 dark:text-red-400 hover:text-red-700 dark:hover:text-red-300 disabled:opacity-50 transition-all text-sm font-medium"
                   >
-                    <Trash2 className="mr-2 size-4" />
-                    Delete
+                    <Trash2 className="mr-2 h-4 w-4" />
+                    Eliminar {selectedCount > 0 && `(${selectedCount})`}
                   </Button>
                 </ActionAlertDialog>
               )}
 
               {hasPermission("products", "canCreate") && (
                 <ProductFormSheet
-                  title="Add Product"
-                  description="Add necessary product information here"
-                  submitButtonText="Add Product"
-                  actionVerb="added"
+                  title="Agregar Producto"
+                  description="Ingresa la información necesaria del producto"
+                  submitButtonText="Agregar Producto"
+                  actionVerb="agregado"
                   action={addProduct}
                 >
                   <SheetTrigger asChild>
                     <Button
-                      variant="default"
-                      size="lg"
-                      className="sm:flex-grow xl:flex-grow-0"
+                      size="default"
+                      className="h-10 px-4 rounded-lg bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-600 hover:to-teal-700 text-white font-medium shadow-sm hover:shadow-md transition-all text-sm"
                     >
-                      <Plus className="mr-2 size-4" /> Add Product
+                      <Plus className="mr-2 h-4 w-4" /> Agregar Producto
                     </Button>
                   </SheetTrigger>
                 </ProductFormSheet>

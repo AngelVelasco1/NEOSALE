@@ -18,6 +18,18 @@ export type GetProductsParams = {
   sortOrder?: "asc" | "desc";
 };
 
+// Helper function to serialize Decimal fields to numbers
+function serializeProduct<T extends Record<string, unknown>>(product: T): T {
+  return {
+    ...product,
+    price: product.price ? Number(product.price) : null,
+    base_discount: product.base_discount ? Number(product.base_discount) : null,
+    offer_discount: product.offer_discount
+      ? Number(product.offer_discount)
+      : null,
+  };
+}
+
 export async function getProducts({
   page = 1,
   limit = 10,
@@ -110,8 +122,11 @@ export async function getProducts({
       prisma.products.count({ where }),
     ]);
 
+    // Serialize products to convert Decimal to number
+    const serializedData = data.map(serializeProduct);
+
     return {
-      data,
+      data: serializedData,
       pagination: {
         page,
         limit,
@@ -146,7 +161,18 @@ export async function getProductById(productId: number) {
       },
     });
 
-    return product;
+    // Serialize product to convert Decimal fields to numbers
+    if (!product) return null;
+
+    const serializedProduct = {
+      ...serializeProduct(product),
+      product_variants: product.product_variants.map((variant) => ({
+        ...variant,
+        price: variant.price ? Number(variant.price) : null,
+      })),
+    };
+
+    return serializedProduct;
   } catch (error) {
     console.error("Error fetching product:", error);
     throw new Error("Failed to fetch product");

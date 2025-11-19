@@ -7,6 +7,16 @@ interface CreateOrderFromPaymentRequest {
   userNote?: string;
 }
 
+interface GetOrdersParams {
+  page: number;
+  limit: number;
+  search?: string;
+  status?: string;
+  method?: string;
+  startDate?: string;
+  endDate?: string;
+}
+
 interface CreateOrderFromPaymentResponse {
   order_id: number;
   payment_id: number;
@@ -501,16 +511,6 @@ export const getUserOrdersService = async (userId: number) => {
   }
 };
 
-interface GetOrdersParams {
-  page: number;
-  limit: number;
-  search?: string;
-  status?: string;
-  method?: string;
-  startDate?: string;
-  endDate?: string;
-}
-
 export const getOrdersService = async ({
   page,
   limit,
@@ -574,6 +574,13 @@ export const getOrdersService = async ({
               discount_type: true,
             },
           },
+          payments: {
+            select: {
+              payment_method: true,
+              payment_status: true,
+              transaction_id: true,
+            },
+          },
           order_items: {
             include: {
               products: {
@@ -597,7 +604,6 @@ export const getOrdersService = async ({
         let paymentResult: PaymentInfo[];
 
         if (method) {
-          // Si hay filtro de método, incluirlo en la query
           paymentResult = await prisma.$queryRaw<PaymentInfo[]>`
             SELECT
               id, transaction_id, payment_status, payment_method,

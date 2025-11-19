@@ -40,25 +40,27 @@ export function ExportDataButtons({ tableName, action }: Props) {
   };
 
   return (
-    <div className="flex flex-wrap gap-3">
+    <div className="flex flex-wrap gap-2">
       <Button
         variant="outline"
-        className="h-12"
+        size="default"
         disabled={isPending}
         onClick={() => handleExport("csv")}
+        className="h-10 px-4 rounded-lg border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 hover:bg-slate-50 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 disabled:opacity-50 transition-all text-sm font-medium"
       >
-        <FileSpreadsheet className="mr-2 size-4" />
-        Export CSV
+        <FileSpreadsheet className="mr-2 h-4 w-4 text-emerald-600 dark:text-emerald-400" />
+        Exportar CSV
       </Button>
 
       <Button
         variant="outline"
-        className="h-12"
+        size="default"
         disabled={isPending}
         onClick={() => handleExport("json")}
+        className="h-10 px-4 rounded-lg border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 hover:bg-slate-50 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 disabled:opacity-50 transition-all text-sm font-medium"
       >
-        <FileJson className="mr-2 size-4" />
-        Export JSON
+        <FileJson className="mr-2 h-4 w-4 text-blue-600 dark:text-blue-400" />
+        Exportar JSON
       </Button>
     </div>
   );

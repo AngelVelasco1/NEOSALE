@@ -7,6 +7,7 @@ import {
   TooltipTrigger,
   TooltipContent,
 } from "../../../components/ui/tooltip";
+import { TooltipProvider } from "@radix-ui/react-tooltip";
 
 type Props = {
   content: string;
@@ -15,13 +16,16 @@ type Props = {
 };
 
 export const TooltipWrapper = ({ content, children }: Props) => (
-  <Tooltip>
-    <TooltipTrigger asChild>{children}</TooltipTrigger>
+  <TooltipProvider>
+    <Tooltip>
+      <TooltipTrigger asChild>{children}</TooltipTrigger>
 
-    <TooltipContent>
-      <p>{content}</p>
-    </TooltipContent>
-  </Tooltip>
+      <TooltipContent>
+        <p>{content}</p>
+      </TooltipContent>
+    </Tooltip>
+  </TooltipProvider>
+
 );
 
 export const SheetTooltip = ({ content, children, buttonClassName }: Props) => (
