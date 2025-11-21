@@ -41,6 +41,7 @@ export async function addProduct(
     image: formData.get("image"),
     sku: formData.get("sku"),
     category: formData.get("category"),
+    subcategory: formData.get("subcategory"),
     brand: formData.get("brand"),
     price: formData.get("price"),
     stock: formData.get("stock"),

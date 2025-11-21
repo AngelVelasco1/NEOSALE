@@ -38,6 +38,7 @@ export const productFormSchema = z.object({
       message: "SKU must be alphanumeric (uppercase) and can contain hyphens",
     }),
   category: z.string().min(1, { message: "Category is required" }),
+  subcategory: z.string().min(1, { message: "Subcategory is required" }),
   brand: z.string().min(1, { message: "Brand is required" }),
   price: z.coerce
     .number({

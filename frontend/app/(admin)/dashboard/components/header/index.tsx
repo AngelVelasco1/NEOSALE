@@ -1,7 +1,5 @@
 "use client";
 
-import Image from "next/image";
-import Link from "next/link";
 import { Search, Menu, Sparkles } from "lucide-react";
 import { useSidebarContext } from "../sidebar/sidebar-context";
 import { Notification } from "./notification";
@@ -19,7 +17,7 @@ export function Header() {
   };
 
   return (
-    <header className="sticky top-0 z-30 bg-white/80 dark:bg-slate-900/80 backdrop-blur-xl border-b border-slate-200 dark:border-slate-800 shadow-sm">
+    <header className="sticky top-0 z-30 bg-slate-800 backdrop-blur-xl border-b border-slate-200 dark:border-slate-800 shadow-sm">
       <div className="px-4 md:px-6 lg:px-8 py-4">
         <div className="flex items-center justify-between gap-4">
           {/* Left Section */}
@@ -57,7 +55,7 @@ export function Header() {
               <input
                 type="search"
                 placeholder="Search anything..."
-                className="w-[280px] lg:w-[320px] pl-10 pr-4 py-2.5 bg-slate-100 dark:bg-slate-800 border border-transparent rounded-xl text-sm text-slate-900 dark:text-white placeholder:text-slate-500 dark:placeholder:text-slate-400 outline-none transition-all duration-200 focus:bg-white dark:focus:bg-slate-900 focus:border-blue-500 dark:focus:border-blue-600 focus:ring-4 focus:ring-blue-100 dark:focus:ring-blue-900/30"
+                className="w-[280px] lg:w-[320px] pl-10 pr-4 py-2.5 bg-slate-100 dark:bg-slate-800 border border-transparent rounded-xl text-sm text-slate-900 dark:text-white placeholder:text-slate-500 dark:placeholder:text-slate-400 outline-none transition-all duration-200 focus:bg-white  focus:border-blue-500 dark:focus:border-blue-600 focus:ring-4 focus:ring-blue-100 dark:focus:ring-blue-900/30"
               />
             </div>
 

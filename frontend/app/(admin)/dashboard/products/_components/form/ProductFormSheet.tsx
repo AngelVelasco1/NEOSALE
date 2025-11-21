@@ -25,6 +25,7 @@ import { FormSubmitButton } from "@/app/(admin)/components/shared/form/FormSubmi
 import { productFormSchema, ProductFormData } from "./schema";
 import { objectToFormData } from "@/app/(admin)/helpers/objectToFormData";
 import { ProductServerActionResponse } from "@/app/(admin)/types/server-action";
+import FormSubcategoryInput from "@/app/(admin)/components/shared/form/FormSubcategoryInput";
 
 type BaseProductFormProps = {
   title: string;
@@ -91,6 +92,7 @@ export default function ProductFormSheet({
       image: initialData?.image || undefined,
       sku: initialData?.sku || "",
       category: initialData?.category || "",
+      subcategory: initialData?.subcategory || "",
       brand: initialData?.brand || "",
       price: initialData?.price || 0,
       stock: initialData?.stock || 0,
@@ -109,6 +111,7 @@ export default function ProductFormSheet({
         image: initialData.image || undefined,
         sku: initialData.sku || "",
         category: initialData.category || "",
+        subcategory: initialData.subcategory || "",
         brand: initialData.brand || "",
         price: initialData.price || 0,
         stock: initialData.stock || 0,
@@ -200,7 +203,7 @@ export default function ProductFormSheet({
       <SheetContent className="w-full sm:max-w-[95vw] lg:max-w-[85vw] xl:max-w-[700px] p-0! gap-0! overflow-hidden border-2 border-l-slate-400/40 border-b-0 border-t-0 b-r-0  rounded-bl-2xl rounded-tl-2xl bg-linear-to-br from-slate-950 via-slate-900 to-slate-900 shadow-2xl shadow-indigo-500/20">
         <div className="h-screen w-full m-0 p-0 flex flex-col bg-linear-to-br from-slate-900/95 via-slate-800/90 to-slate-700/85 backdrop-blur-xl">
           {/* Header mejorado con gradiente premium */}
-          <div className="relative px-8 py-6 bg-linear-to-r from-slate-950/90 via-slate-800/70 to-slate-950/90 border-b-2 border-none">
+          <div className="relative px-8 py-6 bg-linear-to-r from-slate-950/90 via-slate-800/70 to-slate-950/90 b border-none">
             <div className="absolute inset-0 bg-[url('/imgs/grid.svg')] opacity-5" />
             <div className="relative space-y-1">
               <SheetTitle className="text-3xl font-bold tracking-tight bg-linear-to-r from-slate-300 via-slate-200 to-slate-300 bg-clip-text text-transparent">
@@ -253,20 +256,19 @@ export default function ProductFormSheet({
                   <div className="group relative space-y-6 p-7 rounded-2xl border-none bg-linear-to-br from-card via-card/95 to-card/90 shadow-lg hover:shadow-xl transition-all duration-500 hover:border-orange-500/30 hover:-translate-y-1">
                     <div className="absolute inset-0 bg-linear-to-br from-orange-500/5 via-transparent to-transparent rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
 
-                    <div className="relative flex items-center gap-3 pb-3 border-b border-border/30">
+                    <div className="relative flex items-center gap-3 pb-3 ">
                       <div className="flex items-center justify-center size-8 rounded-xl bg-linear-to-br from-orange-500/20 to-orange-500/10 border border-orange-500/20">
                         <div className="size-2.5 rounded-full bg-orange-500 shadow-lg shadow-orange-500/50 animate-pulse" />
                       </div>
                       <h3 className="text-base font-bold tracking-wide text-foreground/90 uppercase">
-                        Product Variants
+                        Variantes
                       </h3>
                     </div>
 
                     <div className="relative space-y-6">
                       <div className="space-y-4">
-                        <label className="text-sm font-medium text-foreground">Available Sizes</label>
+                        <label className="text-md font-medium text-foreground">Tamaños</label>
 
-                        {/* Show selected sizes as chips */}
                         {(() => {
                           const currentSizes = form.watch("sizes") || "";
                           const sizesArray = currentSizes.split(",").map(s => s.trim()).filter(Boolean);
@@ -588,7 +590,7 @@ export default function ProductFormSheet({
                   <div className="group relative space-y-6 p-7 rounded-2xl border-none bg-linear-to-br from-card via-card/95 to-card/90 shadow-lg hover:shadow-xl transition-all duration-500 hover:border-blue-500/30 hover:-translate-y-1">
                     <div className="absolute inset-0 bg-linear-to-br from-blue-500/5 via-transparent to-transparent rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
 
-                    <div className="relative flex items-center gap-3 pb-3 border-b border-border/30">
+                    <div className="relative flex items-center gap-3 pb-3 ">
                       <div className="flex items-center justify-center size-8 rounded-xl bg-linear-to-br from-blue-500/20 to-blue-500/10 border border-blue-500/20">
                         <div className="size-2.5 rounded-full bg-blue-500 shadow-lg shadow-blue-500/50 animate-pulse" />
                       </div>
@@ -601,7 +603,7 @@ export default function ProductFormSheet({
                       <FormTextInput
                         control={form.control}
                         name="sku"
-                        label="Product SKU"
+                        label="Codigo"
                         placeholder="e.g., ABC-12345"
                       />
 
@@ -609,7 +611,7 @@ export default function ProductFormSheet({
                         <FormTextInput
                           control={form.control}
                           name="stock"
-                          label="Stock Total (Auto-calculado)"
+                          label="Stock Total"
                           placeholder="Se calcula automáticamente"
                           type="number"
                           readOnly
@@ -623,12 +625,12 @@ export default function ProductFormSheet({
                   <div className="group relative space-y-6 p-7 rounded-2xl border-none bg-linear-to-br from-card via-card/95 to-card/90 shadow-lg hover:shadow-xl transition-all duration-500 hover:border-purple-500/30 hover:-translate-y-1">
                     <div className="absolute inset-0 bg-linear-to-br from-purple-500/5 via-transparent to-transparent rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
 
-                    <div className="relative flex items-center gap-3 pb-3 border-b border-border/30">
+                    <div className="relative flex items-center gap-3 pb-3">
                       <div className="flex items-center justify-center size-8 rounded-xl bg-linear-to-br from-purple-500/20 to-purple-500/10 border border-purple-500/20">
                         <div className="size-2.5 rounded-full bg-purple-500 shadow-lg shadow-purple-500/50 animate-pulse" />
                       </div>
                       <h3 className="text-base font-bold tracking-wide text-foreground/90 uppercase">
-                        Categorizacion
+                        Categorización
                       </h3>
                     </div>
 
@@ -636,15 +638,15 @@ export default function ProductFormSheet({
                       <FormCategoryInput
                         control={form.control}
                         name="category"
-                        label="Category"
+                        label="Categoría"
                         container={container || undefined}
                         ref={categoryRef}
                       />
 
-                      <FormCategoryInput
+                      <FormTextInput
                         control={form.control}
-                        name="brand"
-                        label="Brand"
+                        name="subcategory"
+                        label="Subcategoría"
                         container={container || undefined}
                       />
                     </div>
@@ -654,12 +656,12 @@ export default function ProductFormSheet({
                   <div className="group relative space-y-6 p-7 rounded-2xl border-none bg-linear-to-br from-card via-card/95 to-card/90 shadow-lg hover:shadow-xl transition-all duration-500 hover:border-green-500/30 hover:-translate-y-1">
                     <div className="absolute inset-0 bg-linear-to-br from-green-500/5 via-transparent to-transparent rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
 
-                    <div className="relative flex items-center gap-3 pb-3 border-b border-border/30">
+                    <div className="relative flex items-center gap-3 pb-3 ">
                       <div className="flex items-center justify-center size-8 rounded-xl bg-linear-to-br from-green-500/20 to-green-500/10 border border-green-500/20">
                         <div className="size-2.5 rounded-full bg-green-500 shadow-lg shadow-green-500/50 animate-pulse" />
                       </div>
                       <h3 className="text-base font-bold tracking-wide text-foreground/90 uppercase">
-                        Pricing & Dimensions
+                        Precios
                       </h3>
                     </div>
 
@@ -667,14 +669,14 @@ export default function ProductFormSheet({
                       <FormPriceInput
                         control={form.control}
                         name="price"
-                        label="Price (in cents)"
+                        label="Precio"
                         placeholder="e.g., 9999"
                       />
 
                       <FormTextInput
                         control={form.control}
                         name="weight_grams"
-                        label="Weight (grams)"
+                        label="Peso (grams)"
                         placeholder="e.g., 500"
                         type="number"
                       />
@@ -684,41 +686,29 @@ export default function ProductFormSheet({
                   {/* Sección: Variantes */}
 
                 </div>
-              </div>
-
               {/* Footer premium con animación */}
-              <div className="px-8 py-5 border-t-2 border-indigo-400/40 bg-linear-to-t from-slate-950/95 via-slate-900/90 to-slate-800/85 backdrop-blur-2xl shadow-2xl shadow-indigo-500/20">
-                <div className="max-w-5xl mx-auto">
+              <div className="px-8 py-5 ">
+                <div className="max-w-5xl h-full flex items-end mx-auto p-0">
                   <FormSubmitButton
                     isPending={isPending}
-                    className="w-full h-14 text-base font-bold tracking-wide bg-linear-to-r from-primary via-primary/90 to-primary/80 hover:from-primary/90 hover:via-primary hover:to-primary/90 shadow-xl hover:shadow-2xl shadow-primary/25 hover:shadow-primary/40 transition-all duration-300 hover:scale-[1.02] active:scale-[0.98] rounded-xl border border-primary/20"
+                    className="w-full h-14 bg-amber-50 text-base font-bold tracking-wide bg-linear-to-r from-primary via-primary/90 to-primary/80 hover:from-primary/90 hover:via-primary hover:to-primary/90 shadow-xl hover:shadow-2xl shadow-primary/25 hover:shadow-primary/40 transition-all duration-300 hover:scale-[1.02] active:scale-[0.98] rounded-xl border border-primary/20"
                   >
                     {isPending ? (
                       <span className="flex items-center justify-center gap-3">
-                        <div className="size-5 border-3 border-primary-foreground/30 border-t-primary-foreground rounded-full animate-spin" />
+                        <div className="size-5 border-3 border-primary-foreground/30  rounded-full animate-spin " />
                         <span className="animate-pulse">Processing your request...</span>
                       </span>
                     ) : (
-                      <span className="flex items-center justify-center gap-2">
+                      <span className="flex items-center justify-center gap-2 text-slate-700">
                         {submitButtonText}
-                        <svg
-                          className="size-5 transition-transform group-hover:translate-x-1"
-                          fill="none"
-                          viewBox="0 0 24 24"
-                          stroke="currentColor"
-                        >
-                          <path
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                            strokeWidth={2}
-                            d="M13 7l5 5m0 0l-5 5m5-5H6"
-                          />
-                        </svg>
+                       
                       </span>
                     )}
                   </FormSubmitButton>
                 </div>
               </div>
+              </div>
+
             </form>
           </Form>
         </div>

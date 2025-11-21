@@ -29,7 +29,7 @@ type FormCategoryInputProps<TFormData extends FieldValues> = {
   container?: HTMLDivElement;
 };
 
-const FormCategoryInput = forwardRef(function FormCategoryInputRender<
+const FormSubcategoryInput = forwardRef(function FormCategoryInputRender<
   TFormData extends FieldValues
 >(
   { control, name, label, container }: FormCategoryInputProps<TFormData>,
@@ -80,7 +80,7 @@ const FormCategoryInput = forwardRef(function FormCategoryInputRender<
                   {!isLoading &&
                     !isError &&
                     categories &&
-                    categories!.map((category) => (
+                    categories.map((category) => (
                       <SelectItem key={category.id} value={category.id.toString()}>
                         {category.name}
                       </SelectItem>
@@ -99,4 +99,4 @@ const FormCategoryInput = forwardRef(function FormCategoryInputRender<
   props: FormCategoryInputProps<TFormData> & { ref?: Ref<HTMLButtonElement> }
 ) => React.ReactElement;
 
-export default FormCategoryInput;
+export default FormSubcategoryInput;

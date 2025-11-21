@@ -2,12 +2,14 @@
 
 import { prisma } from "@/lib/prisma";
 import { Prisma } from "@prisma/client";
+import { log } from "console";
 
 export type GetProductsParams = {
   page?: number;
   limit?: number;
   search?: string;
   category?: number;
+  subcategory?: number;
   brand?: number;
   active?: boolean;
   inOffer?: boolean;
@@ -35,6 +37,7 @@ export async function getProducts({
   limit = 10,
   search,
   category,
+  subcategory,
   brand,
   active,
   inOffer,
@@ -57,6 +60,10 @@ export async function getProducts({
 
     if (category) {
       where.category_id = category;
+    }
+
+    if (subcategory) {
+      where.categories.subcategory.id = subcategory;
     }
 
     if (brand) {
@@ -100,8 +107,16 @@ export async function getProducts({
             select: {
               id: true,
               name: true,
+              subcategory: {
+                select: {
+                  id: true,
+                  name: true,
+                },
+              },
             },
+        
           },
+      
           brands: {
             select: {
               id: true,
@@ -124,6 +139,7 @@ export async function getProducts({
 
     // Serialize products to convert Decimal to number
     const serializedData = data.map(serializeProduct);
+    console.log(serializedData[0].categories);
 
     return {
       data: serializedData,

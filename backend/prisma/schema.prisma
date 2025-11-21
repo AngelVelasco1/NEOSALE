@@ -426,6 +426,12 @@ enum payment_method_enum {
   BANCOLOMBIA_TRANSFER
 }
 
+enum orders_paymentmethod_enum {
+  paypal
+  nequi
+  efecty
+}
+
 enum payment_status_enum {
   PENDING
   APPROVED
