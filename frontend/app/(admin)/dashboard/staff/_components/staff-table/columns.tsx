@@ -16,7 +16,7 @@ import StaffFormSheet from "../form/StaffFormSheet";
 import { StaffBadgeVariants } from "@/app/(admin)/constants/badge";
 import { SkeletonColumn } from "@/app/(admin)/types/skeleton";
 import { Staff } from "@/app/(admin)/services/staff/types";
-import { format } from "date-fns";
+import { formatDate } from "@/lib/date-utils";
 
 import { editStaff } from "@/app/(admin)/actions/staff/editStaff";
 import { deleteStaff } from "@/app/(admin)/actions/staff/deleteStaff";
@@ -74,7 +74,7 @@ export const getColumns = ({
     },
     {
       header: "joining date",
-      cell: ({ row }) => format(row.original.created_at, "PP"),
+      cell: ({ row }) => formatDate.medium(row.original.created_at),
     },
     {
       header: "role",

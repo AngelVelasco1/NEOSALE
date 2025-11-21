@@ -1,7 +1,7 @@
 "use client";
 
 import { forwardRef, useState, useEffect } from "react";
-import { format, isValid } from "date-fns";
+import { formatDate, isValid } from "@/lib/date-utils";
 import { CalendarIcon, Clock } from "lucide-react";
 
 import { cn } from "@/lib/utils";
@@ -72,7 +72,7 @@ export const DatetimePicker = forwardRef(function DatetimePickerRender(
               )}
             >
               {isValid(datetime) ? (
-                format(datetime, "PPP")
+                formatDate.long(datetime)
               ) : (
                 <span>Pick a date</span>
               )}
@@ -105,7 +105,7 @@ export const DatetimePicker = forwardRef(function DatetimePickerRender(
         <Input
           type="time"
           step="60"
-          value={isValid(datetime) ? format(datetime, "HH:mm") : "12:00"}
+          value={isValid(datetime) ? formatDate.time24(datetime) : "12:00"}
           onChange={handleTimeChange}
           className="bg-background h-12 pr-10 appearance-none [&::-webkit-calendar-picker-indicator]:hidden [&::-webkit-calendar-picker-indicator]:appearance-none"
         />

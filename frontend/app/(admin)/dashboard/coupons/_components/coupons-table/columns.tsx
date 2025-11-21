@@ -1,6 +1,6 @@
 import { PenSquare, Trash2 } from "lucide-react";
 import { ColumnDef } from "@tanstack/react-table";
-import { format } from "date-fns";
+import { formatDate } from "@/lib/date-utils";
 
 import { Checkbox } from "@/components/ui/checkbox";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -65,11 +65,11 @@ export const getColumns = ({
     },
     {
       header: "start date",
-      cell: ({ row }) => format(row.original.start_date, "PP"),
+      cell: ({ row }) => formatDate.medium(row.original.start_date),
     },
     {
       header: "end date",
-      cell: ({ row }) => format(row.original.end_date, "PP"),
+      cell: ({ row }) => formatDate.medium(row.original.end_date),
     },
     {
       header: "status",

@@ -1,5 +1,5 @@
 import { ColumnDef } from "@tanstack/react-table";
-import { format } from "date-fns";
+import { formatDate } from "@/lib/date-utils";
 
 import { cn } from "@/lib/utils";
 import { Badge } from "@/components/ui/badge";
@@ -28,10 +28,7 @@ export const getColumns = ({
     {
       header: "order time",
       cell: ({ row }) =>
-        `${format(row.original.created_at, "PP")} ${format(
-          row.original.created_at,
-          "p"
-        )}`,
+        `${formatDate.medium(row.original.created_at)} ${formatDate.time(row.original.created_at)}`,
     },
     {
       header: "shipping address",
@@ -76,29 +73,28 @@ export const getColumns = ({
     },
   ];
 
-  if (hasPermission("orders", "canChangeStatus"))
-    [
-      columns.push({
-        header: "action",
-        cell: ({ row }) => {
-          return (
-            <TableSelect
-              value={row.original.status}
-              toastSuccessMessage="Order status updated successfully."
-              queryKey="orders"
-              onValueChange={(value) =>
-                changeOrderStatus(row.original.id, value as OrderStatus)
-              }
-            >
-              <SelectItem value="pending">Pending</SelectItem>
-              <SelectItem value="processing">Processing</SelectItem>
-              <SelectItem value="delivered">Delivered</SelectItem>
-              <SelectItem value="cancelled">Cancelled</SelectItem>
-            </TableSelect>
-          );
-        },
-      }),
-    ];
+  if (hasPermission("orders", "canChangeStatus")) {
+    columns.push({
+      header: "action",
+      cell: ({ row }) => {
+        return (
+          <TableSelect
+            value={row.original.status}
+            toastSuccessMessage="Order status updated successfully."
+            queryKey="orders"
+            onValueChange={(value) =>
+              changeOrderStatus(row.original.id, value as OrderStatus)
+            }
+          >
+            <SelectItem value="pending">Pending</SelectItem>
+            <SelectItem value="processing">Processing</SelectItem>
+            <SelectItem value="delivered">Delivered</SelectItem>
+            <SelectItem value="cancelled">Cancelled</SelectItem>
+          </TableSelect>
+        );
+      },
+    });
+  }
 
   return columns;
 };

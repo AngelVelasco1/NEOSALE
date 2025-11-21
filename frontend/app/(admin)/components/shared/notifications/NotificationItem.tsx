@@ -2,7 +2,7 @@
 
 import Image from "next/image";
 import { useEffect } from "react";
-import { format } from "date-fns";
+import { formatDate } from "@/lib/date-utils";
 import { toast } from "sonner";
 import { X, Loader2 } from "lucide-react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
@@ -76,7 +76,7 @@ export default function NotificationItem({ notification }: Props) {
             )}
 
             <Typography component="p" className="text-xs md:text-xs">
-              {format(new Date(notification.created_at), "MMM d yyyy - hh:mma")}
+              {formatDate.compactDatetime(notification.created_at)}
             </Typography>
           </div>
         </div>

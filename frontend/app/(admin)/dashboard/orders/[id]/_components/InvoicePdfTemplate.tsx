@@ -1,5 +1,5 @@
 import { FaBagShopping } from "react-icons/fa6";
-import { format } from "date-fns";
+import { formatDate } from "@/lib/date-utils";
 
 import Typography from "@/app/(admin)/components/ui/typography";
 import { Card } from "@/app/(admin)/components/ui/card";
@@ -87,7 +87,7 @@ export default function InvoicePdfTemplate({ order }: { order: OrderDetails }) {
           </Typography>
 
           <Typography className="text-sm">
-            {format(order.order_time, "PPP")}
+            {formatDate.long(order.order_time)}
           </Typography>
         </div>
 

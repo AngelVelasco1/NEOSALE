@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { ZoomIn } from "lucide-react";
 import { ColumnDef } from "@tanstack/react-table";
-import { format } from "date-fns";
+import { formatDate } from "@/lib/date-utils";
 
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -41,10 +41,7 @@ export const getColumns = ({
     {
       header: "order time",
       cell: ({ row }) =>
-        `${format(row.original.created_at, "PP")} ${format(
-          row.original.created_at,
-          "p"
-        )}`,
+        `${formatDate.medium(row.original.created_at)} ${formatDate.time(row.original.created_at)}`,
     },
     {
       header: "customer name",

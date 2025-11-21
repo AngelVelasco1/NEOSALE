@@ -1,7 +1,7 @@
 import { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { FaBagShopping } from "react-icons/fa6";
-import { format } from "date-fns";
+import { formatDate } from "@/lib/date-utils";
 
 import PageTitle from "@/app/(admin)/components/shared/PageTitle";
 import Typography from "@/app/(admin)/components/ui/typography";
@@ -115,7 +115,7 @@ export default async function Order({ params: { id } }: PageParams) {
               </Typography>
 
               <Typography className="text-sm">
-                {format(order.order_time, "PPP")}
+                {formatDate.long(order.order_time)}
               </Typography>
             </div>
 

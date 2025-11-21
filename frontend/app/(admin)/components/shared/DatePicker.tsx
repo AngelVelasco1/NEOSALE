@@ -1,7 +1,6 @@
 "use client";
 
 import { useState } from "react";
-import { format } from "date-fns";
 import { Calendar as CalendarIcon } from "lucide-react";
 
 import { cn } from "@/lib/utils";
@@ -20,6 +19,17 @@ type Props = {
   container?: HTMLDivElement;
 };
 
+function formatDate(dateString: string): string {
+  const date = new Date(dateString);
+
+
+  return new Intl.DateTimeFormat('en-US', {
+    year: 'numeric',
+    month: 'long',
+    day: 'numeric',
+  }).format(date);
+}
+
 export function DatePicker({ className, date, setDate, container }: Props) {
   const [open, setOpen] = useState(false);
 
@@ -34,7 +44,7 @@ export function DatePicker({ className, date, setDate, container }: Props) {
             className
           )}
         >
-          {date ? format(date, "PPP") : <span>Pick a date</span>}
+          {date ? formatDate(date) : <span>Pick a date</span>}
 
           <CalendarIcon className="ml-2 size-4" />
         </Button>

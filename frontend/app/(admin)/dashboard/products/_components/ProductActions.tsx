@@ -85,7 +85,6 @@ export default function ProductActions({
               {hasPermission("products", "canCreate") && (
                 <ProductFormSheet
                   title="Agregar Producto"
-                  description="Ingresa la información necesaria del producto"
                   submitButtonText="Agregar Producto"
                   actionVerb="agregado"
                   action={addProduct}

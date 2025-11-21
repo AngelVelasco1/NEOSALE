@@ -42,13 +42,12 @@ export async function addProduct(
     sku: formData.get("sku"),
     category: formData.get("category"),
     brand: formData.get("brand"),
-    costPrice: formData.get("costPrice"),
-    salesPrice: formData.get("salesPrice"),
+    price: formData.get("price"),
     stock: formData.get("stock"),
-    weightGrams: formData.get("weightGrams"),
+    weight_grams: formData.get("weight_grams"),
     sizes: formData.get("sizes"),
     color: formData.get("color"),
-    colorCode: formData.get("colorCode"),
+    color_code: formData.get("color_code"),
   });
 
   if (!parsedData.success) {
@@ -89,45 +88,48 @@ export async function addProduct(
         data: {
           name: productData.name,
           description: productData.description,
-          price: productData.salesPrice,
+          price: productData.price,
           stock: productData.stock,
-          weight_grams: productData.weightGrams,
+          weight_grams: productData.weight_grams,
           sizes: productData.sizes,
+          base_discount: 0,
           category_id: parseInt(productData.category),
           brand_id: parseInt(productData.brand),
           created_by: userId,
           updated_by: userId,
           active: true,
+          in_offer: false,
         },
       });
 
-      // Crear la imagen asociada al producto
+      // Crear la variante del producto
+      const variant = await tx.product_variants.create({
+        data: {
+          product_id: product.id,
+          color_code: productData.color_code,
+          color: productData.color,
+          size: productData.sizes.split(",")[0].trim(),
+          stock: productData.stock,
+          sku: productData.sku,
+          price: productData.price,
+          weight_grams: productData.weight_grams,
+          active: true,
+        },
+      });
+
+      // Crear la imagen asociada al producto y variante
       if (imageUrl) {
         await tx.images.create({
           data: {
             image_url: imageUrl,
-            color_code: productData.colorCode,
+            color_code: productData.color_code,
             color: productData.color,
             is_primary: true,
             product_id: product.id,
+            variant_id: variant.id,
           },
         });
       }
-
-      // Crear la variante del producto
-      await tx.product_variants.create({
-        data: {
-          product_id: product.id,
-          color_code: productData.colorCode,
-          color: productData.color,
-          size: productData.sizes.split(",")[0].trim(), // Usar la primera talla disponible
-          stock: productData.stock,
-          sku: productData.sku,
-          price: productData.salesPrice,
-          weight_grams: productData.weightGrams,
-          active: true,
-        },
-      });
 
       // Retornar el producto con sus relaciones
       return await tx.products.findUnique({
@@ -152,7 +154,7 @@ export async function addProduct(
         stock: newProduct!.stock,
         color: newProduct!.product_variants[0]?.color || productData.color,
         color_code:
-          newProduct!.product_variants[0]?.color_code || productData.colorCode,
+          newProduct!.product_variants[0]?.color_code || productData.color_code,
         image_url: newProduct!.images[0]?.image_url,
       },
     };
