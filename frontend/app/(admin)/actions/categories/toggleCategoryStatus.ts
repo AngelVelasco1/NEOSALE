@@ -7,17 +7,17 @@ import { ServerActionResponse } from "@/app/(admin)/types/server-action";
 
 export async function toggleCategoryPublishedStatus(
   categoryId: string,
-  currentPublishedStatus: boolean
+  currentActiveStatus: boolean
 ): Promise<ServerActionResponse> {
   try {
-    const newPublishedStatus = !currentPublishedStatus;
+    const newActiveStatus = !currentActiveStatus;
 
     await prisma.categories.update({
       where: { id: parseInt(categoryId) },
-      data: { active: newPublishedStatus },
+      data: { active: newActiveStatus },
     });
 
-    revalidatePath("/categories");
+    revalidatePath("/dashboard/categories");
 
     return { success: true };
   } catch (error) {

@@ -2,6 +2,7 @@
 
 import { revalidatePath } from "next/cache";
 import { Prisma } from "@prisma/client";
+import { z } from "zod";
 
 import { prisma } from "@/lib/prisma";
 import { categoryFormSchema } from "@/app/(admin)/dashboard/categories/_components/form/schema";
@@ -12,11 +13,16 @@ export async function addCategory(
   formData: FormData
 ): Promise<CategoryServerActionResponse> {
   try {
-    const parsedData = categoryFormSchema.safeParse({
-      name: formData.get("name"),
-      description: formData.get("description"),
-      image: formData.get("image"),
-    });
+    const parsedData = categoryFormSchema
+      .extend({
+        subcategories: z.string().optional(),
+      })
+      .omit({ image: true })
+      .safeParse({
+        name: formData.get("name"),
+        description: formData.get("description"),
+        subcategories: formData.get("subcategories"),
+      });
 
     if (!parsedData.success) {
       return {
@@ -26,25 +32,59 @@ export async function addCategory(
       };
     }
 
-    const { image, ...categoryData } = parsedData.data;
-
-    let imageUrl: string | undefined;
-
-    // TODO: Implementar upload de imagen (puedes usar uploadthing, cloudinary, etc.)
-    if (image instanceof File && image.size > 0) {
-      // Por ahora, guardamos el nombre del archivo
-      // Implementa tu solución de storage preferida aquí
-      imageUrl = `/uploads/categories/${image.name}`;
-    }
+    const { subcategories, ...categoryData } = parsedData.data;
 
     const newCategory = await prisma.categories.create({
       data: {
         name: categoryData.name,
         description: categoryData.description,
         active: true,
-        // image_url: imageUrl, // Descomentar cuando tengas el campo en Prisma
       },
     });
+
+    // Handle subcategory relationships if provided
+    if (subcategories && subcategories.trim()) {
+      const subcategoryNames = subcategories
+        .split(",")
+        .map((name: string) => name.trim())
+        .filter((name: string) => name.length > 0);
+
+      if (subcategoryNames.length > 0) {
+        const subcategoryIds: number[] = [];
+        
+        // Create or find each subcategory
+        for (const subcategoryName of subcategoryNames) {
+          // Try to find existing subcategory
+          let subcategory = await prisma.subcategories.findFirst({
+            where: { name: subcategoryName },
+          });
+
+          // If doesn't exist, create it
+          if (!subcategory) {
+            subcategory = await prisma.subcategories.create({
+              data: {
+                name: subcategoryName,
+                active: true,
+              },
+            });
+          }
+
+          subcategoryIds.push(subcategory.id);
+        }
+
+        // Create relationships in category_subcategory table
+        const relationshipData = subcategoryIds.map((subcategoryId) => ({
+          category_id: newCategory.id,
+          subcategory_id: subcategoryId,
+          active: true,
+        }));
+
+        await prisma.category_subcategory.createMany({
+          data: relationshipData,
+          skipDuplicates: true, // Skip if relationship already exists
+        });
+      }
+    }
 
     revalidatePath("/dashboard/categories");
 

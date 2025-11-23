@@ -22,16 +22,16 @@ export const getColumns = ({
 }) => {
   const columns: ColumnDef<CustomerOrder>[] = [
     {
-      header: "invoice no",
+      header: "N.º Factura",
       cell: ({ row }) => row.original.invoice_no,
     },
     {
-      header: "order time",
+      header: "Fecha y Hora",
       cell: ({ row }) =>
         `${formatDate.medium(row.original.created_at)} ${formatDate.time(row.original.created_at)}`,
     },
     {
-      header: "shipping address",
+      header: "Dirección de Envío",
       cell: ({ row }) => (
         <span className="block max-w-72 truncate">
           {row.original.customers?.address}
@@ -39,7 +39,7 @@ export const getColumns = ({
       ),
     },
     {
-      header: "phone",
+      header: "Teléfono",
       cell: ({ row }) => (
         <Typography className={cn(!row.original.customers.phone && "pl-6")}>
           {row.original.customers.phone || "—"}
@@ -47,24 +47,24 @@ export const getColumns = ({
       ),
     },
     {
-      header: "method",
+      header: "Método",
       cell: ({ row }) => (
         <span className="capitalize">{row.original.payment_method}</span>
       ),
     },
     {
-      header: "amount",
+      header: "Monto",
       cell: ({ row }) => formatAmount(row.original.total_amount),
     },
     {
-      header: "status",
+      header: "Estado",
       cell: ({ row }) => {
         const status = row.original.status;
 
         return (
           <Badge
             variant={OrderBadgeVariants[status]}
-            className="flex-shrink-0 text-xs capitalize"
+            className="shrink-0 text-xs capitalize"
           >
             {status}
           </Badge>
@@ -75,7 +75,7 @@ export const getColumns = ({
 
   if (hasPermission("orders", "canChangeStatus")) {
     columns.push({
-      header: "action",
+      header: "Acción",
       cell: ({ row }) => {
         return (
           <TableSelect

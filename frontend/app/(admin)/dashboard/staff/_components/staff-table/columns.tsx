@@ -38,7 +38,7 @@ export const getColumns = ({
 }) => {
   const columns: ColumnDef<Staff>[] = [
     {
-      header: "name",
+      header: "Nombre",
       cell: ({ row }) => (
         <div className="flex gap-2 items-center">
           <ImagePlaceholder
@@ -56,7 +56,7 @@ export const getColumns = ({
       ),
     },
     {
-      header: "email",
+      header: "Email",
       cell: ({ row }) => (
         <Typography className="block max-w-52 truncate">
           {row.original.email}
@@ -64,7 +64,7 @@ export const getColumns = ({
       ),
     },
     {
-      header: () => <span className="block text-center">phone</span>,
+      header: () => <span className="block text-center">Teléfono</span>,
       id: "phone",
       cell: ({ row }) => (
         <Typography className="block text-center">
@@ -73,11 +73,11 @@ export const getColumns = ({
       ),
     },
     {
-      header: "joining date",
+      header: "Fecha de Ingreso",
       cell: ({ row }) => formatDate.medium(row.original.created_at),
     },
     {
-      header: "role",
+      header: "Rol",
       cell: ({ row }) => (
         <Typography className="capitalize font-medium">
           {row.original.role}
@@ -85,14 +85,14 @@ export const getColumns = ({
       ),
     },
     {
-      header: "status",
+      header: "Estado",
       cell: ({ row }) => {
         const status = row.original.active ? "active" : "inactive";
 
         return (
           <Badge
             variant={StaffBadgeVariants[status]}
-            className="flex-shrink-0 text-xs capitalize"
+            className="shrink-0 text-xs capitalize"
           >
             {status}
           </Badge>
@@ -105,7 +105,7 @@ export const getColumns = ({
 
 
   columns.splice(7, 0, {
-    header: () => <span className="block text-center">actions</span>,
+    header: () => <span className="block text-center">Acciones</span>,
     id: "actions",
     cell: ({ row }) => {
       return (
@@ -171,7 +171,7 @@ export const getColumns = ({
 
 export const skeletonColumns: SkeletonColumn[] = [
   {
-    header: "name",
+    header: "Nombre",
     cell: (
       <div className="flex gap-2 items-center">
         <Skeleton className="size-8 rounded-full" />
@@ -181,31 +181,31 @@ export const skeletonColumns: SkeletonColumn[] = [
     ),
   },
   {
-    header: "email",
+    header: "Email",
     cell: <Skeleton className="w-32 h-8" />,
   },
   {
-    header: "phone",
+    header: "Teléfono",
     cell: <Skeleton className="w-20 h-10" />,
   },
   {
-    header: "joining date",
+    header: "Fecha de Ingreso",
     cell: <Skeleton className="w-20 h-8" />,
   },
   {
-    header: "role",
+    header: "Rol",
     cell: <Skeleton className="w-20 h-8" />,
   },
   {
-    header: "status",
+    header: "Estado",
     cell: <Skeleton className="w-24 h-8" />,
   },
   {
-    header: "published",
+    header: "Publicado",
     cell: <Skeleton className="w-16 h-10" />,
   },
   {
-    header: "actions",
+    header: "Acciones",
     cell: <Skeleton className="w-20 h-8" />,
   },
 ];

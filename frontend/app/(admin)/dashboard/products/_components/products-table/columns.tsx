@@ -14,7 +14,6 @@ import { ImagePlaceholder } from "@/app/(admin)/components/shared/ImagePlacehold
 import { SheetTooltip } from "@/app/(admin)/components/shared/table/TableActionTooltip";
 import { TableActionAlertDialog } from "@/app/(admin)/components/shared/table/TableActionAlertDialog";
 import ProductFormSheet from "../form/ProductFormSheet";
-import { ProductBadgeVariants } from "@/app/(admin)/constants/badge";
 import { Product } from "@/app/(admin)/services/products/types";
 import { SkeletonColumn } from "@/app/(admin)/types/skeleton";
 
@@ -47,7 +46,7 @@ export const getColumns = ({
       ),
     },
     {
-      header: "categoria",
+      header: "Categoría",
       cell: ({ row }) => (
         <Typography
           className={cn(
@@ -60,13 +59,13 @@ export const getColumns = ({
       ),
     },
     {
-      header: "precio",
+      header: "Precio",
       cell: ({ row }) => {
         return formatAmount(row.original.price);
       },
     },
     {
-      header: "descripcion",
+      header: "Descripción",
       cell: ({ row }) => {
 
         return <p className="text-truncate text-wrap">{row.original.description}</p>
@@ -74,19 +73,19 @@ export const getColumns = ({
       ,
     },
     {
-      header: "stock",
+      header: "Stock",
       cell: ({ row }) => row.original.stock,
     },
     {
-      header: "estado",
+      header: "Estado",
       cell: ({ row }) => {
         const stock = row.original.stock;
         const status = stock > 0 ? "Disponible" : "agotado";
 
         return (
           <Badge
-            variant={ProductBadgeVariants[status as keyof typeof ProductBadgeVariants]}
-            className="flex-shrink-0 text-xs"
+            variant={stock > 0 ? "success" : "destructive"}
+            className="shrink-0 text-xs"
           >
             {status === "Disponible" ? "Disponible" : "Agotado"}
           </Badge>
@@ -97,7 +96,7 @@ export const getColumns = ({
       header: "Ver",
       cell: ({ row }) => (
         <Button size="icon" asChild variant="ghost" className="text-foreground">
-          <Link href={`/products/${row.original.slug}`}>
+          <Link href={`/dashboard/products/${row.original.id}`}>
             <ZoomIn className="size-5" />
           </Link>
         </Button>
@@ -148,12 +147,10 @@ export const getColumns = ({
                   name: row.original.name,
                   description: row.original.description ?? "",
                   image: row.original.image_url,
-                  sku: row.original.sku,
+                  sku: row.original.sku || "",
                   category: row.original.category_id,
-                  costPrice: row.original.price,
+                  price: row.original.price,
                   stock: row.original.stock,
-                  minStockThreshold: row.original.min_stock_threshold,
-                  slug: row.original.slug,
                 }}
                 action={(formData) => editProduct(row.original.id, formData)}
                 previewImage={row.original.image_url}
@@ -192,7 +189,7 @@ export const skeletonColumns: SkeletonColumn[] = [
     cell: <Skeleton className="size-4 rounded-sm" />,
   },
   {
-    header: "product name",
+    header: "Nombre del producto",
     cell: (
       <div className="flex gap-2 items-center">
         <Skeleton className="size-8 rounded-full" />
@@ -202,35 +199,35 @@ export const skeletonColumns: SkeletonColumn[] = [
     ),
   },
   {
-    header: "category",
+    header: "Categoría",
     cell: <Skeleton className="w-32 h-8" />,
   },
   {
-    header: "price",
+    header: "Precio",
     cell: <Skeleton className="w-20 h-8" />,
   },
   {
-    header: "sale price",
+    header: "Precio de venta",
     cell: <Skeleton className="w-20 h-8" />,
   },
   {
-    header: "stock",
+    header: "Stock",
     cell: <Skeleton className="w-20 h-8" />,
   },
   {
-    header: "status",
+    header: "Estado",
     cell: <Skeleton className="w-24 h-8" />,
   },
   {
-    header: "view",
+    header: "Ver",
     cell: <Skeleton className="w-8 h-8" />,
   },
   {
-    header: "published",
+    header: "Publicado",
     cell: <Skeleton className="w-16 h-10" />,
   },
   {
-    header: "actions",
+    header: "Acciones",
     cell: <Skeleton className="w-20 h-8" />,
   },
 ];

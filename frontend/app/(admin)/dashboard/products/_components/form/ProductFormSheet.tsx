@@ -20,12 +20,12 @@ import {
   FormPriceInput,
   FormTextarea,
 } from "@/app/(admin)/components/shared/form";
+import FormSubcategoryByCategory from "@/app/(admin)/components/shared/form/FormSubcategoryByCategory";
 import { FormSubmitButton } from "@/app/(admin)/components/shared/form/FormSubmitButton";
 
 import { productFormSchema, ProductFormData } from "./schema";
 import { objectToFormData } from "@/app/(admin)/helpers/objectToFormData";
 import { ProductServerActionResponse } from "@/app/(admin)/types/server-action";
-import FormSubcategoryInput from "@/app/(admin)/components/shared/form/FormSubcategoryInput";
 
 type BaseProductFormProps = {
   title: string;
@@ -66,6 +66,7 @@ export default function ProductFormSheet({
   const categoryRef = useRef<HTMLButtonElement>(null);
   const [sizes, setSizes] = useState<string[]>([]);
   const [variantStock, setVariantStock] = useState<Record<string, number>>({});
+  const [selectedCategoryId, setSelectedCategoryId] = useState<number | undefined>(undefined);
 
   // Helper function to generate variant key
   const getVariantKey = (size: string, color: string) => `${size}-${color}`;
@@ -138,7 +139,18 @@ export default function ProductFormSheet({
     form.setValue("stock", totalStock);
   }, [variantStock, form.watch("sizes"), form]);
 
-  const onSubmit = (data: ProductFormData) => {
+  // Watch category changes to update subcategory options
+  useEffect(() => {
+    const subscription = form.watch((value, { name }) => {
+      if (name === "category" && value.category) {
+        const categoryId = parseInt(value.category);
+        setSelectedCategoryId(isNaN(categoryId) ? undefined : categoryId);
+        // Reset subcategory when category changes
+        form.setValue("subcategory", "");
+      }
+    });
+    return () => subscription.unsubscribe();
+  }, [form]); const onSubmit = (data: ProductFormData) => {
     // Add variant stock data to the form data
     const enhancedData = {
       ...data,
@@ -178,6 +190,7 @@ export default function ProductFormSheet({
         });
         setVariantStock({});
         setSizes([]);
+        setSelectedCategoryId(undefined);
         toast.success(
           `Product "${result.product.name}" ${actionVerb} successfully!`,
           { position: "top-center" }
@@ -643,72 +656,423 @@ export default function ProductFormSheet({
                         ref={categoryRef}
                       />
 
-                      <FormTextInput
+                      <FormSubcategoryByCategory
                         control={form.control}
                         name="subcategory"
                         label="Subcategoría"
                         container={container || undefined}
+                        categoryId={selectedCategoryId}
+                        onSubcategoryChange={(subcategoryId) => {
+                          console.log("Subcategory selected:", subcategoryId);
+                        }}
                       />
                     </div>
+
+                    {/* Category selection helper */}
+                    {!selectedCategoryId && (
+                      <div className="mt-2 p-3 rounded-lg bg-blue-500/10 border border-blue-500/20">
+                        <p className="text-sm text-blue-300">
+                          💡 <strong>Tip:</strong> Selecciona primero una categoría para filtrar las subcategorías relacionadas
+                        </p>
+                      </div>
+                    )}
+                  </div>
+                </div>
+
+                {/* Sección: Pricing & Dimensions */}
+                <div className="group relative space-y-6 p-7 rounded-2xl border-none bg-linear-to-br from-card via-card/95 to-card/90 shadow-lg hover:shadow-xl transition-all duration-500 hover:border-green-500/30 hover:-translate-y-1">
+                  <div className="absolute inset-0 bg-linear-to-br from-green-500/5 via-transparent to-transparent rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+
+                  <div className="relative flex items-center gap-3 pb-3 ">
+                    <div className="flex items-center justify-center size-8 rounded-xl bg-linear-to-br from-green-500/20 to-green-500/10 border border-green-500/20">
+                      <div className="size-2.5 rounded-full bg-green-500 shadow-lg shadow-green-500/50 animate-pulse" />
+                    </div>
+                    <h3 className="text-base font-bold tracking-wide text-foreground/90 uppercase">
+                      Precios
+                    </h3>
                   </div>
 
-                  {/* Sección: Pricing & Dimensions */}
-                  <div className="group relative space-y-6 p-7 rounded-2xl border-none bg-linear-to-br from-card via-card/95 to-card/90 shadow-lg hover:shadow-xl transition-all duration-500 hover:border-green-500/30 hover:-translate-y-1">
-                    <div className="absolute inset-0 bg-linear-to-br from-green-500/5 via-transparent to-transparent rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+                  <div className="relative grid grid-cols-1 lg:grid-cols-2 gap-6">
+                    <FormPriceInput
+                      control={form.control}
+                      name="price"
+                      label="Precio"
+                      placeholder="e.g., 9999"
+                    />
 
-                    <div className="relative flex items-center gap-3 pb-3 ">
-                      <div className="flex items-center justify-center size-8 rounded-xl bg-linear-to-br from-green-500/20 to-green-500/10 border border-green-500/20">
-                        <div className="size-2.5 rounded-full bg-green-500 shadow-lg shadow-green-500/50 animate-pulse" />
+                    <FormTextInput
+                      control={form.control}
+                      name="weight_grams"
+                      label="Peso (grams)"
+                      placeholder="e.g., 500"
+                      type="number"
+                    />
+                  </div>
+                </div>
+
+                {/* Sección: Variantes */}
+                <div className="group relative space-y-6 p-7 rounded-2xl border-none bg-linear-to-br from-card via-card/95 to-card/90 shadow-lg hover:shadow-xl transition-all duration-500 hover:border-orange-500/30 hover:-translate-y-1">
+                  <div className="absolute inset-0 bg-linear-to-br from-orange-500/5 via-transparent to-transparent rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+
+                  <div className="relative flex items-center gap-3 pb-3 border-b border-border/30">
+                    <div className="flex items-center justify-center size-8 rounded-xl bg-linear-to-br from-orange-500/20 to-orange-500/10 border border-orange-500/20">
+                      <div className="size-2.5 rounded-full bg-orange-500 shadow-lg shadow-orange-500/50 animate-pulse" />
+                    </div>
+                    <h3 className="text-base font-bold tracking-wide text-foreground/90 uppercase">
+                      Variantes
+                    </h3>
+                  </div>
+
+                  <div className="relative space-y-6">
+                    <div className="space-y-4">
+                      <label className="text-sm font-medium text-foreground">Tallas Disponibles</label>
+
+                      {(() => {
+                        const currentSizes = form.watch("sizes") || "";
+                        const sizesArray = currentSizes.split(",").map(s => s.trim()).filter(Boolean);
+
+                        if (sizesArray.length > 0) {
+                          return (
+                            <div className="flex flex-wrap gap-2 p-3 rounded-xl bg-slate-800/40 border border-slate-600/30">
+                              <span className="text-xs font-medium text-slate-400 mr-2">Seleccionadas:</span>
+                              {sizesArray.map((size, index) => (
+                                <button
+                                  key={`${size}-${index}`}
+                                  type="button"
+                                  onClick={() => {
+                                    const newSizes = sizesArray.filter(s => s !== size);
+                                    form.setValue("sizes", newSizes.join(", "));
+                                  }}
+                                  className="inline-flex items-center gap-1 px-2 py-1 text-xs font-medium bg-orange-500/20 text-orange-300 border border-orange-400/30 rounded-md hover:bg-orange-500/30 transition-colors"
+                                >
+                                  {size}
+                                  <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                                  </svg>
+                                </button>
+                              ))}
+                            </div>
+                          );
+                        }
+                        return null;
+                      })()}
+
+                      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3">
+                        {sizes.map((size) => {
+                          const currentSizes = form.watch("sizes") || "";
+                          const sizesArray = currentSizes.split(",").map(s => s.trim()).filter(Boolean);
+                          const isSelected = sizesArray.includes(size);
+
+                          return (
+                            <button
+                              key={size}
+                              type="button"
+                              onClick={() => {
+                                const current = form.getValues("sizes") || "";
+                                const currentArray = current.split(",").map(s => s.trim()).filter(Boolean);
+
+                                if (isSelected) {
+                                  const newSizes = currentArray.filter(s => s !== size);
+                                  form.setValue("sizes", newSizes.join(", "));
+                                } else {
+                                  const newSizes = [...currentArray, size];
+                                  form.setValue("sizes", newSizes.join(", "));
+                                }
+                              }}
+                              className={`
+                                  relative h-12 px-4 rounded-xl border-2 font-semibold text-sm transition-all duration-200
+                                  ${isSelected
+                                  ? "border-orange-400 bg-linear-to-br from-orange-500/20 to-amber-500/10 text-orange-300 shadow-lg shadow-orange-500/20"
+                                  : "border-slate-600/50 bg-linear-to-br from-slate-800/50 to-slate-700/30 text-slate-300 hover:border-orange-400/50 hover:bg-linear-to-br hover:from-orange-500/10 hover:to-amber-500/5"
+                                }
+                                `}
+                            >
+                              <span className="relative z-10">{size}</span>
+                              {isSelected && (
+                                <div className="absolute inset-0 bg-linear-to-br from-orange-500/10 to-amber-500/5 rounded-xl" />
+                              )}
+                            </button>
+                          );
+                        })}
                       </div>
-                      <h3 className="text-base font-bold tracking-wide text-foreground/90 uppercase">
-                        Precios
-                      </h3>
+
+                      {/* Clear all and Custom size input */}
+                      <div className="flex items-center gap-3">
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setSizes([]);
+                            form.setValue("sizes", "");
+                          }}
+                          className="h-10 px-4 rounded-lg border-2 border-red-500/40 bg-linear-to-r from-red-500/20 to-red-400/10 text-red-300 font-semibold text-sm hover:border-red-400/60 hover:from-red-500/30 hover:to-red-400/20 transition-all duration-200"
+                        >
+                          Limpiar Todo
+                        </button>
+                        <input
+                          type="text"
+                          placeholder="Añadir talla personalizada (ej., 3XL)"
+                          className="flex-1 h-10 px-3 rounded-lg border-2 border-slate-600/50 bg-slate-800/50 text-slate-200 placeholder:text-slate-400 focus:border-orange-400/60 focus:outline-none transition-colors text-sm"
+                          onKeyDown={(e) => {
+                            if (e.key === 'Enter') {
+                              e.preventDefault();
+                              const input = e.target as HTMLInputElement;
+                              const customSize = input.value.trim().toUpperCase();
+
+                              if (customSize) {
+                                if (!sizes.includes(customSize)) {
+                                  setSizes(prev => [...prev, customSize]);
+                                }
+
+                                const current = form.getValues("sizes") || "";
+                                const currentArray = current.split(",").map(s => s.trim()).filter(Boolean);
+
+                                if (!currentArray.includes(customSize)) {
+                                  const newSizes = [...currentArray, customSize];
+                                  form.setValue("sizes", newSizes.join(", "));
+                                }
+
+                                input.value = "";
+                              }
+                            }
+                          }}
+                        />
+                        <button
+                          type="button"
+                          onClick={(e) => {
+                            const input = (e.target as HTMLButtonElement).previousElementSibling as HTMLInputElement;
+                            const customSize = input.value.trim().toUpperCase();
+
+                            if (customSize) {
+                              if (!sizes.includes(customSize)) {
+                                setSizes(prev => [...prev, customSize]);
+                              }
+
+                              const current = form.getValues("sizes") || "";
+                              const currentArray = current.split(",").map(s => s.trim()).filter(Boolean);
+
+                              if (!currentArray.includes(customSize)) {
+                                const newSizes = [...currentArray, customSize];
+                                form.setValue("sizes", newSizes.join(", "));
+                              }
+
+                              input.value = "";
+                            }
+                          }}
+                          className="h-10 px-4 rounded-lg border-2 border-orange-500/40 bg-linear-to-r from-orange-500/20 to-amber-500/10 text-orange-300 font-semibold text-sm hover:border-orange-400/60 hover:from-orange-500/30 hover:to-amber-500/20 transition-all duration-200"
+                        >
+                          Añadir
+                        </button>
+                      </div>
+
+                      {form.formState.errors.sizes && (
+                        <p className="text-sm text-red-400 mt-1">
+                          {form.formState.errors.sizes.message}
+                        </p>
+                      )}
                     </div>
 
-                    <div className="relative grid grid-cols-1 lg:grid-cols-2 gap-6">
-                      <FormPriceInput
-                        control={form.control}
-                        name="price"
-                        label="Precio"
-                        placeholder="e.g., 9999"
-                      />
+                    {/* Variant Stock Management */}
+                    {sizes.length > 0 && (
+                      <div className="space-y-4">
+                        <label className="text-sm font-medium text-foreground">Stock por Variante</label>
+                        <div className="p-4 rounded-xl bg-slate-800/30 border-2 border-slate-600/30">
+                          <div className="space-y-3">
+                            <div className="flex items-center gap-2 mb-3">
+                              <div className="size-4 rounded bg-current" style={{ backgroundColor: form.watch("color_code") || "#000000" }} />
+                              <span className="text-sm font-medium text-slate-300">
+                                {form.watch("color") || "Sin color"}
+                              </span>
+                            </div>
 
+                            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3">
+                              {sizes.map((size) => {
+                                const currentSizes = form.watch("sizes") || "";
+                                const selectedSizes = currentSizes.split(",").map(s => s.trim()).filter(Boolean);
+                                const isActive = selectedSizes.includes(size);
+
+                                if (!isActive) return null;
+
+                                return (
+                                  <div key={size} className="space-y-2">
+                                    <div className="flex items-center justify-between p-3 rounded-lg bg-slate-700/50 border border-slate-600/40">
+                                      <span className="font-semibold text-slate-200 text-sm">{size}</span>
+                                      <input
+                                        type="number"
+                                        min="0"
+                                        value={getVariantStock(size)}
+                                        onChange={(e) => updateVariantStock(size, parseInt(e.target.value) || 0)}
+                                        className="w-16 h-8 px-2 text-center rounded border border-slate-600/50 bg-slate-800/50 text-slate-200 text-sm focus:border-orange-400/60 focus:outline-none transition-colors"
+                                        placeholder="0"
+                                      />
+                                    </div>
+                                  </div>
+                                );
+                              })}
+                            </div>
+
+                            {/* Total stock calculation */}
+                            <div className="mt-4 p-3 rounded-lg bg-slate-700/30 border border-slate-600/30">
+                              <div className="flex items-center justify-between">
+                                <span className="text-sm font-medium text-slate-300">Stock Total:</span>
+                                <span className="text-lg font-bold text-orange-300">
+                                  {Object.entries(variantStock)
+                                    .filter(([key]) => {
+                                      const size = key.split('-')[0];
+                                      const currentSizes = form.watch("sizes") || "";
+                                      const selectedSizes = currentSizes.split(",").map(s => s.trim()).filter(Boolean);
+                                      return selectedSizes.includes(size);
+                                    })
+                                    .reduce((total, [, stock]) => total + stock, 0)
+                                  }
+                                </span>
+                              </div>
+                            </div>
+
+                            {/* Quick actions */}
+                            <div className="flex gap-2 mt-3">
+                              <button
+                                type="button"
+                                onClick={() => {
+                                  const currentSizes = form.watch("sizes") || "";
+                                  const selectedSizes = currentSizes.split(",").map(s => s.trim()).filter(Boolean);
+                                  const color = form.watch("color") || "Default";
+                                  const updates: Record<string, number> = {};
+                                  selectedSizes.forEach(size => {
+                                    updates[getVariantKey(size, color)] = 10;
+                                  });
+                                  setVariantStock(prev => ({ ...prev, ...updates }));
+                                }}
+                                className="px-3 py-1.5 text-xs font-medium rounded-md border border-green-500/40 bg-green-500/10 text-green-300 hover:bg-green-500/20 transition-colors"
+                              >
+                                Establecer 10 a Todas
+                              </button>
+
+                              <button
+                                type="button"
+                                onClick={() => {
+                                  const currentSizes = form.watch("sizes") || "";
+                                  const selectedSizes = currentSizes.split(",").map(s => s.trim()).filter(Boolean);
+                                  const color = form.watch("color") || "Default";
+                                  const updates: Record<string, number> = {};
+                                  selectedSizes.forEach(size => {
+                                    updates[getVariantKey(size, color)] = 0;
+                                  });
+                                  setVariantStock(prev => ({ ...prev, ...updates }));
+                                }}
+                                className="px-3 py-1.5 text-xs font-medium rounded-md border border-red-500/40 bg-red-500/10 text-red-300 hover:bg-red-500/20 transition-colors"
+                              >
+                                Limpiar Todo
+                              </button>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    )}
+
+                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                       <FormTextInput
                         control={form.control}
-                        name="weight_grams"
-                        label="Peso (grams)"
-                        placeholder="e.g., 500"
-                        type="number"
+                        name="color"
+                        label="Nombre del color"
+                        placeholder="e.g., Navy Blue"
                       />
+
+                      <div className="space-y-3">
+                        <label className="text-sm font-medium text-foreground inline">Color</label>
+                        <div className="flex flex-col items-start gap-4">
+                          {/* Color Info Display with Integrated Picker */}
+                          <div className="flex-1 relative">
+                            <div className="px-4 py-3 rounded-xl bg-linear-to-r from-slate-700/60 to-slate-600/40 border-2 border-slate-500/40 backdrop-blur-sm">
+                              <div className="flex items-center gap-3">
+                                {/* Color Picker integrated in the preview */}
+                                <div className="relative size-8">
+                                  <input
+                                    type="color"
+                                    value={form.watch("color_code") || "#000000"}
+                                    onChange={(e) => {
+                                      form.setValue("color_code", e.target.value);
+                                    }}
+                                    className="absolute inset-0 w-8 h-8 opacity-0 cursor-pointer z-10"
+                                  />
+                                  <div
+                                    className="size-8 rounded-lg border-2 border-slate-400/50 shadow-md transition-all duration-200 hover:scale-110 hover:shadow-lg cursor-pointer relative overflow-hidden"
+                                    style={{
+                                      backgroundColor: form.watch("color_code") || "#000000",
+                                    }}
+                                  >
+                                    {/* Hover indicator */}
+                                    <div className="absolute inset-0 bg-white/0 hover:bg-white/10 transition-colors rounded-lg flex items-center justify-center">
+                                      <svg className="w-3 h-3 text-white/60 opacity-0 hover:opacity-100 transition-opacity" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
+                                      </svg>
+                                    </div>
+                                  </div>
+                                </div>
+
+                                <div className="flex flex-col flex-1">
+                                  <input
+                                    type="text"
+                                    value={form.watch("color_code") || ""}
+                                    onChange={(e) => {
+                                      const value = e.target.value;
+                                      if (value.match(/^#[0-9A-Fa-f]{0,6}$/)) {
+                                        form.setValue("color_code", value);
+                                      }
+                                    }}
+                                    placeholder="#1E40AF"
+                                    className="w-28 h-10 px-3 rounded-lg border-2 border-slate-600/50 bg-slate-800/50 text-slate-200 placeholder:text-slate-400 focus:border-orange-400/60 focus:outline-none transition-colors text-sm font-mono"
+                                  />
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+
+                        {form.formState.errors.color_code && (
+                          <p className="text-sm text-red-400 mt-1">
+                            {form.formState.errors.color_code.message}
+                          </p>
+                        )}
+                      </div>
                     </div>
                   </div>
-
-                  {/* Sección: Variantes */}
-
                 </div>
+
+              </div>
+
               {/* Footer premium con animación */}
-              <div className="px-8 py-5 ">
-                <div className="max-w-5xl h-full flex items-end mx-auto p-0">
+              <div className="px-8 py-5 border-t-2 border-indigo-400/40 bg-linear-to-t from-slate-950/95 via-slate-900/90 to-slate-800/85 backdrop-blur-2xl shadow-2xl shadow-indigo-500/20">
+                <div className="max-w-5xl mx-auto">
                   <FormSubmitButton
                     isPending={isPending}
-                    className="w-full h-14 bg-amber-50 text-base font-bold tracking-wide bg-linear-to-r from-primary via-primary/90 to-primary/80 hover:from-primary/90 hover:via-primary hover:to-primary/90 shadow-xl hover:shadow-2xl shadow-primary/25 hover:shadow-primary/40 transition-all duration-300 hover:scale-[1.02] active:scale-[0.98] rounded-xl border border-primary/20"
+                    className="w-full h-14 text-base font-bold tracking-wide bg-linear-to-r from-primary via-primary/90 to-primary/80 hover:from-primary/90 hover:via-primary hover:to-primary/90 shadow-xl hover:shadow-2xl shadow-primary/25 hover:shadow-primary/40 transition-all duration-300 hover:scale-[1.02] active:scale-[0.98] rounded-xl border border-primary/20"
                   >
                     {isPending ? (
                       <span className="flex items-center justify-center gap-3">
-                        <div className="size-5 border-3 border-primary-foreground/30  rounded-full animate-spin " />
-                        <span className="animate-pulse">Processing your request...</span>
+                        <div className="size-5 border-3 border-primary-foreground/30 border-t-primary-foreground rounded-full animate-spin" />
+                        <span className="animate-pulse">Procesando tu solicitud...</span>
                       </span>
                     ) : (
-                      <span className="flex items-center justify-center gap-2 text-slate-700">
+                      <span className="flex items-center justify-center gap-2">
                         {submitButtonText}
-                       
+                        <svg
+                          className="size-5 transition-transform group-hover:translate-x-1"
+                          fill="none"
+                          viewBox="0 0 24 24"
+                          stroke="currentColor"
+                        >
+                          <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            strokeWidth={2}
+                            d="M13 7l5 5m0 0l-5 5m5-5H6"
+                          />
+                        </svg>
                       </span>
                     )}
                   </FormSubmitButton>
                 </div>
               </div>
-              </div>
-
             </form>
           </Form>
         </div>
