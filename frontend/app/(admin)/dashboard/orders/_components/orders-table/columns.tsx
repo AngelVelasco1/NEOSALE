@@ -35,16 +35,16 @@ export const getColumns = ({
 }) => {
   const columns: ColumnDef<Order>[] = [
     {
-      header: "N.O",
+      header: "N.º Orden",
       cell: ({ row }) => { return removeLetters(row.original.payments.transaction_id) },
     },
     {
-      header: "order time",
+      header: "Fecha y Hora",
       cell: ({ row }) =>
         `${formatDate.medium(row.original.created_at)} ${formatDate.time(row.original.created_at)}`,
     },
     {
-      header: "customer name",
+      header: "Cliente",
       cell: ({ row }) => (
         <span className="block max-w-52 truncate">
           {row.original.users?.name}
@@ -52,24 +52,24 @@ export const getColumns = ({
       ),
     },
     {
-      header: "method",
+      header: "Método",
       cell: ({ row }) => (
         <span className="capitalize">{row.original.payments.payment_method}</span>
       ),
     },
     {
-      header: "amount",
+      header: "Monto",
       cell: ({ row }) => formatAmount(row.original.total),
     },
     {
-      header: "status",
+      header: "Estado",
       cell: ({ row }) => {
         const status = row.original.status;
 
         return (
           <Badge
             variant={OrderBadgeVariants[status]}
-            className="flex-shrink-0 text-xs capitalize"
+            className="shrink-0 text-xs capitalize"
           >
             {status}
           </Badge>
@@ -77,7 +77,7 @@ export const getColumns = ({
       },
     },
     {
-      header: "invoice",
+      header: "Factura",
       cell: ({ row }) => {
         return (
           <div className="flex items-center gap-1">
@@ -111,7 +111,7 @@ export const getColumns = ({
 
   if (hasPermission("orders", "canChangeStatus")) {
     columns.splice(6, 0, {
-      header: "action",
+      header: "Acción",
       cell: ({ row }) => {
         return (
           <TableSelect
@@ -138,35 +138,35 @@ export const getColumns = ({
 
 export const skeletonColumns: SkeletonColumn[] = [
   {
-    header: "invoice no",
+    header: "N.º Factura",
     cell: <Skeleton className="w-20 h-8" />,
   },
   {
-    header: "order time",
+    header: "Fecha y Hora",
     cell: <Skeleton className="w-32 h-8" />,
   },
   {
-    header: "customer name",
+    header: "Cliente",
     cell: <Skeleton className="w-32 h-8" />,
   },
   {
-    header: "method",
+    header: "Método",
     cell: <Skeleton className="w-14 h-8" />,
   },
   {
-    header: "amount",
+    header: "Monto",
     cell: <Skeleton className="w-16 h-8" />,
   },
   {
-    header: "status",
+    header: "Estado",
     cell: <Skeleton className="w-16 h-8" />,
   },
   {
-    header: "action",
+    header: "Acción",
     cell: <Skeleton className="w-24 h-10" />,
   },
   {
-    header: "invoice",
+    header: "Factura",
     cell: <Skeleton className="w-20 h-8" />,
   },
 ];

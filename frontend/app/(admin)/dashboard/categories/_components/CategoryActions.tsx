@@ -86,7 +86,6 @@ export default function CategoryActions({
               {hasPermission("categories", "canCreate") && (
                 <CategoryFormSheet
                   title="Agregar Categoría"
-                  description="Ingresa la información necesaria de la categoría"
                   submitButtonText="Agregar Categoría"
                   actionVerb="agregado"
                   action={addCategory}
@@ -94,7 +93,7 @@ export default function CategoryActions({
                   <SheetTrigger asChild>
                     <Button
                       size="default"
-                      className="h-10 px-4 rounded-lg bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-600 hover:to-teal-700 text-white font-medium shadow-sm hover:shadow-md transition-all text-sm"
+                      className="h-10 px-4 rounded-lg bg-linear-to-r from-emerald-500 to-teal-600 hover:from-emerald-600 hover:to-teal-700 text-white font-medium shadow-sm hover:shadow-md transition-all text-sm"
                     >
                       <Plus className="mr-2 h-4 w-4" /> Agregar Categoría
                     </Button>

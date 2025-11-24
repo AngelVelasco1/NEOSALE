@@ -17,7 +17,7 @@ export default function FetchDropdownContainer({
 }: Props) {
   if (isLoading)
     return (
-      <div className="flex flex-col gap-2 items-center px-2 py-6">
+      <div className="flex flex-col gap-2 items-center px-2 py-6 border-2 border-slate-600/40 rounded-xl max-w-full">
         <Loader2 className="size-4 animate-spin" />
         <Typography>Loading...</Typography>
       </div>
@@ -25,7 +25,7 @@ export default function FetchDropdownContainer({
 
   if (isError)
     return (
-      <div className="flex flex-col gap-2 items-center px-2 py-6 max-w-full">
+      <div className="flex flex-col gap-2 items-center px-2 py-6 border-2 border-slate-600/40 rounded-xl max-w-full">
         <ShieldAlert className="size-6" />
         <Typography>{errorMessage}</Typography>
       </div>

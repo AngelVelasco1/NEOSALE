@@ -15,8 +15,6 @@ export async function editCategory(
   const parsedData = categoryFormSchema.safeParse({
     name: formData.get("name"),
     description: formData.get("description"),
-    image: formData.get("image"),
-    slug: formData.get("slug"),
   });
 
   if (!parsedData.success) {
@@ -27,16 +25,7 @@ export async function editCategory(
     };
   }
 
-  const { image, ...categoryData } = parsedData.data;
-
-  let imageUrl: string | undefined;
-
-  // TODO: Implementar upload de imagen con Cloudinary
-  if (image instanceof File && image.size > 0) {
-    // Por ahora, guardamos el nombre del archivo
-    // Implementa tu solución de storage preferida aquí (Cloudinary, etc.)
-    imageUrl = `/uploads/categories/${image.name}`;
-  }
+  const categoryData = parsedData.data;
 
   try {
     const updatedCategory = await prisma.categories.update({
@@ -44,8 +33,6 @@ export async function editCategory(
       data: {
         name: categoryData.name,
         description: categoryData.description,
-        // slug: categoryData.slug, // TODO: Agregar campo slug al schema si lo necesitas
-        // ...(imageUrl && { image_url: imageUrl }), // Descomentar cuando tengas el campo
       },
     });
 

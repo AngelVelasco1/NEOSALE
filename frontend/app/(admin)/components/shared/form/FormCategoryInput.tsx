@@ -57,25 +57,23 @@ const FormCategoryInput = forwardRef(function FormCategoryInputRender<
 
           <div className="space-y-2 h-12">
             <Select
-            
+
               value={field.value}
               onValueChange={(value) => field.onChange(value)}
             >
               <FormControl className="px-4 mt-2 rounded-xl border-2 border-slate-500/30 text-slate-200 placeholder:text-slate-400/70 focus:ring-0 focus:ring-offset-0 shadow-sm transition-all duration-200 ">
                 <SelectTrigger ref={ref} className="md:basis-1/5 h-12">
-                  <SelectValue placeholder="Category" />
+                  <SelectValue placeholder="Categoria" />
                 </SelectTrigger>
               </FormControl>
 
-              <SelectContent className="" portalContainer={container}>
+              <SelectContent className="max-h-56 bg-slate-900/95" portalContainer={container}>
                 <FetchDropdownContainer
                   isLoading={isLoading}
                   isError={isError}
                   errorMessage="Failed to load categories"
                 >
-                  <SelectItem key="all" value="all">
-                    All Categories
-                  </SelectItem>
+
 
                   {!isLoading &&
                     !isError &&

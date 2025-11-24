@@ -1,6 +1,6 @@
 "use client";
 
-import { forwardRef, Ref } from "react";
+import React, { forwardRef, Ref } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { Control, FieldValues, Path } from "react-hook-form";
 
@@ -19,8 +19,13 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 
-import { fetchCategoriesDropdown } from "@/app/(admin)/services/categories";
+import { fetchSubcategoriesDropdown } from "@/app/(admin)/services/categories";
 import FetchDropdownContainer from "@/app/(admin)/components/shared/FetchDropdownContainer";
+
+type Subcategory = {
+  id: number;
+  name: string;
+};
 
 type FormCategoryInputProps<TFormData extends FieldValues> = {
   control: Control<TFormData>;
@@ -36,12 +41,12 @@ const FormSubcategoryInput = forwardRef(function FormCategoryInputRender<
   ref: Ref<HTMLButtonElement>
 ) {
   const {
-    data: categories,
+    data: subcategories,
     isLoading,
     isError,
-  } = useQuery({
-    queryKey: ["categories", "dropdown"],
-    queryFn: () => fetchCategoriesDropdown(),
+  } = useQuery<Subcategory[]>({
+    queryKey: ["subcategories", "dropdown"],
+    queryFn: () => fetchSubcategoriesDropdown(),
     staleTime: 5 * 60 * 1000,
   });
 
@@ -57,32 +62,29 @@ const FormSubcategoryInput = forwardRef(function FormCategoryInputRender<
 
           <div className="space-y-2 h-12">
             <Select
-            
+
               value={field.value}
               onValueChange={(value) => field.onChange(value)}
             >
               <FormControl className="px-4 mt-2 rounded-xl border-2 border-slate-500/30 text-slate-200 placeholder:text-slate-400/70 focus:ring-0 focus:ring-offset-0 shadow-sm transition-all duration-200 ">
                 <SelectTrigger ref={ref} className="md:basis-1/5 h-12">
-                  <SelectValue placeholder="Category" />
+                  <SelectValue placeholder="Subcategoría" />
                 </SelectTrigger>
               </FormControl>
 
-              <SelectContent className="" portalContainer={container}>
+              <SelectContent className="max-h-56 bg-slate-900/95" portalContainer={container}>
                 <FetchDropdownContainer
                   isLoading={isLoading}
                   isError={isError}
-                  errorMessage="Failed to load categories"
+                  errorMessage="Failed to load subcategories"
                 >
-                  <SelectItem key="all" value="all">
-                    All Categories
-                  </SelectItem>
 
                   {!isLoading &&
                     !isError &&
-                    categories &&
-                    categories.map((category) => (
-                      <SelectItem key={category.id} value={category.id.toString()}>
-                        {category.name}
+                    subcategories &&
+                    subcategories.map((subcategory: Subcategory) => (
+                      <SelectItem key={subcategory.id} value={subcategory.id.toString()}>
+                        {subcategory.name}
                       </SelectItem>
                     ))}
                 </FetchDropdownContainer>

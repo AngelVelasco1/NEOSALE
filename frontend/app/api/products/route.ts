@@ -8,6 +8,7 @@ export async function GET(request: NextRequest) {
     const limit = parseInt(searchParams.get("limit") || "10");
     const search = searchParams.get("search") || "";
     const category = searchParams.get("category") || "";
+    const subcategory = searchParams.get("subcategory") || "";
     const status = searchParams.get("status") || "";
     const published = searchParams.get("published");
 
@@ -24,7 +25,29 @@ export async function GET(request: NextRequest) {
     }
 
     if (category) {
-      where.category_id = parseInt(category);
+      // Si category viene como nombre (string), buscar por nombre de categoría
+      if (isNaN(parseInt(category))) {
+        where.categories = {
+          name: { equals: category, mode: "insensitive" },
+          active: true, // Solo categorías activas para el frontend público
+        };
+      } else {
+        // Si viene como ID numérico
+        where.category_id = parseInt(category);
+        where.categories = {
+          active: true, // Solo categorías activas para el frontend público
+        };
+      }
+    }
+
+    if (subcategory) {
+      // Buscar productos cuya categoría tenga la subcategoría especificada
+      where.categories = {
+        subcategory: {
+          name: { equals: subcategory, mode: "insensitive" },
+        },
+        active: true, // Solo categorías activas
+      };
     }
 
     if (status === "out-of-stock") {

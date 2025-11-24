@@ -28,7 +28,7 @@ export const getColumns = ({
 }) => {
   const columns: ColumnDef<Coupon>[] = [
     {
-      header: "campaign name",
+      header: "Nombre de Campaña",
       cell: ({ row }) => (
         <div className="flex gap-2 items-center">
           <ImagePlaceholder
@@ -46,13 +46,13 @@ export const getColumns = ({
       ),
     },
     {
-      header: "code",
+      header: "Código",
       cell: ({ row }) => (
         <Typography className="uppercase">{row.original.code}</Typography>
       ),
     },
     {
-      header: "discount",
+      header: "Descuento",
       cell: ({ row }) => {
         const discountType = row.original.discount_type;
 
@@ -64,15 +64,15 @@ export const getColumns = ({
       },
     },
     {
-      header: "start date",
+      header: "Fecha de Inicio",
       cell: ({ row }) => formatDate.medium(row.original.start_date),
     },
     {
-      header: "end date",
+      header: "Fecha de Fin",
       cell: ({ row }) => formatDate.medium(row.original.end_date),
     },
     {
-      header: "status",
+      header: "Estado",
       cell: ({ row }) => {
         const currentTime = new Date();
         const endTime = new Date(row.original.end_date);
@@ -83,7 +83,7 @@ export const getColumns = ({
         return (
           <Badge
             variant={CouponBadgeVariants[status]}
-            className="flex-shrink-0 text-xs capitalize"
+            className="shrink-0 text-xs capitalize"
           >
             {status}
           </Badge>
@@ -94,7 +94,7 @@ export const getColumns = ({
 
   if (hasPermission("coupons", "canTogglePublished")) {
     columns.splice(3, 0, {
-      header: "published",
+      header: "Publicado",
       cell: ({ row }) => (
         <div className="pl-5">
           <TableSwitch
@@ -139,7 +139,7 @@ export const getColumns = ({
     });
 
     columns.splice(8, 0, {
-      header: "actions",
+      header: "Acciones",
       cell: ({ row }) => {
         return (
           <div className="flex items-center gap-1">
@@ -197,7 +197,7 @@ export const skeletonColumns: SkeletonColumn[] = [
     cell: <Skeleton className="size-4 rounded-sm" />,
   },
   {
-    header: "campaign name",
+    header: "Nombre de Campaña",
     cell: (
       <div className="flex gap-2 items-center">
         <Skeleton className="size-8 rounded-full" />
@@ -207,31 +207,31 @@ export const skeletonColumns: SkeletonColumn[] = [
     ),
   },
   {
-    header: "code",
+    header: "Código",
     cell: <Skeleton className="w-20 h-8" />,
   },
   {
-    header: "discount",
+    header: "Descuento",
     cell: <Skeleton className="w-20 h-8" />,
   },
   {
-    header: "published",
+    header: "Publicado",
     cell: <Skeleton className="w-16 h-10" />,
   },
   {
-    header: "start date",
+    header: "Fecha de Inicio",
     cell: <Skeleton className="w-20 h-8" />,
   },
   {
-    header: "end date",
+    header: "Fecha de Fin",
     cell: <Skeleton className="w-20 h-8" />,
   },
   {
-    header: "status",
+    header: "Estado",
     cell: <Skeleton className="w-20 h-10" />,
   },
   {
-    header: "actions",
+    header: "Acciones",
     cell: <Skeleton className="w-20 h-8" />,
   },
 ];

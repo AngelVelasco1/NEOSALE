@@ -32,7 +32,7 @@ export const getColumns = ({
 }) => {
   const columns: ColumnDef<Customer>[] = [
     {
-      header: "id",
+      header: "ID",
       cell: ({ row }) => (
         <Typography className="uppercase">
           {row.id.slice(-4)}
@@ -40,11 +40,11 @@ export const getColumns = ({
       ),
     },
     {
-      header: "name",
+      header: "Nombre",
       cell: ({ row }) => row.original.name,
     },
     {
-      header: "email",
+      header: "Email",
       cell: ({ row }) => (
         <Typography className="block max-w-52 xl:max-w-60 truncate">
           {row.original.email}
@@ -52,7 +52,7 @@ export const getColumns = ({
       ),
     },
     {
-      header: () => <span className="block text-center">phone</span>,
+      header: () => <span className="block text-center">Teléfono</span>,
       id: "phone",
       cell: ({ row }) => (
         <Typography className="block text-center">
@@ -61,7 +61,7 @@ export const getColumns = ({
       ),
     },
     {
-      header: () => <span className="block text-center">actions</span>,
+      header: () => <span className="block text-center">Acciones</span>,
       id: "actions",
       cell: ({ row }) => {
         return (
@@ -134,27 +134,27 @@ export const getColumns = ({
 
 export const skeletonColumns: SkeletonColumn[] = [
   {
-    header: "id",
+    header: "ID",
     cell: <Skeleton className="w-10 h-8" />,
   },
   {
-    header: "joining date",
+    header: "Fecha de registro",
     cell: <Skeleton className="w-20 h-8" />,
   },
   {
-    header: "name",
+    header: "Nombre",
     cell: <Skeleton className="w-24 h-8" />,
   },
   {
-    header: "email",
+    header: "Email",
     cell: <Skeleton className="w-32 h-8" />,
   },
   {
-    header: "phone",
+    header: "Teléfono",
     cell: <Skeleton className="w-20 h-10" />,
   },
   {
-    header: "actions",
+    header: "Acciones",
     cell: <Skeleton className="w-24 h-8" />,
   },
 ];
