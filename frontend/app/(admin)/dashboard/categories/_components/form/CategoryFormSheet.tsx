@@ -168,7 +168,7 @@ export default function CategoryFormSheet({
                         <div className="size-2.5 rounded-full bg-blue-500 shadow-lg shadow-blue-500/50 animate-pulse" />
                       </div>
                       <h3 className="text-base font-bold tracking-wide text-foreground/90 uppercase">
-                        Información Básica
+                        Información 
                       </h3>
                     </div>
 
@@ -217,83 +217,54 @@ export default function CategoryFormSheet({
 
                       {/* Existing subcategories as selectable chips */}
                       {!isLoadingSubcategories && existingSubcategories.length > 0 && (
-                        <div className="space-y-3">
-                          <div className="text-sm font-medium text-foreground">Subcategorías existentes:</div>
-                          <div className="flex flex-wrap gap-2 p-3 rounded-lg bg-muted/30 border border-border/50 max-h-40 overflow-y-auto">
-                            {existingSubcategories.map((subcategory) => {
-                              const isSelected = selectedSubcategories.includes(subcategory.name);
-                              return (
-                                <button
-                                  key={subcategory.id}
-                                  type="button"
-                                  onClick={() => {
-                                    if (isSelected) {
-                                      setSelectedSubcategories(prev =>
-                                        prev.filter(name => name !== subcategory.name)
-                                      );
-                                    } else {
-                                      setSelectedSubcategories(prev => [...prev, subcategory.name]);
-                                    }
-                                  }}
-                                  className={`
-                                    inline-flex items-center gap-1 px-3 py-1.5 text-xs font-medium rounded-md transition-all duration-200
-                                    ${isSelected
-                                      ? "bg-primary text-primary-foreground border border-primary/20 shadow-sm"
-                                      : "bg-muted/50 text-muted-foreground hover:bg-muted/80 border border-border/30"
-                                    }
-                                  `}
-                                >
-                                  {subcategory.name}
-                                  {isSelected && (
-                                    <span className="ml-1 text-xs opacity-70">✓</span>
-                                  )}
-                                </button>
-                              );
-                            })}
+                        <div className="space-y-4">
+                          <div className="flex items-center gap-2">
+                            <div className="size-2 rounded-full bg-blue-500 shadow-sm shadow-blue-500/50" />
+                            <span className="text-sm font-semibold text-slate-200">Subcategorías existentes</span>
                           </div>
-                        </div>
-                      )}
-
-                      {/* Selected subcategories display */}
-                      {selectedSubcategories.length > 0 && (
-                        <div className="p-3 rounded-lg bg-primary/5 border border-primary/20">
-                          <p className="text-sm font-medium text-foreground mb-2">
-                            Subcategorías seleccionadas ({selectedSubcategories.length}):
-                          </p>
-                          <div className="flex flex-wrap gap-2">
-                            {selectedSubcategories.map((subcategoryName) => {
-                              const isExisting = existingSubcategories.some(sub => sub.name === subcategoryName);
-                              return (
-                                <span
-                                  key={subcategoryName}
-                                  className={`
-                                    inline-flex items-center gap-1 px-2 py-1 text-xs font-medium rounded-md
-                                    ${isExisting
-                                      ? "bg-blue/10 text-blue border border-blue/20"
-                                      : "bg-green-500/10 text-green-400 border border-green-500/20"
-                                    }
-                                  `}
-                                >
-                                  {subcategoryName}
-                                  {!isExisting && <span className="text-xs opacity-70">(nueva)</span>}
+                          <div className="relative p-4 rounded-xl bg-linear-to-br from-slate-800/60 via-slate-800/40 to-slate-900/40 border-2 border-slate-700/50 backdrop-blur-sm shadow-lg shadow-slate-900/20">
+                            <div className="flex flex-wrap gap-2.5 max-h-40 overflow-y-auto custom-scrollbar pr-1">
+                              {existingSubcategories.map((subcategory) => {
+                                const isSelected = selectedSubcategories.includes(subcategory.name);
+                                return (
                                   <button
+                                    key={subcategory.id}
                                     type="button"
                                     onClick={() => {
-                                      setSelectedSubcategories(prev =>
-                                        prev.filter(name => name !== subcategoryName)
-                                      );
+                                      if (isSelected) {
+                                        setSelectedSubcategories(prev =>
+                                          prev.filter(name => name !== subcategory.name)
+                                        );
+                                      } else {
+                                        setSelectedSubcategories(prev => [...prev, subcategory.name]);
+                                      }
                                     }}
-                                    className="ml-1 hover:opacity-70"
+                                    className={`
+                                      group relative inline-flex items-center gap-2 px-3 py-2 text-sm font-medium rounded-lg transition-all duration-300 hover:scale-105 active:scale-95
+                                      ${isSelected
+                                        ? "bg-linear-to-r from-blue-600 to-blue-500 text-white border-2 border-blue-400/40 shadow-lg shadow-blue-500/30 hover:shadow-xl hover:shadow-blue-500/40"
+                                        : "bg-linear-to-r from-slate-700/80 to-slate-700/60 text-slate-300 border-2 border-slate-600/40 hover:border-slate-500/60 hover:from-slate-700 hover:to-slate-600/80 shadow-md hover:shadow-lg"
+                                      }
+                                    `}
                                   >
-                                    ×
+                                    <span className="relative z-10">{subcategory.name}</span>
+                                    {isSelected && (
+                                      <span className="relative z-10 flex items-center justify-center size-4 rounded-full bg-white/20 text-white text-xs font-bold">
+                                        ✓
+                                      </span>
+                                    )}
+                                    {!isSelected && (
+                                      <span className="absolute inset-0 rounded-lg bg-linear-to-r from-blue-500/0 to-blue-500/0 group-hover:from-blue-500/10 group-hover:to-purple-500/10 transition-all duration-300" />
+                                    )}
                                   </button>
-                                </span>
-                              );
-                            })}
+                                );
+                              })}
+                            </div>
                           </div>
                         </div>
                       )}
 
+              
                       {/* Create new subcategory input */}
                       <div className="space-y-3">
                         <div className="text-sm font-medium text-foreground flex items-center gap-2">

@@ -124,11 +124,11 @@ export const getColumns = ({
 
             {hasPermission("categories", "canDelete") && (
               <TableActionAlertDialog
-                title={`Delete ${row.original.name}?`}
-                description="This action cannot be undone. This will permanently delete the category and its associated data from the database."
-                tooltipContent="Delete Category"
-                actionButtonText="Delete Category"
-                toastSuccessMessage={`Category "${row.original.name}" deleted successfully!`}
+                title={`Eliminar ${row.original.name}?`}
+                description="Esta acción no se puede deshacer. La categoría y sus datos asociados serán eliminados permanentemente."
+                tooltipContent="Eliminar Categoría"
+                actionButtonText="Eliminar Categoría"
+                toastSuccessMessage={`Categoría "${row.original.name}" eliminada correctamente!`}
                 queryKey="categories"
                 action={() => deleteCategory(row.original.id)}
               >

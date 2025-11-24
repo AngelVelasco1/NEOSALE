@@ -79,26 +79,6 @@ export const getColumns = ({
               </Button>
             </TooltipWrapper>
 
-            {hasPermission("customers", "canEdit") && (
-              <CustomerFormSheet
-                key={row.id}
-                title="Update Customers"
-                description="Update necessary customer information here"
-                submitButtonText="Update Customer"
-                actionVerb="updated"
-                initialData={{
-                  name: row.original.name,
-                  email: row.original.email,
-                  phone: row.original.phone_number ?? "",
-                }}
-                action={(formData) => editCustomer(row.id, formData)}
-              >
-                <SheetTooltip content="Edit Customer">
-                  <PenSquare className="size-5" />
-                </SheetTooltip>
-              </CustomerFormSheet>
-            )}
-
             {hasPermission("customers", "canDelete") && (
               <TooltipWrapper content="Delete Customer">
                 <Button

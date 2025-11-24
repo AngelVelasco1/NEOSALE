@@ -4,7 +4,6 @@ import { revalidatePath } from "next/cache";
 
 import { prisma } from "@/lib/prisma";
 import { auth } from "@/app/(auth)/auth";
-import { deleteImageFromCloudinary } from "@/lib/cloudinary";
 import { ServerActionResponse } from "@/app/(admin)/types/server-action";
 
 export async function deleteProduct(
@@ -31,38 +30,31 @@ export async function deleteProduct(
   try {
     const productIdInt = parseInt(productId);
 
-    // Obtener el producto con sus imágenes
+    // Verificar que el producto existe
     const product = await prisma.products.findUnique({
       where: { id: productIdInt },
-      include: { images: true },
+      select: { id: true, name: true },
     });
 
     if (!product) {
       return { dbError: "Product not found." };
     }
 
-    // Eliminar imágenes de Cloudinary
-    if (product.images && product.images.length > 0) {
-      for (const image of product.images) {
-        try {
-          await deleteImageFromCloudinary(image.image_url);
-        } catch (error) {
-          console.error("Failed to delete image from Cloudinary:", error);
-          // Continuar aunque falle la eliminación de la imagen
-        }
-      }
-    }
-
-    // Eliminar el producto (Prisma eliminará automáticamente las imágenes y variantes por CASCADE)
-    await prisma.products.delete({
+    // SOFT DELETE: Desactivar el producto en lugar de eliminarlo
+    await prisma.products.update({
       where: { id: productIdInt },
+      data: {
+        active: false,
+        updated_by: userId,
+        updated_at: new Date(),
+      },
     });
 
     revalidatePath("/products");
 
     return { success: true };
   } catch (error) {
-    console.error("Failed to delete product:", error);
-    return { dbError: "Something went wrong. Could not delete the product." };
+    console.error("Failed to deactivate product:", error);
+    return { dbError: "Something went wrong. Could not deactivate the product." };
   }
 }
