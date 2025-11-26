@@ -47,7 +47,7 @@ export default function Favorites() {
 
   if (status === "loading" || isLoading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100">
+      <div className="min-h-screen bg-linear-to-br from-slate-50 via-blue-50 to-indigo-100">
         <div className="container mx-auto px-4 py-8">
           <div className="mb-8">
             <Skeleton className="h-12 w-64 mb-4" />
@@ -65,13 +65,13 @@ export default function Favorites() {
 
   if (!session) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100 flex items-center justify-center">
+      <div className="min-h-screen bg-linear-to-br from-slate-50 via-blue-50 to-indigo-100 flex items-center justify-center">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           className="text-center p-8 bg-white rounded-2xl shadow-xl max-w-md mx-4"
         >
-          <div className="w-20 h-20 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full flex items-center justify-center mx-auto mb-6">
+          <div className="w-20 h-20 bg-linear-to-br from-blue-500 to-purple-600 rounded-full flex items-center justify-center mx-auto mb-6">
             <FaHeart className="w-10 h-10 text-white" />
           </div>
           <h2 className="text-2xl font-bold text-slate-800 mb-4">
@@ -82,7 +82,7 @@ export default function Favorites() {
           </p>
           <Link
             href="/login"
-            className="inline-block px-6 py-3 bg-gradient-to-r from-blue-500 to-purple-600 text-white rounded-lg font-semibold hover:from-blue-600 hover:to-purple-700 transition-all duration-300"
+            className="inline-block px-6 py-3 bg-linear-to-r from-blue-500 to-purple-600 text-white rounded-lg font-semibold hover:from-blue-600 hover:to-purple-700 transition-all duration-300"
           >
             Iniciar Sesión
           </Link>
@@ -92,7 +92,7 @@ export default function Favorites() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900">
+    <div className="min-h-screen bg-linear-to-br from-slate-900 via-slate-800 to-slate-900">
       <div className="container mx-auto px-4 py-8">
         <motion.div
           initial={{ opacity: 0, y: -20 }}
@@ -100,11 +100,11 @@ export default function Favorites() {
           className="mb-8"
         >
           <div className="flex items-center gap-4 mb-4">
-            <div className="w-12 h-12 bg-gradient-to-br from-red-600 to-pink-600 rounded-full flex items-center justify-center">
+            <div className="w-12 h-12 bg-linear-to-br from-red-600 to-pink-600 rounded-full flex items-center justify-center">
               <FaHeart className="w-6 h-6 text-white" />
             </div>
             <div>
-              <h1 className="text-4xl font-bold bg-gradient-to-r from-slate-200 via-slate-200 to-slate-300 bg-clip-text text-transparent">
+              <h1 className="text-4xl font-bold bg-linear-to-r from-slate-200 via-slate-200 to-slate-300 bg-clip-text text-transparent">
                 Mis Favoritos
               </h1>
               <p className="text-slate-300 text-lg">
@@ -123,7 +123,7 @@ export default function Favorites() {
             animate={{ opacity: 1, y: 0 }}
             className="flex flex-col items-center justify-center py-20"
           >
-            <div className="w-32 h-32 bg-gradient-to-br from-slate-200 to-slate-300 rounded-full flex items-center justify-center mb-8">
+            <div className="w-32 h-32 bg-linear-to-br from-slate-200 to-slate-300 rounded-full flex items-center justify-center mb-8">
               <FaHeart className="w-16 h-16 text-slate-400" />
             </div>
             <h2 className="text-2xl font-bold text-slate-700 mb-4">
@@ -137,7 +137,7 @@ export default function Favorites() {
               <motion.button
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
-                className="flex items-center gap-3 px-8 py-4 bg-gradient-to-r from-blue-500 to-purple-600 text-white rounded-xl font-semibold hover:from-blue-600 hover:to-purple-700 transition-all duration-300 shadow-lg hover:shadow-xl"
+                className="flex items-center gap-3 px-8 py-4 bg-linear-to-r from-blue-500 to-purple-600 text-white rounded-xl font-semibold hover:from-blue-600 hover:to-purple-700 transition-all duration-300 shadow-lg hover:shadow-xl"
               >
                 <FaShoppingBag className="w-5 h-5" />
                 Explorar Productos

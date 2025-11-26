@@ -3,7 +3,7 @@ import { RiInstagramFill } from "react-icons/ri";
 import { RiYoutubeFill } from "react-icons/ri";
 import { RiTwitterXFill } from "react-icons/ri";
 import { RiWhatsappFill } from "react-icons/ri";
-import { Mail, MapPin, Phone, ArrowRight, Heart, ShoppingBag, Truck, Shield } from "lucide-react";
+import { Mail, MapPin, Phone, ArrowRight } from "lucide-react";
 
 import Image from "next/image";
 import React from 'react';
@@ -50,7 +50,7 @@ export const Footer = () => {
 
 
   return (
-    <footer className="relative bg-gradient-to-br  text-white overflow-hidden">
+    <footer className="relative bg-linear-to-br  text-white overflow-hidden">
       {/* Decorative Background Elements */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
         <div className="absolute top-0 left-1/4 w-96 h-96 bg-blue-500/10 rounded-full blur-3xl"></div>
@@ -68,7 +68,7 @@ export const Footer = () => {
             <div className="lg:col-span-4 space-y-4">
               <div className="flex items-center justify-center lg:justify-start">
                 <div className="relative group">
-                  <div className="absolute -inset-1 bg-gradient-to-r from-blue-500 via-indigo-500 to-purple-500 rounded-full blur-lg opacity-40 group-hover:opacity-60 transition-opacity"></div>
+                  <div className="absolute -inset-1 bg-linear-to-r from-blue-500 via-indigo-500 to-purple-500 rounded-full blur-lg opacity-40 group-hover:opacity-60 transition-opacity"></div>
                   <Image
                     src={"/imgs/NomLogo2.png"}
                     alt="Logo"
@@ -128,7 +128,7 @@ export const Footer = () => {
             <div className="lg:col-span-8 grid grid-cols-2 md:grid-cols-4 gap-6">
               {/* Company Links */}
               <div>
-                <h3 className="text-base font-bold mb-4 bg-gradient-to-r from-blue-300 to-cyan-300 bg-clip-text text-transparent">
+                <h3 className="text-base font-bold mb-4 bg-linear-to-r from-blue-300 to-cyan-300 bg-clip-text text-transparent">
                   Compañía
                 </h3>
                 <ul className="space-y-2">
@@ -150,7 +150,7 @@ export const Footer = () => {
 
               {/* Shop Links */}
               <div>
-                <h3 className="text-base font-bold mb-4 bg-gradient-to-r from-indigo-300 to-purple-300 bg-clip-text text-transparent">
+                <h3 className="text-base font-bold mb-4 bg-linear-to-r from-indigo-300 to-purple-300 bg-clip-text text-transparent">
                   Tienda
                 </h3>
                 <ul className="space-y-2">
@@ -172,7 +172,7 @@ export const Footer = () => {
 
               {/* Support Links */}
               <div>
-                <h3 className="text-base font-bold mb-4 bg-gradient-to-r from-purple-300 to-pink-300 bg-clip-text text-transparent">
+                <h3 className="text-base font-bold mb-4 bg-linear-to-r from-purple-300 to-pink-300 bg-clip-text text-transparent">
                   Soporte
                 </h3>
                 <ul className="space-y-2">
@@ -194,7 +194,7 @@ export const Footer = () => {
 
               {/* Legal Links */}
               <div>
-                <h3 className="text-base font-bold mb-4 bg-gradient-to-r from-cyan-300 to-blue-300 bg-clip-text text-transparent">
+                <h3 className="text-base font-bold mb-4 bg-linear-to-r from-cyan-300 to-blue-300 bg-clip-text text-transparent">
                   Legal
                 </h3>
                 <ul className="space-y-2">
@@ -221,7 +221,7 @@ export const Footer = () => {
         <div className="border-t border-white/15">
           <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-6">
             <div className="max-w-xl mx-auto text-center">
-              <h3 className="text-lg font-bold mb-2 bg-gradient-to-r from-blue-300 via-indigo-300 to-purple-300 bg-clip-text text-transparent">
+              <h3 className="text-lg font-bold mb-2 bg-linear-to-r from-blue-300 via-indigo-300 to-purple-300 bg-clip-text text-transparent">
                 Suscríbete a nuestro Newsletter
               </h3>
               <p className="text-gray-200 mb-4 text-sm">
@@ -235,7 +235,7 @@ export const Footer = () => {
                 />
                 <button
                   type="submit"
-                  className="px-4 py-2.5 rounded-lg bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 font-semibold text-white shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-300 flex items-center justify-center gap-1.5"
+                  className="px-4 py-2.5 rounded-lg bg-linear-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 font-semibold text-white shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-300 flex items-center justify-center gap-1.5"
                 >
                   <span className="text-sm">Suscribirse</span>
                   <ArrowRight className="w-3.5 h-3.5" />
@@ -253,13 +253,13 @@ export const Footer = () => {
                 © {currentYear} <span className="font-semibold text-white">Tu Tienda</span>. Todos los derechos reservados.
               </p>
               <div className="flex items-center gap-4">
-                <Link href="/terms" className="hover:text-white transition-colors text-gray-300 hover:text-white">
+                <Link href="/terms" className=" transition-colors text-gray-300 hover:text-white">
                   Términos
                 </Link>
-                <Link href="/privacy" className="hover:text-white transition-colors text-gray-300 hover:text-white">
+                <Link href="/privacy" className=" transition-colors text-gray-300 hover:text-white">
                   Privacidad
                 </Link>
-                <Link href="/cookies" className="hover:text-white transition-colors text-gray-300 hover:text-white">
+                <Link href="/cookies" className=" transition-colors text-gray-300 hover:text-white">
                   Cookies
                 </Link>
               </div>

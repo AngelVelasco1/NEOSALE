@@ -10,6 +10,10 @@ export interface Customer {
   role: string;
   active: boolean;
   created_at: Date;
+  total_orders: number;
+  total_spent: number;
+  average_spent: number;
+  last_order_date: Date | null;
 }
 
 export interface FetchCustomersParams {

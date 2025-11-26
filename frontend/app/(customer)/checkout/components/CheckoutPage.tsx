@@ -34,7 +34,7 @@ export default function CheckoutPage({
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100 py-8">
+    <div className="min-h-screen bg-linear-to-br from-slate-50 via-blue-50 to-indigo-100 py-8">
       <div className="container mx-auto px-4">
         <div className="max-w-2xl mx-auto">
           <div className="text-center mb-8">

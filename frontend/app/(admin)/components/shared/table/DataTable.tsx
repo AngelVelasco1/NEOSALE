@@ -64,7 +64,7 @@ export default function DataTable<TData>({
             {table.getHeaderGroups().map((headerGroup) => (
               <TableRow
                 key={headerGroup.id}
-                className="bg-gradient-to-r from-slate-50 via-blue-50/30 to-slate-50 dark:from-slate-800/80 dark:via-blue-950/20 dark:to-slate-800/80 border-b border-slate-200/80 dark:border-slate-700/50"
+                className="bg-linear-to-r from-slate-50 via-blue-50/30 to-slate-50 dark:from-slate-800/80 dark:via-blue-950/20 dark:to-slate-800/80 border-b border-slate-200/80 dark:border-slate-700/50"
               >
                 {headerGroup.headers.map((header) => {
                   return (
@@ -93,8 +93,8 @@ export default function DataTable<TData>({
                   data-state={row.getIsSelected() && "selected"}
                   className={cn(
                     "border-b border-slate-100/60 dark:border-slate-800/40 transition-all duration-200",
-                    "hover:bg-gradient-to-r hover:from-slate-50/80 hover:via-blue-50/20 hover:to-slate-50/80 dark:hover:from-slate-800/40 dark:hover:via-blue-950/10 dark:hover:to-slate-800/40",
-                    row.getIsSelected() && "bg-gradient-to-r from-blue-50/60 via-blue-50/40 to-blue-50/60 dark:from-blue-950/30 dark:via-blue-950/20 dark:to-blue-950/30 hover:from-blue-50 hover:to-blue-50 dark:hover:from-blue-950/40 dark:hover:to-blue-950/40"
+                    "hover:bg-linear-to-r hover:from-slate-50/80 hover:via-blue-50/20 hover:to-slate-50/80 dark:hover:from-slate-800/40 dark:hover:via-blue-950/10 dark:hover:to-slate-800/40",
+                    row.getIsSelected() && "bg-linear-to-r from-blue-50/60 via-blue-50/40 to-blue-50/60 dark:from-blue-950/30 dark:via-blue-950/20 dark:to-blue-950/30 hover:from-blue-50 hover:to-blue-50 dark:hover:from-blue-950/40 dark:hover:to-blue-950/40"
                   )}
                 >
                   {row.getVisibleCells().map((cell) => (
@@ -114,7 +114,7 @@ export default function DataTable<TData>({
                   className="h-56 text-center"
                 >
                   <div className="flex flex-col items-center justify-center gap-2.5 py-10">
-                    <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-slate-100 to-slate-200/80 dark:from-slate-800 dark:to-slate-700/80 flex items-center justify-center shadow-sm">
+                    <div className="w-16 h-16 rounded-2xl bg-linear-to-br from-slate-100 to-slate-200/80 dark:from-slate-800 dark:to-slate-700/80 flex items-center justify-center shadow-sm">
                       <svg
                         className="w-8 h-8 text-slate-400 dark:text-slate-500"
                         fill="none"
@@ -147,13 +147,13 @@ export default function DataTable<TData>({
 
       {/* Pagination */}
       {pagination.items > 0 && (
-        <div className="flex flex-col sm:flex-row items-center justify-between gap-3 px-6 py-3.5 bg-gradient-to-r from-slate-50/80 via-blue-50/20 to-slate-50/80 dark:from-slate-800/40 dark:via-blue-950/10 dark:to-slate-800/40 border-t border-slate-200/60 dark:border-slate-700/50">
+        <div className="flex flex-col sm:flex-row items-center justify-between gap-3 px-6 py-3.5 bg-linear-to-r from-slate-50/80 via-blue-50/20 to-slate-50/80 dark:from-slate-800/40 dark:via-blue-950/10 dark:to-slate-800/40 border-t border-slate-200/60 dark:border-slate-700/50">
           {/* Results Info */}
           <div className="flex items-center gap-2 text-xs">
             <span className="text-slate-600 dark:text-slate-400 font-medium">
               Mostrando
             </span>
-            <span className="px-2.5 py-1 bg-gradient-to-br from-white to-slate-50/80 dark:from-slate-800 dark:to-slate-700/80 rounded-lg border border-slate-200/80 dark:border-slate-700/60 font-bold text-slate-700 dark:text-slate-300 shadow-sm">
+            <span className="px-2.5 py-1 bg-linear-to-br from-white to-slate-50/80 dark:from-slate-800 dark:to-slate-700/80 rounded-lg border border-slate-200/80 dark:border-slate-700/60 font-bold text-slate-700 dark:text-slate-300 shadow-sm">
               {Math.max((pagination.current - 1) * pagination.limit + 1, 1)} - {Math.min(pagination.current * pagination.limit, pagination.items)}
             </span>
             <span className="text-slate-600 dark:text-slate-400 font-medium">
@@ -172,7 +172,7 @@ export default function DataTable<TData>({
                     "inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all duration-200",
                     "border",
                     pagination.prev
-                      ? "bg-gradient-to-br from-white to-slate-50/80 dark:from-slate-800 dark:to-slate-700/80 text-slate-700 dark:text-slate-300 border-slate-200/80 dark:border-slate-700/60 hover:shadow-md hover:scale-[1.02] shadow-sm"
+                      ? "bg-linear-to-br from-white to-slate-50/80 dark:from-slate-800 dark:to-slate-700/80 text-slate-700 dark:text-slate-300 border-slate-200/80 dark:border-slate-700/60 hover:shadow-md hover:scale-[1.02] shadow-sm"
                       : "bg-slate-100/80 dark:bg-slate-800/50 text-slate-400 dark:text-slate-600 border-slate-200/60 dark:border-slate-700/40 cursor-not-allowed opacity-50"
                   )}
                 >
@@ -191,10 +191,10 @@ export default function DataTable<TData>({
                     <button
                       onClick={() => handlePaginationButton(page)}
                       className={cn(
-                        "min-w-[32px] h-[32px] rounded-lg text-xs font-bold transition-all duration-200 border",
+                        "min-w-8 h-8 rounded-lg text-xs font-bold transition-all duration-200 border",
                         page === pagination.current
-                          ? "bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 dark:from-slate-100 dark:via-slate-200 dark:to-slate-100 text-white dark:text-slate-900 border-slate-900 dark:border-slate-200 shadow-lg shadow-slate-900/20 dark:shadow-slate-100/10 scale-105"
-                          : "bg-gradient-to-br from-white to-slate-50/80 dark:from-slate-800 dark:to-slate-700/80 text-slate-700 dark:text-slate-300 border-slate-200/80 dark:border-slate-700/60 hover:shadow-md hover:scale-[1.05] shadow-sm"
+                          ? "bg-linear-to-br from-slate-900 via-slate-800 to-slate-900 dark:from-slate-100 dark:via-slate-200 dark:to-slate-100 text-white dark:text-slate-900 border-slate-900 dark:border-slate-200 shadow-lg shadow-slate-900/20 dark:shadow-slate-100/10 scale-105"
+                          : "bg-linear-to-br from-white to-slate-50/80 dark:from-slate-800 dark:to-slate-700/80 text-slate-700 dark:text-slate-300 border-slate-200/80 dark:border-slate-700/60 hover:shadow-md hover:scale-[1.05] shadow-sm"
                       )}
                     >
                       {page}
@@ -211,7 +211,7 @@ export default function DataTable<TData>({
                     "inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all duration-200",
                     "border",
                     pagination.next
-                      ? "bg-gradient-to-br from-white to-slate-50/80 dark:from-slate-800 dark:to-slate-700/80 text-slate-700 dark:text-slate-300 border-slate-200/80 dark:border-slate-700/60 hover:shadow-md hover:scale-[1.02] shadow-sm"
+                      ? "bg-linear-to-br from-white to-slate-50/80 dark:from-slate-800 dark:to-slate-700/80 text-slate-700 dark:text-slate-300 border-slate-200/80 dark:border-slate-700/60 hover:shadow-md hover:scale-[1.02] shadow-sm"
                       : "bg-slate-100/80 dark:bg-slate-800/50 text-slate-400 dark:text-slate-600 border-slate-200/60 dark:border-slate-700/40 cursor-not-allowed opacity-50"
                   )}
                 >

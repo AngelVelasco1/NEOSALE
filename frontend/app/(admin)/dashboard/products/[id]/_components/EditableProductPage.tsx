@@ -218,11 +218,11 @@ export function EditableProductPage({
     return (
         <section className="space-y-6">
             {/* Header mejorado con información del producto */}
-            <div className="relative p-7 rounded-3xl bg-gradient-to-br from-slate-900/70 to-slate-800/50 border border-slate-700/40 backdrop-blur-xl shadow-2xl overflow-hidden">
+            <div className="relative p-7 rounded-3xl bg-linear-to-br from-slate-900/70 to-slate-800/50 border border-slate-700/40 backdrop-blur-xl shadow-2xl overflow-hidden">
                 {/* Efectos de fondo */}
-                <div className="absolute inset-0 bg-gradient-to-r from-blue-500/5 via-purple-500/10 to-cyan-500/5" />
-                <div className="absolute -top-24 -right-24 w-48 h-48 bg-gradient-to-br from-blue-500/20 to-purple-500/20 rounded-full blur-3xl" />
-                <div className="absolute -bottom-24 -left-24 w-48 h-48 bg-gradient-to-br from-purple-500/20 to-pink-500/20 rounded-full blur-3xl" />
+                <div className="absolute inset-0 bg-linear-to-r from-blue-500/5 via-purple-500/10 to-cyan-500/5" />
+                <div className="absolute -top-24 -right-24 w-48 h-48 bg-linear-to-br from-blue-500/20 to-purple-500/20 rounded-full blur-3xl" />
+                <div className="absolute -bottom-24 -left-24 w-48 h-48 bg-linear-to-br from-purple-500/20 to-pink-500/20 rounded-full blur-3xl" />
                 <div className="relative mb-4 pb-4 border-b border-slate-700/30">
                     <div className="flex items-center gap-2 text-sm">
                         <Link href="/dashboard" className="text-slate-500 hover:text-slate-300 transition-colors flex items-center gap-1">
@@ -296,7 +296,7 @@ export function EditableProductPage({
                                         className="flex items-center gap-3 cursor-pointer rounded-lg p-2 -m-2 hover:bg-slate-800/30 transition-colors"
                                         onClick={() => handleEditStart("name", product.name)}
                                     >
-                                        <Typography variant="h1" className="text-4xl lg:text-5xl font-black bg-gradient-to-r from-white via-blue-100 to-purple-100 bg-clip-text text-transparent leading-tight">
+                                        <Typography variant="h1" className="text-4xl lg:text-5xl font-black bg-linear-to-r from-white via-blue-100 to-purple-100 bg-clip-text text-transparent leading-tight">
                                             {product.name}
                                         </Typography>
                                         <Edit3 className="h-5 w-5 text-slate-500 opacity-0 group-hover:opacity-100 transition-opacity" />
@@ -324,7 +324,7 @@ export function EditableProductPage({
                     {/* Métricas rápidas del header */}
                     <div className="flex flex-col sm:flex-row gap-4">
                         <div className="flex flex-col items-center p-4 rounded-2xl bg-slate-800/50 border border-slate-700/50 backdrop-blur-sm min-w-24">
-                            <Typography className="text-3xl font-bold bg-gradient-to-b from-green-400 to-emerald-500 bg-clip-text text-transparent">
+                            <Typography className="text-3xl font-bold bg-linear-to-b from-green-400 to-emerald-500 bg-clip-text text-transparent">
                                 {totalStock}
                             </Typography>
                             <Typography className="text-xs text-slate-400 text-center">Stock Total</Typography>
@@ -332,7 +332,7 @@ export function EditableProductPage({
 
                         {totalVariants > 0 && (
                             <div className="flex flex-col items-center p-4 rounded-2xl bg-slate-800/50 border border-slate-700/50 backdrop-blur-sm min-w-24">
-                                <Typography className="text-3xl font-bold bg-gradient-to-b from-purple-400 to-pink-500 bg-clip-text text-transparent">
+                                <Typography className="text-3xl font-bold bg-linear-to-b from-purple-400 to-pink-500 bg-clip-text text-transparent">
                                     {totalVariants}
                                 </Typography>
                                 <Typography className="text-xs text-slate-400 text-center">Variantes</Typography>
@@ -340,8 +340,8 @@ export function EditableProductPage({
                         )}
 
                         {product.in_offer && (
-                            <div className="flex flex-col items-center p-4 rounded-2xl bg-gradient-to-br from-orange-500/20 to-red-500/20 border border-orange-500/30 backdrop-blur-sm min-w-24">
-                                <Typography className="text-3xl font-bold bg-gradient-to-b from-orange-400 to-red-500 bg-clip-text text-transparent">
+                            <div className="flex flex-col items-center p-4 rounded-2xl bg-linear-to-br from-orange-500/20 to-red-500/20 border border-orange-500/30 backdrop-blur-sm min-w-24">
+                                <Typography className="text-3xl font-bold bg-linear-to-b from-orange-400 to-red-500 bg-clip-text text-transparent">
                                     {product.offer_discount ? Number(product.offer_discount) : 0}%
                                 </Typography>
                                 <Typography className="text-xs text-orange-300 text-center font-medium">En Oferta</Typography>
@@ -355,7 +355,7 @@ export function EditableProductPage({
             {/* Columna principal - Información del producto EDITABLE */}
             <div className="xl:col-span-2 space-y-6">
                 {/* Card de información principal */}
-                <div className="p-6 rounded-2xl bg-gradient-to-br from-slate-900/50 to-slate-800/50 border border-slate-700/50 backdrop-blur-sm shadow-xl">
+                <div className="p-6 rounded-2xl bg-linear-to-br from-slate-900/50 to-slate-800/50 border border-slate-700/50 backdrop-blur-sm shadow-xl">
                     <div className="grid grid-cols-[1.5fr_2fr] gap-6">
                         {/* Imagen principal */}
                         <div className="shrink-0 w-full ">
@@ -363,7 +363,7 @@ export function EditableProductPage({
                                 className="relative aspect-square rounded-xl overflow-hidden bg-slate-900/50 border border-slate-700/50 shadow-lg group cursor-pointer"
                                 onClick={() => openGallery(0)}
                             >
-                                <div className="absolute inset-0 bg-gradient-to-br from-blue-500/10 via-purple-500/10 to-pink-500/10 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+                                <div className="absolute inset-0 bg-linear-to-br from-blue-500/10 via-purple-500/10 to-pink-500/10 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
                                 <Image
                                     src={primaryImage}
                                     alt={product.name}
@@ -372,7 +372,7 @@ export function EditableProductPage({
                                     className="object-cover"
                                 />
                                 {product.in_offer && (
-                                    <div className="absolute top-3 right-3 px-3 py-1 rounded-full bg-gradient-to-r from-orange-500 to-red-500 shadow-lg">
+                                    <div className="absolute top-3 right-3 px-3 py-1 rounded-full bg-linear-to-r from-orange-500 to-red-500 shadow-lg">
                                         <span className="text-xs font-bold text-white">
                                             {product.offer_discount ? Number(product.offer_discount) : 0}% OFF
                                         </span>
@@ -456,7 +456,7 @@ export function EditableProductPage({
                                             className="flex items-center gap-3 cursor-pointer rounded-lg p-2 -m-2 hover:bg-slate-800/30 transition-colors mb-3 group/title"
                                             onClick={() => handleEditStart("name_detail", product.name)}
                                         >
-                                            <Typography variant="h1" className="text-3xl font-bold bg-gradient-to-r from-white to-slate-300 bg-clip-text text-transparent">
+                                            <Typography variant="h1" className="text-3xl font-bold bg-linear-to-r from-white to-slate-300 bg-clip-text text-transparent">
                                                 {product.name}
                                             </Typography>
                                             <Edit3 className="h-4 w-4 text-slate-500 opacity-0 group-hover/title:opacity-100 transition-opacity" />
@@ -472,7 +472,7 @@ export function EditableProductPage({
 
                                 <div className="group/price">
                                     {editingField === "price" ? (
-                                        <div className="flex items-center gap-2 p-4 rounded-xl bg-gradient-to-br from-blue-500/10 to-purple-500/10 border border-blue-500/50">
+                                        <div className="flex items-center gap-2 p-4 rounded-xl bg-linear-to-br from-blue-500/10 to-purple-500/10 border border-blue-500/50">
                                             <span className="text-slate-400 text-sm">$</span>
                                             <Input
                                                 type="number"
@@ -502,10 +502,10 @@ export function EditableProductPage({
                                         </div>
                                     ) : (
                                         <div
-                                            className="group/price p-4 rounded-xl bg-gradient-to-br from-blue-500/10 to-purple-500/10 border border-blue-500/20 inline-flex items-baseline gap-2 cursor-pointer hover:border-blue-500/40 transition-colors relative"
+                                            className="group/price p-4 rounded-xl bg-linear-to-br from-blue-500/10 to-purple-500/10 border border-blue-500/20 inline-flex items-baseline gap-2 cursor-pointer hover:border-blue-500/40 transition-colors relative"
                                             onClick={() => handleEditStart("price", product.price)}
                                         >
-                                            <Typography className="text-5xl font-black bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-transparent">
+                                            <Typography className="text-5xl font-black bg-linear-to-r from-blue-400 to-purple-400 bg-clip-text text-transparent">
                                                 ${product.price.toLocaleString()}
                                             </Typography>
                                             <span className="text-slate-400 text-sm">COP</span>
@@ -565,7 +565,7 @@ export function EditableProductPage({
                             {/* Info grid EDITABLE */}
                             <div className="grid grid-cols-2 gap-4 pt-3 px-3">
                                 {/* Stock Total (calculado solo de variantes) */}
-                                <div className="flex items-center gap-3 p-3 rounded-lg bg-gradient-to-br from-green-500/10 to-emerald-500/10 border border-green-500/30">
+                                <div className="flex items-center gap-3 p-3 rounded-lg bg-linear-to-br from-green-500/10 to-emerald-500/10 border border-green-500/30">
                                     <div className="size-2 rounded-full bg-green-400 shadow-lg shadow-green-400/50" />
                                     <div>
                                         <Typography className="text-xs text-green-300 block">Stock</Typography>
@@ -574,7 +574,7 @@ export function EditableProductPage({
                                 </div>
 
                                 {/* Marca */}
-                                <div className="flex items-center gap-3 p-3 rounded-lg bg-gradient-to-br from-blue-500/10 to-indigo-500/10 border border-blue-500/30">
+                                <div className="flex items-center gap-3 p-3 rounded-lg bg-linear-to-br from-blue-500/10 to-indigo-500/10 border border-blue-500/30">
                                     <div className="size-2 rounded-full bg-blue-400 shadow-lg shadow-blue-400/50" />
                                     <div>
                                         <Typography className="text-xs text-blue-300 block">Marca</Typography>
@@ -700,7 +700,7 @@ export function EditableProductPage({
                                 </div>
 
                                 {product.in_offer && (
-                                    <div className="p-4 rounded-xl bg-gradient-to-br from-orange-500/10 to-red-500/10 border border-orange-500/30">
+                                    <div className="p-4 rounded-xl bg-linear-to-br from-orange-500/10 to-red-500/10 border border-orange-500/30">
                                         <div className="group/discount">
                                             {editingField === "offer_discount" ? (
                                                 <div className="flex items-center gap-2">

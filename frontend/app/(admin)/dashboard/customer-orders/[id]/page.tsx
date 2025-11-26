@@ -39,7 +39,7 @@ export default async function CustomerOrders({ params }: PageParams) {
     return (
       <section className="space-y-6">
         {/* Customer Info Card */}
-        <Card className="p-6 bg-gradient-to-br from-slate-900/50 to-slate-800/50 border-slate-700/50">
+        <Card className="p-6 bg-linear-to-br from-slate-900/50 to-slate-800/50 border-slate-700/50">
           <div className="flex items-center justify-between">
             <div>
               <Typography variant="h2" className="text-2xl font-bold mb-2">

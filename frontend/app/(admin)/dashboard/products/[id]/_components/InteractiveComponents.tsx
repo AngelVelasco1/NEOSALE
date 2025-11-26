@@ -185,15 +185,15 @@ export function QuickStats({ stats }: QuickStatsProps) {
     return (
         <div className="grid grid-cols-2 gap-3">
             {stats.map((stat, index) => (
-                <div key={index} className="p-4 rounded-xl bg-gradient-to-br from-slate-800/70 to-slate-900/50 border border-slate-700/50 shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105">
+                <div key={index} className="p-4 rounded-xl bg-linear-to-br from-slate-800/70 to-slate-900/50 border border-slate-700/50 shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105">
                     <div className="flex items-center justify-between mb-3">
                         <div className={`p-2 rounded-lg ${stat.color}`}>
                             {stat.icon}
                         </div>
                         {stat.trend && (
                             <div className={`flex items-center gap-1 text-xs px-2 py-1 rounded-full ${stat.trend.isPositive
-                                    ? "bg-green-500/10 text-green-400"
-                                    : "bg-red-500/10 text-red-400"
+                                ? "bg-green-500/10 text-green-400"
+                                : "bg-red-500/10 text-red-400"
                                 }`}>
                                 {stat.trend.isPositive ? <TrendingUp className="h-3 w-3" /> : <TrendingDown className="h-3 w-3" />}
                                 {stat.trend.value}%
@@ -234,7 +234,7 @@ export function ImageGallery({ images, productName }: ImageGalleryProps) {
         <div className="space-y-4">
             {/* Imagen principal */}
             <div className="relative aspect-square rounded-xl overflow-hidden bg-slate-900/50 border border-slate-700/50 shadow-lg group">
-                <div className="absolute inset-0 bg-gradient-to-br from-blue-500/10 via-purple-500/10 to-pink-500/10 opacity-0 group-hover:opacity-100 transition-opacity duration-500 z-10" />
+                <div className="absolute inset-0 bg-linear-to-br from-blue-500/10 via-purple-500/10 to-pink-500/10 opacity-0 group-hover:opacity-100 transition-opacity duration-500 z-10" />
                 <img
                     src={images[selectedImage]?.image_url || "/placeholder.svg"}
                     alt={`${productName} - ${selectedImage + 1}`}
@@ -243,7 +243,7 @@ export function ImageGallery({ images, productName }: ImageGalleryProps) {
 
                 {/* Indicador de imagen principal */}
                 {images[selectedImage]?.is_primary && (
-                    <div className="absolute top-3 left-3 px-3 py-1 rounded-full bg-gradient-to-r from-blue-500 to-purple-500 shadow-lg z-20">
+                    <div className="absolute top-3 left-3 px-3 py-1 rounded-full bg-linear-to-r from-blue-500 to-purple-500 shadow-lg z-20">
                         <span className="text-xs font-bold text-white">Principal</span>
                     </div>
                 )}
@@ -285,8 +285,8 @@ export function ImageGallery({ images, productName }: ImageGalleryProps) {
                         <div
                             key={idx}
                             className={`relative aspect-square rounded-lg overflow-hidden cursor-pointer border-2 transition-all duration-300 hover:scale-105 ${idx === selectedImage
-                                    ? "border-blue-500 shadow-lg shadow-blue-500/30"
-                                    : "border-slate-700/50 hover:border-slate-600"
+                                ? "border-blue-500 shadow-lg shadow-blue-500/30"
+                                : "border-slate-700/50 hover:border-slate-600"
                                 }`}
                             onClick={() => setSelectedImage(idx)}
                         >

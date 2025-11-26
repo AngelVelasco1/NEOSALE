@@ -134,7 +134,7 @@ export default function OrdersPage() {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 flex items-center justify-center p-4">
+      <div className="min-h-screen bg-linear-to-br from-slate-900 via-purple-900 to-slate-900 flex items-center justify-center p-4">
         <motion.div
           initial={{ opacity: 0, scale: 0.9 }}
           animate={{ opacity: 1, scale: 1 }}
@@ -154,7 +154,7 @@ export default function OrdersPage() {
 
   if (error) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 p-4">
+      <div className="min-h-screen bg-linear-to-br from-slate-900 via-purple-900 to-slate-900 p-4">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
@@ -186,7 +186,7 @@ export default function OrdersPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 py-8 md:py-12 relative overflow-hidden">
+    <div className="min-h-screen bg-linear-to-br from-slate-900 via-purple-900 to-slate-900 py-8 md:py-12 relative overflow-hidden">
       {/* Animated background particles */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
         {[...Array(15)].map((_, i) => (
@@ -225,12 +225,12 @@ export default function OrdersPage() {
                     damping: 20,
                     delay: 0.1,
                   }}
-                  className="w-16 h-16 rounded-2xl bg-gradient-to-br from-purple-500 to-pink-500 flex items-center justify-center shadow-lg"
+                  className="w-16 h-16 rounded-2xl bg-linear-to-br from-purple-500 to-pink-500 flex items-center justify-center shadow-lg"
                 >
                   <ShoppingBag className="w-8 h-8 text-white" />
                 </motion.div>
                 <div>
-                  <h1 className="text-3xl md:text-4xl font-bold bg-gradient-to-r from-purple-300 via-pink-300 to-purple-300 bg-clip-text text-transparent mb-2">
+                  <h1 className="text-3xl md:text-4xl font-bold bg-linear-to-r from-purple-300 via-pink-300 to-purple-300 bg-clip-text text-transparent mb-2">
                     Mis Órdenes
                   </h1>
                   <p className="text-slate-400 text-sm md:text-base">
@@ -257,7 +257,7 @@ export default function OrdersPage() {
                     <p className="text-sm text-slate-400 mb-1">
                       Total invertido
                     </p>
-                    <p className="text-2xl font-bold bg-gradient-to-r from-purple-300 to-pink-300 bg-clip-text text-transparent">
+                    <p className="text-2xl font-bold bg-linear-to-r from-purple-300 to-pink-300 bg-clip-text text-transparent">
                       $
                       {orders
                         .reduce(
@@ -301,7 +301,7 @@ export default function OrdersPage() {
                   {
                     label: "Confirmadas",
                     count: orders.filter(
-                      (o) => o.status === "confirmed" || o.status === "paid"
+                      (o) => o.status === "confirmed" || String(o.status) === "paid"
                     ).length,
                     color: "purple",
                     bgColor: "from-purple-500/20 to-pink-500/20",
@@ -322,7 +322,7 @@ export default function OrdersPage() {
                     initial={{ opacity: 0, scale: 0.9 }}
                     animate={{ opacity: 1, scale: 1 }}
                     transition={{ delay: 0.5 + idx * 0.1 }}
-                    className={`relative overflow-hidden bg-gradient-to-br ${stat.bgColor} backdrop-blur-sm border ${stat.borderColor} rounded-2xl p-5 hover:scale-105 transition-all duration-300 group`}
+                    className={`relative overflow-hidden bg-linear-to-br ${stat.bgColor} backdrop-blur-sm border ${stat.borderColor} rounded-2xl p-5 hover:scale-105 transition-all duration-300 group`}
                   >
                     <div className="relative">
                       <p className="text-xs font-medium text-slate-400 uppercase tracking-wider mb-2">
@@ -359,7 +359,7 @@ export default function OrdersPage() {
                   }}
                   className="relative w-32 h-32 mx-auto mb-8"
                 >
-                  <div className="absolute inset-0 bg-gradient-to-br from-purple-500/30 to-pink-500/30 rounded-3xl flex items-center justify-center shadow-xl backdrop-blur-sm">
+                  <div className="absolute inset-0 bg-linear-to-br from-purple-500/30 to-pink-500/30 rounded-3xl flex items-center justify-center shadow-xl backdrop-blur-sm">
                     <Package className="w-16 h-16 text-purple-300" />
                   </div>
                 </motion.div>
@@ -390,7 +390,7 @@ export default function OrdersPage() {
                 >
                   <Button
                     onClick={() => router.push("/")}
-                    className="bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white shadow-lg shadow-purple-500/30 h-12 px-8 text-base font-semibold rounded-xl transition-all duration-300 hover:scale-105"
+                    className="bg-linear-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white shadow-lg shadow-purple-500/30 h-12 px-8 text-base font-semibold rounded-xl transition-all duration-300 hover:scale-105"
                   >
                     Explorar productos
                     <ChevronRight className="w-5 h-5 ml-2" />
@@ -412,10 +412,10 @@ export default function OrdersPage() {
                 >
                   <Card className="bg-slate-800/60 backdrop-blur-md border border-purple-500/20 hover:border-purple-500/40 shadow-xl hover:shadow-2xl hover:shadow-purple-500/20 transition-all duration-300 rounded-2xl overflow-hidden group">
                     {/* Card Header */}
-                    <CardHeader className="pb-4 bg-gradient-to-r from-slate-800/80 to-purple-900/30 border-b border-purple-500/20">
+                    <CardHeader className="pb-4 bg-linear-to-r from-slate-800/80 to-purple-900/30 border-b border-purple-500/20">
                       <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
                         <div className="flex items-start gap-4">
-                          <div className="w-14 h-14 rounded-xl bg-gradient-to-br from-purple-500 to-pink-500 flex items-center justify-center shadow-lg flex-shrink-0">
+                          <div className="w-14 h-14 rounded-xl bg-linear-to-br from-purple-500 to-pink-500 flex items-center justify-center shadow-lg flex-shrink-0">
                             <Package className="w-7 h-7 text-white" />
                           </div>
                           <div>
@@ -436,7 +436,7 @@ export default function OrdersPage() {
                             <span className="text-sm text-slate-400 font-medium">
                               Total:
                             </span>
-                            <p className="text-2xl font-bold bg-gradient-to-r from-purple-300 to-pink-300 bg-clip-text text-transparent">
+                            <p className="text-2xl font-bold bg-linear-to-r from-purple-300 to-pink-300 bg-clip-text text-transparent">
                               $
                               {(
                                 order.total ||
@@ -454,7 +454,7 @@ export default function OrdersPage() {
                       <div>
                         <div className="flex items-center justify-between mb-4">
                           <h4 className="font-semibold text-purple-200 text-base flex items-center gap-2">
-                            <div className="w-1.5 h-5 bg-gradient-to-b from-purple-500 to-pink-500 rounded-full" />
+                            <div className="w-1.5 h-5 bg-linear-to-b from-purple-500 to-pink-500 rounded-full" />
                             Productos
                           </h4>
                           <span className="text-sm text-slate-400 font-medium">
@@ -517,7 +517,7 @@ export default function OrdersPage() {
                                   {(
                                     item.subtotal ||
                                     (item.price || item.unit_price || 0) *
-                                      item.quantity
+                                    item.quantity
                                   ).toLocaleString("es-CO")}
                                 </p>
                                 <p className="text-xs text-slate-500">
@@ -538,7 +538,7 @@ export default function OrdersPage() {
                       {/* Additional Info */}
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-3 pt-4 border-t border-purple-500/20">
                         <div className="flex items-center gap-3 p-4 bg-slate-700/40 backdrop-blur-sm rounded-xl border border-purple-500/20">
-                          <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-purple-500/30 to-pink-500/30 shadow-sm flex items-center justify-center flex-shrink-0">
+                          <div className="w-10 h-10 rounded-lg bg-linear-to-br from-purple-500/30 to-pink-500/30 shadow-sm flex items-center justify-center flex-shrink-0">
                             <MapPin className="w-5 h-5 text-purple-300" />
                           </div>
                           <div>
@@ -551,7 +551,7 @@ export default function OrdersPage() {
                           </div>
                         </div>
                         <div className="flex items-center gap-3 p-4 bg-slate-700/40 backdrop-blur-sm rounded-xl border border-purple-500/20">
-                          <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-cyan-500/30 to-blue-500/30 shadow-sm flex items-center justify-center flex-shrink-0">
+                          <div className="w-10 h-10 rounded-lg bg-linear-to-br from-cyan-500/30 to-blue-500/30 shadow-sm flex items-center justify-center flex-shrink-0">
                             <CreditCard className="w-5 h-5 text-cyan-300" />
                           </div>
                           <div>
@@ -591,15 +591,15 @@ export default function OrdersPage() {
 
                         {(order.status === "pending" ||
                           order.status === "confirmed") && (
-                          <Button
-                            variant="outline"
-                            size="default"
-                            className="border-red-500/40 bg-red-500/10 hover:bg-red-500/20 hover:border-red-500/60 text-red-300 font-medium shadow-sm backdrop-blur-sm"
-                          >
-                            <XCircle className="w-4 h-4 mr-2" />
-                            Cancelar orden
-                          </Button>
-                        )}
+                            <Button
+                              variant="outline"
+                              size="default"
+                              className="border-red-500/40 bg-red-500/10 hover:bg-red-500/20 hover:border-red-500/60 text-red-300 font-medium shadow-sm backdrop-blur-sm"
+                            >
+                              <XCircle className="w-4 h-4 mr-2" />
+                              Cancelar orden
+                            </Button>
+                          )}
                       </div>
                     </CardContent>
                   </Card>

@@ -262,7 +262,7 @@ export default function WompiPSEForm({
                         {/* User Type Section */}
                         <div className="space-y-4">
                             <div className="flex items-center gap-3 pb-3 border-b border-slate-700/50">
-                                <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-violet-600 via-violet-700 to-indigo-700 flex items-center justify-center shadow-lg shadow-violet-500/30">
+                                <div className="w-10 h-10 rounded-xl bg-linear-to-br from-violet-600 via-violet-700 to-indigo-700 flex items-center justify-center shadow-lg shadow-violet-500/30">
                                     <User className="w-5 h-5 text-white" />
                                 </div>
                                 <h3 className="text-lg font-bold text-white">
@@ -278,7 +278,7 @@ export default function WompiPSEForm({
                                 <label
                                     htmlFor="natural"
                                     className={`relative flex items-center justify-center p-5 rounded-xl border-2 cursor-pointer transition-all duration-300 ${formData.user_type === 0
-                                        ? "border-violet-500 bg-gradient-to-br from-violet-50/10 to-indigo-50/10 shadow-lg shadow-violet-500/20"
+                                        ? "border-violet-500 bg-linear-to-br from-violet-50/10 to-indigo-50/10 shadow-lg shadow-violet-500/20"
                                         : "border-slate-600/50 bg-slate-700/30 hover:border-violet-400 hover:bg-violet-50/5 hover:shadow-md"
                                         }`}
                                 >
@@ -299,7 +299,7 @@ export default function WompiPSEForm({
                                 <label
                                     htmlFor="juridica"
                                     className={`relative flex items-center justify-center p-5 rounded-xl border-2 cursor-pointer transition-all duration-300 ${formData.user_type === 1
-                                        ? "border-indigo-500 bg-gradient-to-br from-indigo-50/10 to-blue-50/10 shadow-lg shadow-indigo-500/20"
+                                        ? "border-indigo-500 bg-linear-to-br from-indigo-50/10 to-blue-50/10 shadow-lg shadow-indigo-500/20"
                                         : "border-slate-600/50 bg-slate-700/30 hover:border-indigo-400 hover:bg-indigo-50/5 hover:shadow-md"
                                         }`}
                                 >
@@ -322,7 +322,7 @@ export default function WompiPSEForm({
                         {/* Identification Section */}
                         <div className="space-y-4">
                             <div className="flex items-center gap-3 pb-3 border-b border-slate-700/50">
-                                <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-indigo-600 via-purple-700 to-indigo-700 flex items-center justify-center shadow-lg shadow-indigo-500/30">
+                                <div className="w-10 h-10 rounded-xl bg-linear-to-br from-indigo-600 via-purple-700 to-indigo-700 flex items-center justify-center shadow-lg shadow-indigo-500/30">
                                     <FileText className="w-5 h-5 text-white" />
                                 </div>
                                 <h3 className="text-lg font-bold text-white">
@@ -374,7 +374,7 @@ export default function WompiPSEForm({
                         {/* Contact Information Section */}
                         <div className="space-y-4">
                             <div className="flex items-center gap-3 pb-3 border-b border-slate-700/50">
-                                <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-indigo-600 via-violet-700 to-purple-700 flex items-center justify-center shadow-lg shadow-slate-500/30">
+                                <div className="w-10 h-10 rounded-xl bg-linear-to-br from-indigo-600 via-violet-700 to-purple-700 flex items-center justify-center shadow-lg shadow-slate-500/30">
                                     <Mail className="w-5 h-5 text-white" />
                                 </div>
                                 <h3 className="text-lg font-bold text-white">
@@ -443,7 +443,7 @@ export default function WompiPSEForm({
                         {/* Bank Selection Section */}
                         <div className="space-y-4">
                             <div className="flex items-center gap-3 pb-3 border-b border-slate-700/50">
-                                <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-indigo-600 via-purple-700 to-indigo-700 flex items-center justify-center shadow-lg shadow-indigo-500/30">
+                                <div className="w-10 h-10 rounded-xl bg-linear-to-br from-indigo-600 via-purple-700 to-indigo-700 flex items-center justify-center shadow-lg shadow-indigo-500/30">
                                     <Building2 className="w-5 h-5 text-white" />
                                 </div>
                                 <h3 className="text-lg font-bold text-white">
@@ -479,7 +479,7 @@ export default function WompiPSEForm({
 
                         {/* Security Info & Submit */}
                         <div className="pt-4 space-y-5">
-                            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 p-5 bg-gradient-to-br from-indigo-600/10 via-purple-600/10 to-blue-600/10 rounded-xl border border-slate-700/50">
+                            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 p-5 bg-linear-to-br from-indigo-600/10 via-purple-600/10 to-blue-600/10 rounded-xl border border-slate-700/50">
                                 <div className="flex items-center gap-3">
                                     <div className="w-10 h-10 rounded-xl bg-slate-700/50 flex items-center justify-center shadow-md">
                                         <Shield className="w-5 h-5 text-violet-400" />
@@ -511,7 +511,7 @@ export default function WompiPSEForm({
 
                             <Button
                                 type="submit"
-                                className="w-full h-14 text-base font-bold bg-gradient-to-r from-indigo-600 via-purple-600 to-blue-600 hover:from-indigo-700 hover:via-purple-700 hover:to-blue-700 text-white rounded-xl shadow-lg shadow-indigo-500/30 hover:shadow-xl hover:shadow-indigo-500/40 transition-all"
+                                className="w-full h-14 text-base font-bold bg-linear-to-r from-indigo-600 via-purple-600 to-blue-600 hover:from-indigo-700 hover:via-purple-700 hover:to-blue-700 text-white rounded-xl shadow-lg shadow-indigo-500/30 hover:shadow-xl hover:shadow-indigo-500/40 transition-all"
                                 disabled={loading || disabled}
                             >
                                 {loading ? (

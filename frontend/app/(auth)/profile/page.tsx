@@ -23,7 +23,7 @@ import bcrypt from "bcryptjs"
 type UpdateUserValues = z.infer<typeof updateUserSchema>
 type UpdatePasswordValues = z.infer<typeof updateUserPasswordSchema>
 
-export default  function Profile() {
+export default function Profile() {
   const { data: session, status } = useSession()
   const { userProfile, isLoading, setSelectedAddress, selectedAddress, reFetchUserProfile } = useUser()
   const [showEditUser, setShowEditUser] = useState(false)
@@ -180,30 +180,30 @@ export default  function Profile() {
   // Muestra el esqueleto de carga mientras se obtiene la sesión o los datos del usuario
   if (status === "loading" || isLoading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-indigo-50/30 py-8">
+      <div className="min-h-screen bg-linear-to-br from-blue-50 via-white to-indigo-50/30 py-8">
         <ProfileSkeleton />
       </div>
     )
   }
 
   return (
-    <motion.div 
-      className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-indigo-50/30 py-8 px-4 md:px-8 lg:px-24"
+    <motion.div
+      className="min-h-screen bg-linear-to-br from-blue-50 via-white to-indigo-50/30 py-8 px-4 md:px-8 lg:px-24"
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       transition={{ duration: 0.6 }}
     >
       <div className="max-w-4xl mx-auto">
-        {/* Header with gradient background */}
-        <motion.div 
+        {/* Header with linear background */}
+        <motion.div
           className="relative"
           initial={{ y: -50, opacity: 0 }}
           animate={{ y: 0, opacity: 1 }}
           transition={{ duration: 0.6, delay: 0.2 }}
         >
-          <div className="h-40 bg-gradient-to-r from-blue-500 via-indigo-500 to-purple-600 rounded-t-2xl relative overflow-hidden">
+          <div className="h-40 bg-linear-to-r from-blue-500 via-indigo-500 to-purple-600 rounded-t-2xl relative overflow-hidden">
             {/* Decorative pattern */}
-            <div className="absolute inset-0 bg-gradient-to-r from-white/10 to-transparent"></div>
+            <div className="absolute inset-0 bg-linear-to-r from-white/10 to-transparent"></div>
             <div className="absolute top-4 right-4">
               <motion.div
                 initial={{ scale: 0 }}
@@ -217,12 +217,12 @@ export default  function Profile() {
           </div>
 
           {/* Avatar section */}
-          <motion.div 
+          <motion.div
             className="absolute -bottom-16 left-1/2 transform -translate-x-1/2 z-20"
             initial={{ scale: 0 }}
             animate={{ scale: 1 }}
-            transition={{ 
-              duration: 0.6, 
+            transition={{
+              duration: 0.6,
               delay: 0.4,
               type: "spring",
               bounce: 0.4
@@ -233,7 +233,7 @@ export default  function Profile() {
               onMouseEnter={() => setIsHovering(true)}
               onMouseLeave={() => setIsHovering(false)}
             >
-              <Avatar className="w-32 h-32 border-4 border-white shadow-2xl bg-gradient-to-br from-blue-500 to-purple-600">
+              <Avatar className="w-32 h-32 border-4 border-white shadow-2xl bg-linear-to-br from-blue-500 to-purple-600">
                 <AvatarImage src={session?.user?.image || ""} alt={session?.user?.name || ""} />
                 <AvatarFallback className="text-white text-4xl font-semibold bg-transparent">
                   {getInitials(userProfile?.name || "Usuario")}
@@ -242,7 +242,7 @@ export default  function Profile() {
 
               {/* Camera icon overlay */}
               <motion.div
-                className="absolute -bottom-1 -right-1 w-10 h-10 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full flex items-center justify-center shadow-xl"
+                className="absolute -bottom-1 -right-1 w-10 h-10 bg-linear-to-br from-blue-500 to-purple-600 rounded-full flex items-center justify-center shadow-xl"
                 whileHover={{ scale: 1.1 }}
                 whileTap={{ scale: 0.9 }}
                 animate={isHovering ? { scale: 1.1 } : { scale: 1 }}
@@ -262,13 +262,13 @@ export default  function Profile() {
           <Card className="border-0 shadow-2xl bg-white/80 backdrop-blur-sm rounded-t-none rounded-b-2xl z-10 relative">
             <CardContent className="p-8 pt-20">
               {/* Profile title */}
-              <motion.div 
+              <motion.div
                 className="text-center mb-10"
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.6, delay: 0.7 }}
               >
-                <h1 className="text-4xl font-bold bg-gradient-to-r from-gray-800 to-blue-600 bg-clip-text text-transparent mb-2">
+                <h1 className="text-4xl font-bold bg-linear-to-r from-gray-800 to-blue-600 bg-clip-text text-transparent mb-2">
                   Perfil de {userProfile?.name || "Usuario"}
                 </h1>
               </motion.div>
@@ -276,7 +276,7 @@ export default  function Profile() {
               {/* Information section */}
               <AnimatePresence mode="wait">
                 {showInfo && (
-                  <motion.div 
+                  <motion.div
                     key="info"
                     className="space-y-8 mb-8"
                     initial={{ opacity: 0, x: -20 }}
@@ -308,7 +308,7 @@ export default  function Profile() {
                     <Separator className="my-8" />
 
                     {/* Action buttons */}
-                    <motion.div 
+                    <motion.div
                       className="space-y-4"
                       initial={{ opacity: 0, y: 20 }}
                       animate={{ opacity: 1, y: 0 }}
@@ -328,7 +328,7 @@ export default  function Profile() {
                         <motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
                           <Button
                             onClick={handleShowEditForm}
-                            className="w-full bg-gradient-to-r from-blue-500 to-indigo-600 hover:from-blue-600 hover:to-indigo-700 text-white shadow-lg hover:shadow-xl transition-all duration-200 h-14 rounded-xl font-semibold"
+                            className="w-full bg-linear-to-r from-blue-500 to-indigo-600 hover:from-blue-600 hover:to-indigo-700 text-white shadow-lg hover:shadow-xl transition-all duration-200 h-14 rounded-xl font-semibold"
                           >
                             <Edit2Icon className="w-5 h-5 mr-2" />
                             Editar Perfil
@@ -400,10 +400,10 @@ export default  function Profile() {
                                     Correo electrónico
                                   </FormLabel>
                                   <FormControl>
-                                    <Input 
-                                      placeholder="tu@email.com" 
-                                      {...field} 
-                                      className="h-12 border-gray-200 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 bg-white rounded-xl transition-all duration-300" 
+                                    <Input
+                                      placeholder="tu@email.com"
+                                      {...field}
+                                      className="h-12 border-gray-200 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 bg-white rounded-xl transition-all duration-300"
                                     />
                                   </FormControl>
                                   <FormMessage />
@@ -428,10 +428,10 @@ export default  function Profile() {
                                     Teléfono
                                   </FormLabel>
                                   <FormControl>
-                                    <Input 
-                                      placeholder="+57 300 123 4567" 
-                                      {...field} 
-                                      className="h-12 border-gray-200 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 bg-white rounded-xl transition-all duration-300" 
+                                    <Input
+                                      placeholder="+57 300 123 4567"
+                                      {...field}
+                                      className="h-12 border-gray-200 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 bg-white rounded-xl transition-all duration-300"
                                     />
                                   </FormControl>
                                   <FormMessage />
@@ -511,7 +511,7 @@ export default  function Profile() {
                           </motion.div>
                         </div>
 
-                        <motion.div 
+                        <motion.div
                           className="flex justify-end gap-4 pt-6"
                           initial={{ opacity: 0, y: 20 }}
                           animate={{ opacity: 1, y: 0 }}
@@ -528,9 +528,9 @@ export default  function Profile() {
                             </Button>
                           </motion.div>
                           <motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
-                            <Button 
-                              type="submit" 
-                              className="bg-gradient-to-r from-blue-500 to-indigo-600 hover:from-blue-600 hover:to-indigo-700 text-white h-12 rounded-xl px-6 shadow-lg hover:shadow-xl transition-all duration-200"
+                            <Button
+                              type="submit"
+                              className="bg-linear-to-r from-blue-500 to-indigo-600 hover:from-blue-600 hover:to-indigo-700 text-white h-12 rounded-xl px-6 shadow-lg hover:shadow-xl transition-all duration-200"
                             >
                               Guardar Cambios
                             </Button>
@@ -710,7 +710,7 @@ export default  function Profile() {
                             </div>
                           </motion.div>
 
-                          <motion.div 
+                          <motion.div
                             className="flex justify-end gap-4 pt-6"
                             initial={{ opacity: 0, y: 20 }}
                             animate={{ opacity: 1, y: 0 }}
@@ -727,18 +727,18 @@ export default  function Profile() {
                               </Button>
                             </motion.div>
                             <motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
-                              <Button 
-                                type="submit" 
-                                className="bg-gradient-to-r from-blue-500 to-indigo-600 hover:from-blue-600 hover:to-indigo-700 text-white h-12 rounded-xl px-6 shadow-lg hover:shadow-xl transition-all duration-200"
+                              <Button
+                                type="submit"
+                                className="bg-linear-to-r from-blue-500 to-indigo-600 hover:from-blue-600 hover:to-indigo-700 text-white h-12 rounded-xl px-6 shadow-lg hover:shadow-xl transition-all duration-200"
                               >
                                 Guardar Cambios
                               </Button>
                             </motion.div>
                           </motion.div>
-                    </div>
-                        </form>
-                      </Form>
-                    </motion.div>
+                        </div>
+                      </form>
+                    </Form>
+                  </motion.div>
                 )}
               </AnimatePresence>
             </CardContent>

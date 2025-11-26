@@ -127,7 +127,7 @@ export function ProductDetailsClient({ product }: ProductDetailsClientProps) {
   return (
     <>
       {/* Estadísticas rápidas */}
-      <div className="p-6 rounded-2xl bg-gradient-to-br from-slate-900/50 to-slate-800/50 border border-slate-700/50 backdrop-blur-sm shadow-xl">
+      <div className="p-6 rounded-2xl bg-linear-to-br from-slate-900/50 to-slate-800/50 border border-slate-700/50 backdrop-blur-sm shadow-xl">
         <Typography variant="h3" className="text-lg font-bold mb-4">
           Estadísticas Rápidas
         </Typography>
@@ -135,7 +135,7 @@ export function ProductDetailsClient({ product }: ProductDetailsClientProps) {
       </div>
 
       {/* Información editable */}
-      <div className="p-6 rounded-2xl bg-gradient-to-br from-slate-900/50 to-slate-800/50 border border-slate-700/50 backdrop-blur-sm shadow-xl space-y-4">
+      <div className="p-6 rounded-2xl bg-linear-to-br from-slate-900/50 to-slate-800/50 border border-slate-700/50 backdrop-blur-sm shadow-xl space-y-4">
         <div className="flex items-center justify-between">
           <Typography variant="h3" className="text-lg font-bold">
             Información Editable
@@ -207,7 +207,7 @@ export function ProductDetailsClient({ product }: ProductDetailsClientProps) {
       </div>
 
       {/* Estados y configuración */}
-      <div className="p-6 rounded-2xl bg-gradient-to-br from-slate-900/50 to-slate-800/50 border border-slate-700/50 backdrop-blur-sm shadow-xl space-y-4">
+      <div className="p-6 rounded-2xl bg-linear-to-br from-slate-900/50 to-slate-800/50 border border-slate-700/50 backdrop-blur-sm shadow-xl space-y-4">
         <Typography variant="h3" className="text-lg font-bold">
           Estados y Configuración
         </Typography>
@@ -233,7 +233,7 @@ export function ProductDetailsClient({ product }: ProductDetailsClientProps) {
         </div>
 
         {product.in_offer && (
-          <div className="mt-4 p-4 rounded-xl bg-gradient-to-br from-orange-500/10 to-red-500/10 border border-orange-500/30 space-y-3">
+          <div className="mt-4 p-4 rounded-xl bg-linear-to-br from-orange-500/10 to-red-500/10 border border-orange-500/30 space-y-3">
             <Typography className="text-sm font-bold text-orange-400">
               Configuración de Oferta
             </Typography>
@@ -257,7 +257,7 @@ export function ProductDetailsClient({ product }: ProductDetailsClientProps) {
       </div>
 
       {/* Galería de imágenes mejorada */}
-      <div className="p-6 rounded-2xl bg-gradient-to-br from-slate-900/50 to-slate-800/50 border border-slate-700/50 backdrop-blur-sm shadow-xl">
+      <div className="p-6 rounded-2xl bg-linear-to-br from-slate-900/50 to-slate-800/50 border border-slate-700/50 backdrop-blur-sm shadow-xl">
         <Typography variant="h3" className="text-lg font-bold mb-4">
           Galería de Imágenes
         </Typography>

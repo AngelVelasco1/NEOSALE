@@ -108,7 +108,7 @@ export const WompiContractsAcceptance: React.FC<
 
   };
 
-  const openContract = (url: string, title: string) => {
+  const openContract = (url: string) => {
     window.open(url, "_blank", "noopener,noreferrer");
   };
 
@@ -154,7 +154,7 @@ export const WompiContractsAcceptance: React.FC<
     <div className="bg-slate-800/40 backdrop-blur-xl rounded-2xl shadow-2xl border border-slate-700/50 overflow-hidden animate-in fade-in slide-in-from-bottom duration-700 max-w-full m-auto">
       <div className="p-8 space-y-4">
         <div className="flex items-center gap-4 pb-4 border-b border-slate-700/50">
-          <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-violet-600 via-violet-700 to-indigo-700 flex items-center justify-center shadow-lg shadow-violet-500/30">
+          <div className="w-12 h-12 rounded-2xl bg-linear-to-br from-violet-600 via-violet-700 to-indigo-700 flex items-center justify-center shadow-lg shadow-violet-500/30">
             <Shield className="w-6 h-6 text-white" />
           </div>
           <div>
@@ -165,7 +165,7 @@ export const WompiContractsAcceptance: React.FC<
         <div className="space-y-3">
           <div
             className={`group relative rounded-2xl border-2 transition-all duration-300 ${acceptedContracts.termsAndConditions
-              ? "border-violet-500 bg-gradient-to-br from-violet-50/10 to-indigo-50/10 shadow-lg"
+              ? "border-violet-500 bg-linear-to-br from-violet-50/10 to-indigo-50/10 shadow-lg"
               : "border-slate-600/50 bg-slate-700/30 hover:border-violet-400 hover:bg-violet-50/5"
               }`}
             onMouseEnter={() => setHoveredContract("terms")}
@@ -173,7 +173,7 @@ export const WompiContractsAcceptance: React.FC<
           >
             <div className="p-4 space-y-4">
               <div className="flex items-start gap-4">
-                <div className="relative flex-shrink-0 mt-1">
+                <div className="relative shrink-0 mt-1">
                   <Checkbox
                     id="terms-conditions"
                     checked={acceptedContracts.termsAndConditions}
@@ -232,7 +232,7 @@ export const WompiContractsAcceptance: React.FC<
 
           <div
             className={`group relative rounded-2xl border-2 transition-all duration-300 ${acceptedContracts.personalDataAuth
-              ? "border-violet-500 bg-gradient-to-br from-violet-50/10 to-indigo-50/10 shadow-lg"
+              ? "border-violet-500 bg-linear-to-br from-violet-50/10 to-indigo-50/10 shadow-lg"
               : "border-slate-600/50 bg-slate-700/30 hover:border-violet-400 hover:bg-violet-50/5"
               }`}
             onMouseEnter={() => setHoveredContract("data")}
@@ -240,7 +240,7 @@ export const WompiContractsAcceptance: React.FC<
           >
             <div className="p-4 space-y-4">
               <div className="flex items-start gap-4">
-                <div className="relative flex-shrink-0 mt-1">
+                <div className="relative shrink-0 mt-1">
                   <Checkbox
                     id="personal-data-auth"
                     checked={acceptedContracts.personalDataAuth}
@@ -300,9 +300,9 @@ export const WompiContractsAcceptance: React.FC<
 
         {
           !allAccepted && (
-            <div className="rounded-2xl p-4 transition-all duration-500 bg-gradient-to-br from-amber-600/10 to-orange-600/10 border-2 border-amber-500/30">
+            <div className="rounded-2xl p-4 transition-all duration-500 bg-linear-to-br from-amber-600/10 to-orange-600/10 border-2 border-amber-500/30">
               <div className="flex items-start gap-4">
-                <div className="w-12 h-12 rounded-xl flex items-center justify-center flex-shrink-0 bg-amber-500/20">
+                <div className="w-12 h-12 rounded-xl flex items-center justify-center shrink-0 bg-amber-500/20">
                   <AlertCircle className="w-6 h-6 text-amber-400" />
                 </div>
                 <div className="flex-1">

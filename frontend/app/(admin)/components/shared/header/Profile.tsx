@@ -12,7 +12,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Settings, User, LayoutGrid, ChevronDown } from "lucide-react";
+import { Settings, LayoutGrid, ChevronDown } from "lucide-react";
 import { useUserSafe } from "@/app/(auth)/hooks/useUserSafe";
 import { SignOut } from "@/app/(auth)/components/SingOut";
 
@@ -32,7 +32,7 @@ export default function Profile() {
   if (isLoading) {
     return (
       <div className="flex items-center gap-2">
-        <div className="w-10 h-10 rounded-full bg-gradient-to-br from-slate-200 to-slate-300 dark:from-slate-700 dark:to-slate-800 animate-pulse" />
+        <div className="w-10 h-10 rounded-full bg-linear-to-br from-slate-200 to-slate-300 dark:from-slate-700 dark:to-slate-800 animate-pulse" />
       </div>
     );
   }
@@ -47,7 +47,7 @@ export default function Profile() {
               alt={userProfile?.name ?? "User avatar"}
               className="object-cover object-center"
             />
-            <AvatarFallback className="bg-gradient-to-br from-blue-500 to-purple-600 text-white text-xs font-semibold">
+            <AvatarFallback className="bg-linear-to-br from-blue-500 to-purple-600 text-white text-xs font-semibold">
               {getInitials(userProfile?.name)}
             </AvatarFallback>
           </Avatar>
@@ -80,7 +80,7 @@ export default function Profile() {
                 alt={userProfile?.name ?? "User avatar"}
                 className="object-cover object-center"
               />
-              <AvatarFallback className="bg-gradient-to-br from-blue-500 to-purple-600 text-white font-semibold">
+              <AvatarFallback className="bg-linear-to-br from-blue-500 to-purple-600 text-white font-semibold">
                 {getInitials(userProfile?.name)}
               </AvatarFallback>
             </Avatar>

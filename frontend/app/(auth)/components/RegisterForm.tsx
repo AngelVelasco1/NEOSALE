@@ -103,7 +103,7 @@ export const RegisterForm: React.FC = () => {
 
   if (success) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-slate-900 via-blue-950 to-slate-900 relative overflow-hidden">
+      <div className="min-h-screen bg-linear-to-br from-slate-900 via-blue-950 to-slate-900 relative overflow-hidden">
         {/* Animated background particles */}
         <div className="absolute inset-0 overflow-hidden pointer-events-none">
           {[...Array(15)].map((_, i) => (
@@ -149,7 +149,7 @@ export const RegisterForm: React.FC = () => {
                   <CheckCircle className="mx-auto h-16 w-16 text-emerald-400 mb-4" />
                 </motion.div>
                 <motion.h2
-                  className="text-3xl font-bold bg-gradient-to-r from-emerald-400 to-green-400 bg-clip-text text-transparent mb-2"
+                  className="text-3xl font-bold bg-linear-to-r from-emerald-400 to-green-400 bg-clip-text text-transparent mb-2"
                   initial={{ opacity: 0, y: 10 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ duration: 0.5, delay: 0.6 }}
@@ -173,7 +173,7 @@ export const RegisterForm: React.FC = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950 relative overflow-hidden">
+    <div className="min-h-screen bg-linear-to-br from-slate-950 via-slate-900 to-slate-950 relative overflow-hidden">
       {/* Animated background particles */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
         {[...Array(20)].map((_, i) => (
@@ -216,7 +216,7 @@ export const RegisterForm: React.FC = () => {
               transition={{ duration: 0.6, delay: 0.3 }}
             >
               <div className="flex items-center justify-center gap-2 mb-4">
-                <h2 className="text-3xl font-bold bg-gradient-to-r from-blue-300 via-indigo-300 to-blue-300 bg-clip-text text-transparent font-montserrat">
+                <h2 className="text-3xl font-bold bg-linear-to-r from-blue-300 via-indigo-300 to-blue-300 bg-clip-text text-transparent font-montserrat">
                   Crear Cuenta
                 </h2>
               </div>
@@ -425,7 +425,7 @@ export const RegisterForm: React.FC = () => {
                   >
                     <Button
                       type="submit"
-                      className="w-full h-12 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white font-semibold rounded-xl transition-all duration-300 shadow-lg shadow-blue-500/30 hover:shadow-xl hover:shadow-blue-500/40 group"
+                      className="w-full h-12 bg-linear-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white font-semibold rounded-xl transition-all duration-300 shadow-lg shadow-blue-500/30 hover:shadow-xl hover:shadow-blue-500/40 group"
                       disabled={isLoading}
                     >
                       {isLoading ? (

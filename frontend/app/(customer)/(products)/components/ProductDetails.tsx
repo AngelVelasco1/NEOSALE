@@ -184,7 +184,7 @@ export const ProductDetails = ({ data }: ProductDetailsProps) => {
           {/* Image Gallery Section */}
           <div className="flex flex-col space-y-5 px-10">
             {/* Main Image */}
-            <div className="relative aspect-square bg-gradient-to-br from-slate-900 to-slate-800 rounded-xl shadow-2xl overflow-hidden group border border-white/5 hover:border-white/10 transition-all duration-500">
+            <div className="relative aspect-square bg-linear-to-br from-slate-900 to-slate-800 rounded-xl shadow-2xl overflow-hidden group border border-white/5 hover:border-white/10 transition-all duration-500">
               {images.length > 0 && images[selectedImage]?.image_url ? (
                 <>
                   <Image
@@ -195,7 +195,7 @@ export const ProductDetails = ({ data }: ProductDetailsProps) => {
                     priority
                   />
                   {/* Animated gradient overlay */}
-                  <div className="absolute inset-0 bg-gradient-to-tr from-blue-500/5 via-transparent to-purple-500/5 opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+                  <div className="absolute inset-0 bg-linear-to-tr from-blue-500/5 via-transparent to-purple-500/5 opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
                 </>
               ) : (
                 <div className="flex items-center justify-center h-full">
@@ -223,7 +223,7 @@ export const ProductDetails = ({ data }: ProductDetailsProps) => {
               {/* Discount badge */}
               {discountPercentage > 0 && (
                 <div className="absolute top-5 left-5 animate-bounce-slow">
-                  <div className="bg-gradient-to-r from-rose-500 to-pink-500 text-white px-4 py-2 rounded-full text-sm font-bold shadow-2xl shadow-rose-500/50 backdrop-blur-xl border border-white/20 hover:scale-110 transition-transform duration-300">
+                  <div className="bg-linear-to-r from-rose-500 to-pink-500 text-white px-4 py-2 rounded-full text-sm font-bold shadow-2xl shadow-rose-500/50 backdrop-blur-xl border border-white/20 hover:scale-110 transition-transform duration-300">
                     <span className="inline-block animate-pulse">🔥</span> -
                     {discountPercentage}% OFF
                   </div>
@@ -268,7 +268,7 @@ export const ProductDetails = ({ data }: ProductDetailsProps) => {
 
             {/* Trust badges - Modern minimal style */}
             <div className="grid grid-cols-3 gap-3 mt-2">
-              <div className="bg-gradient-to-br from-slate-900/90 to-slate-800/90 backdrop-blur-xl rounded-2xl p-4 border border-white/5 text-center group hover:border-emerald-500/50 hover:shadow-lg hover:shadow-emerald-500/20 transition-all duration-300 hover:-translate-y-1">
+              <div className="bg-linear-to-br from-slate-900/90 to-slate-800/90 backdrop-blur-xl rounded-2xl p-4 border border-white/5 text-center group hover:border-emerald-500/50 hover:shadow-lg hover:shadow-emerald-500/20 transition-all duration-300 hover:-translate-y-1">
                 <div className="relative">
                   <Truck className="w-5 h-5 text-emerald-400 mx-auto mb-2 group-hover:scale-110 transition-transform relative z-10" />
                   <div className="absolute inset-0 bg-emerald-400/20 blur-xl opacity-0 group-hover:opacity-100 transition-opacity"></div>
@@ -278,7 +278,7 @@ export const ProductDetails = ({ data }: ProductDetailsProps) => {
                 </p>
                 <p className="text-[10px] text-slate-400 mt-0.5">+$100k</p>
               </div>
-              <div className="bg-gradient-to-br from-slate-900/90 to-slate-800/90 backdrop-blur-xl rounded-2xl p-4 border border-white/5 text-center group hover:border-blue-500/50 hover:shadow-lg hover:shadow-blue-500/20 transition-all duration-300 hover:-translate-y-1">
+              <div className="bg-linear-to-br from-slate-900/90 to-slate-800/90 backdrop-blur-xl rounded-2xl p-4 border border-white/5 text-center group hover:border-blue-500/50 hover:shadow-lg hover:shadow-blue-500/20 transition-all duration-300 hover:-translate-y-1">
                 <div className="relative">
                   <Shield className="w-5 h-5 text-blue-400 mx-auto mb-2 group-hover:scale-110 transition-transform relative z-10" />
                   <div className="absolute inset-0 bg-blue-400/20 blur-xl opacity-0 group-hover:opacity-100 transition-opacity"></div>
@@ -288,7 +288,7 @@ export const ProductDetails = ({ data }: ProductDetailsProps) => {
                 </p>
                 <p className="text-[10px] text-slate-400 mt-0.5">Protegida</p>
               </div>
-              <div className="bg-gradient-to-br from-slate-900/90 to-slate-800/90 backdrop-blur-xl rounded-2xl p-4 border border-white/5 text-center group hover:border-purple-500/50 hover:shadow-lg hover:shadow-purple-500/20 transition-all duration-300 hover:-translate-y-1">
+              <div className="bg-linear-to-br from-slate-900/90 to-slate-800/90 backdrop-blur-xl rounded-2xl p-4 border border-white/5 text-center group hover:border-purple-500/50 hover:shadow-lg hover:shadow-purple-500/20 transition-all duration-300 hover:-translate-y-1">
                 <div className="relative">
                   <Package className="w-5 h-5 text-purple-400 mx-auto mb-2 group-hover:scale-110 transition-transform relative z-10" />
                   <div className="absolute inset-0 bg-purple-400/20 blur-xl opacity-0 group-hover:opacity-100 transition-opacity"></div>
@@ -306,7 +306,7 @@ export const ProductDetails = ({ data }: ProductDetailsProps) => {
             {/* Header */}
             <div className="space-y-4">
               <div className="flex items-start justify-between gap-4">
-                <Badge className="bg-gradient-to-r from-blue-500/20 to-purple-500/20 text-blue-300 border border-blue-500/30 px-4 py-1.5 rounded-full font-semibold backdrop-blur-xl hover:border-blue-500/50 hover:shadow-lg hover:shadow-blue-500/30 transition-all duration-300 hover:scale-105 cursor-default">
+                <Badge className="bg-linear-to-r from-blue-500/20 to-purple-500/20 text-blue-300 border border-blue-500/30 px-4 py-1.5 rounded-full font-semibold backdrop-blur-xl hover:border-blue-500/50 hover:shadow-lg hover:shadow-blue-500/30 transition-all duration-300 hover:scale-105 cursor-default">
                   <Sparkles className="w-3.5 h-3.5 mr-1.5 animate-pulse" />
                   Nuevo
                 </Badge>
@@ -326,7 +326,7 @@ export const ProductDetails = ({ data }: ProductDetailsProps) => {
                 </div>
               </div>
 
-              <h1 className="text-4xl lg:text-5xl xl:text-6xl font-bold bg-gradient-to-r from-white via-slate-100 to-white bg-clip-text text-transparent leading-tight tracking-tight hover:from-blue-400 hover:via-purple-400 hover:to-pink-400 transition-all duration-500">
+              <h1 className="text-4xl lg:text-5xl xl:text-6xl font-bold bg-linear-to-r from-white via-slate-100 to-white bg-clip-text text-transparent leading-tight tracking-tight hover:from-blue-400 hover:via-purple-400 hover:to-pink-400 transition-all duration-500">
                 {data.name}
               </h1>
 
@@ -336,10 +336,10 @@ export const ProductDetails = ({ data }: ProductDetailsProps) => {
             </div>
 
             {/* Price Section - Prominent and clean */}
-            <div className="relative bg-gradient-to-r from-slate-900/90 to-slate-800/90 backdrop-blur-xl rounded-3xl p-6 border border-white/10 hover:border-white/20 transition-all duration-300 overflow-hidden group">
-              <div className="absolute inset-0 bg-gradient-to-r from-blue-500/5 via-purple-500/5 to-pink-500/5 opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+            <div className="relative bg-linear-to-r from-slate-900/90 to-slate-800/90 backdrop-blur-xl rounded-3xl p-6 border border-white/10 hover:border-white/20 transition-all duration-300 overflow-hidden group">
+              <div className="absolute inset-0 bg-linear-to-r from-blue-500/5 via-purple-500/5 to-pink-500/5 opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
               <div className="relative flex items-baseline gap-3">
-                <span className="text-5xl lg:text-6xl font-black bg-gradient-to-r from-white via-slate-100 to-white bg-clip-text text-transparent tracking-tight group-hover:scale-105 group-hover:from-yellow-300 group-hover:via-orange-300 group-hover:to-red-300 transition-all duration-300 inline-block">
+                <span className="text-5xl lg:text-6xl font-black bg-linear-to-r from-white via-slate-100 to-white bg-clip-text text-transparent tracking-tight group-hover:scale-105 group-hover:from-yellow-300 group-hover:via-orange-300 group-hover:to-red-300 transition-all duration-300 inline-block">
                   $
                   {Math.round(
                     data.price - data.price * (discountPercentage / 100)
@@ -499,10 +499,10 @@ export const ProductDetails = ({ data }: ProductDetailsProps) => {
                     isLoadingStock ||
                     variantStock === 0
                   }
-                  className="relative flex-1 bg-gradient-to-r from-white to-slate-50 hover:from-slate-50 hover:to-white text-slate-900 py-7 text-base font-bold rounded-2xl shadow-2xl shadow-white/25 hover:shadow-white/35 transition-all duration-300 hover:scale-[1.02] disabled:opacity-40 disabled:cursor-not-allowed disabled:scale-100 disabled:shadow-none min-h-[3.5rem] border-0 active:scale-95 overflow-hidden group"
+                  className="relative flex-1 bg-linear-to-r from-white to-slate-50 hover:from-slate-50 hover:to-white text-slate-900 py-7 text-base font-bold rounded-2xl shadow-2xl shadow-white/25 hover:shadow-white/35 transition-all duration-300 hover:scale-[1.02] disabled:opacity-40 disabled:cursor-not-allowed disabled:scale-100 disabled:shadow-none min-h-[3.5rem] border-0 active:scale-95 overflow-hidden group"
                   size="lg"
                 >
-                  <div className="absolute inset-0 bg-gradient-to-r from-blue-400/30 via-purple-400/30 to-pink-400/30 translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-1000"></div>
+                  <div className="absolute inset-0 bg-linear-to-r from-blue-400/30 via-purple-400/30 to-pink-400/30 translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-1000"></div>
                   {isLoadingStock ? (
                     <div className="flex items-center gap-2.5 relative z-10">
                       <div className="w-4 h-4 border-2 border-slate-900/30 border-t-slate-900 rounded-full animate-spin" />
@@ -531,7 +531,7 @@ export const ProductDetails = ({ data }: ProductDetailsProps) => {
             </div>
 
             {/* Payment Methods - Sleek card */}
-            <div className="bg-gradient-to-br from-slate-900/90 to-slate-800/90 backdrop-blur-xl rounded-3xl p-6 border border-white/10 mt-auto">
+            <div className="bg-linear-to-br from-slate-900/90 to-slate-800/90 backdrop-blur-xl rounded-3xl p-6 border border-white/10 mt-auto">
               <div className="flex items-center gap-3 mb-5">
                 <Lock className="w-4.5 h-4.5 text-slate-300" />
                 <p className="font-semibold text-slate-200 text-sm">
