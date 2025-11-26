@@ -59,8 +59,26 @@ export async function toggleProductOffer(productId: number, inOffer: boolean) {
       updated_at: new Date(),
     };
 
-    // Si se está desactivando la oferta, limpiar campos relacionados
-    if (!inOffer) {
+    // Si se está activando la oferta, establecer fechas por defecto
+    if (inOffer) {
+      const now = new Date();
+      const endDate = new Date();
+      endDate.setMonth(endDate.getMonth() + 1); // 1 mes de duración por defecto
+
+      updateData.offer_start_date = now;
+      updateData.offer_end_date = endDate;
+
+      // Si no hay descuento, establecer uno por defecto
+      const product = await prisma.products.findUnique({
+        where: { id: productId },
+        select: { offer_discount: true },
+      });
+
+      if (!product?.offer_discount) {
+        updateData.offer_discount = 10; // 10% por defecto
+      }
+    } else {
+      // Si se está desactivando la oferta, limpiar campos relacionados
       updateData.offer_discount = null;
       updateData.offer_start_date = null;
       updateData.offer_end_date = null;

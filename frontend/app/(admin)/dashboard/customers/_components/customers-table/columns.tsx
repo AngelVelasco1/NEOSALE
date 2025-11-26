@@ -34,8 +34,8 @@ export const getColumns = ({
     {
       header: "ID",
       cell: ({ row }) => (
-        <Typography className="uppercase">
-          {row.id.slice(-4)}
+        <Typography className="uppercase font-mono">
+          #{row.original.id}
         </Typography>
       ),
     },
@@ -73,7 +73,7 @@ export const getColumns = ({
                 variant="ghost"
                 className="text-foreground"
               >
-                <Link href={`/customer-orders/${row.id}`}>
+                <Link href={`/dashboard/customer-orders/${row.original.id}`}>
                   <ZoomIn className="size-5" />
                 </Link>
               </Button>

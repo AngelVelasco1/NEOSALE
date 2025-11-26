@@ -7,15 +7,16 @@ import { prisma } from "@/lib/prisma";
 import { EditableProductPage } from "./_components/EditableProductPage";
 
 type PageParams = {
-  params: {
+  params: Promise<{
     id: string;
-  };
+  }>;
 };
 
 export async function generateMetadata({
-  params: { id },
+  params,
 }: PageParams): Promise<Metadata> {
   try {
+    const { id } = await params;
     const productId = parseInt(id);
     const product = await prisma.products.findUnique({
       where: { id: productId },
@@ -32,8 +33,9 @@ export async function generateMetadata({
   }
 }
 
-export default async function ProductDetails({ params: { id } }: PageParams) {
+export default async function ProductDetails({ params }: PageParams) {
   try {
+    const { id } = await params;
     const productId = parseInt(id);
 
     if (isNaN(productId)) {
@@ -82,19 +84,31 @@ export default async function ProductDetails({ params: { id } }: PageParams) {
       return notFound();
     }
 
-    const primaryImage = product.images?.[0]?.image_url || "/placeholder.svg";
-    const allImages = product.images || [];
-    const variants = product.product_variants || [];
+    // Convertir Decimal a number para evitar errores en Client Components
+    const serializedProduct = {
+      ...product,
+      price: Number(product.price),
+      base_discount: Number(product.base_discount),
+      offer_discount: product.offer_discount ? Number(product.offer_discount) : null,
+      product_variants: product.product_variants.map(variant => ({
+        ...variant,
+        price: variant.price ? Number(variant.price) : null,
+      })),
+    };
 
-    // Calcular estadísticas
+    const primaryImage = serializedProduct.images?.[0]?.image_url || "/placeholder.svg";
+    const allImages = serializedProduct.images || [];
+    const variants = serializedProduct.product_variants || [];
+
+    // Calcular estadísticas - El stock total es SOLO la suma de variantes
     const totalVariants = variants.length;
-    const totalStock = variants.reduce((sum, v) => sum + v.stock, product.stock);
+    const totalStock = variants.reduce((sum, v) => sum + v.stock, 0);
     const uniqueColors = [...new Set(variants.map(v => v.color))];
     const uniqueSizes = [...new Set(variants.map(v => v.size))];
 
     return (
       <EditableProductPage
-        product={product}
+        product={serializedProduct}
         primaryImage={primaryImage}
         allImages={allImages}
         variants={variants}
