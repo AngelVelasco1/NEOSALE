@@ -1,0 +1,1112 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NeoSale Project - Diagrama de Gantt</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background: linear-gradient(135deg, #0f172a 0%, #1e1b4b 50%, #1e293b 100%);
+            min-height: 100vh;
+            padding: 20px;
+            position: relative;
+            overflow-x: hidden;
+        }
+
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: 
+                radial-gradient(circle at 20% 50%, rgba(99, 102, 241, 0.2) 0%, transparent 50%),
+                radial-gradient(circle at 80% 80%, rgba(139, 92, 246, 0.15) 0%, transparent 50%),
+                radial-gradient(circle at 40% 20%, rgba(59, 130, 246, 0.18) 0%, transparent 50%);
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        .container {
+            max-width: 1600px;
+            margin: 0 auto;
+            background: rgba(15, 15, 23, 0.8);
+            backdrop-filter: blur(20px);
+            border-radius: 24px;
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            box-shadow: 0 25px 70px rgba(0,0,0,0.5);
+            overflow: hidden;
+            position: relative;
+            z-index: 1;
+            animation: fadeIn 0.8s ease-out;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .header {
+            background: linear-gradient(135deg, #3b82f6 0%, #6366f1 40%, #8b5cf6 80%, #7c3aed 100%);
+            color: white;
+            padding: 48px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .header::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: 
+                linear-gradient(45deg, transparent 30%, rgba(255,255,255,0.05) 50%, transparent 70%);
+            animation: shimmer 3s infinite;
+        }
+
+        @keyframes shimmer {
+            0% { transform: translateX(-100%); }
+            100% { transform: translateX(100%); }
+        }
+
+        .header-content {
+            position: relative;
+            z-index: 1;
+        }
+
+        .header h1 {
+            font-size: 3.2em;
+            margin-bottom: 12px;
+            font-weight: 800;
+            letter-spacing: -1px;
+            background: linear-gradient(to right, #ffffff, #f0f0ff);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            animation: slideInLeft 0.6s ease-out;
+        }
+
+        @keyframes slideInLeft {
+            from { opacity: 0; transform: translateX(-30px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+
+        .header .subtitle {
+            font-size: 1.25em;
+            opacity: 0.9;
+            font-weight: 300;
+            animation: slideInLeft 0.6s ease-out 0.1s backwards;
+        }
+
+        .header .project-info {
+            margin-top: 24px;
+            display: flex;
+            gap: 16px;
+            flex-wrap: wrap;
+            animation: slideInLeft 0.6s ease-out 0.2s backwards;
+        }
+
+        .info-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            background: rgba(255,255,255,0.15);
+            padding: 10px 20px;
+            border-radius: 12px;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255,255,255,0.2);
+            transition: all 0.3s ease;
+            font-weight: 500;
+            font-size: 0.95em;
+        }
+
+        .info-item:hover {
+            background: rgba(255,255,255,0.25);
+            transform: translateY(-2px);
+        }
+
+        .controls {
+            padding: 28px 40px;
+            background: rgba(18, 18, 28, 0.8);
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+            display: flex;
+            gap: 16px;
+            align-items: center;
+            flex-wrap: wrap;
+            justify-content: space-between;
+        }
+
+        .controls-left {
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+
+        .filter-group {
+            display: flex;
+            gap: 8px;
+            align-items: center;
+        }
+
+        .filter-select {
+            padding: 12px 18px;
+            border: 1px solid rgba(99, 102, 241, 0.3);
+            border-radius: 12px;
+            font-size: 0.95em;
+            background: rgba(30, 27, 75, 0.4);
+            backdrop-filter: blur(12px);
+            color: #e0e7ff;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: 500;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+
+        .filter-select:hover {
+            border-color: #6366f1;
+            background: rgba(99, 102, 241, 0.15);
+            transform: translateY(-1px);
+            box-shadow: 0 6px 20px rgba(99, 102, 241, 0.2);
+        }
+
+        .filter-select option {
+            background: #1a1a28;
+            color: #e0e0ff;
+        }
+
+        .btn {
+            padding: 12px 28px;
+            border: none;
+            border-radius: 12px;
+            font-size: 0.95em;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+            transition: left 0.5s;
+        }
+
+        .btn:hover::before {
+            left: 100%;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #3b82f6 0%, #6366f1 50%, #8b5cf6 100%);
+            color: white;
+            box-shadow: 0 4px 15px rgba(99, 102, 241, 0.4);
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(99, 102, 241, 0.6);
+        }
+
+        .btn-secondary {
+            background: rgba(30, 27, 75, 0.5);
+            backdrop-filter: blur(12px);
+            color: #a5b4fc;
+            border: 1px solid rgba(99, 102, 241, 0.5);
+        }
+
+        .btn-secondary:hover {
+            background: rgba(99, 102, 241, 0.2);
+            border-color: #6366f1;
+            transform: translateY(-2px);
+        }
+
+        .btn-success {
+            background: linear-gradient(135deg, #50fa7b 0%, #8be9fd 100%);
+            color: #0a0a0f;
+            box-shadow: 0 4px 15px rgba(80, 250, 123, 0.3);
+        }
+
+        .btn-success:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(80, 250, 123, 0.5);
+        }
+
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+            gap: 24px;
+            padding: 40px;
+            background: rgba(10, 10, 15, 0.5);
+        }
+
+        .stat-card {
+            background: rgba(30, 27, 75, 0.4);
+            backdrop-filter: blur(16px) saturate(180%);
+            padding: 28px;
+            border-radius: 20px;
+            border: 1px solid rgba(99, 102, 241, 0.25);
+            text-align: center;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.12);
+        }
+
+        .stat-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: linear-gradient(90deg, #3b82f6, #6366f1, #8b5cf6);
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-8px) scale(1.02);
+            border-color: #6366f1;
+            box-shadow: 0 20px 40px rgba(99, 102, 241, 0.35);
+        }
+
+        .stat-card:hover::before {
+            opacity: 1;
+        }
+
+        .stat-card h3 {
+            font-size: 3em;
+            background: linear-gradient(135deg, #3b82f6, #6366f1, #8b5cf6);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 8px;
+            font-weight: 800;
+            animation: countUp 1s ease-out;
+        }
+
+        @keyframes countUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .stat-card p {
+            color: #b4b4c8;
+            font-size: 1em;
+            font-weight: 500;
+            letter-spacing: 0.5px;
+        }
+
+        .table-container {
+            padding: 40px;
+            overflow-x: auto;
+        }
+
+        .table-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 28px;
+        }
+
+        .table-title {
+            font-size: 1.8em;
+            font-weight: 700;
+            background: linear-gradient(135deg, #3b82f6, #6366f1, #8b5cf6);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .search-box {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            background: rgba(30, 27, 75, 0.4);
+            backdrop-filter: blur(12px) saturate(180%);
+            padding: 12px 20px;
+            border-radius: 12px;
+            border: 1px solid rgba(99, 102, 241, 0.3);
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+
+        .search-box:focus-within {
+            border-color: #6366f1;
+            box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.25), 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+
+        .search-box input {
+            border: none;
+            background: transparent;
+            outline: none;
+            width: 280px;
+            font-size: 0.95em;
+            color: #e0e0ff;
+        }
+
+        .search-box input::placeholder {
+            color: #7878a0;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: separate;
+            border-spacing: 0;
+            border-radius: 16px;
+            overflow: hidden;
+            border: 1px solid rgba(99, 102, 241, 0.25);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.12);
+        }
+
+        thead {
+            background: linear-gradient(135deg, rgba(59, 130, 246, 0.25) 0%, rgba(99, 102, 241, 0.3) 50%, rgba(139, 92, 246, 0.25) 100%);
+            backdrop-filter: blur(16px) saturate(180%);
+            border-bottom: 2px solid rgba(99, 102, 241, 0.3);
+        }
+
+        th {
+            padding: 20px 18px;
+            text-align: left;
+            font-weight: 700;
+            font-size: 0.85em;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: #d0d0f0;
+            border-bottom: 1px solid rgba(120, 119, 198, 0.3);
+        }
+
+        tbody tr {
+            background: rgba(30, 27, 75, 0.25);
+            backdrop-filter: blur(10px) saturate(150%);
+            border-bottom: 1px solid rgba(99, 102, 241, 0.12);
+            transition: all 0.3s ease;
+        }
+
+        tbody tr:hover {
+            background: rgba(99, 102, 241, 0.15);
+            backdrop-filter: blur(12px) saturate(180%);
+            transform: translateX(4px);
+            box-shadow: -4px 0 0 #6366f1;
+        }
+
+        tbody tr:last-child {
+            border-bottom: none;
+        }
+
+        td {
+            padding: 18px;
+            font-size: 0.95em;
+            color: #c0c0d8;
+        }
+
+        .phase-cell {
+            position: relative;
+            padding-left: 12px;
+        }
+
+        .progress-bar-container {
+            width: 100%;
+            height: 32px;
+            background: rgba(20, 20, 32, 0.8);
+            border-radius: 16px;
+            overflow: hidden;
+            position: relative;
+            border: 1px solid rgba(120, 119, 198, 0.2);
+        }
+
+        .progress-bar {
+            height: 100%;
+            background: linear-gradient(90deg, #3b82f6 0%, #6366f1 50%, #8b5cf6 100%);
+            border-radius: 16px;
+            transition: width 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 0.85em;
+            font-weight: 700;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .progress-bar::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
+            animation: shimmerProgress 2s infinite;
+        }
+
+        @keyframes shimmerProgress {
+            0% { left: -100%; }
+            100% { left: 100%; }
+        }
+
+        .progress-low {
+            background: linear-gradient(90deg, #ff5555 0%, #ff79c6 100%);
+        }
+
+        .progress-medium {
+            background: linear-gradient(90deg, #ffb86c 0%, #ff79c6 100%);
+        }
+
+        .progress-high {
+            background: linear-gradient(90deg, #3b82f6 0%, #6366f1 50%, #8b5cf6 100%);
+        }
+
+        .progress-complete {
+            background: linear-gradient(90deg, #50fa7b 0%, #8be9fd 100%);
+        }
+
+        .badge {
+            padding: 8px 16px;
+            border-radius: 12px;
+            font-size: 0.8em;
+            font-weight: 700;
+            display: inline-block;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            transition: all 0.3s ease;
+        }
+
+        .badge-planeacion {
+            background: linear-gradient(135deg, rgba(59, 130, 246, 0.2), rgba(59, 130, 246, 0.1));
+            color: #60a5fa;
+            border: 1px solid rgba(59, 130, 246, 0.4);
+        }
+
+        .badge-diseno {
+            background: linear-gradient(135deg, rgba(99, 102, 241, 0.2), rgba(99, 102, 241, 0.1));
+            color: #a5b4fc;
+            border: 1px solid rgba(99, 102, 241, 0.4);
+        }
+
+        .badge-desarrollo {
+            background: linear-gradient(135deg, rgba(80, 250, 123, 0.2), rgba(80, 250, 123, 0.1));
+            color: #50fa7b;
+            border: 1px solid rgba(80, 250, 123, 0.4);
+        }
+
+        .badge-pruebas {
+            background: linear-gradient(135deg, rgba(255, 184, 108, 0.2), rgba(255, 184, 108, 0.1));
+            color: #ffb86c;
+            border: 1px solid rgba(255, 184, 108, 0.4);
+        }
+
+        .badge-cierre {
+            background: linear-gradient(135deg, rgba(139, 92, 246, 0.2), rgba(139, 92, 246, 0.1));
+            color: #c4b5fd;
+            border: 1px solid rgba(139, 92, 246, 0.4);
+        }
+
+        .status-badge {
+            padding: 6px 14px;
+            border-radius: 10px;
+            font-size: 0.75em;
+            font-weight: 700;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            transition: all 0.3s ease;
+        }
+
+        .status-badge::before {
+            content: '';
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            display: inline-block;
+        }
+
+        .status-completed {
+            background: rgba(80, 250, 123, 0.15);
+            color: #50fa7b;
+            border: 1px solid rgba(80, 250, 123, 0.3);
+        }
+
+        .status-completed::before {
+            background: #50fa7b;
+            box-shadow: 0 0 8px #50fa7b;
+        }
+
+        .status-progress {
+            background: rgba(255, 184, 108, 0.15);
+            color: #ffb86c;
+            border: 1px solid rgba(255, 184, 108, 0.3);
+        }
+
+        .status-progress::before {
+            background: #ffb86c;
+            animation: pulse 2s infinite;
+            box-shadow: 0 0 8px #ffb86c;
+        }
+
+        .status-pending {
+            background: rgba(255, 85, 85, 0.15);
+            color: #ff5555;
+            border: 1px solid rgba(255, 85, 85, 0.3);
+        }
+
+        .status-pending::before {
+            background: #ff5555;
+            box-shadow: 0 0 8px #ff5555;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.6; transform: scale(0.9); }
+        }
+
+        .timeline-view {
+            margin-top: 40px;
+            padding: 32px;
+            background: rgba(20, 20, 32, 0.6);
+            backdrop-filter: blur(10px);
+            border-radius: 16px;
+            border: 1px solid rgba(120, 119, 198, 0.2);
+        }
+
+        .timeline-title {
+            font-size: 1.3em;
+            font-weight: 700;
+            color: #e0e0ff;
+            margin-bottom: 24px;
+        }
+
+        .timeline-months {
+            display: grid;
+            grid-template-columns: repeat(8, 1fr);
+            gap: 12px;
+            margin-bottom: 20px;
+        }
+
+        .month-label {
+            text-align: center;
+            font-weight: 600;
+            font-size: 0.85em;
+            color: #b4b4c8;
+            padding: 10px;
+            background: rgba(30, 30, 46, 0.6);
+            border-radius: 10px;
+            border: 1px solid rgba(120, 119, 198, 0.2);
+            transition: all 0.3s ease;
+        }
+
+        .month-label:hover {
+            background: rgba(120, 119, 198, 0.2);
+            border-color: #7877c6;
+        }
+
+        .footer {
+            background: rgba(10, 10, 15, 0.9);
+            backdrop-filter: blur(10px);
+            color: #b4b4c8;
+            padding: 32px 40px;
+            text-align: center;
+            border-top: 1px solid rgba(120, 119, 198, 0.2);
+        }
+
+        .footer-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 20px;
+        }
+
+        .footer-content strong {
+            background: linear-gradient(135deg, #3b82f6, #6366f1, #8b5cf6);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .footer-links {
+            display: flex;
+            gap: 24px;
+        }
+
+        .footer-links a {
+            color: #7878a0;
+            text-decoration: none;
+            transition: all 0.3s;
+            position: relative;
+        }
+
+        .footer-links a::after {
+            content: '';
+            position: absolute;
+            bottom: -2px;
+            left: 0;
+            width: 0;
+            height: 2px;
+            background: linear-gradient(90deg, #3b82f6, #6366f1, #8b5cf6);
+            transition: width 0.3s;
+        }
+
+        .footer-links a:hover {
+            color: #a5b4fc;
+        }
+
+        .footer-links a:hover::after {
+            width: 100%;
+        }
+
+        @media print {
+            body {
+                background: white;
+                padding: 0;
+            }
+            .controls, .footer, .btn {
+                display: none !important;
+            }
+            .container {
+                box-shadow: none;
+            }
+        }
+
+        @media (max-width: 1024px) {
+            .header h1 {
+                font-size: 2em;
+            }
+            
+            .stats {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        @media (max-width: 768px) {
+            body {
+                padding: 10px;
+            }
+
+            .header {
+                padding: 24px;
+            }
+
+            .controls {
+                flex-direction: column;
+                padding: 16px 20px;
+            }
+
+            .controls-left {
+                width: 100%;
+            }
+
+            .btn {
+                width: 100%;
+                justify-content: center;
+            }
+
+            .stats {
+                grid-template-columns: 1fr;
+                padding: 20px;
+            }
+
+            .table-container {
+                padding: 20px;
+            }
+
+            table {
+                font-size: 0.85em;
+            }
+
+            th, td {
+                padding: 10px 8px;
+            }
+
+            .search-box input {
+                width: 150px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <div class="header-content">
+                <h1>NeoSale - Ecommerce</h1>
+                <p class="subtitle">Diagrama de Gantt del Proyecto</p>
+                <div class="project-info">
+                    <div class="info-item">
+                        Oct 2024 - May 2025
+                    </div>
+                    <div class="info-item">
+                        2 Miembros
+                    </div>
+                    <div class="info-item">
+                        5 Fases
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="controls">
+            <div class="controls-left">
+                <button class="btn btn-success" onclick="exportToExcel()">
+                    Exportar Excel
+                </button>
+                <button class="btn btn-secondary" onclick="printTable()">
+                    Imprimir
+                </button>
+                <div class="filter-group">
+                    <select class="filter-select" id="phaseFilter" onchange="filterByPhase()">
+                        <option value="all">Todas las Fases</option>
+                        <option value="Planeación">Planeación</option>
+                        <option value="Diseño">Diseño</option>
+                        <option value="Desarrollo">Desarrollo</option>
+                        <option value="Pruebas y Evaluación">Pruebas y Evaluación</option>
+                        <option value="Cierre y Despliegue">Cierre y Despliegue</option>
+                    </select>
+                </div>
+                <div class="filter-group">
+                    <select class="filter-select" id="statusFilter" onchange="filterByStatus()">
+                        <option value="all">Todos los Estados</option>
+                        <option value="completed">Completados</option>
+                        <option value="progress">En Progreso</option>
+                        <option value="pending">No Iniciados</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+
+        <div class="stats">
+            <div class="stat-card">
+                <h3 id="totalTasks">0</h3>
+                <p>Total de Tareas</p>
+            </div>
+            <div class="stat-card">
+                <h3 id="completedTasks">0</h3>
+                <p>Tareas Completadas</p>
+            </div>
+            <div class="stat-card">
+                <h3 id="inProgressTasks">0</h3>
+                <p>En Progreso</p>
+            </div>
+            <div class="stat-card">
+                <h3 id="overallProgress">0%</h3>
+                <p>Progreso General</p>
+            </div>
+        </div>
+
+        <div class="table-container">
+            <div class="table-header">
+                <h2 class="table-title">Cronograma del Proyecto</h2>
+                <div class="search-box">
+                    <input type="text" id="searchInput" placeholder="Buscar tareas..." onkeyup="searchTasks()">
+                </div>
+            </div>
+
+            <table id="ganttTable">
+                <thead>
+                    <tr>
+                        <th>Fase</th>
+                        <th>Tarea</th>
+                        <th>Asignado a</th>
+                        <th style="width: 180px;">Progreso</th>
+                        <th>Estado</th>
+                        <th>Fecha Inicio</th>
+                        <th>Fecha Fin</th>
+                    </tr>
+                </thead>
+                <tbody id="tableBody">
+                </tbody>
+            </table>
+        </div>
+
+        <div class="footer">
+            <div class="footer-content">
+                <div>
+                    <strong>NeoSale Project 2024-2025</strong><br>
+                    <small>Desarrollado con dedicación por el equipo de desarrollo</small>
+                </div>
+                <div class="footer-links">
+                    <a href="#">Documentación</a>
+                    <a href="#">Repositorio</a>
+                    <a href="#">Contacto</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const projectData = [
+            // PLANEACIÓN (Octubre 2024)
+            { phase: "Planeación", task: "Definir objetivos y alcance del proyecto NeoSale", assignedTo: "Angel Velasco", progress: 100, start: "2024-10-01", end: "2024-10-05" },
+            { phase: "Planeación", task: "Análisis de mercado y competidores e-commerce", assignedTo: "Angel Velasco", progress: 100, start: "2024-10-02", end: "2024-10-08" },
+            { phase: "Planeación", task: "Definir requisitos funcionales del sistema", assignedTo: "Jose Alvarez", progress: 100, start: "2024-10-06", end: "2024-10-12" },
+            { phase: "Planeación", task: "Establecer canales de comunicación del equipo", assignedTo: "Jose Alvarez", progress: 100, start: "2024-10-08", end: "2024-10-10" },
+            { phase: "Planeación", task: "Crear document charter del proyecto", assignedTo: "Jose Alvarez", progress: 100, start: "2024-10-10", end: "2024-10-15" },
+            { phase: "Planeación", task: "Configurar estructura del equipo de desarrollo", assignedTo: "Angel Velasco", progress: 100, start: "2024-10-12", end: "2024-10-16" },
+            { phase: "Planeación", task: "Definir stack tecnológico (Next.js, React, Node.js)", assignedTo: "Angel Velasco", progress: 100, start: "2024-10-14", end: "2024-10-18" },
+            { phase: "Planeación", task: "Investigar pasarelas de pago para Colombia", assignedTo: "Angel Velasco", progress: 100, start: "2024-10-16", end: "2024-10-20" },
+            { phase: "Planeación", task: "Análisis de requisitos de seguridad y compliance", assignedTo: "Jose Alvarez", progress: 100, start: "2024-10-18", end: "2024-10-22" },
+            { phase: "Planeación", task: "Definir metodología de trabajo (Scrum/Agile)", assignedTo: "Jose Alvarez", progress: 100, start: "2024-10-20", end: "2024-10-24" },
+            
+            // DISEÑO (Octubre-Noviembre 2024)
+            { phase: "Diseño", task: "Diseñar arquitectura de base de datos PostgreSQL", assignedTo: "Angel Velasco", progress: 100, start: "2024-10-25", end: "2024-10-31" },
+            { phase: "Diseño", task: "Crear wireframes y mockups de la interfaz", assignedTo: "Angel Velasco", progress: 100, start: "2024-10-28", end: "2024-11-05" },
+            { phase: "Diseño", task: "Diseñar sistema de autenticación con NextAuth", assignedTo: "Angel Velasco", progress: 100, start: "2024-11-01", end: "2024-11-07" },
+            { phase: "Diseño", task: "Definir API REST y endpoints del backend", assignedTo: "Angel Velasco", progress: 100, start: "2024-11-04", end: "2024-11-10" },
+            { phase: "Diseño", task: "Diseñar flujo de carrito de compras", assignedTo: "Angel Velasco", progress: 100, start: "2024-11-06", end: "2024-11-12" },
+            { phase: "Diseño", task: "Crear guía de estilos y design system", assignedTo: "Jose Alvarez", progress: 100, start: "2024-11-08", end: "2024-11-14" },
+            { phase: "Diseño", task: "Diseñar módulo de gestión de productos", assignedTo: "Angel Velasco", progress: 100, start: "2024-11-11", end: "2024-11-17" },
+            { phase: "Diseño", task: "Planificar estrategia de SEO y optimización", assignedTo: "Jose Alvarez", progress: 100, start: "2024-11-13", end: "2024-11-19" },
+            { phase: "Diseño", task: "Diseñar sistema de notificaciones", assignedTo: "Angel Velasco", progress: 100, start: "2024-11-15", end: "2024-11-21" },
+            { phase: "Diseño", task: "Definir estructura de variantes de productos", assignedTo: "Angel Velasco", progress: 100, start: "2024-11-18", end: "2024-11-24" },
+            { phase: "Diseño", task: "Diseñar dashboard administrativo", assignedTo: "Angel Velasco", progress: 90, start: "2024-11-20", end: "2024-11-26" },
+            { phase: "Diseño", task: "Crear diagramas de flujo de órdenes", assignedTo: "Jose Alvarez", progress: 90, start: "2024-11-22", end: "2024-11-28" },
+            
+            // DESARROLLO (Diciembre 2024 - Febrero 2025)
+            { phase: "Desarrollo", task: "Configurar proyecto Next.js con TypeScript", assignedTo: "Angel Velasco", progress: 100, start: "2024-12-01", end: "2024-12-05" },
+            { phase: "Desarrollo", task: "Implementar sistema de autenticación", assignedTo: "Angel Velasco", progress: 100, start: "2024-12-03", end: "2024-12-10" },
+            { phase: "Desarrollo", task: "Desarrollar modelos de base de datos con Prisma", assignedTo: "Angel Velasco", progress: 100, start: "2024-12-06", end: "2024-12-12" },
+            { phase: "Desarrollo", task: "Crear API REST con Node.js y Express", assignedTo: "Angel Velasco", progress: 100, start: "2024-12-08", end: "2024-12-15" },
+            { phase: "Desarrollo", task: "Implementar catálogo de productos frontend", assignedTo: "Angel Velasco", progress: 100, start: "2024-12-10", end: "2024-12-18" },
+            { phase: "Desarrollo", task: "Desarrollar sistema de carrito de compras", assignedTo: "Angel Velasco", progress: 100, start: "2024-12-12", end: "2024-12-20" },
+            { phase: "Desarrollo", task: "Integrar pasarelas de pago (PSE, Efecty, PayPal)", assignedTo: "Angel Velasco", progress: 90, start: "2024-12-15", end: "2024-12-24" },
+            { phase: "Desarrollo", task: "Implementar gestión de órdenes", assignedTo: "Angel Velasco", progress: 90, start: "2024-12-18", end: "2024-12-26" },
+            { phase: "Desarrollo", task: "Desarrollar panel administrativo", assignedTo: "Angel Velasco", progress: 85, start: "2024-12-20", end: "2025-01-05" },
+            { phase: "Desarrollo", task: "Crear sistema de búsqueda y filtros", assignedTo: "Angel Velasco", progress: 85, start: "2024-12-23", end: "2025-01-08" },
+            { phase: "Desarrollo", task: "Implementar gestión de inventario", assignedTo: "Angel Velasco", progress: 80, start: "2025-01-02", end: "2025-01-12" },
+            { phase: "Desarrollo", task: "Desarrollar sistema de cupones y descuentos", assignedTo: "Angel Velasco", progress: 80, start: "2025-01-06", end: "2025-01-15" },
+            { phase: "Desarrollo", task: "Crear módulo de reviews y calificaciones", assignedTo: "Angel Velasco", progress: 75, start: "2025-01-10", end: "2025-01-20" },
+            { phase: "Desarrollo", task: "Implementar lista de favoritos", assignedTo: "Angel Velasco", progress: 75, start: "2025-01-13", end: "2025-01-22" },
+            { phase: "Desarrollo", task: "Desarrollar sistema de notificaciones", assignedTo: "Angel Velasco", progress: 70, start: "2025-01-16", end: "2025-01-25" },
+            { phase: "Desarrollo", task: "Crear gestión de direcciones de envío", assignedTo: "Angel Velasco", progress: 70, start: "2025-01-20", end: "2025-01-28" },
+            { phase: "Desarrollo", task: "Implementar variantes de productos (colores, tallas)", assignedTo: "Angel Velasco", progress: 65, start: "2025-01-23", end: "2025-02-02" },
+            { phase: "Desarrollo", task: "Desarrollar historial de órdenes", assignedTo: "Angel Velasco", progress: 65, start: "2025-01-27", end: "2025-02-05" },
+            { phase: "Desarrollo", task: "Crear dashboard de métricas y analytics", assignedTo: "Angel Velasco", progress: 60, start: "2025-02-01", end: "2025-02-10" },
+            { phase: "Desarrollo", task: "Implementar optimización de imágenes", assignedTo: "Angel Velasco", progress: 60, start: "2025-02-04", end: "2025-02-12" },
+            { phase: "Desarrollo", task: "Desarrollar responsive design mobile", assignedTo: "Angel Velasco", progress: 55, start: "2025-02-07", end: "2025-02-16" },
+            { phase: "Desarrollo", task: "Crear sistema de logs y auditoría", assignedTo: "Angel Velasco", progress: 55, start: "2025-02-10", end: "2025-02-18" },
+            
+            // PRUEBAS Y EVALUACIÓN (Febrero-Marzo 2025)
+            { phase: "Pruebas y Evaluación", task: "Testing unitario de componentes React", assignedTo: "Jose Alvarez", progress: 50, start: "2025-02-15", end: "2025-02-22" },
+            { phase: "Pruebas y Evaluación", task: "Pruebas de integración del backend", assignedTo: "Jose Alvarez", progress: 50, start: "2025-02-18", end: "2025-02-25" },
+            { phase: "Pruebas y Evaluación", task: "Testing de pasarelas de pago", assignedTo: "Jose Alvarez", progress: 45, start: "2025-02-20", end: "2025-02-28" },
+            { phase: "Pruebas y Evaluación", task: "Pruebas de seguridad y vulnerabilidades", assignedTo: "Jose Alvarez", progress: 45, start: "2025-02-23", end: "2025-03-03" },
+            { phase: "Pruebas y Evaluación", task: "Testing de rendimiento y carga", assignedTo: "Jose Alvarez", progress: 40, start: "2025-02-26", end: "2025-03-06" },
+            { phase: "Pruebas y Evaluación", task: "Pruebas de compatibilidad cross-browser", assignedTo: "Jose Alvarez", progress: 40, start: "2025-03-01", end: "2025-03-08" },
+            { phase: "Pruebas y Evaluación", task: "Testing de flujo completo de compra", assignedTo: "Jose Alvarez", progress: 35, start: "2025-03-04", end: "2025-03-12" },
+            { phase: "Pruebas y Evaluación", task: "Evaluación de accesibilidad (WCAG)", assignedTo: "Jose Alvarez", progress: 35, start: "2025-03-07", end: "2025-03-14" },
+            { phase: "Pruebas y Evaluación", task: "Pruebas de usabilidad con usuarios", assignedTo: "Jose Alvarez", progress: 30, start: "2025-03-10", end: "2025-03-18" },
+            { phase: "Pruebas y Evaluación", task: "Testing de notificaciones y emails", assignedTo: "Jose Alvarez", progress: 30, start: "2025-03-13", end: "2025-03-20" },
+            { phase: "Pruebas y Evaluación", task: "Auditoría de SEO y performance", assignedTo: "Jose Alvarez", progress: 25, start: "2025-03-16", end: "2025-03-23" },
+            { phase: "Pruebas y Evaluación", task: "Pruebas de recuperación ante fallos", assignedTo: "Jose Alvarez", progress: 25, start: "2025-03-19", end: "2025-03-26" },
+            { phase: "Pruebas y Evaluación", task: "Validación de reglas de negocio", assignedTo: "Jose Alvarez", progress: 20, start: "2025-03-22", end: "2025-03-29" },
+            { phase: "Pruebas y Evaluación", task: "Testing de migraciones de base de datos", assignedTo: "Jose Alvarez", progress: 20, start: "2025-03-25", end: "2025-04-01" },
+            
+            // CIERRE Y DESPLIEGUE (Abril-Mayo 2025)
+            { phase: "Cierre y Despliegue", task: "Configurar entorno de producción", assignedTo: "Angel Velasco", progress: 15, start: "2025-04-01", end: "2025-04-07" },
+            { phase: "Cierre y Despliegue", task: "Implementar CI/CD pipelines", assignedTo: "Angel Velasco", progress: 15, start: "2025-04-03", end: "2025-04-10" },
+            { phase: "Cierre y Despliegue", task: "Migración de datos a producción", assignedTo: "Angel Velasco", progress: 10, start: "2025-04-06", end: "2025-04-12" },
+            { phase: "Cierre y Despliegue", task: "Configurar monitoreo y alertas", assignedTo: "Angel Velasco", progress: 10, start: "2025-04-08", end: "2025-04-14" },
+            { phase: "Cierre y Despliegue", task: "Crear documentación técnica completa", assignedTo: "Jose Alvarez", progress: 5, start: "2025-04-10", end: "2025-04-18" },
+            { phase: "Cierre y Despliegue", task: "Elaborar manual de usuario", assignedTo: "Jose Alvarez", progress: 5, start: "2025-04-12", end: "2025-04-20" },
+            { phase: "Cierre y Despliegue", task: "Capacitación del equipo de soporte", assignedTo: "Jose Alvarez", progress: 0, start: "2025-04-15", end: "2025-04-22" },
+            { phase: "Cierre y Despliegue", task: "Despliegue en producción (Go-Live)", assignedTo: "Angel Velasco", progress: 0, start: "2025-04-20", end: "2025-04-25" },
+            { phase: "Cierre y Despliegue", task: "Monitoreo post-lanzamiento", assignedTo: "Angel Velasco", progress: 0, start: "2025-04-25", end: "2025-04-30" },
+            { phase: "Cierre y Despliegue", task: "Cierre formal del proyecto", assignedTo: "Jose Alvarez", progress: 0, start: "2025-04-28", end: "2025-05-01" },
+        ];
+
+        let filteredData = [...projectData];
+
+        function getProgressClass(progress) {
+            if (progress === 0) return '';
+            if (progress <= 30) return 'progress-low';
+            if (progress <= 60) return 'progress-medium';
+            if (progress < 100) return 'progress-high';
+            return 'progress-complete';
+        }
+
+        function getStatusBadge(progress) {
+            if (progress === 0) return '<span class="status-badge status-pending">No Iniciado</span>';
+            if (progress < 100) return '<span class="status-badge status-progress">En Progreso</span>';
+            return '<span class="status-badge status-completed">Completado</span>';
+        }
+
+        function getPhaseBadge(phase) {
+            const badges = {
+                'Planeación': 'badge-planeacion',
+                'Diseño': 'badge-diseno',
+                'Desarrollo': 'badge-desarrollo',
+                'Pruebas y Evaluación': 'badge-pruebas',
+                'Cierre y Despliegue': 'badge-cierre'
+            };
+            return `<span class="badge ${badges[phase]}">${phase}</span>`;
+        }
+
+        function renderTable() {
+            const tbody = document.getElementById('tableBody');
+            tbody.innerHTML = '';
+            let currentPhase = '';
+            
+            filteredData.forEach(row => {
+                const tr = document.createElement('tr');
+                
+                const phaseCell = currentPhase !== row.phase ? getPhaseBadge(row.phase) : '';
+                currentPhase = row.phase;
+                
+                tr.innerHTML = `
+                    <td class="phase-cell">${phaseCell}</td>
+                    <td><strong>${row.task}</strong></td>
+                    <td>${row.assignedTo}</td>
+                    <td>
+                        <div class="progress-bar-container">
+                            <div class="progress-bar ${getProgressClass(row.progress)}" style="width: ${row.progress}%">
+                                ${row.progress > 0 ? row.progress + '%' : ''}
+                            </div>
+                        </div>
+                    </td>
+                    <td>${getStatusBadge(row.progress)}</td>
+                    <td>${formatDate(row.start)}</td>
+                    <td>${formatDate(row.end)}</td>
+                `;
+                
+                tbody.appendChild(tr);
+            });
+
+            updateStats();
+        }
+
+        function formatDate(dateStr) {
+            const date = new Date(dateStr);
+            return date.toLocaleDateString('es-ES', { day: '2-digit', month: 'short', year: 'numeric' });
+        }
+
+        function updateStats() {
+            const completed = filteredData.filter(t => t.progress === 100).length;
+            const inProgress = filteredData.filter(t => t.progress > 0 && t.progress < 100).length;
+            const avgProgress = Math.round(filteredData.reduce((sum, task) => sum + task.progress, 0) / filteredData.length);
+            
+            document.getElementById('totalTasks').textContent = filteredData.length;
+            document.getElementById('completedTasks').textContent = completed;
+            document.getElementById('inProgressTasks').textContent = inProgress;
+            document.getElementById('overallProgress').textContent = avgProgress + '%';
+        }
+
+        function filterByPhase() {
+            const phase = document.getElementById('phaseFilter').value;
+            if (phase === 'all') {
+                filteredData = [...projectData];
+            } else {
+                filteredData = projectData.filter(task => task.phase === phase);
+            }
+            document.getElementById('statusFilter').value = 'all';
+            renderTable();
+        }
+
+        function filterByStatus() {
+            const status = document.getElementById('statusFilter').value;
+            if (status === 'all') {
+                filteredData = [...projectData];
+            } else if (status === 'completed') {
+                filteredData = projectData.filter(task => task.progress === 100);
+            } else if (status === 'progress') {
+                filteredData = projectData.filter(task => task.progress > 0 && task.progress < 100);
+            } else if (status === 'pending') {
+                filteredData = projectData.filter(task => task.progress === 0);
+            }
+            document.getElementById('phaseFilter').value = 'all';
+            renderTable();
+        }
+
+        function searchTasks() {
+            const searchTerm = document.getElementById('searchInput').value.toLowerCase();
+            if (searchTerm === '') {
+                filteredData = [...projectData];
+            } else {
+                filteredData = projectData.filter(task => 
+                    task.task.toLowerCase().includes(searchTerm) ||
+                    task.assignedTo.toLowerCase().includes(searchTerm) ||
+                    task.phase.toLowerCase().includes(searchTerm)
+                );
+            }
+            renderTable();
+        }
+
+        function exportToExcel() {
+            const excelData = projectData.map(row => ({
+                'FASE': row.phase,
+                'TAREA': row.task,
+                'ASIGNADO A': row.assignedTo,
+                'PROGRESO (%)': row.progress,
+                'ESTADO': row.progress === 0 ? 'No Iniciado' : (row.progress < 100 ? 'En Progreso' : 'Completado'),
+                'FECHA INICIO': row.start,
+                'FECHA FIN': row.end
+            }));
+
+            const worksheet = XLSX.utils.json_to_sheet(excelData);
+            
+            // Configurar anchos de columna
+            worksheet['!cols'] = [
+                { wch: 25 },  // Fase
+                { wch: 55 },  // Tarea
+                { wch: 22 },  // Asignado a
+                { wch: 15 },  // Progreso
+                { wch: 18 },  // Estado
+                { wch: 16 },  // Fecha inicio
+                { wch: 16 }   // Fecha fin
+            ];
+
+            // Aplicar estilos al encabezado
+            const range = XLSX.utils.decode_range(worksheet['!ref']);
+            for (let C = range.s.c; C <= range.e.c; ++C) {
+                const address = XLSX.utils.encode_col(C) + "1";
+                if (!worksheet[address]) continue;
+                worksheet[address].s = {
+                    font: { bold: true, color: { rgb: "FFFFFF" } },
+                    fill: { fgColor: { rgb: "1E40AF" } },
+                    alignment: { horizontal: "center", vertical: "center" }
+                };
+            }
+
+            const workbook = XLSX.utils.book_new();
+            XLSX.utils.book_append_sheet(workbook, worksheet, 'NeoSale Gantt Chart');
+            
+            // Agregar metadata
+            workbook.Props = {
+                Title: "NeoSale - Diagrama de Gantt",
+                Subject: "Cronograma del Proyecto",
+                Author: "Equipo NeoSale",
+                CreatedDate: new Date()
+            };
+            
+            XLSX.writeFile(workbook, 'NeoSale_Gantt_Chart_2024-2025.xlsx');
+        }
+
+        function printTable() {
+            window.print();
+        }
+
+        // Inicializar
+        renderTable();
+    </script>
+</body>
+</html>
+            

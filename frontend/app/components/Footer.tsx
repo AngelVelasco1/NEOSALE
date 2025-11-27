@@ -17,6 +17,7 @@ export const Footer = () => {
       { name: 'Sobre Nosotros', href: '/about' },
       { name: 'Nuestra Historia', href: '/story' },
       { name: 'Trabaja con Nosotros', href: '/careers' },
+      { name: 'Documentación', href: '/documentation' },
       { name: 'Blog', href: '/blog' },
     ],
     shop: [
