@@ -97,9 +97,21 @@ Estos scripts ya están definidos en `backend/package.json`:
 }
 ```
 
+## 🔧 5. Crear Pull db (ejecutar desde `/backend`)
+
+### Inicializar cliente:
+
+```bash
+bunx prisma db pull
+```
+### Generar cliente:
+
+```bash
+bunx prisma generate
+```
 ---
 
-## 🧪 5. Levantar el proyecto en desarrollo
+## 🧪 6. Levantar el proyecto en desarrollo
 
 Desde la **raíz del proyecto**:
 
