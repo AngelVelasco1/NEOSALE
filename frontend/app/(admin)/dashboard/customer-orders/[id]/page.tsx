@@ -18,7 +18,7 @@ export async function generateMetadata({
 }: PageParams): Promise<Metadata> {
   try {
     const { id } = await params;
-    const { customer, orders } = await fetchCustomerOrders({ id });
+    const { customer } = await fetchCustomerOrders({ id });
 
 
     return {

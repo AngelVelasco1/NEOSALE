@@ -5,14 +5,17 @@ import { StaffStatus } from "@/app/(admin)/services/staff/types";
 
 export const OrderBadgeVariants: Record<OrderStatus, string> = {
   pending: "warning",
+  paid: "success",
   processing: "processing",
+  shipped: "processing",
   delivered: "success",
   cancelled: "destructive",
+  refunded: "destructive",
 };
 
 export const ProductBadgeVariants: Record<ProductStatus, string> = {
-  Disponible: "success",
-  agotado: "destructive",
+  selling: "success",
+  "out-of-stock": "destructive",
 };
 
 export const CouponBadgeVariants: Record<CouponStatus, string> = {

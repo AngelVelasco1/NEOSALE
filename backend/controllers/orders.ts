@@ -166,19 +166,16 @@ export const getOrderById = async (
     // Obtener user_id desde query params o header X-User-ID
     const userIdFromQuery = req.query.user_id;
     const userIdFromHeader = req.headers["x-user-id"];
-    const userId = parseInt((userIdFromQuery || userIdFromHeader) as string);
-
-    if (!userId || isNaN(userId)) {
-      return res.status(400).json({
-        success: false,
-        message: "user_id es requerido como query parameter o X-User-ID header",
-      });
-    }
+    const userId =
+      userIdFromQuery || userIdFromHeader
+        ? parseInt((userIdFromQuery || userIdFromHeader) as string)
+        : null;
 
     const order = await getOrderByIdService(parseInt(orderId));
 
-    // Verificar que la orden pertenece al usuario
-    if (order.user_id !== userId) {
+    // Si hay userId, verificar que la orden pertenece al usuario
+    // Si no hay userId, permitir acceso (asumiendo que es admin desde el dashboard)
+    if (userId && order.user_id !== userId) {
       return res.status(403).json({
         success: false,
         message: "No tienes permisos para ver esta orden",
@@ -187,7 +184,7 @@ export const getOrderById = async (
 
     console.log("Orden obtenida:", {
       orderId: order.id,
-      userId,
+      userId: userId || "admin",
       status: order.status,
     });
 

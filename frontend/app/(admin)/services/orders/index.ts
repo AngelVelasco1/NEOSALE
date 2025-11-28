@@ -2,20 +2,17 @@
 // import { SupabaseClient } from "@supabase/supabase-js";
 // import { Database } from "@/types/supabase";
 // import { queryPaginatedTable } from "@/helpers/queryPaginatedTable";
-import {
-  Order,
+import type {
   FetchOrdersParams,
   FetchOrdersResponse,
   OrderDetails,
 } from "./types";
 
-const BACKEND_URL =
-  process.env.NEXT_PUBLIC_BACKEND_URL || "http://localhost:8000";
+const BACKEND_URL = "http://localhost:8000";
 
 // Migrado a Prisma - Usa API routes
 export async function fetchOrders(
-  params: FetchOrdersParams,
-  _client?: any // No se usa más, mantenido por compatibilidad
+  params: FetchOrdersParams
 ): Promise<FetchOrdersResponse> {
   const {
     page = 1,
@@ -132,11 +129,61 @@ export async function fetchOrderDetails(
   */
 }
 
-// Stub temporal para fetchOrderDetails
-export async function fetchOrderDetails(
-  params: { id: string },
-  _client?: any
-): Promise<{ order: OrderDetails | null }> {
-  // TODO: Implementar con Prisma
-  return { order: null };
+// Implementación con Prisma
+export async function fetchOrderDetails(params: {
+  id: string;
+}): Promise<{ order: OrderDetails }> {
+  const { id } = params;
+
+  const response = await fetch(`${BACKEND_URL}/api/orders/${id}`, {
+    cache: "no-store",
+    headers: {
+      "Content-Type": "application/json",
+    },
+  });
+
+  if (!response.ok) {
+    throw new Error(`Failed to fetch order details: ${response.statusText}`);
+  }
+
+  const result = await response.json();
+  const data = result.data;
+
+  // Transformar la respuesta del backend al formato esperado por el frontend
+  const order: OrderDetails = {
+    id: data.id,
+    invoice_no: `INV-${String(data.id).padStart(6, "0")}`,
+    order_time: data.created_at,
+    total_amount: data.total, // Ya está en unidad base (pesos)
+    shipping_cost: data.shipping_cost, // Ya está en unidad base (pesos)
+    payment_method: "CARD", // Por defecto, se puede obtener del payment si es necesario
+    status: data.status,
+    customers: {
+      name: data.users.name,
+      email: data.users.email,
+      phone: data.users.phone_number || null,
+      address: data.addresses?.address || null,
+    },
+    order_items: data.order_items.map(
+      (item: {
+        quantity: number;
+        price: number;
+        products: { name: string };
+      }) => ({
+        quantity: item.quantity,
+        unit_price: item.price, // Ya está en unidad base (pesos)
+        products: {
+          name: item.products.name,
+        },
+      })
+    ),
+    coupons: data.coupons
+      ? {
+          discount_type: data.coupons.discount_type,
+          discount_value: Number(data.coupons.discount_value),
+        }
+      : null,
+  };
+
+  return { order };
 }

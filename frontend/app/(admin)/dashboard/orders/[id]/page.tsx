@@ -20,8 +20,10 @@ import { Badge } from "@/app/(admin)/components/ui/badge";
 import { getDiscount } from "@/app/(admin)/helpers/getDiscount";
 import { OrderBadgeVariants } from "@/app/(admin)/constants/badge";
 import { fetchOrderDetails } from "@/app/(admin)/services/orders";
-import { createServerClient } from "@/lib/supabase/server";
 import { InvoiceActions } from "./_components/InvoiceActions";
+
+// Importar estilos específicos para el PDF
+import "./invoice-pdf.css";
 
 type PageParams = {
   params: {
@@ -30,24 +32,23 @@ type PageParams = {
 };
 
 export async function generateMetadata({
-  params: { id },
+  params,
 }: PageParams): Promise<Metadata> {
   try {
-    const { order } = await fetchOrderDetails(createServerClient(), {
-      id,
-    });
+    const { id } = await params;
+    const { order } = await fetchOrderDetails({ id });
 
     return { title: `Order #${order.invoice_no}` };
-  } catch (e) {
+  } catch {
     return { title: "Order not found" };
   }
 }
 
-export default async function Order({ params: { id } }: PageParams) {
+export default async function Order({ params }: PageParams) {
   try {
-    const { order } = await fetchOrderDetails(createServerClient(), {
-      id,
-    });
+    const { id } = await params;
+
+    const { order } = await fetchOrderDetails({ id });
 
     return (
       <section>
@@ -69,7 +70,16 @@ export default async function Order({ params: { id } }: PageParams) {
                 </Typography>
 
                 <Badge
-                  variant={OrderBadgeVariants[order.status]}
+                  variant={
+                    OrderBadgeVariants[order.status] as
+                    | "default"
+                    | "secondary"
+                    | "outline"
+                    | "destructive"
+                    | "success"
+                    | "warning"
+                    | "processing"
+                  }
                   className="flex-shrink-0 text-xs capitalize"
                 >
                   {order.status}
@@ -269,7 +279,7 @@ export default async function Order({ params: { id } }: PageParams) {
         <InvoiceActions order={order} />
       </section>
     );
-  } catch (e) {
+  } catch {
     return notFound();
   }
 }

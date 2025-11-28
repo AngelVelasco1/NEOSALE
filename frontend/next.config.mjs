@@ -12,6 +12,26 @@ const nextConfig = {
     `${FRONT_CONFIG.api_origin}`,
   ],
 
+  webpack: (config, { dev }) => {
+    if (dev) {
+      config.cache = false;
+    }
+
+    // Suprimir warnings específicos de webpack
+    config.infrastructureLogging = {
+      level: "error",
+      debug: false,
+    };
+
+    // Optimización adicional para módulos grandes
+    config.optimization = {
+      ...config.optimization,
+      moduleIds: "deterministic",
+    };
+
+    return config;
+  },
+
   images: {
     remotePatterns: [
       {
