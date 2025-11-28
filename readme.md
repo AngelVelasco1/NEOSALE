@@ -78,7 +78,7 @@ AUTH_SECRET=""
 ### Inicializar cliente:
 
 ```bash
-bunx prisma:generate
+bunx prisma generate
 ```
 
 ### Ver base de datos (modo visual):
