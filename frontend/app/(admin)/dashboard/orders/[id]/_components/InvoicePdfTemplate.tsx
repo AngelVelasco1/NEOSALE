@@ -1,219 +1,425 @@
-import { FaBagShopping } from "react-icons/fa6";
 import { formatDate } from "@/lib/date-utils";
 
-import Typography from "@/app/(admin)/components/ui/typography";
-import { Card } from "@/app/(admin)/components/ui/card";
-import { Separator } from "@/app/(admin)/components/ui/separator";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/app/(admin)/components/ui/table";
-import { Badge } from "@/app/(admin)/components/ui/badge";
-
 import { OrderDetails } from "@/app/(admin)/services/orders/types";
-import { OrderBadgeVariants } from "@/app/(admin)/constants/badge";
+import Image from "next/image";
+
+const getBadgeStyles = (status: string): React.CSSProperties => {
+  const baseStyles: React.CSSProperties = {
+    display: "inline-block",
+    padding: "0px 10px 12px 10px",
+    fontSize: "11px",
+    fontWeight: "600",
+    borderRadius: "20px",
+    textTransform: "uppercase",
+    letterSpacing: "0.5px",
+  };
+
+  const statusColors: Record<string, { bg: string; color: string; border: string }> = {
+    pending: { bg: "#FEF3C7", color: "#92400E", border: "#FDE68A" },
+    processing: { bg: "#DBEAFE", color: "#1E40AF", border: "#BFDBFE" },
+    shipped: { bg: "#E0E7FF", color: "#3730A3", border: "#C7D2FE" },
+    delivered: { bg: "#D1FAE5", color: "#065F46", border: "#A7F3D0" },
+    cancelled: { bg: "#FEE2E2", color: "#991B1B", border: "#FECACA" },
+  };
+
+  const colors = statusColors[status] || { bg: "#F3F4F6", color: "#1F2937", border: "#E5E7EB" };
+
+  return {
+    ...baseStyles,
+    backgroundColor: colors.bg,
+    color: colors.color,
+    border: `1px solid ${colors.border}`,
+  };
+};
 
 export default function InvoicePdfTemplate({ order }: { order: OrderDetails }) {
   return (
-    <Card
+    <div
       id={`invoice-${order.invoice_no}`}
-      className="text-black p-20 border-none bg-white rounded-none"
-      style={{ width: "794px", height: "1123px" }}
+      style={{ 
+        width: "794px", 
+        height: "1123px",
+        fontFamily: "'Inter', 'Segoe UI', Arial, sans-serif",
+        padding: "56px",
+        backgroundColor: "#ffffff",
+        boxSizing: "border-box",
+        position: "relative"
+      }}
     >
-      <div className="flex justify-between gap-x-4 gap-y-6">
-        <div className="flex flex-col">
-          <Typography
-            className="uppercase text-black mb-1.5 tracking-wide"
-            variant="h2"
-          >
-            invoice
-          </Typography>
-
-          <div className="group light-only flex items-center gap-x-2">
-            <Typography className="uppercase font-semibold text-xs">
-              status
-            </Typography>
-
-            {/* positioning and translate is to rectify html2canvas incorrect rendering */}
-            <Badge
-              variant={OrderBadgeVariants[order.status]}
-              className="flex-shrink-0 text-xs capitalize translate-y-1.5 relative"
-            >
-              <span className="text-transparent">{order.status}</span>
-              <span className="absolute left-2.5 capitalize bottom-2">
-                {order.status}
-              </span>
-            </Badge>
+      {/* Header */}
+      <div style={{ 
+        display: "flex", 
+        justifyContent: "space-between", 
+        alignItems: "flex-start", 
+        marginBottom: "25px",
+        paddingBottom: "32px",
+        borderBottom: "2px solid #E5E7EB"
+      }}>
+        <div style={{ flex: 1 }}>
+          <div style={{ 
+            display: "flex", 
+            alignItems: "center", 
+            gap: "12px", 
+            marginBottom: "16px" 
+          }}>
+            <Image width={50} height={50} alt="logo" src="/imgs/Logo.png" style={{ objectFit: "contain" }} />
+            <h1 style={{ 
+              fontSize: "28px", 
+              color: "#2768E3", 
+              fontWeight: "700", 
+              marginBottom: "22px",
+              letterSpacing: "-0.5px"
+            }}>
+              NEO$ALE
+            </h1>
+          </div>
+          <div style={{ 
+            fontSize: "11px", 
+            color: "#6B7280", 
+            lineHeight: "1.5",
+            marginLeft: "15px"
+          }}>
+            <p style={{ margin: "0 0 1px 0" }}>2 Lawson Avenue, California, United States</p>
+            <p style={{ margin: "0 0 1px 0" }}>+1 (212) 456-7890</p>
+            <p style={{ margin: "0" }}>ecommerceadmin@gmail.com</p>
           </div>
         </div>
 
-        <div className="flex flex-col text-sm gap-y-0.5 text-right text-black">
-          <div className="flex items-end justify-end gap-x-1">
-            <FaBagShopping className="size-6 text-primary flex-shrink-0" />
-
-            {/* margin bottom style is to rectify html2canvas incorrect rendering */}
-            <Typography component="span" variant="h2" className="mb-1.5">
-              Zorvex
-            </Typography>
-          </div>
-
-          <Typography component="p">
-            2 Lawson Avenue, California, United States
-          </Typography>
-          <Typography component="p">+1 (212) 456-7890</Typography>
-          <Typography component="p" className="break-words">
-            ecommerceadmin@gmail.com
-          </Typography>
-          <Typography component="p">
-            ecommerce-admin-board.vercel.app
-          </Typography>
+        <div style={{ textAlign: "right", minWidth: "160px" }}>
+          <h2 style={{ 
+            fontSize: "36px", 
+            color: "#111827", 
+            fontWeight: "700", 
+            textTransform: "uppercase",
+            margin: "0 0 12px 0",
+            letterSpacing: "1px"
+          }}>
+            
+        Factura
+          </h2>
+          <span style={getBadgeStyles(order.status)}>
+            {order.status}
+          </span>
         </div>
       </div>
 
-      <Separator className="my-6 bg-print-border" />
-
-      <div className="flex justify-between gap-4 mb-10 text-black">
+      {/* Info Section */}
+      <div style={{ 
+        display: "grid", 
+        gridTemplateColumns: "repeat(3, 1fr)", 
+        gap: "32px", 
+        marginBottom: "30px",
+        padding: "24px",
+        backgroundColor: "#F9FAFB",
+        borderRadius: "12px"
+      }}>
         <div>
-          <Typography
-            variant="p"
-            component="h4"
-            className="font-semibold uppercase mb-1 text-black"
-          >
-            date
-          </Typography>
-
-          <Typography className="text-sm">
+          <p style={{ 
+            fontSize: "9px", 
+            color: "#6B7280", 
+            textTransform: "uppercase", 
+            fontWeight: "700",
+            marginBottom: "5px",
+            letterSpacing: "1px"
+          }}>
+            Fecha de la Orden
+          </p>
+          <p style={{ 
+            fontSize: "15px", 
+            color: "#111827", 
+            fontWeight: "600", 
+            margin: 0 
+          }}>
             {formatDate.long(order.order_time)}
-          </Typography>
+          </p>
         </div>
 
         <div>
-          <Typography
-            variant="p"
-            component="h4"
-            className="font-semibold uppercase mb-1 text-black"
-          >
-            invoice no
-          </Typography>
-
-          <Typography className="text-sm">#{order.invoice_no}</Typography>
+          <p style={{ 
+            fontSize: "9px", 
+            color: "#6B7280", 
+            textTransform: "uppercase", 
+            fontWeight: "700",
+            marginBottom: "8px",
+            letterSpacing: "1px"
+          }}>
+            Factura No.
+          </p>
+          <p style={{ 
+            fontSize: "15px", 
+            color: "#111827", 
+            fontWeight: "600", 
+            margin: 0 
+          }}>
+            #{order.invoice_no}
+          </p>
         </div>
 
-        <div className="text-right">
-          <Typography
-            variant="p"
-            component="h4"
-            className="font-semibold uppercase mb-1 text-black"
-          >
-            invoice to
-          </Typography>
-
-          <div className="flex flex-col text-sm gap-y-0.5">
-            <Typography component="p">{order.customers.name}</Typography>
-            <Typography component="p" className="break-words">
-              {order.customers.email}
-            </Typography>
-            {order.customers.phone && (
-              <Typography component="p">{order.customers.phone}</Typography>
-            )}
-            {order.customers.address && (
-              <Typography component="p" className="max-w-80">
-                {order.customers.address}
-              </Typography>
-            )}
-          </div>
-        </div>
-      </div>
-
-      <div className="border rounded-md overflow-hidden mb-10 text-black border-print-border">
-        <Table>
-          <TableHeader>
-            <TableRow className="border-b-print-border hover:bg-transparent">
-              <TableHead className="uppercase h-10 whitespace-nowrap text-black">
-                SR.
-              </TableHead>
-              <TableHead className="uppercase h-10 whitespace-nowrap text-black">
-                product title
-              </TableHead>
-              <TableHead className="uppercase h-10 whitespace-nowrap text-center text-black">
-                quantity
-              </TableHead>
-              <TableHead className="uppercase h-10 whitespace-nowrap text-center text-black">
-                item price
-              </TableHead>
-              <TableHead className="uppercase h-10 whitespace-nowrap text-right text-black">
-                amount
-              </TableHead>
-            </TableRow>
-          </TableHeader>
-
-          <TableBody>
-            {order.order_items.map((orderItem, index) => (
-              <TableRow
-                key={`order-item-${index}`}
-                className="hover:bg-transparent border-b-print-border"
-              >
-                <TableCell className="py-3 font-normal text-black">
-                  {index + 1}
-                </TableCell>
-                <TableCell className="py-3 px-6 font-normal text-black">
-                  {orderItem.products.name}
-                </TableCell>
-                <TableCell className="py-3 text-center font-normal text-black">
-                  {orderItem.quantity}
-                </TableCell>
-                <TableCell className="py-3 text-center font-normal text-black">
-                  ${orderItem.unit_price.toFixed(2)}
-                </TableCell>
-                <TableCell className="font-semibold py-3 text-primary text-right text-black">
-                  ${(orderItem.quantity * orderItem.unit_price).toFixed(2)}
-                </TableCell>
-              </TableRow>
-            ))}
-          </TableBody>
-        </Table>
-      </div>
-
-      <div className="rounded-lg flex gap-4 justify-between md:flex-row px-2">
         <div>
-          <Typography
-            component="h4"
-            className="font-medium text-sm uppercase mb-1 tracking-wide text-black"
-          >
-            payment method
-          </Typography>
-
-          <Typography className="text-base capitalize font-semibold tracking-wide text-black">
+          <p style={{ 
+            fontSize: "9px", 
+            color: "#6B7280", 
+            textTransform: "uppercase", 
+            fontWeight: "700",
+            marginBottom: "8px",
+            letterSpacing: "1px"
+          }}>
+            Método de Pago
+          </p>
+          <p style={{ 
+            fontSize: "15px", 
+            color: "#111827", 
+            fontWeight: "600",
+            textTransform: "uppercase",
+            margin: 0
+          }}>
             {order.payment_method}
-          </Typography>
+          </p>
+        </div>
+      </div>
+
+      {/* Bill To */}
+      <div style={{ 
+        marginBottom: "25px",
+        padding: "20px 24px",
+        borderLeft: "4px solid #3B82F6",
+        backgroundColor: "#EFF6FF",
+        borderRadius: "0 8px 8px 0"
+      }}>
+        <p style={{ 
+          fontSize: "9px", 
+          color: "#3B82F6",
+          textTransform: "uppercase",
+          fontWeight: "700",
+          marginBottom: "12px",
+          letterSpacing: "1px"
+        }}>
+          Facturado a:
+        </p>
+        <p style={{ 
+          fontSize: "17px", 
+          color: "#111827",
+          fontWeight: "700",
+          marginBottom: "8px"
+        }}>
+          {order.customers.name}
+        </p>
+        <div style={{ 
+          fontSize: "13px", 
+          color: "#4B5563", 
+          lineHeight: "1.8" 
+        }}>
+          <p style={{ margin: "0 0 4px 0" }}>{order.customers.email}</p>
+          {order.customers.phone && <p style={{ margin: "0 0 4px 0" }}>{order.customers.phone}</p>}
+          {order.customers.address && <p style={{ margin: "0" }}>{order.customers.address}</p>}
+        </div>
+      </div>
+
+      {/* Products Table */}
+      <div style={{ 
+        marginBottom: "25px",
+        border: "1px solid #E5E7EB",
+        borderRadius: "12px",
+        overflow: "hidden",
+        boxShadow: "0 1px 3px 0 rgba(0, 0, 0, 0.1)"
+      }}>
+        <table style={{ width: "100%", padding: "0px", borderCollapse: "collapse" }}>
+          <thead style={{backgroundColor: "gray"}}>
+            <tr style={{ 
+              backgroundColor: "#F9FAFB",
+              borderBottom: "2px solid #E5E7EB" 
+            }}>
+              <th style={{ 
+                height: "48px",
+                fontSize: "10px",
+                fontWeight: "700",
+                color: "#374151",
+                textAlign: "left",
+                padding: "12px 20px",
+                textTransform: "uppercase",
+                letterSpacing: "0.5px"
+              }}>
+                SR.
+              </th>
+              <th style={{ 
+                height: "48px",
+                fontSize: "10px",
+                fontWeight: "700",
+                color: "#374151",
+                textAlign: "left",
+                padding: "12px 20px",
+                textTransform: "uppercase",
+                letterSpacing: "0.5px"
+              }}>
+                Producto
+              </th>
+              <th style={{ 
+                height: "48px",
+                fontSize: "10px",
+                fontWeight: "700",
+                color: "#374151",
+                textAlign: "center",
+                padding: "12px 20px",
+                textTransform: "uppercase",
+                letterSpacing: "0.5px"
+              }}>
+                Cantidad
+              </th>
+              <th style={{ 
+                height: "48px",
+                fontSize: "10px",
+                fontWeight: "700",
+                color: "#374151",
+                textAlign: "center",
+                padding: "12px 20px",
+                textTransform: "uppercase",
+                letterSpacing: "0.5px"
+              }}>
+                Precio Unitario
+              </th>
+              <th style={{ 
+                height: "48px",
+                fontSize: "10px",
+                fontWeight: "700",
+                color: "#374151",
+                textAlign: "right",
+                padding: "12px 20px",
+                textTransform: "uppercase",
+                letterSpacing: "0.5px"
+              }}>
+                Cantidad
+              </th>
+            </tr>
+          </thead>
+
+          <tbody>
+            {order.order_items.map((orderItem, index) => (
+              <tr
+                key={`order-item-${index}`}
+                style={{ 
+                  borderBottom: index < order.order_items.length - 1 ? "1px solid #F3F4F6" : "none",
+                  backgroundColor: "#ffffff"
+                }}
+              >
+                <td style={{ 
+                  padding: "16px 20px",
+                  fontSize: "14px",
+                  color: "#6B7280",
+                  fontWeight: "500"
+                }}>
+                  {index + 1}
+                </td>
+                <td style={{ 
+                  padding: "16px 20px",
+                  fontSize: "14px",
+                  color: "#111827",
+                  fontWeight: "500"
+                }}>
+                  {orderItem.products.name}
+                </td>
+                <td style={{ 
+                  padding: "16px 20px",
+                  fontSize: "14px",
+                  color: "#111827",
+                  textAlign: "center",
+                  fontWeight: "600"
+                }}>
+                  {orderItem.quantity}
+                </td>
+                <td style={{ 
+                  padding: "16px 20px",
+                  fontSize: "14px",
+                  color: "#6B7280",
+                  textAlign: "center",
+                  fontWeight: "500"
+                }}>
+                  ${orderItem.unit_price.toFixed(2)}
+                </td>
+                <td style={{ 
+                  padding: "16px 20px",
+                  fontSize: "15px",
+                  color: "#3B82F6",
+                  fontWeight: "700",
+                  textAlign: "right"
+                }}>
+                  ${(orderItem.quantity * orderItem.unit_price).toFixed(2)}
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+
+      {/* Summary Section */}
+      <div style={{ 
+        display: "grid",
+        gridTemplateColumns: "repeat(4, 1fr)",
+        gap: "20px",
+        padding: "28px",
+        backgroundColor: "#F9FAFB",
+        borderRadius: "12px",
+        border: "1px solid #E5E7EB"
+      }}>
+        <div style={{ textAlign: "center" }}>
+          <p style={{ 
+            fontWeight: "700",
+            fontSize: "9px",
+            color: "#6B7280",
+            textTransform: "uppercase",
+            marginBottom: "8px",
+            letterSpacing: "1px"
+          }}>
+            Metodo de Pago
+          </p>
+          <p style={{ 
+            fontSize: "15px",
+            fontWeight: "600",
+            color: "#111827",
+            textTransform: "capitalize",
+            margin: 0
+          }}>
+            {order.payment_method}
+          </p>
         </div>
 
-        <div>
-          <Typography
-            component="h4"
-            className="font-medium text-sm uppercase mb-1 tracking-wide text-black"
-          >
-            shipping cost
-          </Typography>
-
-          <Typography className="text-base capitalize font-semibold tracking-wide text-black">
+        <div style={{ textAlign: "center" }}>
+          <p style={{ 
+            fontWeight: "700",
+            fontSize: "9px",
+            color: "#6B7280",
+            textTransform: "uppercase",
+            marginBottom: "8px",
+            letterSpacing: "1px"
+          }}>
+             Costo de Envío
+          </p>
+          <p style={{ 
+            fontSize: "15px",
+            fontWeight: "600",
+            color: "#111827",
+            margin: 0
+          }}>
             ${order.shipping_cost.toFixed(2)}
-          </Typography>
+          </p>
         </div>
 
-        <div>
-          <Typography
-            component="h4"
-            className="font-medium text-sm uppercase mb-1 tracking-wide text-black"
-          >
-            discount
-          </Typography>
-
-          <Typography className="text-base capitalize font-semibold tracking-wide text-black">
+        <div style={{ textAlign: "center" }}>
+          <p style={{ 
+            fontWeight: "700",
+            fontSize: "9px",
+            color: "#6B7280",
+            textTransform: "uppercase",
+            marginBottom: "8px",
+            letterSpacing: "1px"
+          }}>
+            Descuento
+          </p>
+          <p style={{ 
+            fontSize: "15px",
+            fontWeight: "600",
+            color: "#10B981",
+            margin: 0
+          }}>
             $
             {order.coupons
               ? order.coupons.discount_type === "fixed"
@@ -224,22 +430,34 @@ export default function InvoicePdfTemplate({ order }: { order: OrderDetails }) {
                   (order.total_amount - order.shipping_cost)
                 ).toFixed(2)
               : "0.00"}
-          </Typography>
+          </p>
         </div>
 
-        <div>
-          <Typography
-            component="h4"
-            className="font-medium text-sm uppercase mb-1 tracking-wide text-black"
-          >
-            total amount
-          </Typography>
-
-          <Typography className="text-xl capitalize font-semibold tracking-wide text-primary">
+        <div style={{ 
+          textAlign: "center",
+          borderLeft: "2px solid #3B82F6",
+          paddingLeft: "20px"
+        }}>
+          <p style={{ 
+            fontWeight: "700",
+            fontSize: "9px",
+            color: "#3B82F6",
+            textTransform: "uppercase",
+            marginBottom: "2px",
+            letterSpacing: "1px"
+          }}>
+            Total a Pagar
+          </p>
+          <p style={{ 
+            fontSize: "20px",
+            fontWeight: "700",
+            color: "#3B82F6",
+            margin: 0
+          }}>
             ${order.total_amount.toFixed(2)}
-          </Typography>
+          </p>
         </div>
       </div>
-    </Card>
+    </div>
   );
 }

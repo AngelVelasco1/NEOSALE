@@ -1,6 +1,75 @@
-/* Estilos específicos para el PDF de invoice - Compatibilidad con html2canvas */
+/* Estilos modernos glassmorphism para facturas - Dark Mode */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
 
-/* Forzar colores RGB para evitar problemas con oklch */
+/* Glassmorphism para modo oscuro usando solo clases de Tailwind */
+.glass-card {
+  @apply backdrop-blur-xl bg-white/10 dark:bg-black/20 border border-slate-200/60 dark:border-slate-600/50 
+         shadow-2xl shadow-indigo-500/20 dark:shadow-purple-500/30 rounded-3xl relative overflow-hidden;
+}
+
+.glass-card:before {
+  content: '';
+  @apply absolute inset-0 bg-gradient-to-br from-white/5 to-transparent pointer-events-none;
+}
+
+.glass-card-hover {
+  @apply transition-all duration-300 hover:-translate-y-1 hover:shadow-2xl hover:shadow-indigo-500/30 
+         dark:hover:shadow-purple-500/40;
+}
+
+/* Efectos de glassmorphism para elementos pequeños */
+.glass-info-card {
+  @apply backdrop-blur-sm bg-white/20 dark:bg-black/30 rounded-2xl border border-slate-300/50 
+         dark:border-slate-600/40 shadow-lg transition-all duration-300 
+         hover:-translate-y-1 hover:shadow-xl hover:shadow-indigo-500/20;
+}
+
+/* Tabla con efectos glass */
+.glass-table {
+  @apply backdrop-blur-xl bg-white/20 dark:bg-black/30 border border-slate-200/60 
+         dark:border-slate-600/50 rounded-3xl overflow-hidden shadow-2xl shadow-indigo-500/10 
+         dark:shadow-purple-500/20;
+}
+
+.glass-table-header {
+  @apply bg-gradient-to-r from-indigo-500/10 to-purple-500/10 dark:from-indigo-400/20 
+         dark:to-purple-400/20 backdrop-blur-sm;
+}
+
+.glass-table-row {
+  @apply hover:bg-white/30 dark:hover:bg-white/10 transition-all duration-300 
+         backdrop-blur-sm border-b border-slate-200/30 dark:border-slate-600/20
+         hover:scale-[1.01] hover:shadow-lg hover:shadow-indigo-500/10;
+}
+
+/* Summary cards con efectos especiales */
+.glass-summary-card {
+  @apply backdrop-blur-sm bg-white/20 dark:bg-black/30 rounded-2xl border border-slate-300/50 
+         dark:border-slate-600/40 shadow-lg text-center transition-all duration-300
+         hover:-translate-y-1 hover:shadow-xl;
+}
+
+.glass-total-card {
+  @apply backdrop-blur-lg bg-gradient-to-br from-indigo-500/20 to-purple-500/20 
+         dark:from-indigo-400/30 dark:to-purple-400/30 rounded-2xl border border-blue-300/70 
+         dark:border-blue-500/50 shadow-2xl text-center relative overflow-hidden
+         hover:-translate-y-2 hover:shadow-2xl hover:shadow-indigo-500/40;
+}
+
+/* Animaciones con Tailwind */
+@keyframes shimmer {
+  0% { transform: translateX(-100%); }
+  100% { transform: translateX(100%); }
+}
+
+.shimmer-effect::after {
+  content: '';
+  @apply absolute top-0 left-0 w-full h-full bg-gradient-to-r from-transparent 
+         via-white/10 to-transparent;
+  animation: shimmer 3s infinite;
+}
+
+/* Compatibilidad con html2canvas - Forzar colores RGB para PDF */
 [id^="invoice-"] {
   color-scheme: light !important;
 }
@@ -30,6 +99,107 @@
   background-color: rgb(229, 231, 235) !important;
 }
 
+/* Texto con gradiente usando Tailwind */
+.text-gradient-primary {
+  @apply bg-gradient-to-r from-indigo-600 to-purple-600 dark:from-indigo-400 dark:to-purple-400 
+         bg-clip-text text-transparent font-bold;
+}
+
+.text-gradient-secondary {
+  @apply bg-gradient-to-r from-blue-600 to-indigo-600 dark:from-blue-400 dark:to-indigo-400 
+         bg-clip-text text-transparent;
+}
+
+/* Fondo principal con gradiente para dark mode */
+.invoice-background {
+  @apply min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100 
+         dark:from-slate-900 dark:via-slate-800 dark:to-indigo-900;
+}
+
+/* Logo container con efectos */
+.brand-container {
+  @apply p-2 rounded-xl bg-gradient-to-br from-indigo-500 to-purple-600 
+         dark:from-indigo-400 dark:to-purple-500 shadow-lg transition-all duration-300
+         hover:shadow-xl hover:shadow-indigo-500/50 hover:scale-105;
+}
+
+/* Información de contacto container */
+.contact-info-container {
+  @apply backdrop-blur-sm bg-white/20 dark:bg-black/30 rounded-xl border border-slate-300/40 
+         dark:border-slate-600/30 p-3 transition-all duration-300 hover:bg-white/30 dark:hover:bg-black/40;
+}
+
+/* Separador con gradiente */
+.gradient-separator {
+  @apply h-px bg-gradient-to-r from-transparent via-indigo-300 dark:via-purple-400 to-transparent 
+         my-8;
+}
+
+/* Badge con glassmorphism */
+.glass-badge {
+  @apply backdrop-blur-sm bg-white/20 dark:bg-black/30 border border-slate-400/50 dark:border-slate-500/40 
+         shadow-lg rounded-full px-3 py-1 text-xs font-medium transition-all duration-300
+         hover:bg-white/30 dark:hover:bg-black/40;
+}
+
+/* Variantes de color para dark mode */
+.text-slate-custom {
+  @apply text-slate-700 dark:text-slate-300;
+}
+
+.text-slate-header {
+  @apply text-slate-600 dark:text-slate-400;
+}
+
+.bg-glass-light {
+  @apply bg-white/30 dark:bg-black/40;
+}
+
+.border-glass {
+  @apply border-slate-300/50 dark:border-slate-600/40;
+}
+
+/* Efectos de hover específicos para dark mode */
+.hover-glass-effect {
+  @apply hover:bg-white/40 dark:hover:bg-black/50 hover:border-slate-400/60 dark:hover:border-slate-500/50;
+}
+
+/* Estilos para impresión - mantener simplicidad */
+@media print {
+  * {
+    backdrop-filter: none !important;
+    background: white !important;
+    color: black !important;
+    box-shadow: none !important;
+    border: 1px solid #e5e7eb !important;
+  }
+  
+  .print\\:hidden {
+    display: none !important;
+  }
+  
+  .print\\:text-black {
+    color: black !important;
+  }
+  
+  .print\\:bg-white {
+    background: white !important;
+  }
+  
+  .print\\:border-print-border {
+    border-color: #e5e7eb !important;
+  }
+  
+  /* Ocultar efectos glass en impresión */
+  .glass-card,
+  .glass-info-card,
+  .glass-table,
+  .glass-summary-card,
+  .glass-total-card {
+    @apply bg-white border-gray-300;
+  }
+}
+
 /* Asegurar que los badges tengan colores RGB */
 [id^="invoice-"] .bg-yellow-100 {
   background-color: rgb(254, 249, 195) !important;
@@ -55,10 +225,92 @@
   color: rgb(153, 27, 27) !important;
 }
 
+/* Animaciones con Tailwind */
+.fade-in {
+  @apply animate-fade-in;
+}
+
+@keyframes fade-in {
+  from {
+    @apply opacity-0 translate-y-5;
+  }
+  to {
+    @apply opacity-100 translate-y-0;
+  }
+}
+
+.animate-fade-in {
+  animation: fade-in 0.6s ease-in-out;
+}
+
+/* Efectos de hover con escalado suave */
+.hover-scale {
+  @apply transition-transform duration-300 hover:scale-105;
+}
+
+.hover-glow {
+  @apply transition-shadow duration-300 hover:shadow-xl hover:shadow-indigo-500/25 
+         dark:hover:shadow-purple-500/30;
+}
+
+/* Responsive glassmorphism */
+@screen md {
+  .glass-card {
+    @apply backdrop-blur-2xl;
+  }
+}
+
+@screen sm {
+  .glass-card,
+  .glass-info-card,
+  .glass-table {
+    @apply backdrop-blur-lg;
+  }
+}
+
+/* Mejoras para accesibilidad */
+@media (prefers-reduced-motion: reduce) {
+  .glass-card-hover,
+  .glass-info-card,
+  .glass-summary-card,
+  .glass-total-card,
+  .hover-scale,
+  .hover-glow,
+  .brand-container {
+    @apply transition-none;
+  }
+  
+  .animate-fade-in,
+  .shimmer-effect {
+    animation: none;
+  }
+}
+
+/* Focus states mejorados para accesibilidad */
+.focus-glass {
+  @apply focus:ring-2 focus:ring-indigo-500 dark:focus:ring-purple-400 focus:ring-opacity-50 
+         focus:outline-none focus:ring-offset-2 dark:focus:ring-offset-gray-800;
+}
+
 [id^="invoice-"] .bg-blue-100 {
   background-color: rgb(219, 234, 254) !important;
 }
 
 [id^="invoice-"] .text-blue-800 {
   color: rgb(30, 64, 175) !important;
+}
+
+/* Button styles */
+.download-pdf-button {
+  @apply bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 
+         text-white shadow-2xl shadow-indigo-500/25 backdrop-blur-sm border border-indigo-400/30 dark:border-indigo-300/20 
+         rounded-xl px-6 py-3 transition-all duration-300 hover:scale-105 
+         hover:shadow-indigo-500/40 active:scale-95 dark:shadow-indigo-400/25;
+}
+
+.print-invoice-button {
+  @apply bg-gradient-to-r from-slate-600 to-slate-700 hover:from-slate-700 hover:to-slate-800 
+         text-white shadow-2xl shadow-slate-500/25 backdrop-blur-sm border border-slate-400/30 dark:border-slate-300/20 
+         rounded-xl px-6 py-3 transition-all duration-300 hover:scale-105 
+         hover:shadow-slate-500/40 active:scale-95 dark:shadow-slate-400/25;
 }

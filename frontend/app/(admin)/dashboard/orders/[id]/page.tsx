@@ -38,9 +38,9 @@ export async function generateMetadata({
     const { id } = await params;
     const { order } = await fetchOrderDetails({ id });
 
-    return { title: `Order #${order.invoice_no}` };
+    return { title: `Pedido #${order.invoice_no} - NEO$ALE` };
   } catch {
-    return { title: "Order not found" };
+    return { title: "Pedido no encontrado - NEO$ALE" };
   }
 }
 
@@ -51,140 +51,225 @@ export default async function Order({ params }: PageParams) {
     const { order } = await fetchOrderDetails({ id });
 
     return (
-      <section>
-        <PageTitle className="print:hidden">Invoice</PageTitle>
+      <section className="invoice-background p-4 ">
 
-        <Card className="mb-8 text-muted-foreground p-4 lg:p-6 print:border-none print:bg-white print:mb-0">
-          <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-x-4 gap-y-6 print:flex-row print:justify-between">
-            <div className="flex flex-col">
-              <Typography
-                className="uppercase text-card-foreground mb-1.5 md:text-xl tracking-wide print:text-black"
-                variant="h2"
-              >
-                invoice
-              </Typography>
+        <Card className="mb-8 glass-card glass-card-hover p-8 lg:p-10 print:border-none print:bg-white print:mb-0 relative overflow-hidden">
+          {/* Subtle blue overlay */}
+          <div className="absolute inset-0 bg-blue-50/20 dark:bg-blue-950/20 pointer-events-none"></div>
+          
+          {/* Enhanced Header Section */}
+          <div className="relative z-10">
+            {/* Premium Header Container */}
+            <div className="relative overflow-hidden rounded-2xl border-2 border-blue-900/70 mb-8 shadow-2xl">
+              <div className="absolute inset-0 bg-gradient-to-br from-blue-50/90 via-indigo-50/70 to-sky-50/80 dark:from-blue-950/70 dark:via-indigo-950/60 dark:to-sky-950/60 animate-pulse"></div>
+              <div className="absolute top-0 right-0 w-96 h-96 bg-gradient-radial from-blue-200/40 via-indigo-200/30 to-sky-200/20 dark:from-blue-700/30 dark:via-indigo-700/20 dark:to-sky-700/10 rounded-full -translate-y-48 translate-x-48 animate-pulse"></div>
+              <div className="absolute bottom-0 left-0 w-64 h-64 bg-gradient-radial from-sky-200/30 via-blue-200/20 to-transparent dark:from-sky-700/20 dark:via-blue-700/10 rounded-full translate-y-32 -translate-x-32 animate-pulse"></div>
+              
+              <div className="relative z-10 flex flex-col lg:flex-row lg:items-start lg:justify-between gap-8 p-8 lg:p-12 print:flex-row print:justify-between">
+                {/* Left Side - Invoice Info */}
+                 <div className="flex flex-col items-start space-y-6 print:text-right print:text-black min-w-0 lg:max-w-sm">
+                  {/* Premium Brand Section */}
+                  <div className="relative text-left">
+                    <div className="flex flex-col items-start space-y-2">
+              
+                      
+                      <Typography
+                        component="span"
+                        variant="h1"
+                        className="text-3xl md:text-4xl font-black bg-gradient-to-r from-blue-800 via-indigo-800 to-slate-700 dark:from-blue-200 dark:via-indigo-200 dark:to-slate-300 bg-clip-text text-transparent print:text-black tracking-tight leading-none drop-shadow-md"
+                      >
+                        NEO$ALE
+                      </Typography>
+                      
+                   
+                    </div>
+                  </div>
 
-              <div className="flex items-center gap-x-2">
-                <Typography className="uppercase font-semibold text-xs print:text-black">
-                  status
-                </Typography>
+                  {/* Premium Contact Card */}
+                  <div className="relative glass-info-card border-2 border-blue-900/70 rounded-2xl overflow-hidden shadow-2xl">
+                    <div className="absolute inset-0 bg-gradient-to-br from-blue-50/80 via-indigo-50/60 to-sky-50/80 dark:from-blue-950/70 dark:via-indigo-950/50 dark:to-sky-950/70"></div>
+                    <div className="absolute top-0 right-0 w-24 h-24 bg-gradient-to-bl from-blue-200/40 via-indigo-200/30 to-slate-200/40 dark:from-blue-700/30 dark:via-indigo-700/20 dark:to-slate-700/30 rounded-bl-full animate-pulse"></div>
+                    
+                    <div className="relative z-10 px-4 py-3">
+                      <div className="space-y-3 text-left">
+                        <div className="mb-4">
+                          <Typography className="text-xs uppercase tracking-widest font-bold bg-gradient-to-r from-blue-700 via-indigo-700 to-slate-700 dark:from-blue-300 dark:via-indigo-300 dark:to-slate-300 bg-clip-text text-transparent mb-2">
+                            información de contacto
+                          </Typography>
+                        </div>
+                        
+                        <div className="space-y-2">
+                          <Typography component="p" className="text-sm font-medium bg-gradient-to-r from-blue-900 via-indigo-900 to-slate-800 dark:from-blue-100 dark:via-indigo-100 dark:to-slate-200 bg-clip-text  flex items-center justify-start gap-2">
+                            <span> Av. Innovación 123, Madrid, España</span>
+                          </Typography>
+                          <Typography component="p" className="text-sm font-medium bg-gradient-to-r from-blue-900 via-indigo-900 to-slate-800 dark:from-blue-100 dark:via-indigo-100 dark:to-slate-200 bg-clip-text  flex items-center justify-start gap-2">
+                            <span>+34 (91) 123-4567</span>
+                          </Typography>
+                          <Typography component="p" className="text-sm font-medium bg-gradient-to-r from-blue-900 via-indigo-900 to-slate-800 dark:from-blue-100 dark:via-indigo-100 dark:to-slate-200 bg-clip-text  break-words flex items-center justify-start gap-2">
+                            <span>contacto@neosale.es</span>
+                          </Typography>
+                          <Typography component="p" className="text-sm font-medium bg-gradient-to-r from-blue-900 via-indigo-900 to-slate-800 dark:from-blue-100 dark:via-indigo-100 dark:to-slate-200 bg-clip-text  flex items-center justify-start gap-2">
+                            <span>www.neosale.es</span>
+                          </Typography>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                
+                <div className="flex flex-col space-y-6 max-w-xl">
+                  {/* Main Title with Enhanced Design */}
+                  <div className="relative">
+                    <div className="flex items-center gap-4 mb-4">
+                      <div className="flex flex-col">
+                       
+                        <Typography
+                          className="text-5xl md:text-5xl font-black uppercase bg-gradient-to-r from-blue-900 via-indigo-800 to-slate-700 dark:from-blue-200 dark:via-indigo-200 dark:to-slate-300 bg-clip-text text-transparent tracking-tight print:text-black leading-none drop-shadow-lg"
+                          variant="h2"
+                        >
+                          factura
+                        </Typography>
+                      </div>
+                    </div>
+                    <div className="absolute -bottom-2 left-0 w-32 h-1 bg-gradient-to-r from-blue-600 via-indigo-500 to-slate-400 rounded-full animate-pulse shadow-lg"></div>
+                  </div>
 
-                <Badge
-                  variant={
-                    OrderBadgeVariants[order.status] as
-                    | "default"
-                    | "secondary"
-                    | "outline"
-                    | "destructive"
-                    | "success"
-                    | "warning"
-                    | "processing"
-                  }
-                  className="flex-shrink-0 text-xs capitalize"
-                >
-                  {order.status}
-                </Badge>
+                  {/* Compact Status Section */}
+                  <div className="inline-flex items-center justify-between gap-4 bg-gradient-to-r from-blue-50/70 via-indigo-50/60 to-sky-50/70 dark:from-blue-950/50 dark:via-indigo-950/40 dark:to-sky-950/50 px-4 py-2 rounded-full border border-blue-900/70 shadow-lg">
+                    <div className="flex items-center gap-2">
+                      <div className={`w-2 h-2 rounded-full animate-pulse ${
+                        order.status === 'delivered' || order.status === 'entregado' ? 'bg-green-500' :
+                        order.status === 'pending' || order.status === 'pendiente' ? 'bg-yellow-500' :
+                        order.status === 'processing' || order.status === 'procesando' ? 'bg-blue-500' :
+                        order.status === 'cancelled' || order.status === 'cancelado' ? 'bg-red-500' :
+                        'bg-indigo-500'
+                      }`}></div>
+                      <Typography className="uppercase font-medium text-xs bg-gradient-to-r from-blue-700 via-indigo-700 to-slate-700 dark:from-blue-300 dark:via-indigo-300 dark:to-slate-300 bg-clip-text text-transparent tracking-wide print:text-black">
+                        estado
+                      </Typography>
+                    </div>
+
+                    <Badge
+                      variant={
+                        OrderBadgeVariants[order.status] as
+                        | "default"
+                        | "secondary"
+                        | "outline"
+                        | "destructive"
+                        | "success"
+                        | "warning"
+                        | "processing"
+                      }
+                      className={`px-3 py-1 text-xs font-semibold capitalize border shadow-md rounded-lg ${
+                        order.status === 'delivered' || order.status === 'entregado' ?
+                        'bg-gradient-to-r from-green-100 to-emerald-100 dark:from-green-900/60 dark:to-emerald-900/60 border-green-300/60 dark:border-green-600/60 text-green-800 dark:text-green-200' :
+                        order.status === 'pending' || order.status === 'pendiente' ?
+                        'bg-gradient-to-r from-yellow-100 to-amber-100 dark:from-yellow-900/60 dark:to-amber-900/60 border-yellow-300/60 dark:border-yellow-600/60 text-yellow-800 dark:text-yellow-200' :
+                        order.status === 'processing' || order.status === 'procesando' ?
+                        'bg-gradient-to-r from-blue-100 to-indigo-100 dark:from-blue-900/60 dark:to-indigo-900/60 border-blue-300/60 dark:border-blue-600/60 text-blue-800 dark:text-blue-200' :
+                        order.status === 'cancelled' || order.status === 'cancelado' ?
+                        'bg-gradient-to-r from-red-100 to-rose-100 dark:from-red-900/60 dark:to-rose-900/60 border-red-300/60 dark:border-red-600/60 text-red-800 dark:text-red-200' :
+                        'bg-gradient-to-r from-indigo-100 to-slate-100 dark:from-indigo-900/60 dark:to-slate-900/60 border-slate-300/60 dark:border-slate-600/60 text-slate-800 dark:text-slate-200'
+                      }`}
+                    >
+                      {order.status}
+                    </Badge>
+                  </div>
+                </div>
+
+                {/* Right Side - Enhanced Company Info */}
+               
               </div>
             </div>
+          </div>
 
-            <div className="flex flex-col text-sm gap-y-0.5 md:text-right print:text-right print:text-black">
-              <div className="flex items-center md:justify-end gap-x-1 print:justify-end">
-                <FaBagShopping className="size-6 text-primary mb-1 flex-shrink-0" />
+          {/* Enhanced Info Cards */}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-12 print:flex print:flex-row print:justify-between print:text-black">
+            <div className="relative glass-info-card p-6 transition-all duration-300 hover:shadow-lg border border-blue-200/60 dark:border-blue-800/60 rounded-xl overflow-hidden">
+              <div className="absolute inset-0 bg-gradient-to-br from-blue-50/50 via-transparent to-blue-100/30 dark:from-blue-950/30 dark:via-transparent dark:to-blue-900/20"></div>
+              <div className="relative z-10">
                 <Typography
-                  component="span"
-                  variant="h2"
-                  className="text-card-foreground print:text-black"
+                  variant="p"
+                  component="h4"
+                  className="font-bold uppercase text-xs tracking-wide bg-gradient-to-r from-blue-700 to-slate-600 dark:from-blue-300 dark:to-slate-300 bg-clip-text text-transparent mb-3 print:text-black"
                 >
-                  Zorvex
+                  fecha emisión
+                </Typography>
+
+                <Typography className="text-lg font-semibold text-gray-900 dark:text-gray-100 leading-relaxed">
+                  {formatDate.long(order.order_time)}
                 </Typography>
               </div>
-
-              <Typography component="p">
-                2 Lawson Avenue, California, United States
-              </Typography>
-              <Typography component="p">+1 (212) 456-7890</Typography>
-              <Typography component="p" className="break-words">
-                ecommerceadmin@gmail.com
-              </Typography>
-              <Typography component="p">
-                ecommerce-admin-board.vercel.app
-              </Typography>
-            </div>
-          </div>
-
-          <Separator className="my-6 print:bg-print-border" />
-
-          <div className="flex flex-col md:flex-row md:justify-between gap-4 mb-10 print:flex-row print:justify-between print:text-black">
-            <div>
-              <Typography
-                variant="p"
-                component="h4"
-                className="font-semibold uppercase text-card-foreground mb-1 print:text-black"
-              >
-                date
-              </Typography>
-
-              <Typography className="text-sm">
-                {formatDate.long(order.order_time)}
-              </Typography>
             </div>
 
-            <div>
-              <Typography
-                variant="p"
-                component="h4"
-                className="font-semibold uppercase text-card-foreground mb-1 print:text-black"
-              >
-                invoice no
-              </Typography>
-
-              <Typography className="text-sm">#{order.invoice_no}</Typography>
-            </div>
-
-            <div className="md:text-right print:text-right">
-              <Typography
-                variant="p"
-                component="h4"
-                className="font-semibold uppercase text-card-foreground mb-1 print:text-black"
-              >
-                invoice to
-              </Typography>
-
-              <div className="flex flex-col text-sm gap-y-0.5">
-                <Typography component="p">{order.customers.name}</Typography>
-                <Typography component="p" className="break-words">
-                  {order.customers.email}
+            <div className="relative glass-info-card p-6 transition-all duration-300 hover:shadow-lg border border-blue-200/60 dark:border-blue-800/60 rounded-xl overflow-hidden">
+              <div className="absolute inset-0 bg-gradient-to-br from-blue-50/40 via-transparent to-slate-100/30 dark:from-blue-950/25 dark:via-transparent dark:to-slate-900/20"></div>
+              <div className="relative z-10">
+                <Typography
+                  variant="p"
+                  component="h4"
+                  className="font-bold uppercase text-xs tracking-wide bg-gradient-to-r from-blue-700 to-slate-600 dark:from-blue-300 dark:to-slate-300 bg-clip-text text-transparent mb-3 print:text-black"
+                >
+                  número factura
                 </Typography>
-                {order.customers.phone && (
-                  <Typography component="p">{order.customers.phone}</Typography>
-                )}
-                {order.customers.address && (
-                  <Typography component="p" className="max-w-80">
-                    {order.customers.address}
+
+                <Typography className="text-lg font-semibold text-gray-900 dark:text-gray-100 leading-relaxed">
+                  #{order.invoice_no}
+                </Typography>
+              </div>
+            </div>
+
+            <div className="relative glass-info-card p-6 transition-all duration-300 hover:shadow-lg border border-blue-200/60 dark:border-blue-800/60 rounded-xl overflow-hidden">
+              <div className="absolute inset-0 bg-gradient-to-br from-slate-50/40 via-transparent to-blue-50/30 dark:from-slate-950/25 dark:via-transparent dark:to-blue-950/20"></div>
+              <div className="relative z-10">
+                <Typography
+                  variant="p"
+                  component="h4"
+                  className="font-bold uppercase text-xs tracking-wide bg-gradient-to-r from-blue-700 to-slate-600 dark:from-blue-300 dark:to-slate-300 bg-clip-text text-transparent mb-3 print:text-black"
+                >
+                  cliente facturación
+                </Typography>
+
+                <div className="space-y-2">
+                  <Typography component="p" className="text-lg font-semibold text-gray-900 dark:text-gray-100">
+                    {order.customers.name}
                   </Typography>
-                )}
+                  <Typography component="p" className="text-sm text-gray-600 dark:text-gray-400 font-medium break-words">
+                    {order.customers.email}
+                  </Typography>
+                  {order.customers.phone && (
+                    <Typography component="p" className="text-sm text-gray-600 dark:text-gray-400 font-medium">
+                      {order.customers.phone}
+                    </Typography>
+                  )}
+                  {order.customers.address && (
+                    <Typography component="p" className="text-sm text-gray-600 dark:text-gray-400 font-medium max-w-full">
+                      {order.customers.address}
+                    </Typography>
+                  )}
+                </div>
               </div>
             </div>
           </div>
 
-          <div className="border rounded-md overflow-hidden mb-10 print:text-black print:border-print-border">
+          <div className="glass-table mb-10 print:text-black print:border-print-border">
             <Table>
               <TableHeader>
-                <TableRow className="bg-muted/50 dark:bg-transparent print:border-b-print-border">
-                  <TableHead className="uppercase h-10 whitespace-nowrap print:text-black">
-                    SR.
+                <TableRow className="glass-table-header print:border-b-print-border">
+                  <TableHead className="uppercase h-12 whitespace-nowrap print:text-black font-bold bg-gradient-to-r from-indigo-700 to-blue-600 dark:from-indigo-400 dark:to-blue-400 bg-clip-text text-transparent text-xs tracking-wider">
+                    N.º
                   </TableHead>
-                  <TableHead className="uppercase h-10 whitespace-nowrap print:text-black">
-                    product title
+                  <TableHead className="uppercase h-12 whitespace-nowrap print:text-black font-bold bg-gradient-to-r from-indigo-700 to-blue-600 dark:from-indigo-400 dark:to-blue-400 bg-clip-text text-transparent text-xs tracking-wider">
+                    producto
                   </TableHead>
-                  <TableHead className="uppercase h-10 whitespace-nowrap text-center print:text-black">
-                    quantity
+                  <TableHead className="uppercase h-12 whitespace-nowrap text-center print:text-black font-bold bg-gradient-to-r from-indigo-700 to-blue-600 dark:from-indigo-400 dark:to-blue-400 bg-clip-text text-transparent text-xs tracking-wider">
+                    cantidad
                   </TableHead>
-                  <TableHead className="uppercase h-10 whitespace-nowrap text-center print:text-black">
-                    item price
+                  <TableHead className="uppercase h-12 whitespace-nowrap text-center print:text-black font-bold bg-gradient-to-r from-indigo-700 to-blue-600 dark:from-indigo-400 dark:to-blue-400 bg-clip-text text-transparent text-xs tracking-wider">
+                    precio unit.
                   </TableHead>
-                  <TableHead className="uppercase h-10 whitespace-nowrap text-right print:text-black">
-                    amount
+                  <TableHead className="uppercase h-12 whitespace-nowrap text-right print:text-black font-bold bg-gradient-to-r from-indigo-700 to-blue-600 dark:from-indigo-400 dark:to-blue-400 bg-clip-text text-transparent text-xs tracking-wider">
+                    importe
                   </TableHead>
                 </TableRow>
               </TableHeader>
@@ -193,21 +278,21 @@ export default async function Order({ params }: PageParams) {
                 {order.order_items.map((orderItem, index) => (
                   <TableRow
                     key={`order-item-${index}`}
-                    className="hover:bg-transparent print:border-b-print-border"
+                    className="glass-table-row print:border-b-print-border"
                   >
-                    <TableCell className="py-3 print:font-normal print:text-black">
+                    <TableCell className="py-4 print:font-normal print:text-black font-medium text-slate-header">
                       {index + 1}
                     </TableCell>
-                    <TableCell className="font-medium py-3 px-6 text-card-foreground print:font-normal print:text-black">
+                    <TableCell className="font-semibold py-4 px-6 text-slate-800 dark:text-slate-200 print:font-normal print:text-black">
                       {orderItem.products.name}
                     </TableCell>
-                    <TableCell className="font-semibold py-3 text-center print:font-normal print:text-black">
+                    <TableCell className="font-semibold py-4 text-center text-slate-custom print:font-normal print:text-black">
                       {orderItem.quantity}
                     </TableCell>
-                    <TableCell className="font-semibold py-3 text-center print:font-normal print:text-black">
+                    <TableCell className="font-semibold py-4 text-center text-slate-custom print:font-normal print:text-black">
                       ${orderItem.unit_price.toFixed(2)}
                     </TableCell>
-                    <TableCell className="font-semibold py-3 text-primary text-right print:text-black">
+                    <TableCell className="font-bold py-4 text-gradient-primary text-right print:text-black">
                       ${(orderItem.quantity * orderItem.unit_price).toFixed(2)}
                     </TableCell>
                   </TableRow>
@@ -216,62 +301,80 @@ export default async function Order({ params }: PageParams) {
             </Table>
           </div>
 
-          <div className="bg-background rounded-lg flex flex-col gap-4 md:justify-between md:flex-row p-6 md:px-8 mb-4 print:flex-row print:justify-between print:mb-0 print:p-0 print:px-2 print:bg-white">
-            <div>
-              <Typography
-                component="h4"
-                className="font-medium text-sm uppercase mb-1 tracking-wide print:text-black"
-              >
-                payment method
-              </Typography>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-8 print:flex-row print:justify-between print:mb-0 print:p-0 print:px-2 print:bg-white">
+            <div className="relative glass-summary-card p-5 transition-all duration-300 hover:shadow-lg border border-blue-200/50 dark:border-blue-700/50 rounded-lg overflow-hidden">
+              <div className="absolute inset-0 bg-gradient-to-br from-blue-50/60 via-blue-100/20 to-transparent dark:from-blue-950/40 dark:via-blue-900/20 dark:to-transparent"></div>
+              <div className="relative z-10">
+                <Typography
+                  component="h4"
+                  className="font-semibold text-xs uppercase tracking-wide bg-gradient-to-r from-blue-700 to-slate-600 dark:from-blue-300 dark:to-slate-300 bg-clip-text text-transparent mb-3 print:text-black"
+                >
+                  método de pago
+                </Typography>
 
-              <Typography className="text-base capitalize font-semibold text-card-foreground tracking-wide print:text-black">
-                {order.payment_method}
-              </Typography>
+                <Typography className="text-lg font-bold text-gray-900 dark:text-gray-100 capitalize print:text-black">
+                  {order.payment_method}
+                </Typography>
+              </div>
             </div>
 
-            <div>
-              <Typography
-                component="h4"
-                className="font-medium text-sm uppercase mb-1 tracking-wide print:text-black"
-              >
-                shipping cost
-              </Typography>
+            <div className="relative glass-summary-card p-5 transition-all duration-300 hover:shadow-lg border border-blue-200/50 dark:border-blue-700/50 rounded-lg overflow-hidden">
+              <div className="absolute inset-0 bg-gradient-to-br from-slate-50/50 via-blue-50/30 to-transparent dark:from-slate-950/30 dark:via-blue-950/20 dark:to-transparent"></div>
+              <div className="relative z-10">
+                <Typography
+                  component="h4"
+                  className="font-semibold text-xs uppercase tracking-wide bg-gradient-to-r from-blue-700 to-slate-600 dark:from-blue-300 dark:to-slate-300 bg-clip-text text-transparent mb-3 print:text-black"
+                >
+                  coste envío
+                </Typography>
 
-              <Typography className="text-base capitalize font-semibold text-card-foreground tracking-wide print:text-black">
-                ${order.shipping_cost.toFixed(2)}
-              </Typography>
+                <Typography className="text-lg font-bold text-gray-900 dark:text-gray-100 print:text-black">
+                  ${order.shipping_cost.toFixed(2)}
+                </Typography>
+              </div>
             </div>
 
-            <div>
-              <Typography
-                component="h4"
-                className="font-medium text-sm uppercase mb-1 tracking-wide print:text-black"
-              >
-                discount
-              </Typography>
+            <div className="relative glass-summary-card p-5 transition-all duration-300 hover:shadow-lg border border-green-200/60 dark:border-green-700/50 rounded-lg overflow-hidden">
+              <div className="absolute inset-0 bg-gradient-to-br from-green-50/60 via-emerald-50/30 to-transparent dark:from-green-950/40 dark:via-emerald-950/20 dark:to-transparent"></div>
+              <div className="relative z-10">
+                <Typography
+                  component="h4"
+                  className="font-semibold text-xs uppercase tracking-wide bg-gradient-to-r from-green-700 to-emerald-600 dark:from-green-300 dark:to-emerald-300 bg-clip-text text-transparent mb-3 print:text-black"
+                >
+                  descuento
+                </Typography>
 
-              <Typography className="text-base capitalize font-semibold text-card-foreground tracking-wide print:text-black">
-                $
-                {getDiscount({
-                  totalAmount: order.total_amount,
-                  shippingCost: order.shipping_cost,
-                  coupon: order.coupons,
-                })}
-              </Typography>
+                <Typography className="text-lg font-bold text-green-600 dark:text-green-400 print:text-black">
+                  ${getDiscount({
+                    totalAmount: order.total_amount,
+                    shippingCost: order.shipping_cost,
+                    coupon: order.coupons,
+                  })}
+                </Typography>
+              </div>
             </div>
 
-            <div>
-              <Typography
-                component="h4"
-                className="font-medium text-sm uppercase mb-1 tracking-wide print:text-black"
-              >
-                total amount
-              </Typography>
+            <div className="sm:col-span-2 lg:col-span-1">
+              <div className="relative glass-total-card p-6 transition-all duration-300 hover:shadow-xl border-2 border-blue-300/70 dark:border-blue-600/70 rounded-xl overflow-hidden">
+                <div className="absolute inset-0 bg-gradient-to-br from-blue-100/80 via-blue-50/50 to-slate-100/40 dark:from-blue-900/60 dark:via-blue-950/40 dark:to-slate-900/30"></div>
+                <div className="absolute top-0 right-0 w-24 h-24 bg-gradient-to-br from-blue-200/40 to-transparent dark:from-blue-700/30 dark:to-transparent rounded-bl-full"></div>
+                <div className="relative z-10">
+                  <Typography
+                    component="h4"
+                    className="font-bold text-sm uppercase tracking-wide bg-gradient-to-r from-blue-800 to-blue-600 dark:from-blue-200 dark:to-blue-400 bg-clip-text text-transparent mb-2 print:text-black"
+                  >
+                    total final
+                  </Typography>
 
-              <Typography className="text-xl capitalize font-semibold tracking-wide text-primary">
-                ${order.total_amount.toFixed(2)}
-              </Typography>
+                  <Typography className="text-3xl font-black text-blue-900 dark:text-blue-100 print:text-black mb-2">
+                    ${order.total_amount.toFixed(2)}
+                  </Typography>
+                  
+                  <div className="text-xs text-blue-700 dark:text-blue-300 font-medium uppercase tracking-wide">
+                    Impuestos incluidos
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
         </Card>

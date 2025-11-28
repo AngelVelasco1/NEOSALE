@@ -4,7 +4,6 @@ import { prisma } from "@/lib/prisma";
 import { loginSchema } from "../../lib/zod";
 import bcrypt from "bcryptjs";
 import Google from "next-auth/providers/google";
-import { nanoid } from "nanoid";
 
 export class AuthError extends Error {
   type: string;
@@ -36,7 +35,11 @@ export default {
             throw new AuthError("Usuario Invalido", "USER_NOT_FOUND");
           }
 
-          const isPasswordValid = bcrypt.compare(data.password, user.password);
+          if (!user.password) {
+            throw new AuthError("Usuario sin contraseña configurada", "NO_PASSWORD");
+          }
+
+          const isPasswordValid = await bcrypt.compare(data.password, user.password);
 
           if (!isPasswordValid) {
             throw new AuthError("Contraseña incorrecta", "INVALID_PASSWORD");
