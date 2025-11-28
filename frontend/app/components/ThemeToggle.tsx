@@ -14,7 +14,7 @@ export function ThemeToggle() {
 
   if (!mounted) {
     return (
-      <div className="w-14 h-7 rounded-full bg-gradient-to-r from-slate-700 to-slate-800 dark:from-slate-700 dark:to-slate-800 shadow-md border border-slate-300/30 dark:border-slate-600/30" />
+      <div className="w-14 h-7 rounded-full bg-linear-to-r from-slate-700 to-slate-800 dark:from-slate-700 dark:to-slate-800 shadow-md border border-slate-300/30 dark:border-slate-600/30" />
     )
   }
 
@@ -34,8 +34,8 @@ export function ThemeToggle() {
 
       <div
         className={`absolute top-0.5 w-7 h-7 rounded-full transition-all duration-500 ease-out shadow-lg ${theme === "dark"
-            ? "translate-x-7 bg-gradient-to-br from-slate-700 via-slate-600 to-slate-800"
-            : "translate-x-0.5 bg-gradient-to-br from-white via-slate-50 to-slate-100"
+          ? "translate-x-7 bg-linear-to-br from-slate-700 via-slate-600 to-slate-800"
+          : "translate-x-0.5 bg-linear-to-br from-white via-slate-50 to-slate-100"
           }`}
       >
         <div className="absolute inset-0 rounded-full flex items-center justify-center">
@@ -50,7 +50,7 @@ export function ThemeToggle() {
       </div>
 
       {/* Efecto de hover */}
-      <div className="absolute inset-0 rounded-full bg-gradient-to-r from-blue-500/0 via-blue-400/10 to-blue-500/0 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+      <div className="absolute inset-0 rounded-full bg-linear-to-r from-blue-500/0 via-blue-400/10 to-blue-500/0 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
     </button>
   )
 }

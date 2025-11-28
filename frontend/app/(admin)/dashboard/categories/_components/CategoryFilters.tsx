@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import React, { useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { Search, Filter, X } from "lucide-react";
 
@@ -62,7 +62,7 @@ export default function CategoryFilters() {
           <div className="flex gap-2">
             <Button
               type="submit"
-              className="flex-1 h-10 bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 text-white rounded-lg text-sm font-medium transition-all duration-200"
+              className="flex-1 h-10 bg-linear-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 text-white rounded-lg text-sm font-medium transition-all duration-200"
             >
               <Filter className="h-3.5 w-3.5 mr-1.5" />
               Aplicar

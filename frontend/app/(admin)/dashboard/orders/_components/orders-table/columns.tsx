@@ -92,7 +92,7 @@ export const getColumns = ({
                   className="text-foreground"
                   asChild
                 >
-                  <Link href={`/orders/${row.original.id}`}>
+                  <Link href={`/dashboard/orders/${row.original.id}`}>
                     <ZoomIn className="size-5" />
                   </Link>
                 </Button>

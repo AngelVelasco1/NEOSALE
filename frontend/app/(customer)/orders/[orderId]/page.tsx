@@ -238,7 +238,7 @@ export default function OrderDetailPage() {
 
     if (isLoading) {
         return (
-            <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50/30 to-cyan-50/20 py-12 flex items-center justify-center">
+            <div className="min-h-screen bg-linear-to-br from-slate-50 via-blue-50/30 to-cyan-50/20 py-12 flex items-center justify-center">
                 <motion.div
                     initial={{ opacity: 0, scale: 0.8 }}
                     animate={{ opacity: 1, scale: 1 }}
@@ -274,7 +274,7 @@ export default function OrderDetailPage() {
 
     if (error || !order) {
         return (
-            <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50/30 to-cyan-50/20 py-12">
+            <div className="min-h-screen bg-linear-to-br from-slate-50 via-blue-50/30 to-cyan-50/20 py-12">
                 <div className="max-w-2xl mx-auto px-4">
                     <motion.div
                         initial={{ opacity: 0, y: 30 }}
@@ -282,14 +282,14 @@ export default function OrderDetailPage() {
                         transition={{ type: "spring", stiffness: 100 }}
                     >
                         <Card className="bg-white border-2 border-red-200 shadow-2xl rounded-3xl overflow-hidden">
-                            <CardHeader className="bg-gradient-to-r from-red-50 via-orange-50 to-red-50 border-b border-red-100 pb-6">
+                            <CardHeader className="bg-linear-to-r from-red-50 via-orange-50 to-red-50 border-b border-red-100 pb-6">
                                 <motion.div
                                     initial={{ scale: 0 }}
                                     animate={{ scale: 1 }}
                                     transition={{ type: "spring", stiffness: 200, delay: 0.2 }}
                                     className="flex items-center gap-4"
                                 >
-                                    <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-red-500 to-orange-500 flex items-center justify-center shadow-lg">
+                                    <div className="w-16 h-16 rounded-2xl bg-linear-to-br from-red-500 to-orange-500 flex items-center justify-center shadow-lg">
                                         <AlertCircle className="w-8 h-8 text-white" />
                                     </div>
                                     <div>
@@ -311,7 +311,7 @@ export default function OrderDetailPage() {
                                     </Button>
                                     <Button
                                         onClick={() => window.location.reload()}
-                                        className="bg-gradient-to-r from-blue-600 to-cyan-600 hover:from-blue-700 hover:to-cyan-700 text-white h-12 px-6 shadow-lg"
+                                        className="bg-linear-to-r from-blue-600 to-cyan-600 hover:from-blue-700 hover:to-cyan-700 text-white h-12 px-6 shadow-lg"
                                     >
                                         Reintentar
                                     </Button>
@@ -335,7 +335,7 @@ export default function OrderDetailPage() {
     const total = convertFromCents(order.total || 0);
 
     return (
-        <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50/30 to-cyan-50/20 py-8 relative overflow-hidden">
+        <div className="min-h-screen bg-linear-to-br from-slate-50 via-blue-50/30 to-cyan-50/20 py-8 relative overflow-hidden">
             {/* Animated Background Elements */}
             <div className="absolute inset-0 overflow-hidden pointer-events-none">
                 <motion.div
@@ -344,7 +344,7 @@ export default function OrderDetailPage() {
                         rotate: [0, 90, 0],
                     }}
                     transition={{ duration: 20, repeat: Infinity, ease: "linear" }}
-                    className="absolute top-0 right-0 w-96 h-96 bg-gradient-to-br from-blue-200/20 to-cyan-200/20 rounded-full blur-3xl"
+                    className="absolute top-0 right-0 w-96 h-96 bg-linear-to-br from-blue-200/20 to-cyan-200/20 rounded-full blur-3xl"
                 />
                 <motion.div
                     animate={{
@@ -352,7 +352,7 @@ export default function OrderDetailPage() {
                         rotate: [0, -90, 0],
                     }}
                     transition={{ duration: 25, repeat: Infinity, ease: "linear" }}
-                    className="absolute bottom-0 left-0 w-96 h-96 bg-gradient-to-tr from-purple-200/20 to-blue-200/20 rounded-full blur-3xl"
+                    className="absolute bottom-0 left-0 w-96 h-96 bg-linear-to-tr from-purple-200/20 to-blue-200/20 rounded-full blur-3xl"
                 />
             </div>
 
@@ -384,7 +384,7 @@ export default function OrderDetailPage() {
                         <Card className="bg-white/90 backdrop-blur-md border-2 border-blue-100 shadow-2xl rounded-3xl overflow-hidden">
                             <div className="relative overflow-hidden">
                                 {/* Gradient Background */}
-                                <div className={`absolute inset-0 bg-gradient-to-r ${statusConfig.color} opacity-5`} />
+                                <div className={`absolute inset-0 bg-linear-to-r ${statusConfig.color} opacity-5`} />
 
                                 <CardContent className="p-8 relative">
                                     <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-6">
@@ -393,7 +393,7 @@ export default function OrderDetailPage() {
                                                 initial={{ scale: 0, rotate: -180 }}
                                                 animate={{ scale: 1, rotate: 0 }}
                                                 transition={{ type: "spring", stiffness: 200, damping: 15, delay: 0.3 }}
-                                                className={`relative w-20 h-20 rounded-2xl bg-gradient-to-br ${statusConfig.color} flex items-center justify-center shadow-2xl ${statusConfig.glowColor}`}
+                                                className={`relative w-20 h-20 rounded-2xl bg-linear-to-br ${statusConfig.color} flex items-center justify-center shadow-2xl ${statusConfig.glowColor}`}
                                             >
                                                 <Package className="w-10 h-10 text-white" />
                                                 <motion.div
@@ -449,7 +449,7 @@ export default function OrderDetailPage() {
                                             <motion.p
                                                 animate={{ scale: [1, 1.05, 1] }}
                                                 transition={{ duration: 2, repeat: Infinity }}
-                                                className="text-5xl font-bold bg-gradient-to-r from-blue-600 via-cyan-600 to-blue-600 bg-clip-text text-transparent"
+                                                className="text-5xl font-bold bg-linear-to-r from-blue-600 via-cyan-600 to-blue-600 bg-clip-text text-transparent"
                                             >
                                                 {formatCurrency(total)}
                                             </motion.p>
@@ -483,12 +483,12 @@ export default function OrderDetailPage() {
                 <motion.div variants={itemVariants} className="mb-8">
                     <motion.div whileHover="hover" initial="rest" variants={cardHoverVariants}>
                         <Card className="bg-white/90 backdrop-blur-md border-2 border-blue-100 shadow-xl rounded-3xl overflow-hidden">
-                            <CardHeader className="bg-gradient-to-r from-slate-50 via-blue-50/50 to-slate-50 border-b border-gray-100 pb-5">
+                            <CardHeader className="bg-linear-to-r from-slate-50 via-blue-50/50 to-slate-50 border-b border-gray-100 pb-5">
                                 <CardTitle className="flex items-center gap-3 text-2xl">
                                     <motion.div
                                         whileHover={{ rotate: 360 }}
                                         transition={{ duration: 0.6 }}
-                                        className={`w-12 h-12 rounded-xl bg-gradient-to-br ${statusConfig.color} flex items-center justify-center shadow-lg`}
+                                        className={`w-12 h-12 rounded-xl bg-linear-to-br ${statusConfig.color} flex items-center justify-center shadow-lg`}
                                     >
                                         <Info className="w-6 h-6 text-white" />
                                     </motion.div>
@@ -505,7 +505,7 @@ export default function OrderDetailPage() {
                                             initial={{ width: 0 }}
                                             animate={{ width: `${(currentStep / 4) * 100}%` }}
                                             transition={{ duration: 1, ease: "easeOut" }}
-                                            className={`absolute top-6 left-0 h-1 bg-gradient-to-r ${statusConfig.color}`}
+                                            className={`absolute top-6 left-0 h-1 bg-linear-to-r ${statusConfig.color}`}
                                             style={{ maxWidth: 'calc(100% - 3rem)' }}
                                         />
 
@@ -527,12 +527,12 @@ export default function OrderDetailPage() {
                                                     <motion.div
                                                         whileHover={{ scale: 1.1 }}
                                                         className={`relative w-14 h-14 rounded-2xl flex items-center justify-center transition-all duration-500 ${isCancelled
-                                                                ? 'bg-gradient-to-br from-red-400 to-rose-500 shadow-lg shadow-red-200'
-                                                                : isCompleted
-                                                                    ? `bg-gradient-to-br ${step.color} shadow-lg shadow-green-200`
-                                                                    : isCurrent
-                                                                        ? `bg-gradient-to-br ${step.color} shadow-xl ${statusConfig.glowColor}`
-                                                                        : 'bg-gray-100 border-2 border-gray-300'
+                                                            ? 'bg-linear-to-br from-red-400 to-rose-500 shadow-lg shadow-red-200'
+                                                            : isCompleted
+                                                                ? `bg-linear-to-br ${step.color} shadow-lg shadow-green-200`
+                                                                : isCurrent
+                                                                    ? `bg-linear-to-br ${step.color} shadow-xl ${statusConfig.glowColor}`
+                                                                    : 'bg-gray-100 border-2 border-gray-300'
                                                             }`}
                                                     >
                                                         <StepIcon
@@ -573,12 +573,12 @@ export default function OrderDetailPage() {
                                                     >
                                                         <p
                                                             className={`text-sm font-bold mb-1 ${isCancelled
-                                                                    ? 'text-red-600'
-                                                                    : isCompleted
-                                                                        ? 'text-green-600'
-                                                                        : isCurrent
-                                                                            ? 'text-blue-600'
-                                                                            : 'text-gray-400'
+                                                                ? 'text-red-600'
+                                                                : isCompleted
+                                                                    ? 'text-green-600'
+                                                                    : isCurrent
+                                                                        ? 'text-blue-600'
+                                                                        : 'text-gray-400'
                                                                 }`}
                                                         >
                                                             {step.label}
@@ -620,13 +620,13 @@ export default function OrderDetailPage() {
                         {/* Products Card */}
                         <motion.div whileHover="hover" initial="rest" variants={cardHoverVariants}>
                             <Card className="bg-white/90 backdrop-blur-md border-2 border-blue-100 shadow-xl rounded-3xl overflow-hidden">
-                                <CardHeader className="bg-gradient-to-r from-slate-50 via-blue-50/50 to-slate-50 border-b border-gray-100 pb-5">
+                                <CardHeader className="bg-linear-to-r from-slate-50 via-blue-50/50 to-slate-50 border-b border-gray-100 pb-5">
                                     <div className="flex items-center justify-between">
                                         <CardTitle className="flex items-center gap-3 text-2xl">
                                             <motion.div
                                                 whileHover={{ rotate: [0, -10, 10, -10, 0] }}
                                                 transition={{ duration: 0.5 }}
-                                                className="w-12 h-12 rounded-xl bg-gradient-to-br from-blue-500 to-cyan-500 flex items-center justify-center shadow-lg"
+                                                className="w-12 h-12 rounded-xl bg-linear-to-br from-blue-500 to-cyan-500 flex items-center justify-center shadow-lg"
                                             >
                                                 <ShoppingBag className="w-6 h-6 text-white" />
                                             </motion.div>
@@ -652,11 +652,11 @@ export default function OrderDetailPage() {
                                                     stiffness: 100
                                                 }}
                                                 whileHover={{ scale: 1.02, x: 5 }}
-                                                className="group relative bg-gradient-to-r from-slate-50 via-blue-50/30 to-slate-50 p-6 rounded-2xl border-2 border-gray-100 hover:border-blue-200 hover:shadow-xl transition-all duration-300"
+                                                className="group relative bg-linear-to-r from-slate-50 via-blue-50/30 to-slate-50 p-6 rounded-2xl border-2 border-gray-100 hover:border-blue-200 hover:shadow-xl transition-all duration-300"
                                             >
                                                 {/* Decorative Element */}
                                                 <motion.div
-                                                    className="absolute top-0 left-0 w-1 h-full bg-gradient-to-b from-blue-500 to-cyan-500 rounded-l-2xl opacity-0 group-hover:opacity-100 transition-opacity"
+                                                    className="absolute top-0 left-0 w-1 h-full bg-linear-to-b from-blue-500 to-cyan-500 rounded-l-2xl opacity-0 group-hover:opacity-100 transition-opacity"
                                                 />
 
                                                 <div className="flex items-start gap-5">
@@ -729,7 +729,7 @@ export default function OrderDetailPage() {
                                                     <div className="text-right flex-shrink-0">
                                                         <motion.p
                                                             whileHover={{ scale: 1.05 }}
-                                                            className="text-3xl font-bold bg-gradient-to-r from-blue-600 to-cyan-600 bg-clip-text text-transparent mb-1"
+                                                            className="text-3xl font-bold bg-linear-to-r from-blue-600 to-cyan-600 bg-clip-text text-transparent mb-1"
                                                         >
                                                             {formatCurrency(item.subtotal)}
                                                         </motion.p>
@@ -754,12 +754,12 @@ export default function OrderDetailPage() {
                             >
                                 <motion.div whileHover="hover" initial="rest" variants={cardHoverVariants}>
                                     <Card className="bg-white/90 backdrop-blur-md border-2 border-blue-100 shadow-xl rounded-3xl overflow-hidden">
-                                        <CardHeader className="bg-gradient-to-r from-cyan-50 via-blue-50 to-cyan-50 border-b border-gray-100 pb-5">
+                                        <CardHeader className="bg-linear-to-r from-cyan-50 via-blue-50 to-cyan-50 border-b border-gray-100 pb-5">
                                             <CardTitle className="flex items-center gap-3 text-2xl">
                                                 <motion.div
                                                     whileHover={{ rotateY: 180 }}
                                                     transition={{ duration: 0.6 }}
-                                                    className="w-12 h-12 rounded-xl bg-gradient-to-br from-cyan-500 to-blue-600 flex items-center justify-center shadow-lg"
+                                                    className="w-12 h-12 rounded-xl bg-linear-to-br from-cyan-500 to-blue-600 flex items-center justify-center shadow-lg"
                                                 >
                                                     <CreditCard className="w-6 h-6 text-white" />
                                                 </motion.div>
@@ -804,10 +804,10 @@ export default function OrderDetailPage() {
                                                         animate={{ opacity: 1, y: 0 }}
                                                         transition={{ delay: 0.1 * idx }}
                                                         whileHover={{ scale: 1.02 }}
-                                                        className="space-y-3 p-4 bg-gradient-to-br from-slate-50 to-blue-50/30 rounded-xl border border-gray-100 hover:border-blue-200 transition-all"
+                                                        className="space-y-3 p-4 bg-linear-to-br from-slate-50 to-blue-50/30 rounded-xl border border-gray-100 hover:border-blue-200 transition-all"
                                                     >
                                                         <div className="flex items-center gap-2 text-sm text-gray-500">
-                                                            <div className={`w-8 h-8 rounded-lg bg-gradient-to-br ${field.color} flex items-center justify-center shadow-md`}>
+                                                            <div className={`w-8 h-8 rounded-lg bg-linear-to-br ${field.color} flex items-center justify-center shadow-md`}>
                                                                 <field.icon className="w-4 h-4 text-white" />
                                                             </div>
                                                             {field.label}
@@ -825,7 +825,7 @@ export default function OrderDetailPage() {
                                                                 {field.value as string}
                                                             </p>
                                                         ) : field.type === 'amount' ? (
-                                                            <p className="text-2xl font-bold bg-gradient-to-r from-blue-600 to-cyan-600 bg-clip-text text-transparent">
+                                                            <p className="text-2xl font-bold bg-linear-to-r from-blue-600 to-cyan-600 bg-clip-text text-transparent">
                                                                 {field.value as string}
                                                             </p>
                                                         ) : (
@@ -843,7 +843,7 @@ export default function OrderDetailPage() {
                                                     transition={{ delay: 0.5 }}
                                                     className="mt-6 pt-6 border-t-2 border-gray-100"
                                                 >
-                                                    <div className="flex items-center gap-3 p-4 bg-gradient-to-r from-blue-50 to-cyan-50 rounded-xl">
+                                                    <div className="flex items-center gap-3 p-4 bg-linear-to-r from-blue-50 to-cyan-50 rounded-xl">
                                                         <Calendar className="w-5 h-5 text-blue-600" />
                                                         <div>
                                                             <p className="text-xs text-gray-500 mb-1">Fecha y hora del pago</p>
@@ -866,12 +866,12 @@ export default function OrderDetailPage() {
                         >
                             <motion.div whileHover="hover" initial="rest" variants={cardHoverVariants}>
                                 <Card className="bg-white/90 backdrop-blur-md border-2 border-blue-100 shadow-xl rounded-3xl overflow-hidden">
-                                    <CardHeader className="bg-gradient-to-r from-blue-50 via-cyan-50 to-blue-50 border-b border-gray-100 pb-5">
+                                    <CardHeader className="bg-linear-to-r from-blue-50 via-cyan-50 to-blue-50 border-b border-gray-100 pb-5">
                                         <CardTitle className="flex items-center gap-3 text-2xl">
                                             <motion.div
                                                 animate={{ y: [0, -5, 0] }}
                                                 transition={{ duration: 2, repeat: Infinity }}
-                                                className="w-12 h-12 rounded-xl bg-gradient-to-br from-blue-600 to-cyan-600 flex items-center justify-center shadow-lg"
+                                                className="w-12 h-12 rounded-xl bg-linear-to-br from-blue-600 to-cyan-600 flex items-center justify-center shadow-lg"
                                             >
                                                 <MapPin className="w-6 h-6 text-white" />
                                             </motion.div>
@@ -882,7 +882,7 @@ export default function OrderDetailPage() {
                                         <div className="space-y-4">
                                             <motion.div
                                                 whileHover={{ scale: 1.02 }}
-                                                className="flex items-start gap-4 p-5 bg-gradient-to-r from-blue-50 to-cyan-50 rounded-2xl border-2 border-blue-100 hover:border-blue-200 transition-all"
+                                                className="flex items-start gap-4 p-5 bg-linear-to-r from-blue-50 to-cyan-50 rounded-2xl border-2 border-blue-100 hover:border-blue-200 transition-all"
                                             >
                                                 <Home className="w-6 h-6 text-blue-600 mt-1 flex-shrink-0" />
                                                 <div className="flex-1">
@@ -902,9 +902,9 @@ export default function OrderDetailPage() {
                                             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                                 <motion.div
                                                     whileHover={{ scale: 1.05 }}
-                                                    className="flex items-center gap-4 p-5 bg-gradient-to-br from-slate-50 to-cyan-50 rounded-2xl border-2 border-gray-100 hover:border-cyan-200 transition-all"
+                                                    className="flex items-center gap-4 p-5 bg-linear-to-br from-slate-50 to-cyan-50 rounded-2xl border-2 border-gray-100 hover:border-cyan-200 transition-all"
                                                 >
-                                                    <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-cyan-500 to-blue-500 flex items-center justify-center shadow-md">
+                                                    <div className="w-12 h-12 rounded-xl bg-linear-to-br from-cyan-500 to-blue-500 flex items-center justify-center shadow-md">
                                                         <Truck className="w-6 h-6 text-white" />
                                                     </div>
                                                     <div>
@@ -916,9 +916,9 @@ export default function OrderDetailPage() {
                                                 </motion.div>
                                                 <motion.div
                                                     whileHover={{ scale: 1.05 }}
-                                                    className="flex items-center gap-4 p-5 bg-gradient-to-br from-slate-50 to-blue-50 rounded-2xl border-2 border-gray-100 hover:border-blue-200 transition-all"
+                                                    className="flex items-center gap-4 p-5 bg-linear-to-br from-slate-50 to-blue-50 rounded-2xl border-2 border-gray-100 hover:border-blue-200 transition-all"
                                                 >
-                                                    <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-blue-600 to-cyan-600 flex items-center justify-center shadow-md">
+                                                    <div className="w-12 h-12 rounded-xl bg-linear-to-br from-blue-600 to-cyan-600 flex items-center justify-center shadow-md">
                                                         <Package className="w-6 h-6 text-white" />
                                                     </div>
                                                     <div>
@@ -947,12 +947,12 @@ export default function OrderDetailPage() {
                         >
                             <motion.div whileHover="hover" initial="rest" variants={cardHoverVariants}>
                                 <Card className="bg-white/90 backdrop-blur-md border-2 border-blue-100 shadow-2xl rounded-3xl overflow-hidden">
-                                    <CardHeader className="bg-gradient-to-r from-slate-50 via-blue-50 to-slate-50 border-b border-gray-100 pb-5">
+                                    <CardHeader className="bg-linear-to-r from-slate-50 via-blue-50 to-slate-50 border-b border-gray-100 pb-5">
                                         <CardTitle className="flex items-center gap-3 text-2xl">
                                             <motion.div
                                                 animate={{ rotate: [0, 5, -5, 0] }}
                                                 transition={{ duration: 3, repeat: Infinity }}
-                                                className="w-12 h-12 rounded-xl bg-gradient-to-br from-blue-600 to-cyan-600 flex items-center justify-center shadow-lg"
+                                                className="w-12 h-12 rounded-xl bg-linear-to-br from-blue-600 to-cyan-600 flex items-center justify-center shadow-lg"
                                             >
                                                 <FileText className="w-6 h-6 text-white" />
                                             </motion.div>
@@ -994,12 +994,12 @@ export default function OrderDetailPage() {
                                             transition={{ delay: 0.4 }}
                                             className="pt-5 border-t-2 border-gray-200"
                                         >
-                                            <div className="flex items-center justify-between p-4 bg-gradient-to-r from-blue-50 to-cyan-50 rounded-2xl">
+                                            <div className="flex items-center justify-between p-4 bg-linear-to-r from-blue-50 to-cyan-50 rounded-2xl">
                                                 <span className="text-xl font-bold text-gray-900">Total</span>
                                                 <motion.span
                                                     animate={{ scale: [1, 1.05, 1] }}
                                                     transition={{ duration: 2, repeat: Infinity }}
-                                                    className="text-3xl font-bold bg-gradient-to-r from-blue-600 via-cyan-600 to-blue-600 bg-clip-text text-transparent"
+                                                    className="text-3xl font-bold bg-linear-to-r from-blue-600 via-cyan-600 to-blue-600 bg-clip-text text-transparent"
                                                 >
                                                     {formatCurrency(total)}
                                                 </motion.span>
@@ -1011,7 +1011,7 @@ export default function OrderDetailPage() {
                                                 initial={{ opacity: 0, scale: 0.9 }}
                                                 animate={{ opacity: 1, scale: 1 }}
                                                 transition={{ delay: 0.5 }}
-                                                className="flex items-start gap-3 p-4 bg-gradient-to-r from-green-50 to-emerald-50 rounded-2xl border-2 border-green-200"
+                                                className="flex items-start gap-3 p-4 bg-linear-to-r from-green-50 to-emerald-50 rounded-2xl border-2 border-green-200"
                                             >
                                                 <CheckCircle className="w-6 h-6 text-green-600 mt-0.5 flex-shrink-0" />
                                                 <p className="text-sm text-green-800 font-medium">
@@ -1033,12 +1033,12 @@ export default function OrderDetailPage() {
                         >
                             <motion.div whileHover="hover" initial="rest" variants={cardHoverVariants}>
                                 <Card className="bg-white/90 backdrop-blur-md border-2 border-blue-100 shadow-xl rounded-3xl overflow-hidden">
-                                    <CardHeader className="bg-gradient-to-r from-cyan-50 via-blue-50 to-cyan-50 border-b border-gray-100 pb-5">
+                                    <CardHeader className="bg-linear-to-r from-cyan-50 via-blue-50 to-cyan-50 border-b border-gray-100 pb-5">
                                         <CardTitle className="flex items-center gap-3 text-xl">
                                             <motion.div
                                                 whileHover={{ rotate: 360 }}
                                                 transition={{ duration: 0.6 }}
-                                                className="w-10 h-10 rounded-xl bg-gradient-to-br from-cyan-500 to-blue-500 flex items-center justify-center shadow-lg"
+                                                className="w-10 h-10 rounded-xl bg-linear-to-br from-cyan-500 to-blue-500 flex items-center justify-center shadow-lg"
                                             >
                                                 <Info className="w-5 h-5 text-white" />
                                             </motion.div>
@@ -1057,9 +1057,9 @@ export default function OrderDetailPage() {
                                                 animate={{ opacity: 1, x: 0 }}
                                                 transition={{ delay: 0.1 * idx }}
                                                 whileHover={{ x: 5 }}
-                                                className="flex items-center gap-3 p-4 bg-gradient-to-r from-slate-50 to-blue-50/30 rounded-xl border border-gray-100 hover:border-blue-200 transition-all"
+                                                className="flex items-center gap-3 p-4 bg-linear-to-r from-slate-50 to-blue-50/30 rounded-xl border border-gray-100 hover:border-blue-200 transition-all"
                                             >
-                                                <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-blue-500 to-cyan-500 flex items-center justify-center shadow-md">
+                                                <div className="w-10 h-10 rounded-lg bg-linear-to-br from-blue-500 to-cyan-500 flex items-center justify-center shadow-md">
                                                     <detail.icon className="w-5 h-5 text-white" />
                                                 </div>
                                                 <div className="flex-1">
@@ -1082,7 +1082,7 @@ export default function OrderDetailPage() {
                         >
                             <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
                                 <Button
-                                    className="w-full h-14 bg-gradient-to-r from-blue-600 via-cyan-600 to-blue-600 hover:from-blue-700 hover:via-cyan-700 hover:to-blue-700 text-white shadow-2xl font-bold text-lg rounded-2xl"
+                                    className="w-full h-14 bg-linear-to-r from-blue-600 via-cyan-600 to-blue-600 hover:from-blue-700 hover:via-cyan-700 hover:to-blue-700 text-white shadow-2xl font-bold text-lg rounded-2xl"
                                     onClick={() => router.push('/')}
                                 >
                                     Seguir comprando

@@ -102,18 +102,18 @@ export const Pricing = () => {
         {/* Header */}
         <div className="text-center mb-16">
           <div className="inline-flex items-center gap-3 bg-white/10 backdrop-blur-md border border-white/20 rounded-full px-6 py-3 mb-6">
-            <div className="w-2 h-2 bg-gradient-to-r from-blue-400 to-purple-400 rounded-full animate-pulse"></div>
+            <div className="w-2 h-2 bg-linear-to-r from-blue-400 to-purple-400 rounded-full animate-pulse"></div>
             <span className="text-white text-sm font-medium tracking-wider uppercase">
               Planes de Precios
             </span>
-            <div className="w-2 h-2 bg-gradient-to-r from-purple-400 to-cyan-400 rounded-full animate-pulse"></div>
+            <div className="w-2 h-2 bg-linear-to-r from-purple-400 to-cyan-400 rounded-full animate-pulse"></div>
           </div>
           <h2 className="text-5xl md:text-6xl font-bold mb-6">
-            <span className="bg-gradient-to-r from-white via-blue-100 to-purple-100 bg-clip-text text-transparent">
+            <span className="bg-linear-to-r from-white via-blue-100 to-purple-100 bg-clip-text text-transparent">
               Planes que se
             </span>
             <br />
-            <span className="bg-gradient-to-r from-blue-300 via-purple-300 to-cyan-300 bg-clip-text text-transparent">
+            <span className="bg-linear-to-r from-blue-300 via-purple-300 to-cyan-300 bg-clip-text text-transparent">
               adaptan a ti
             </span>
           </h2>
@@ -133,7 +133,7 @@ export const Pricing = () => {
             <div className="flex items-center bg-white/10 backdrop-blur-md rounded-full p-1.5 shadow-lg border border-white/20 relative">
               {/* Animated Background Slider with matching gradient */}
               <motion.div
-                className="absolute top-1.5 bottom-1.5 bg-gradient-to-br from-slate-900 via-purple-900 to-slate-800 rounded-full shadow-lg shadow-purple-900/30"
+                className="absolute top-1.5 bottom-1.5 bg-linear-to-br from-slate-900 via-purple-900 to-slate-800 rounded-full shadow-lg shadow-purple-900/30"
                 animate={{
                   left: isYearly ? "calc(54% + 0.125rem)" : "0.375rem",
                   right: isYearly ? "0.375rem" : "calc(46% + 0.125rem)",
@@ -166,7 +166,7 @@ export const Pricing = () => {
               >
                 Anual
                 <motion.span
-                  className="absolute -top-2 -right-2 bg-gradient-to-r z-0 from-green-500 to-emerald-500 text-white text-xs px-2 py-0.5 rounded-full font-bold shadow-lg"
+                  className="absolute -top-2 -right-2 bg-linear-to-r z-0 from-green-500 to-emerald-500 text-white text-xs px-2 py-0.5 rounded-full font-bold shadow-lg"
                   animate={{
                     scale: isYearly ? 1 : 0.8,
                     opacity: isYearly ? 1 : 0.7,
@@ -202,7 +202,7 @@ export const Pricing = () => {
               {/* Enhanced Card */}
               <div
                 className={`relative h-full rounded-2xl p-6 backdrop-blur-sm ${plan.gradientBg
-                  ? "bg-gradient-to-br from-slate-900 via-purple-900 to-slate-800 text-white shadow-2xl shadow-purple-500/20 border border-purple-500/20"
+                  ? "bg-linear-to-br from-slate-900 via-purple-900 to-slate-800 text-white shadow-2xl shadow-purple-500/20 border border-purple-500/20"
                   : `bg-white/5 backdrop-blur-lg border border-white/10 shadow-xl hover:bg-white/10 hover:border-white/20 hover:shadow-2xl`
                   }`}
               >
@@ -325,7 +325,7 @@ export const Pricing = () => {
                       <motion.div
                         whileHover={{ scale: 1.1 }}
                         transition={{ type: "spring", stiffness: 400, damping: 25 }}
-                        className={`flex-shrink-0 w-5 h-5 rounded-full flex items-center justify-center mt-1 ${plan.gradientBg ? "bg-white/20" : "bg-white/10"
+                        className={`shrink-0 w-5 h-5 rounded-full flex items-center justify-center mt-1 ${plan.gradientBg ? "bg-white/20" : "bg-white/10"
                           }`}
                       >
                         <Check
@@ -350,7 +350,7 @@ export const Pricing = () => {
                   <Button
                     size="lg"
                     className={`w-full font-bold py-4 px-6 rounded-xl shadow-lg transition-all duration-300 ${plan.gradientBg
-                      ? "bg-gradient-to-r from-blue-600 via-purple-600 to-cyan-600 hover:from-blue-700 hover:via-purple-700 hover:to-cyan-700 text-white shadow-blue-500/25 hover:shadow-blue-600/40"
+                      ? "bg-linear-to-r from-blue-600 via-purple-600 to-cyan-600 hover:from-blue-700 hover:via-purple-700 hover:to-cyan-700 text-white shadow-blue-500/25 hover:shadow-blue-600/40"
                       : "bg-white/10 backdrop-blur-md border border-white/20 text-white hover:bg-white/20 hover:border-white/30"
                       }`}
                     asChild

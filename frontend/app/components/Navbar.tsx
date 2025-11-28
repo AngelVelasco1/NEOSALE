@@ -210,7 +210,7 @@ export const Navbar = () => {
 
   return (
     <nav
-      className={`w-full py-2 bg-gradient-to-r from-slate-900 via-slate-900 to-slate-900 sticky top-0 z-50 transition-all duration-500  shadow-2xl shadow-slate-900/50`}
+      className={`w-full py-2 bg-linear-to-r from-slate-900 via-slate-900 to-slate-900 sticky top-0 z-50 transition-all duration-500  shadow-2xl shadow-slate-900/50`}
     >
       <div className="container mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16">
@@ -233,7 +233,7 @@ export const Navbar = () => {
               </SheetTrigger>
               <SheetContent
                 side="left"
-                className="w-80 bg-gradient-to-b from-slate-800 to-slate-900 border-r border-slate-700 p-0"
+                className="w-80 bg-linear-to-b from-slate-800 to-slate-900 border-r border-slate-700 p-0"
               >
                 <div className="flex flex-col h-full">
                   {/* Header del menú móvil */}
@@ -388,7 +388,7 @@ export const Navbar = () => {
 
           {/* Desktop Navigation - Centrado */}
           <NavigationMenu className="hidden lg:flex flex-1 justify-center max-w-4xl mx-4 ">
-            <NavigationMenuList className="gap-2 [&>li]:!bg-transparent [&>li]:!border-none [&>li]:!shadow-none">
+            <NavigationMenuList className="gap-2 [&>li]:bg-transparent! [&>li]:border-none! [&>li]:shadow-none!">
               <NavigationMenuItem>
                 <NavigationMenuLink asChild>
                   <NavLink
@@ -415,8 +415,8 @@ export const Navbar = () => {
                 <NavigationMenuTrigger className="h-11 border-none bg-transparent hover:bg-white/10 rounded-xl font-medium transition-all duration-300  text-white data-[state=open]:bg-white/10 focus:outline-none focus:ring-0 [&>svg]:!text-white ">
                   Categorías
                 </NavigationMenuTrigger>
-                <NavigationMenuContent className="min-w-0 p-0 [&>div]:!bg-transparent [&>div]:!border-none [&>div]:!shadow-none [&>div]:!p-0">
-                  <div className="w-[800px] h-[640px] bg-gradient-to-br from-slate-800 to-slate-900 rounded-xl shadow-2xl overflow-y-scroll border-2 border-slate-600/50 scrollbar-thin scrollbar-thumb-slate-500 scrollbar-track-blue-700 hover:scrollbar-thumb-slate-400 transition-colors">
+                <NavigationMenuContent className="min-w-0 p-0 [&>div]:bg-transparent [&>div]:!border-none [&>div]:!shadow-none [&>div]:!p-0">
+                  <div className="w-[800px] h-[640px] bg-linear-to-br from-slate-800 to-slate-900 rounded-xl shadow-2xl overflow-y-scroll border-2 border-slate-600/50 scrollbar-thin scrollbar-thumb-slate-500 scrollbar-track-blue-700 hover:scrollbar-thumb-slate-400 transition-colors">
                     {categoriesLoading ? (
                       <div className="grid grid-cols-3 gap-8 p-10">
                         {[1, 2, 3].map((i) => (
@@ -504,7 +504,7 @@ export const Navbar = () => {
                 <NavigationMenuLink asChild className="flex flex-row">
                   <Link
                     href="/ofertas"
-                    className="flex h-11 w-fit items-center justify-center rounded-xl bg-gradient-to-r from-indigo-500 to-purple-500 px-6 py-2 text-sm font-medium text-white transition-all duration-300 hover:from-indigo-600 hover:to-purple-600 hover:shadow-lg hover:shadow-indigo-500/25 hover:scale-105  gap-2"
+                    className="flex h-11 w-fit items-center justify-center rounded-xl bg-linear-to-r from-indigo-500 to-purple-500 px-6 py-2 text-sm font-medium text-white transition-all duration-300 hover:from-indigo-600 hover:to-purple-600 hover:shadow-lg hover:shadow-indigo-500/25 hover:scale-105  gap-2"
                   >
                     <Zap className="h-4 w-4 flex-shrink-0" />
                     <span>Ofertas</span>
@@ -647,7 +647,7 @@ export const Navbar = () => {
                       className="flex items-center gap-2 h-10 px-3 rounded-xl hover:bg-white/10 transition-colors"
                     >
                       <div className="relative">
-                        <div className="w-8 h-8 bg-gradient-to-r from-blue-500 to-cyan-500 rounded-full flex items-center justify-center text-white text-sm font-bold">
+                        <div className="w-8 h-8 bg-linear-to-r from-blue-500 to-cyan-500 rounded-full flex items-center justify-center text-white text-sm font-bold">
                           {userProfile?.name?.charAt(0).toUpperCase() || "U"}
                         </div>
                         <div className="absolute -bottom-0.5 -right-0.5 w-3 h-3 bg-green-400 rounded-full border-2 border-slate-800"></div>
@@ -661,7 +661,7 @@ export const Navbar = () => {
                   >
                     <div className="p-4 border-b border-slate-600">
                       <div className="flex items-center gap-3">
-                        <div className="w-10 h-10 bg-gradient-to-r from-blue-500 to-cyan-500 rounded-full flex items-center justify-center text-white text-sm font-bold">
+                        <div className="w-10 h-10 bg-linear-to-r from-blue-500 to-cyan-500 rounded-full flex items-center justify-center text-white text-sm font-bold">
                           {userProfile?.name?.charAt(0).toUpperCase() || "U"}
                         </div>
                         <div className="font-medium text-white">

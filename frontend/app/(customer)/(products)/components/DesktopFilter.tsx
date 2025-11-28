@@ -1,9 +1,8 @@
 "use client"
 import { Button } from "@/components/ui/button"
-import { Badge } from "@/components/ui/badge"
 import { Separator } from "@/components/ui/separator"
-import { Checkbox } from "@/components/ui/checkbox"
-import { FilterIcon, Package, RotateCcw } from "lucide-react"
+
+import { FilterIcon, RotateCcw } from "lucide-react"
 import { SearchFilter } from "./filters/SearchFilter"
 import { ColorFilter } from "./filters/ColorFilter"
 import { CategoryFilter } from "./filters/CategoryFilter"
@@ -65,13 +64,13 @@ export const DesktopFilter = ({
       initial={{ opacity: 0, x: -20 }}
       animate={{ opacity: 1, x: 0 }}
       transition={{ duration: 0.5 }}
-      className="hidden lg:block space-y-6 bg-gradient-to-br from-slate-900 via-slate-900 to-slate-800 backdrop-blur-xl rounded-2xl shadow-2xl shadow-slate-950/50 border border-slate-700/50 p-6 sticky top-4 ring-1 ring-slate-800/50 relative overflow-hidden"
+      className="hidden lg:block space-y-6 bg-linear-to-br from-slate-900 via-slate-900 to-slate-800 backdrop-blur-xl rounded-2xl shadow-2xl shadow-slate-950/50 border border-slate-700/50 p-6 sticky top-4 ring-1 ring-slate-800/50 overflow-hidden"
     >
       {/* Decorative gradient overlay */}
-      <div className="absolute inset-0 bg-gradient-to-br from-blue-950/5 via-transparent to-indigo-950/5 rounded-2xl pointer-events-none" />
+      <div className="absolute inset-0 bg-linear-to-br from-blue-950/5 via-transparent to-indigo-950/5 rounded-2xl pointer-events-none" />
 
       {/* Background gradient accent */}
-      <div className="absolute inset-0 bg-gradient-to-br from-blue-500/5 via-purple-500/3 to-indigo-500/5 rounded-2xl pointer-events-none" />
+      <div className="absolute inset-0 bg-linear-to-br from-blue-500/5 via-purple-500/3 to-indigo-500/5 rounded-2xl pointer-events-none" />
 
       <div className="relative z-10 space-y-6">
         {/* Header */}
@@ -80,7 +79,7 @@ export const DesktopFilter = ({
             <motion.div
               whileHover={{ rotate: 180 }}
               transition={{ duration: 0.3 }}
-              className="p-2 bg-gradient-to-br from-slate-800 to-slate-900 rounded-lg ring-1 ring-slate-700 shadow-md"
+              className="p-2 bg-linear-to-br from-slate-800 to-slate-900 rounded-lg ring-1 ring-slate-700 shadow-md"
             >
               <FilterIcon className="h-5 w-5 text-slate-300" />
             </motion.div>
@@ -169,7 +168,7 @@ export const DesktopFilter = ({
       </div>
 
       {/* Bottom gradient accent */}
-      <div className="absolute bottom-0 left-0 right-0 h-1 bg-gradient-to-r from-blue-500 via-purple-500 to-indigo-500 rounded-b-2xl opacity-80" />
+      <div className="absolute bottom-0 left-0 right-0 h-1 bg-linear-to-r from-blue-500 via-purple-500 to-indigo-500 rounded-b-2xl opacity-80" />
     </motion.div>
   )
 }

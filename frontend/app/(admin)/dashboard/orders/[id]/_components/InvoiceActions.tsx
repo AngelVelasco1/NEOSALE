@@ -3,8 +3,8 @@
 import { DownloadCloud, Printer, Loader2 } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
-import { usePdfDownload } from "@/hooks/use-pdf-download";
-import { OrderDetails } from "@/services/orders/types";
+import { usePdfDownload } from "@/app/(admin)/hooks/use-pdf-download";
+import { OrderDetails } from "@/app/(admin)/services/orders/types";
 import InvoicePdfTemplate from "./InvoicePdfTemplate";
 
 export function InvoiceActions({ order }: { order: OrderDetails }) {

@@ -90,7 +90,7 @@ export default function SalesOverview() {
           >
             {/* Background Gradient Overlay */}
             <div className={cn(
-              "absolute inset-0 bg-gradient-to-br opacity-0 group-hover:opacity-5 transition-opacity duration-300 rounded-2xl",
+              "absolute inset-0 bg-linear-to-br opacity-0 group-hover:opacity-5 transition-opacity duration-300 rounded-2xl",
               metric.gradient
             )} />
 
@@ -146,7 +146,7 @@ export default function SalesOverview() {
               <div className="mt-4 h-1.5 bg-slate-100 dark:bg-slate-800 rounded-full overflow-hidden">
                 <div
                   className={cn(
-                    "h-full bg-gradient-to-r rounded-full transition-all duration-500",
+                    "h-full bg-linear-to-r rounded-full transition-all duration-500",
                     metric.gradient
                   )}
                   style={{
@@ -161,7 +161,7 @@ export default function SalesOverview() {
 
       {/* Quick Stats Bar */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-        <div className="bg-gradient-to-br from-blue-50 to-blue-100/50 dark:from-blue-950/30 dark:to-blue-900/20 border border-blue-200 dark:border-blue-900/50 rounded-xl p-4">
+        <div className="bg-linear-to-br from-blue-50 to-blue-100/50 dark:from-blue-950/30 dark:to-blue-900/20 border border-blue-200 dark:border-blue-900/50 rounded-xl p-4">
           <div className="flex items-center gap-3">
             <div className="p-2 bg-blue-100 dark:bg-blue-500/10 rounded-lg">
               <TrendingUp className="size-5 text-blue-600 dark:text-blue-400" />
@@ -177,7 +177,7 @@ export default function SalesOverview() {
           </div>
         </div>
 
-        <div className="bg-gradient-to-br from-purple-50 to-purple-100/50 dark:from-purple-950/30 dark:to-purple-900/20 border border-purple-200 dark:border-purple-900/50 rounded-xl p-4">
+        <div className="bg-linear-to-br from-purple-50 to-purple-100/50 dark:from-purple-950/30 dark:to-purple-900/20 border border-purple-200 dark:border-purple-900/50 rounded-xl p-4">
           <div className="flex items-center gap-3">
             <div className="p-2 bg-purple-100 dark:bg-purple-500/10 rounded-lg">
               <ShoppingCart className="size-5 text-purple-600 dark:text-purple-400" />
@@ -193,7 +193,7 @@ export default function SalesOverview() {
           </div>
         </div>
 
-        <div className="bg-gradient-to-br from-emerald-50 to-emerald-100/50 dark:from-emerald-950/30 dark:to-emerald-900/20 border border-emerald-200 dark:border-emerald-900/50 rounded-xl p-4">
+        <div className="bg-linear-to-br from-emerald-50 to-emerald-100/50 dark:from-emerald-950/30 dark:to-emerald-900/20 border border-emerald-200 dark:border-emerald-900/50 rounded-xl p-4">
           <div className="flex items-center gap-3">
             <div className="p-2 bg-emerald-100 dark:bg-emerald-500/10 rounded-lg">
               <Package className="size-5 text-emerald-600 dark:text-emerald-400" />
@@ -209,7 +209,7 @@ export default function SalesOverview() {
           </div>
         </div>
 
-        <div className="bg-gradient-to-br from-orange-50 to-orange-100/50 dark:from-orange-950/30 dark:to-orange-900/20 border border-orange-200 dark:border-orange-900/50 rounded-xl p-4">
+        <div className="bg-linear-to-br from-orange-50 to-orange-100/50 dark:from-orange-950/30 dark:to-orange-900/20 border border-orange-200 dark:border-orange-900/50 rounded-xl p-4">
           <div className="flex items-center gap-3">
             <div className="p-2 bg-orange-100 dark:bg-orange-500/10 rounded-lg">
               <Users className="size-5 text-orange-600 dark:text-orange-400" />

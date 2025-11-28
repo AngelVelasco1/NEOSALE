@@ -1,0 +1,64 @@
+/* Estilos específicos para el PDF de invoice - Compatibilidad con html2canvas */
+
+/* Forzar colores RGB para evitar problemas con oklch */
+[id^="invoice-"] {
+  color-scheme: light !important;
+}
+
+[id^="invoice-"] * {
+  -webkit-print-color-adjust: exact !important;
+  print-color-adjust: exact !important;
+}
+
+[id^="invoice-"] .text-primary {
+  color: rgb(59, 130, 246) !important;
+}
+
+[id^="invoice-"] .text-black {
+  color: rgb(0, 0, 0) !important;
+}
+
+[id^="invoice-"] .bg-white {
+  background-color: rgb(255, 255, 255) !important;
+}
+
+[id^="invoice-"] .border-print-border {
+  border-color: rgb(229, 231, 235) !important;
+}
+
+[id^="invoice-"] .bg-print-border {
+  background-color: rgb(229, 231, 235) !important;
+}
+
+/* Asegurar que los badges tengan colores RGB */
+[id^="invoice-"] .bg-yellow-100 {
+  background-color: rgb(254, 249, 195) !important;
+}
+
+[id^="invoice-"] .text-yellow-800 {
+  color: rgb(133, 77, 14) !important;
+}
+
+[id^="invoice-"] .bg-green-100 {
+  background-color: rgb(220, 252, 231) !important;
+}
+
+[id^="invoice-"] .text-green-800 {
+  color: rgb(22, 101, 52) !important;
+}
+
+[id^="invoice-"] .bg-red-100 {
+  background-color: rgb(254, 226, 226) !important;
+}
+
+[id^="invoice-"] .text-red-800 {
+  color: rgb(153, 27, 27) !important;
+}
+
+[id^="invoice-"] .bg-blue-100 {
+  background-color: rgb(219, 234, 254) !important;
+}
+
+[id^="invoice-"] .text-blue-800 {
+  color: rgb(30, 64, 175) !important;
+}

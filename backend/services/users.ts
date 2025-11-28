@@ -85,14 +85,52 @@ export const getUsersService = async (
         image: true,
         active: true,
         created_at: true,
+        orders: {
+          select: {
+            id: true,
+            total: true,
+            created_at: true,
+            status: true,
+          },
+          orderBy: {
+            created_at: "desc",
+          },
+        },
       },
       orderBy: { created_at: "desc" },
     }),
     prisma.user.count({ where }),
   ]);
 
+  // Calcular estadísticas de órdenes para cada usuario
+  const usersWithStats = users.map((user) => {
+    const completedOrders = user.orders.filter(
+      (order) => order.status === "delivered" || order.status === "paid"
+    );
+    const totalSpent = completedOrders.reduce(
+      (sum, order) => sum + order.total,
+      0
+    );
+    const avgSpent = totalSpent / completedOrders.length;
+    const lastOrder = user.orders.length > 0 ? user.orders[0] : null;
+
+    return {
+      id: user.id,
+      name: user.name,
+      email: user.email,
+      phone_number: user.phone_number,
+      image: user.image,
+      active: user.active,
+      created_at: user.created_at,
+      total_orders: user.orders.length,
+      total_spent: totalSpent,
+      average_spent: avgSpent,
+      last_order_date: lastOrder?.created_at || null,
+    };
+  });
+
   return {
-    data: users,
+    data: usersWithStats,
     pagination: {
       total,
       page,

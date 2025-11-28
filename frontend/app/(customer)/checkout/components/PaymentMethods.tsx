@@ -145,9 +145,9 @@ export const PaymentMethods = ({
                     repeat: Infinity,
                     ease: "easeInOut"
                   }}
-                  className="absolute inset-0 rounded-2xl bg-gradient-to-br from-violet-600 to-indigo-700 blur-xl"
+                  className="absolute inset-0 rounded-2xl bg-linear-to-br from-violet-600 to-indigo-700 blur-xl"
                 />
-                <div className="relative w-full h-full rounded-2xl bg-gradient-to-br from-violet-600 via-indigo-600 to-violet-700 flex items-center justify-center shadow-2xl shadow-violet-500/40">
+                <div className="relative w-full h-full rounded-2xl bg-linear-to-br from-violet-600 via-indigo-600 to-violet-700 flex items-center justify-center shadow-2xl shadow-violet-500/40">
                   {paymentMethods.find((m) => m.id === selectedPaymentMethod)
                     ?.icon &&
                     React.createElement(
@@ -206,11 +206,11 @@ export const PaymentMethods = ({
       className="relative space-y-8 p-8 rounded-3xl bg-slate-800/40 backdrop-blur-xl shadow-2xl border border-slate-700/50"
     >
       {/* Top animated border */}
-      <div className="absolute top-0 left-0 right-0 h-[1px] bg-gradient-to-r from-transparent via-violet-500/50 to-transparent rounded-t-3xl">
+      <div className="absolute top-0 left-0 right-0 h-[1px] bg-linear-to-r from-transparent via-violet-500/50 to-transparent rounded-t-3xl">
         <motion.div
           animate={{ x: ['-100%', '100%'] }}
           transition={{ duration: 3, repeat: Infinity, ease: "linear" }}
-          className="h-full w-1/3 bg-gradient-to-r from-transparent via-violet-400 to-transparent blur-sm"
+          className="h-full w-1/3 bg-linear-to-r from-transparent via-violet-400 to-transparent blur-sm"
         />
       </div>
 
@@ -233,7 +233,7 @@ export const PaymentMethods = ({
                   damping: 20,
                   delay: 0.2
                 }}
-                className="p-3 rounded-2xl bg-gradient-to-br from-violet-600 via-violet-700 to-indigo-700 shadow-lg shadow-violet-500/30"
+                className="p-3 rounded-2xl bg-linear-to-br from-violet-600 via-violet-700 to-indigo-700 shadow-lg shadow-violet-500/30"
               >
                 <ShieldCheck className="w-6 h-6 text-white" />
               </motion.div>
@@ -259,7 +259,7 @@ export const PaymentMethods = ({
           <motion.div
             animate={{ x: ['-100%', '100%'] }}
             transition={{ duration: 2, repeat: Infinity, ease: "linear" }}
-            className="absolute inset-0 bg-gradient-to-r from-transparent via-violet-500 to-transparent"
+            className="absolute inset-0 bg-linear-to-r from-transparent via-violet-500 to-transparent"
           />
         </motion.div>
       </motion.div>
@@ -310,7 +310,7 @@ export const PaymentMethods = ({
                     relative flex flex-col items-center justify-center p-4 py-3 h-auto 
                     transition-all duration-300 ease-out overflow-hidden
                     ${isSelected
-                      ? "bg-gradient-to-br from-violet-600/30 via-violet-700/30 to-indigo-700/30 shadow-lg shadow-violet-500/20 border border-violet-500/50"
+                      ? "bg-linear-to-br from-violet-600/30 via-violet-700/30 to-indigo-700/30 shadow-lg shadow-violet-500/20 border border-violet-500/50"
                       : "bg-slate-700/30 hover:bg-slate-700/50 hover:shadow-lg hover:border-slate-600/70 border border-slate-600/50"
                     }
                     ${isDisabled
@@ -327,7 +327,7 @@ export const PaymentMethods = ({
                         initial={{ opacity: 0 }}
                         animate={{ opacity: 1 }}
                         exit={{ opacity: 0 }}
-                        className="absolute inset-0 bg-gradient-to-br from-violet-600/10 via-indigo-600/10 to-violet-700/10"
+                        className="absolute inset-0 bg-linear-to-br from-violet-600/10 via-indigo-600/10 to-violet-700/10"
                         transition={{
                           type: "spring",
                           stiffness: 400,
@@ -353,13 +353,13 @@ export const PaymentMethods = ({
                     <div className={`
                       p-3 rounded-xl transition-all duration-300 relative
                       ${isSelected
-                        ? "bg-gradient-to-br from-violet-600 via-indigo-700 to-purple-700 "
+                        ? "bg-linear-to-br from-violet-600 via-indigo-700 to-purple-700 "
                         : "bg-slate-700/50"
                       }
                     `}>
                       {isSelected && (
                         <motion.div
-                          className="absolute inset-0 rounded-xl bg-gradient-to-br from-violet-500 to-indigo-600 blur-md opacity-50"
+                          className="absolute inset-0 rounded-xl bg-linear-to-br from-violet-500 to-indigo-600 blur-md opacity-50"
 
                           transition={{
                             duration: 2,
@@ -421,7 +421,7 @@ export const PaymentMethods = ({
                         initial={{ opacity: 0, scale: 0.9 }}
                         animate={{ opacity: 1, scale: 1 }}
                         exit={{ opacity: 0, scale: 0.9 }}
-                        className="absolute -inset-0.5 rounded-xl bg-gradient-to-br from-violet-600/30 via-indigo-600/30 to-violet-700/30 pointer-events-none blur-lg"
+                        className="absolute -inset-0.5 rounded-xl bg-linear-to-br from-violet-600/30 via-indigo-600/30 to-violet-700/30 pointer-events-none blur-lg"
                         transition={{
                           type: "spring",
                           stiffness: 400,
