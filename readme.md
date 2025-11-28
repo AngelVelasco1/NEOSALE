@@ -78,13 +78,13 @@ AUTH_SECRET=""
 ### Inicializar cliente:
 
 ```bash
-bunx run prisma:generate
+bunx prisma:generate
 ```
 
 ### Ver base de datos (modo visual):
 
 ```bash
-npm run prisma:studio
+bun run prisma:studio
 ```
 
 Estos scripts ya están definidos en `backend/package.json`:
