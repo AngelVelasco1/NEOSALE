@@ -5,16 +5,16 @@ import { revalidatePath } from "next/cache";
 import { prisma } from "@/lib/prisma";
 import { ServerActionResponse } from "@/app/(admin)/types/server-action";
 
-export async function toggleCouponPublishedStatus(
-  couponId: string,
-  currentPublishedStatus: boolean
+export async function toggleCouponActiveStatus(
+  couponId: number,
+  currentActiveStatus: boolean
 ): Promise<ServerActionResponse> {
   try {
-    const newPublishedStatus = !currentPublishedStatus;
+    const newActiveStatus = !currentActiveStatus;
 
     await prisma.coupons.update({
-      where: { id: parseInt(couponId) },
-      data: { active: newPublishedStatus },
+      where: { id: couponId },
+      data: { active: newActiveStatus },
     });
 
     revalidatePath("/coupons");

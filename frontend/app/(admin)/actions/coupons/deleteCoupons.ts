@@ -1,27 +1,26 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
-
 import { prisma } from "@/lib/prisma";
 import { ServerActionResponse } from "@/app/(admin)/types/server-action";
 
 export async function deleteCoupons(
-  couponIds: string[]
+  couponIds: number[]
 ): Promise<ServerActionResponse> {
   try {
-    // TODO: Si usas Cloudinary u otro servicio, elimina las imágenes aquí
-    // const coupons = await prisma.coupons.findMany({
-    //   where: { id: { in: couponIds.map(id => parseInt(id)) } },
-    //   select: { image_url: true }
-    // });
-
-    await prisma.coupons.deleteMany({
+    // Soft delete masivo: solo marcamos como eliminados
+    await prisma.coupons.updateMany({
       where: {
-        id: { in: couponIds.map((id) => parseInt(id)) },
+        id: { in: couponIds },
+      },
+      data: {
+        deleted_at: new Date(),
+        // TODO: Obtener userId de la sesión
+        // deleted_by: userId,
       },
     });
 
-    revalidatePath("/coupons");
+    revalidatePath("/dashboard/coupons");
 
     return { success: true };
   } catch (error) {

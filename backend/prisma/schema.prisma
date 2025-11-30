@@ -14,10 +14,10 @@ model brands {
   description String?    @db.VarChar(500)
   active      Boolean    @default(true)
   image_url   String?    @db.VarChar(255)
+  deleted_at  DateTime?  @db.Timestamp(6)
+  deleted_by  Int?
+  User        User?      @relation(fields: [deleted_by], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_brand_deleted_by")
   products    products[]
-
-  @@index([active], map: "idx_brand_active")
-  @@index([name], map: "idx_brand_name")
 }
 
 model cart {
@@ -29,8 +29,6 @@ model cart {
   expires_at    DateTime?    @db.Timestamp(6)
   users         User?        @relation(fields: [user_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
   cart_items    cart_items[]
-
-  @@index([user_id], map: "idx_cart_user")
 }
 
 model cart_items {
@@ -43,9 +41,6 @@ model cart_items {
   size       String   @db.VarChar(25)
   cart       cart     @relation(fields: [cart_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
   products   products @relation(fields: [product_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
-
-  @@index([cart_id], map: "idx_cart_item_cart")
-  @@index([product_id], map: "idx_cart_item_product")
 }
 
 model categories {
@@ -54,12 +49,12 @@ model categories {
   description          String?                @db.VarChar(500)
   id_subcategory       Int?
   active               Boolean                @default(true)
+  deleted_at           DateTime?              @db.Timestamp(6)
+  deleted_by           Int?
   subcategory          subcategories?         @relation(fields: [id_subcategory], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  User                 User?                  @relation(fields: [deleted_by], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_category_deleted_by")
   category_subcategory category_subcategory[]
   products             products[]
-
-  @@index([active], map: "idx_category_active")
-  @@index([id_subcategory], map: "idx_category_subcategory")
 }
 
 model category_subcategory {
@@ -73,21 +68,22 @@ model category_subcategory {
 }
 
 model coupons {
-  id                  Int      @id @default(autoincrement())
-  code                String   @db.VarChar(50)
-  name                String   @db.VarChar(100)
-  discount_type       String   @db.VarChar(255)
-  discount_value      Decimal  @db.Decimal(10, 2)
-  min_purchase_amount Decimal? @default(0) @db.Decimal(10, 2)
+  id                  Int       @id @default(autoincrement())
+  code                String    @db.VarChar(50)
+  name                String    @db.VarChar(100)
+  discount_type       String    @db.VarChar(255)
+  discount_value      Decimal   @db.Decimal(10, 2)
+  min_purchase_amount Decimal?  @default(0) @db.Decimal(10, 2)
   usage_limit         Int?
-  usage_count         Int?     @default(0)
-  active              Boolean  @default(true)
+  usage_count         Int?      @default(0)
+  active              Boolean   @default(true)
   created_by          Int
-  created_at          DateTime @default(now()) @db.Timestamp(6)
-  expires_at          DateTime @db.Timestamp(6)
+  created_at          DateTime  @default(now()) @db.Timestamp(6)
+  expires_at          DateTime  @db.Timestamp(6)
+  deleted_at          DateTime? @db.Timestamp(6)
+  deleted_by          Int?
+  User                User?     @relation(fields: [deleted_by], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_coupon_deleted_by")
   orders              orders[]
-
-  @@index([code], map: "idx_coupon_code")
 }
 
 /// This model contains an expression index which requires additional setup for migrations. Visit https://pris.ly/d/expression-indexes for more info.
@@ -111,50 +107,48 @@ model products {
   created_by       Int
   updated_at       DateTime?          @db.Timestamp(6)
   updated_by       Int
+  deleted_at       DateTime?          @db.Timestamp(6)
+  deleted_by       Int?
   cart_items       cart_items[]
   favorites        favorites[]
   images           images[]
   order_items      order_items[]
   product_variants product_variants[]
+  User             User?              @relation(fields: [deleted_by], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_product_deleted_by")
   brands           brands             @relation(fields: [brand_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
   categories       categories         @relation(fields: [category_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
   reviews          reviews[]
-
-  @@index([active], map: "idx_product_active")
-  @@index([brand_id], map: "idx_product_brand")
-  @@index([category_id], map: "idx_product_category")
-  @@index([price], map: "idx_product_price")
-  @@index([active, in_offer], map: "idx_product_status")
 }
 
 model User {
-  id                             Int          @id @default(autoincrement())
-  name                           String       @db.VarChar(255)
-  email                          String       @unique @db.VarChar(255)
-  email_verified                 DateTime?    @db.Timestamp(6)
-  password                       String?      @db.VarChar(255)
-  image                          String?      @db.VarChar(255)
-  phone_number                   String?      @unique @db.VarChar(20)
-  identification                 String?      @unique @db.VarChar(20)
-  identification_type            String?      @db.VarChar(10)
-  role                           roles_enum   @default(user)
-  active                         Boolean      @default(true)
-  email_notifications            Boolean      @default(true)
-  created_at                     DateTime     @default(now()) @db.Timestamp(6)
-  updated_at                     DateTime?    @db.Timestamp(6)
+  id                             Int             @id @default(autoincrement())
+  name                           String          @db.VarChar(255)
+  email                          String          @unique @db.VarChar(255)
+  email_verified                 DateTime?       @db.Timestamp(6)
+  password                       String?         @db.VarChar(255)
+  image                          String?         @db.VarChar(255)
+  phone_number                   String?         @unique @db.VarChar(20)
+  identification                 String?         @unique @db.VarChar(20)
+  identification_type            String?         @db.VarChar(10)
+  role                           roles_enum      @default(user)
+  active                         Boolean         @default(true)
+  email_notifications            Boolean         @default(true)
+  created_at                     DateTime        @default(now()) @db.Timestamp(6)
+  updated_at                     DateTime?       @db.Timestamp(6)
   Account                        Account[]
   addresses                      addresses[]
+  brands                         brands[]
   cart                           cart[]
+  categories                     categories[]
+  coupons                        coupons[]
   favorites                      favorites[]
   order_logs                     order_logs[]
-  orders_orders_updated_byToUser orders[]     @relation("orders_updated_byToUser")
+  orders_orders_updated_byToUser orders[]        @relation("orders_updated_byToUser")
   orders                         orders[]
   payments                       payments[]
+  products                       products[]
   reviews                        reviews[]
-
-  @@index([active], map: "idx_user_active")
-  @@index([email], map: "idx_user_email")
-  @@index([phone_number], map: "idx_user_phone")
+  subcategories                  subcategories[]
 }
 
 model orders {
@@ -188,21 +182,17 @@ model orders {
   addresses                    addresses          @relation(fields: [shipping_address_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
   User_orders_updated_byToUser User               @relation("orders_updated_byToUser", fields: [updated_by], references: [id], onDelete: NoAction, onUpdate: NoAction)
   users                        User               @relation(fields: [user_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
-
-  @@index([shipping_address_id], map: "idx_order_address")
-  @@index([status], map: "idx_order_status")
-  @@index([updated_at], map: "idx_order_updated")
-  @@index([user_id], map: "idx_order_user")
 }
 
 model subcategories {
   id                   Int                    @id @default(autoincrement())
   name                 String                 @db.VarChar(255)
   active               Boolean                @default(true)
+  deleted_at           DateTime?              @db.Timestamp(6)
+  deleted_by           Int?
   categories           categories[]
   category_subcategory category_subcategory[]
-
-  @@index([active], map: "idx_subcategory_active")
+  User                 User?                  @relation(fields: [deleted_by], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_subcategory_deleted_by")
 }
 
 /// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
@@ -223,7 +213,6 @@ model product_variants {
   products     products  @relation(fields: [product_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
 
   @@unique([product_id, color_code, size], map: "unq_product_variant")
-  @@index([product_id], map: "idx_variant_product")
 }
 
 model Account {
@@ -256,8 +245,6 @@ model addresses {
   created_at DateTime @default(now()) @db.Timestamp(6)
   User       User     @relation(fields: [user_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
   orders     orders[]
-
-  @@index([user_id], map: "idx_address_user")
 }
 
 model favorites {
@@ -269,8 +256,6 @@ model favorites {
   User       User     @relation(fields: [user_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
 
   @@unique([user_id, product_id], map: "unq_user_product_favorite")
-  @@index([product_id], map: "idx_favorite_product")
-  @@index([user_id], map: "idx_favorite_user")
 }
 
 model images {
@@ -283,8 +268,6 @@ model images {
   variant_id       Int?
   products         products          @relation(fields: [product_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
   product_variants product_variants? @relation(fields: [variant_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
-
-  @@index([product_id], map: "idx_image_product")
 }
 
 model order_items {
@@ -300,9 +283,6 @@ model order_items {
   updated_at DateTime? @db.Timestamp(6)
   orders     orders    @relation(fields: [order_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
   products   products  @relation(fields: [product_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
-
-  @@index([order_id], map: "idx_order_item_order")
-  @@index([product_id], map: "idx_order_item_product")
 }
 
 /// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
@@ -318,9 +298,6 @@ model order_logs {
   user_type       String?            @default("admin") @db.VarChar(20)
   orders          orders             @relation(fields: [order_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
   User            User               @relation(fields: [updated_by], references: [id], onDelete: NoAction, onUpdate: NoAction)
-
-  @@index([order_id], map: "idx_order_log_order")
-  @@index([new_status], map: "idx_order_log_status")
 }
 
 model review_images {
@@ -329,8 +306,6 @@ model review_images {
   image_url  String   @db.VarChar(500)
   created_at DateTime @default(now()) @db.Timestamp(6)
   reviews    reviews  @relation(fields: [review_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
-
-  @@index([review_id], map: "idx_review_image_review")
 }
 
 /// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
@@ -345,10 +320,6 @@ model reviews {
   review_images review_images[]
   products      products        @relation(fields: [product_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
   User          User            @relation(fields: [user_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
-
-  @@index([product_id], map: "idx_review_product")
-  @@index([rating], map: "idx_review_rating")
-  @@index([user_id], map: "idx_review_user")
 }
 
 /// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
@@ -424,12 +395,6 @@ enum payment_method_enum {
   NEQUI
   BANCOLOMBIA
   BANCOLOMBIA_TRANSFER
-}
-
-enum orders_paymentmethod_enum {
-  paypal
-  nequi
-  efecty
 }
 
 enum payment_status_enum {

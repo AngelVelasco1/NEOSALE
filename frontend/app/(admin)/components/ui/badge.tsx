@@ -16,7 +16,7 @@ const badgeVariants = cva(
         destructive:
           "border-transparent bg-red-600 text-red-600 dark:bg-destructive dark:text-red-200 print:!bg-red-200 print:!text-red-600 group-[.light-only]:bg-red-200 group-[.light-only]:text-red-600",
         success:
-          "border-transparent bg-green-200 text-green-600 dark:bg-green-600 dark:text-green-200 print:!bg-green-200 print:!text-green-600 group-[.light-only]:bg-green-200 group-[.light-only]:text-green-600",
+          "border-transparent bg-green-200 text-green-600 dark:bg-green-600 print:!bg-green-200 print:!text-green-600 group-[.light-only]:bg-green-200 group-[.light-only]:text-green-600",
         warning:
           "border-transparent bg-yellow-200 text-yellow-600 dark:bg-yellow-600 dark:text-yellow-200 print:!bg-yellow-200 print:!text-yellow-600 group-[.light-only]:bg-yellow-200 group-[.light-only]:text-yellow-600",
         processing:

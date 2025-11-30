@@ -63,6 +63,17 @@ export const formatDate = {
   },
 
   /**
+   * Format: "15:45" (24-hour format for HTML time input)
+   * @param date - Date string or Date object
+   */
+  time24: (date: DateInput): string => {
+    const d = toDate(date);
+    const hours = d.getHours().toString().padStart(2, "0");
+    const minutes = d.getMinutes().toString().padStart(2, "0");
+    return `${hours}:${minutes}`;
+  },
+
+  /**
    * Format: "Jan 15, 2024 - 3:45 PM"
    * @param date - Date string or Date object
    */

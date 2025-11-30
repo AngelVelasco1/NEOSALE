@@ -8,7 +8,6 @@ import Typography from "@/app/(admin)/components/ui/typography";
 import { Badge } from "@/components/ui/badge";
 
 import { TableSwitch } from "@/app/(admin)/components/shared/table/TableSwitch";
-import { ImagePlaceholder } from "@/app/(admin)/components/shared/ImagePlaceholder";
 import { SheetTooltip } from "@/app/(admin)/components/shared/table/TableActionTooltip";
 import { TableActionAlertDialog } from "@/app/(admin)/components/shared/table/TableActionAlertDialog";
 import CouponFormSheet from "../form/CouponFormSheet";
@@ -18,7 +17,7 @@ import { Coupon, CouponStatus } from "@/app/(admin)/services/coupons/types";
 
 import { editCoupon } from "@/app/(admin)/actions/coupons/editCoupon";
 import { deleteCoupon } from "@/app/(admin)/actions/coupons/deleteCoupon";
-import { toggleCouponPublishedStatus } from "@/app/(admin)/actions/coupons/toggleCouponStatus";
+import { toggleCouponActiveStatus } from "@/app/(admin)/actions/coupons/toggleCouponStatus";
 import { HasPermission } from "@/app/(admin)/hooks/use-authorization";
 
 export const getColumns = ({
@@ -28,21 +27,11 @@ export const getColumns = ({
 }) => {
   const columns: ColumnDef<Coupon>[] = [
     {
-      header: "Nombre de Campaña",
+      header: "Nombre",
       cell: ({ row }) => (
-        <div className="flex gap-2 items-center">
-          <ImagePlaceholder
-            src={row.original.image_url}
-            alt={row.original.campaign_name}
-            width={32}
-            height={32}
-            className="size-8 rounded-full"
-          />
-
-          <Typography className="capitalize block truncate">
-            {row.original.campaign_name}
-          </Typography>
-        </div>
+        <Typography className="capitalize block truncate">
+          {row.original.name}
+        </Typography>
       ),
     },
     {
@@ -55,63 +44,53 @@ export const getColumns = ({
       header: "Descuento",
       cell: ({ row }) => {
         const discountType = row.original.discount_type;
+        const value = Number(row.original.discount_value);
 
         if (discountType === "fixed") {
-          return `$${row.original.discount_value}`;
+          return `$${value.toLocaleString()}`;
         }
 
-        return `${row.original.discount_value}%`;
+        return `${value}%`;
       },
     },
     {
-      header: "Fecha de Inicio",
-      cell: ({ row }) => formatDate.medium(row.original.start_date),
+      header: "Uso",
+      cell: ({ row }) => {
+        const used = row.original.usage_count || 0;
+        const limit = row.original.usage_limit;
+        return limit ? `${used}/${limit}` : `${used}/∞`;
+      },
     },
     {
-      header: "Fecha de Fin",
-      cell: ({ row }) => formatDate.medium(row.original.end_date),
+      header: "Fecha de Creación",
+      cell: ({ row }) => formatDate.medium(row.original.created_at),
+    },
+    {
+      header: "Expira",
+      cell: ({ row }) => formatDate.medium(row.original.expires_at),
     },
     {
       header: "Estado",
       cell: ({ row }) => {
         const currentTime = new Date();
-        const endTime = new Date(row.original.end_date);
+        const expiresAt = new Date(row.original.expires_at);
 
         const status: CouponStatus =
-          currentTime > endTime ? "expired" : "active";
+          currentTime > expiresAt ? "expired" : "active";
 
         return (
           <Badge
             variant={CouponBadgeVariants[status]}
             className="shrink-0 text-xs capitalize"
           >
-            {status}
+            {status === "active" ? "Disponible" : "Expirado"}
           </Badge>
         );
       },
     },
   ];
 
-  if (hasPermission("coupons", "canTogglePublished")) {
-    columns.splice(3, 0, {
-      header: "Publicado",
-      cell: ({ row }) => (
-        <div className="pl-5">
-          <TableSwitch
-            checked={row.original.published}
-            toastSuccessMessage="Coupon status updated successfully."
-            queryKey="coupons"
-            onCheckedChange={() =>
-              toggleCouponPublishedStatus(
-                row.original.id,
-                row.original.published
-              )
-            }
-          />
-        </div>
-      ),
-    });
-  }
+
 
   if (
     hasPermission("coupons", "canDelete") ||
@@ -138,11 +117,29 @@ export const getColumns = ({
       ),
     });
 
-    columns.splice(8, 0, {
+    columns.splice(9, 0, {
       header: "Acciones",
       cell: ({ row }) => {
         return (
           <div className="flex items-center gap-1">
+            {hasPermission("coupons", "canTogglePublished") && (
+
+              <div className="pl-5">
+                <TableSwitch
+                  checked={row.original.active}
+                  toastSuccessMessage="Coupon status updated successfully."
+                  queryKey="coupons"
+                  onCheckedChange={() =>
+                    toggleCouponActiveStatus(
+                      row.original.id,
+                      row.original.active
+                    )
+                  }
+                />
+              </div>
+
+            )}
+
             {hasPermission("coupons", "canEdit") && (
               <CouponFormSheet
                 key={row.original.id}
@@ -151,17 +148,18 @@ export const getColumns = ({
                 submitButtonText="Update Coupon"
                 actionVerb="updated"
                 initialData={{
-                  name: row.original.campaign_name,
+                  name: row.original.name,
                   code: row.original.code,
-                  image: row.original.image_url,
-                  startDate: new Date(row.original.start_date),
-                  endDate: new Date(row.original.end_date),
+                  expiresAt: new Date(row.original.expires_at),
                   isPercentageDiscount:
                     row.original.discount_type === "percentage",
-                  discountValue: row.original.discount_value,
+                  discountValue: Number(row.original.discount_value),
+                  minPurchaseAmount: row.original.min_purchase_amount
+                    ? Number(row.original.min_purchase_amount)
+                    : undefined,
+                  usageLimit: row.original.usage_limit || undefined,
                 }}
                 action={(formData) => editCoupon(row.original.id, formData)}
-                previewImage={row.original.image_url}
               >
                 <SheetTooltip content="Edit Coupon">
                   <PenSquare className="size-5" />
@@ -171,11 +169,11 @@ export const getColumns = ({
 
             {hasPermission("coupons", "canDelete") && (
               <TableActionAlertDialog
-                title={`Delete ${row.original.campaign_name}?`}
+                title={`Delete ${row.original.name}?`}
                 description="This action cannot be undone. This will permanently delete the coupon and its associated data from the database."
                 tooltipContent="Delete Coupon"
                 actionButtonText="Delete Coupon"
-                toastSuccessMessage={`Coupon "${row.original.campaign_name}" deleted successfully!`}
+                toastSuccessMessage={`Coupon "${row.original.name}" deleted successfully!`}
                 queryKey="coupons"
                 action={() => deleteCoupon(row.original.id)}
               >
@@ -197,14 +195,8 @@ export const skeletonColumns: SkeletonColumn[] = [
     cell: <Skeleton className="size-4 rounded-sm" />,
   },
   {
-    header: "Nombre de Campaña",
-    cell: (
-      <div className="flex gap-2 items-center">
-        <Skeleton className="size-8 rounded-full" />
-
-        <Skeleton className="w-28 h-8" />
-      </div>
-    ),
+    header: "Nombre",
+    cell: <Skeleton className="w-28 h-8" />,
   },
   {
     header: "Código",
@@ -215,15 +207,19 @@ export const skeletonColumns: SkeletonColumn[] = [
     cell: <Skeleton className="w-20 h-8" />,
   },
   {
-    header: "Publicado",
+    header: "Activo",
     cell: <Skeleton className="w-16 h-10" />,
   },
   {
-    header: "Fecha de Inicio",
+    header: "Uso",
     cell: <Skeleton className="w-20 h-8" />,
   },
   {
-    header: "Fecha de Fin",
+    header: "Fecha de Creación",
+    cell: <Skeleton className="w-20 h-8" />,
+  },
+  {
+    header: "Expira",
     cell: <Skeleton className="w-20 h-8" />,
   },
   {

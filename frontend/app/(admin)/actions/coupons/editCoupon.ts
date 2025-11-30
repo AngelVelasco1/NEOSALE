@@ -9,17 +9,17 @@ import { formatValidationErrors } from "@/app/(admin)/helpers/formatValidationEr
 import { CouponServerActionResponse } from "@/app/(admin)/types/server-action";
 
 export async function editCoupon(
-  couponId: string,
+  couponId: number,
   formData: FormData
 ): Promise<CouponServerActionResponse> {
   const parsedData = couponFormSchema.safeParse({
     name: formData.get("name"),
     code: formData.get("code"),
-    image: formData.get("image"),
-    startDate: formData.get("startDate"),
-    endDate: formData.get("endDate"),
+    expiresAt: formData.get("expiresAt"),
     isPercentageDiscount: formData.get("isPercentageDiscount") === "true",
     discountValue: formData.get("discountValue"),
+    minPurchaseAmount: formData.get("minPurchaseAmount"),
+    usageLimit: formData.get("usageLimit"),
   });
 
   if (!parsedData.success) {
@@ -30,28 +30,19 @@ export async function editCoupon(
     };
   }
 
-  const { image, ...couponData } = parsedData.data;
-
-  let imageUrl: string | undefined;
-
-  // TODO: Implementar upload de imagen con Cloudinary
-  if (image instanceof File && image.size > 0) {
-    // Por ahora, guardamos el nombre del archivo
-    // Implementa tu solución de storage preferida aquí (Cloudinary, etc.)
-    imageUrl = `/uploads/coupons/${image.name}`;
-  }
-
   try {
     const updatedCoupon = await prisma.coupons.update({
-      where: { id: parseInt(couponId) },
+      where: { id: couponId },
       data: {
-        name: couponData.name,
-        code: couponData.code,
-        expires_at: couponData.endDate,
-        discount_type: couponData.isPercentageDiscount ? "percentage" : "fixed",
-        discount_value: couponData.discountValue,
-        // created_at: couponData.startDate, // TODO: Ajustar según necesites
-        // ...(imageUrl && { image_url: imageUrl }), // TODO: Descomentar cuando agregues el campo
+        code: parsedData.data.code,
+        name: parsedData.data.name,
+        discount_type: parsedData.data.isPercentageDiscount
+          ? "percentage"
+          : "fixed",
+        discount_value: parsedData.data.discountValue,
+        min_purchase_amount: parsedData.data.minPurchaseAmount || 0,
+        usage_limit: parsedData.data.usageLimit || null,
+        expires_at: parsedData.data.expiresAt,
       },
     });
 
@@ -59,7 +50,6 @@ export async function editCoupon(
 
     return { success: true, coupon: updatedCoupon };
   } catch (error) {
-    // Manejar errores de unique constraint de Prisma
     if (error instanceof Prisma.PrismaClientKnownRequestError) {
       if (error.code === "P2002") {
         const target = error.meta?.target as string[];

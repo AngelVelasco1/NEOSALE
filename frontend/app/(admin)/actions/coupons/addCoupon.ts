@@ -14,11 +14,11 @@ export async function addCoupon(
   const parsedData = couponFormSchema.safeParse({
     name: formData.get("name"),
     code: formData.get("code"),
-    image: formData.get("image"),
-    startDate: formData.get("startDate"),
-    endDate: formData.get("endDate"),
+    expiresAt: formData.get("expiresAt"),
     isPercentageDiscount: formData.get("isPercentageDiscount") === "true",
     discountValue: formData.get("discountValue"),
+    minPurchaseAmount: formData.get("minPurchaseAmount"),
+    usageLimit: formData.get("usageLimit"),
   });
 
   if (!parsedData.success) {
@@ -29,30 +29,20 @@ export async function addCoupon(
     };
   }
 
-  const { image, ...couponData } = parsedData.data;
-
-  let imageUrl: string | undefined;
-
-  // TODO: Implementar upload de imagen con Cloudinary
-  if (image instanceof File && image.size > 0) {
-    // Por ahora, guardamos el nombre del archivo
-    // Implementa tu solución de storage preferida aquí (Cloudinary, etc.)
-    imageUrl = `/uploads/coupons/${image.name}`;
-  }
-
   try {
-    // TODO: Ajustar campos según necesites (created_by, min_purchase_amount, usage_limit, etc.)
     const newCoupon = await prisma.coupons.create({
       data: {
-        name: couponData.name,
-        code: couponData.code,
-        expires_at: couponData.endDate,
-        discount_type: couponData.isPercentageDiscount ? "percentage" : "fixed",
-        discount_value: couponData.discountValue,
-        active: false,
+        code: parsedData.data.code,
+        name: parsedData.data.name,
+        discount_type: parsedData.data.isPercentageDiscount
+          ? "percentage"
+          : "fixed",
+        discount_value: parsedData.data.discountValue,
+        min_purchase_amount: parsedData.data.minPurchaseAmount || 0,
+        usage_limit: parsedData.data.usageLimit || null,
+        expires_at: parsedData.data.expiresAt,
+        active: true,
         created_by: 1, // TODO: Obtener del usuario autenticado
-        // created_at: couponData.startDate, // TODO: Ajustar según necesites
-        // image_url: imageUrl, // TODO: Descomentar cuando agregues el campo
       },
     });
 
@@ -60,7 +50,6 @@ export async function addCoupon(
 
     return { success: true, coupon: newCoupon };
   } catch (error) {
-    // Manejar errores de unique constraint de Prisma
     if (error instanceof Prisma.PrismaClientKnownRequestError) {
       if (error.code === "P2002") {
         const target = error.meta?.target as string[];

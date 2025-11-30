@@ -8,11 +8,11 @@ import { formatValidationErrors } from "@/app/(admin)/helpers/formatValidationEr
 import { VServerActionResponse } from "@/app/(admin)/types/server-action";
 
 export async function editCoupons(
-  couponIds: string[],
+  couponIds: number[],
   formData: FormData
 ): Promise<VServerActionResponse> {
   const parsedData = couponBulkFormSchema.safeParse({
-    published: !!(formData.get("published") === "true"),
+    active: !!(formData.get("active") === "true"),
   });
 
   if (!parsedData.success) {
@@ -23,12 +23,12 @@ export async function editCoupons(
     };
   }
 
-  const { published } = parsedData.data;
+  const { active } = parsedData.data;
 
   try {
     await prisma.coupons.updateMany({
-      where: { id: { in: couponIds.map((id) => parseInt(id)) } },
-      data: { active: published },
+      where: { id: { in: couponIds } },
+      data: { active },
     });
 
     revalidatePath("/coupons");

@@ -130,14 +130,18 @@ CREATE TABLE brands (
     name VARCHAR(255) NOT NULL UNIQUE,
     description VARCHAR(500),
     active BOOLEAN DEFAULT TRUE NOT NULL,
-    image_url VARCHAR(255)
+    image_url VARCHAR(255),
+    deleted_at TIMESTAMP(6),
+    deleted_by INTEGER REFERENCES "User"(id)
 );
 
 
 CREATE TABLE subcategories (
     id SERIAL PRIMARY KEY,
     name VARCHAR(255) NOT NULL,
-    active BOOLEAN DEFAULT TRUE NOT NULL
+    active BOOLEAN DEFAULT TRUE NOT NULL,
+    deleted_at TIMESTAMP(6),
+    deleted_by INTEGER REFERENCES "User"(id)
 );
 
 
@@ -146,7 +150,9 @@ CREATE TABLE categories (
     name VARCHAR(255) NOT NULL,
     description VARCHAR(500),
     id_subcategory INTEGER REFERENCES subcategories(id) ON DELETE NO ACTION,
-    active BOOLEAN DEFAULT TRUE NOT NULL
+    active BOOLEAN DEFAULT TRUE NOT NULL,
+    deleted_at TIMESTAMP(6),
+    deleted_by INTEGER REFERENCES "User"(id)
 );
 
 
@@ -171,6 +177,8 @@ CREATE TABLE coupons (
     created_by INTEGER NOT NULL,
     created_at TIMESTAMP(6) DEFAULT CURRENT_TIMESTAMP NOT NULL,
     expires_at TIMESTAMP(6) NOT NULL,
+    deleted_at TIMESTAMP(6),
+    deleted_by INTEGER REFERENCES "User"(id),
     CONSTRAINT chk_coupon_discount_type CHECK (
         discount_type IN ('percentage', 'fixed')
     ),
@@ -203,6 +211,8 @@ CREATE TABLE products (
     created_by INTEGER NOT NULL,
     updated_at TIMESTAMP(6),
     updated_by INTEGER NOT NULL,
+    deleted_at TIMESTAMP(6),
+    deleted_by INTEGER REFERENCES "User"(id),
     CONSTRAINT chk_product_price CHECK (price > 0),
     CONSTRAINT chk_product_stock CHECK (stock >= 0),
     CONSTRAINT chk_product_weight CHECK (weight_grams > 0),
@@ -234,6 +244,8 @@ CREATE TABLE product_variants (
     active BOOLEAN DEFAULT TRUE NOT NULL,
     created_at TIMESTAMP(6) DEFAULT CURRENT_TIMESTAMP NOT NULL,
     updated_at TIMESTAMP(6),
+    deleted_at TIMESTAMP(6),
+    deleted_by INTEGER REFERENCES "User"(id),
     CONSTRAINT chk_variant_stock CHECK (stock >= 0),
     CONSTRAINT chk_variant_price CHECK (price > 0),
     CONSTRAINT chk_variant_weight CHECK (weight_grams > 0),
@@ -479,32 +491,38 @@ CREATE INDEX idx_product_brand ON products(brand_id);
 CREATE INDEX idx_product_active ON products(active);
 CREATE INDEX idx_product_status ON products(active, in_offer);
 CREATE INDEX idx_product_price ON products(price);
+CREATE INDEX idx_product_deleted ON products(deleted_at) WHERE deleted_at IS NULL;
 
 -- Variantes de productos
 
 CREATE INDEX idx_variant_product ON product_variants(product_id);
 CREATE INDEX idx_variant_sku ON product_variants(sku) WHERE sku IS NOT NULL;
 CREATE INDEX idx_variant_stock ON product_variants(stock) WHERE stock > 0;
+CREATE INDEX idx_variant_deleted ON product_variants(deleted_at) WHERE deleted_at IS NULL;
 
 -- Categorías
 
 CREATE INDEX idx_category_active ON categories(active);
 CREATE INDEX idx_category_subcategory ON categories(id_subcategory);
+CREATE INDEX idx_category_deleted ON categories(deleted_at) WHERE deleted_at IS NULL;
 
 -- Subcategorías
 
 CREATE INDEX idx_subcategory_active ON subcategories(active);
+CREATE INDEX idx_subcategory_deleted ON subcategories(deleted_at) WHERE deleted_at IS NULL;
 
 -- Marcas
 
 CREATE INDEX idx_brand_active ON brands(active);
 CREATE INDEX idx_brand_name ON brands(name);
+CREATE INDEX idx_brand_deleted ON brands(deleted_at) WHERE deleted_at IS NULL;
 
 -- Cupones
 
 CREATE INDEX idx_coupon_code ON coupons(code);
 CREATE INDEX idx_coupon_valid ON coupons(active, expires_at) WHERE active = TRUE;
 CREATE INDEX idx_coupon_usage ON coupons(usage_count, usage_limit) WHERE active = TRUE;
+CREATE INDEX idx_coupon_deleted ON coupons(deleted_at) WHERE deleted_at IS NULL;
 
 -- Carrito
 
@@ -569,7 +587,7 @@ CREATE INDEX idx_favorite_product ON favorites(product_id);
 -- Variantes disponibles (con stock)
 
 CREATE INDEX idx_variant_available ON product_variants(product_id, active, stock)
-    WHERE active = TRUE AND stock > 0;
+    WHERE active = TRUE AND stock > 0 AND deleted_at IS NULL;
 
 -- Búsqueda de productos por nombre
 

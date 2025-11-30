@@ -3,27 +3,34 @@ import { ProductStatus } from "@/app/(admin)/services/products/types";
 import { CouponStatus } from "@/app/(admin)/services/coupons/types";
 import { StaffStatus } from "@/app/(admin)/services/staff/types";
 
-export const OrderBadgeVariants: Record<OrderStatus, string> = {
-  pending: "warning",
+type BadgeVariant =
+  | "default"
+  | "success"
+  | "secondary"
+  | "destructive"
+  | "outline";
+
+export const OrderBadgeVariants: Record<OrderStatus, BadgeVariant> = {
+  pending: "default",
   paid: "success",
-  processing: "processing",
-  shipped: "processing",
+  processing: "secondary",
+  shipped: "secondary",
   delivered: "success",
   cancelled: "destructive",
   refunded: "destructive",
 };
 
-export const ProductBadgeVariants: Record<ProductStatus, string> = {
+export const ProductBadgeVariants: Record<ProductStatus, BadgeVariant> = {
   selling: "success",
   "out-of-stock": "destructive",
 };
 
-export const CouponBadgeVariants: Record<CouponStatus, string> = {
+export const CouponBadgeVariants: Record<CouponStatus, BadgeVariant> = {
   active: "success",
   expired: "destructive",
 };
 
-export const StaffBadgeVariants: Record<StaffStatus, string> = {
+export const StaffBadgeVariants: Record<StaffStatus, BadgeVariant> = {
   active: "success",
   inactive: "destructive",
 };

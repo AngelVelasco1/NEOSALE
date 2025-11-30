@@ -45,7 +45,7 @@ export default function CouponBulkActionSheet({
   const form = useForm<CouponBulkFormData>({
     resolver: zodResolver(couponBulkFormSchema),
     defaultValues: {
-      published: true,
+      active: true,
     },
   });
 
@@ -100,8 +100,8 @@ export default function CouponBulkActionSheet({
                 <div className="space-y-6">
                   <FormSwitch
                     control={form.control}
-                    name="published"
-                    label="Published"
+                    name="active"
+                    label="Active"
                   />
                 </div>
               </FormSheetBody>
