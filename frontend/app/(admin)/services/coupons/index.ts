@@ -56,13 +56,20 @@ export async function fetchCoupons({
       deleted_by: coupon.deleted_by,
     }));
 
+    // Mapear la estructura de paginación del servidor a la esperada por el frontend
     return {
       data: coupons,
       pagination: {
-        page,
-        limit,
-        total,
-        totalPages: Math.ceil(total / limit),
+        current: page,
+        limit: limit,
+        items: total,
+        pages: Math.ceil(total / limit),
+        next: page < Math.ceil(total / limit) 
+          ? page + 1 
+          : null,
+        prev: page > 1 
+          ? page - 1 
+          : null,
       },
     };
   } catch (error) {

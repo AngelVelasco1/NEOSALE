@@ -97,6 +97,14 @@ export default function AllProducts({
       />
     );
 
+  // Debug para verificar la estructura de datos
+  console.log("🔍 Products response:", {
+    hasData: !!products.data,
+    dataLength: products.data?.length,
+    pagination: products.pagination,
+    paginationKeys: products.pagination ? Object.keys(products.pagination) : []
+  });
+
   return (
     <ProductsTable
       columns={columns}

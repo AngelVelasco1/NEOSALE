@@ -40,8 +40,8 @@ model categories {
   active               Boolean                @default(true)
   deleted_at           DateTime?              @db.Timestamp(6)
   deleted_by           Int?
-  subcategory          subcategories?         @relation(fields: [id_subcategory], references: [id], onDelete: NoAction, onUpdate: NoAction)
   User                 User?                  @relation(fields: [deleted_by], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_category_deleted_by")
+  subcategory          subcategories?         @relation(fields: [id_subcategory], references: [id], onDelete: NoAction, onUpdate: NoAction)
   category_subcategory category_subcategory[]
   products             products[]
 }
@@ -103,27 +103,27 @@ model products {
   images           images[]
   order_items      order_items[]
   product_variants product_variants[]
-  User             User?              @relation(fields: [deleted_by], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_product_deleted_by")
   brands           brands             @relation(fields: [brand_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
   categories       categories         @relation(fields: [category_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  User             User?              @relation(fields: [deleted_by], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_product_deleted_by")
   reviews          reviews[]
 }
 
 model User {
-  id                             Int             @id @default(autoincrement())
-  name                           String          @db.VarChar(255)
-  email                          String          @unique @db.VarChar(255)
-  email_verified                 DateTime?       @db.Timestamp(6)
-  password                       String?         @db.VarChar(255)
-  image                          String?         @db.VarChar(255)
-  phone_number                   String?         @unique @db.VarChar(20)
-  identification                 String?         @unique @db.VarChar(20)
-  identification_type            String?         @db.VarChar(10)
-  role                           roles_enum      @default(user)
-  active                         Boolean         @default(true)
-  email_notifications            Boolean         @default(true)
-  created_at                     DateTime        @default(now()) @db.Timestamp(6)
-  updated_at                     DateTime?       @db.Timestamp(6)
+  id                             Int                @id @default(autoincrement())
+  name                           String             @db.VarChar(255)
+  email                          String             @unique @db.VarChar(255)
+  email_verified                 DateTime?          @db.Timestamp(6)
+  password                       String?            @db.VarChar(255)
+  image                          String?            @db.VarChar(255)
+  phone_number                   String?            @unique @db.VarChar(20)
+  identification                 String?            @unique @db.VarChar(20)
+  identification_type            String?            @db.VarChar(10)
+  role                           roles_enum         @default(user)
+  active                         Boolean            @default(true)
+  email_notifications            Boolean            @default(true)
+  created_at                     DateTime           @default(now()) @db.Timestamp(6)
+  updated_at                     DateTime?          @db.Timestamp(6)
   Account                        Account[]
   addresses                      addresses[]
   brands                         brands[]
@@ -132,9 +132,10 @@ model User {
   coupons                        coupons[]
   favorites                      favorites[]
   order_logs                     order_logs[]
-  orders_orders_updated_byToUser orders[]        @relation("orders_updated_byToUser")
+  orders_orders_updated_byToUser orders[]           @relation("orders_updated_byToUser")
   orders                         orders[]
   payments                       payments[]
+  product_variants               product_variants[]
   products                       products[]
   reviews                        reviews[]
   subcategories                  subcategories[]
@@ -165,7 +166,10 @@ model product_variants {
   active       Boolean   @default(true)
   created_at   DateTime  @default(now()) @db.Timestamp(6)
   updated_at   DateTime? @db.Timestamp(6)
+  deleted_at   DateTime? @db.Timestamp(6)
+  deleted_by   Int?
   images       images[]
+  User         User?     @relation(fields: [deleted_by], references: [id], onDelete: NoAction, onUpdate: NoAction)
   products     products  @relation(fields: [product_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
 
   @@unique([product_id, color_code, size], map: "unq_product_variant")
@@ -407,4 +411,10 @@ enum payment_status_enum {
   DECLINED
   VOIDED
   ERROR
+}
+
+enum orders_paymentmethod_enum {
+  paypal
+  nequi
+  efecty
 }

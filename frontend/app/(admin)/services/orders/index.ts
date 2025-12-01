@@ -42,7 +42,29 @@ export async function fetchOrders(
     throw new Error("Failed to fetch orders");
   }
 
-  return response.json();
+  const result = await response.json();
+  
+  // Mapear la estructura de paginación si viene del servidor externo
+  if (result.pagination && typeof result.pagination.page !== 'undefined') {
+    const mappedResult: FetchOrdersResponse = {
+      data: result.data,
+      pagination: {
+        current: result.pagination.page,
+        limit: result.pagination.limit,
+        items: result.pagination.total,
+        pages: result.pagination.totalPages,
+        next: result.pagination.page < result.pagination.totalPages 
+          ? result.pagination.page + 1 
+          : null,
+        prev: result.pagination.page > 1 
+          ? result.pagination.page - 1 
+          : null,
+      }
+    };
+    return mappedResult;
+  }
+  
+  return result;
 
   /* CÓDIGO ORIGINAL CON SUPABASE - ARCHIVADO
   const selectQuery = `

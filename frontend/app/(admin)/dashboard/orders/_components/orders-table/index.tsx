@@ -58,6 +58,14 @@ export default function RecentOrders() {
       />
     );
 
+  // Debug para verificar la estructura de datos de orders
+  console.log("🔍 Orders response:", {
+    hasData: !!orders.data,
+    dataLength: orders.data?.length,
+    pagination: orders.pagination,
+    paginationKeys: orders.pagination ? Object.keys(orders.pagination) : []
+  });
+
   return (
     <OrdersTable
       columns={columns}

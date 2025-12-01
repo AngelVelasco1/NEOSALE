@@ -43,6 +43,14 @@ export default function AllCategories({
       />
     );
 
+  // Debug para verificar la estructura de datos de categorías
+  console.log("🔍 Categories response:", {
+    hasData: !!categories.data,
+    dataLength: categories.data?.length,
+    pagination: categories.pagination,
+    paginationKeys: categories.pagination ? Object.keys(categories.pagination) : []
+  });
+
   return (
     <CategoriesTable
       columns={columns}

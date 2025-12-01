@@ -15,7 +15,26 @@ import { FetchCategoriesParams, FetchCategoriesResponse } from "./types";
 export async function fetchCategories(
   params: FetchCategoriesParams
 ): Promise<FetchCategoriesResponse> {
-  return getCategories(params);
+  const result = await getCategories(params);
+  
+  // Mapear la estructura de paginación del servidor a la esperada por el frontend
+  const mappedResult: FetchCategoriesResponse = {
+    data: result.data,
+    pagination: {
+      current: result.pagination.page,
+      limit: result.pagination.limit,
+      items: result.pagination.total,
+      pages: result.pagination.totalPages,
+      next: result.pagination.page < result.pagination.totalPages 
+        ? result.pagination.page + 1 
+        : null,
+      prev: result.pagination.page > 1 
+        ? result.pagination.page - 1 
+        : null,
+    }
+  };
+
+  return mappedResult;
 }
 
 // Obtener solo categorías activas para dropdown (sin subcategorías)

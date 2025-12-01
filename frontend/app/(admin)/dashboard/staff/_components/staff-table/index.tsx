@@ -39,6 +39,7 @@ export default function AllStaff() {
       />
     );
 
+
   return (
     <StaffTable
       columns={columns}

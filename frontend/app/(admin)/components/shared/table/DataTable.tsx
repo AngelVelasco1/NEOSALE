@@ -2,7 +2,6 @@
 
 import * as React from "react";
 import { Table as TableType, flexRender } from "@tanstack/react-table";
-import { ChevronLeft, ChevronRight } from "lucide-react";
 
 import {
   Table,
@@ -17,6 +16,9 @@ import {
   PaginationContent,
   PaginationEllipsis,
   PaginationItem,
+  PaginationLink,
+  PaginationNext,
+  PaginationPrevious,
 } from "../../../components/ui/pagination";
 import Typography from "../../../components/ui/typography";
 import { Pagination as PaginationType } from "../../../types/pagination";
@@ -39,21 +41,8 @@ export default function DataTable<TData>({
     currentPage: pagination.current,
   });
 
-  const handlePaginationButton = (page: number) => {
-    updateQueryString("page", page.toString());
-  };
 
-  const handlePaginationPrev = () => {
-    if (pagination.prev) {
-      updateQueryString("page", pagination.prev.toString());
-    }
-  };
 
-  const handlePaginationNext = () => {
-    if (pagination.next) {
-      updateQueryString("page", pagination.next.toString());
-    }
-  };
 
   return (
     <div className="rounded-xl border border-slate-200/60 dark:border-slate-700/50 overflow-hidden bg-white/95 dark:bg-slate-900/95 backdrop-blur-sm shadow-lg shadow-slate-200/50 dark:shadow-slate-950/50">
@@ -145,82 +134,70 @@ export default function DataTable<TData>({
         </Table>
       </div>
 
-      {/* Pagination */}
-      {pagination.items > 0 && (
-        <div className="flex flex-col sm:flex-row items-center justify-between gap-3 px-6 py-3.5 bg-linear-to-r from-slate-50/80 via-blue-50/20 to-slate-50/80 dark:from-slate-800/40 dark:via-blue-950/10 dark:to-slate-800/40 border-t border-slate-200/60 dark:border-slate-700/50">
+      {/* Paginación Moderna */}
+      {pagination && pagination.items > 0 && (
+        <div className="flex flex-col lg:flex-row items-center justify-between gap-4 px-6 py-4 bg-linear-to-r from-white via-slate-50/80 to-white dark:from-slate-900 dark:via-slate-800/50 dark:to-slate-900 border-t border-slate-200 dark:border-slate-700">
           {/* Results Info */}
-          <div className="flex items-center gap-2 text-xs">
+          <div className="flex items-center gap-3 text-sm">
             <span className="text-slate-600 dark:text-slate-400 font-medium">
               Mostrando
             </span>
-            <span className="px-2.5 py-1 bg-linear-to-br from-white to-slate-50/80 dark:from-slate-800 dark:to-slate-700/80 rounded-lg border border-slate-200/80 dark:border-slate-700/60 font-bold text-slate-700 dark:text-slate-300 shadow-sm">
+            <div className="px-3 py-1.5 bg-linear-to-br from-indigo-50 to-indigo-100 dark:from-indigo-900/40 dark:to-indigo-800/40 rounded-lg border border-indigo-200 dark:border-indigo-700 font-bold text-indigo-700 dark:text-indigo-300 shadow-sm">
               {Math.max((pagination.current - 1) * pagination.limit + 1, 1)} - {Math.min(pagination.current * pagination.limit, pagination.items)}
-            </span>
+            </div>
             <span className="text-slate-600 dark:text-slate-400 font-medium">
-              de <span className="font-bold text-slate-700 dark:text-slate-300">{pagination.items}</span>
+              de <span className="font-bold text-slate-800 dark:text-slate-200">{pagination.items}</span> resultados
             </span>
           </div>
 
-          {/* Pagination Controls */}
-          <Pagination>
-            <PaginationContent className="flex-wrap gap-1.5">
-              <PaginationItem>
-                <button
-                  onClick={handlePaginationPrev}
-                  disabled={!pagination.prev}
-                  className={cn(
-                    "inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all duration-200",
-                    "border",
-                    pagination.prev
-                      ? "bg-linear-to-br from-white to-slate-50/80 dark:from-slate-800 dark:to-slate-700/80 text-slate-700 dark:text-slate-300 border-slate-200/80 dark:border-slate-700/60 hover:shadow-md hover:scale-[1.02] shadow-sm"
-                      : "bg-slate-100/80 dark:bg-slate-800/50 text-slate-400 dark:text-slate-600 border-slate-200/60 dark:border-slate-700/40 cursor-not-allowed opacity-50"
-                  )}
-                >
-                  <ChevronLeft className="h-3.5 w-3.5" />
-                  <span className="hidden sm:inline">Anterior</span>
-                </button>
-              </PaginationItem>
-
-              {paginationButtons.map((page, index) => (
-                <PaginationItem key={`page-${index}`}>
-                  {page === "..." ? (
-                    <div className="px-2 py-1.5 text-slate-400 dark:text-slate-600">
-                      <PaginationEllipsis />
-                    </div>
-                  ) : (
-                    <button
-                      onClick={() => handlePaginationButton(page)}
-                      className={cn(
-                        "min-w-8 h-8 rounded-lg text-xs font-bold transition-all duration-200 border",
-                        page === pagination.current
-                          ? "bg-linear-to-br from-slate-900 via-slate-800 to-slate-900 dark:from-slate-100 dark:via-slate-200 dark:to-slate-100 text-white dark:text-slate-900 border-slate-900 dark:border-slate-200 shadow-lg shadow-slate-900/20 dark:shadow-slate-100/10 scale-105"
-                          : "bg-linear-to-br from-white to-slate-50/80 dark:from-slate-800 dark:to-slate-700/80 text-slate-700 dark:text-slate-300 border-slate-200/80 dark:border-slate-700/60 hover:shadow-md hover:scale-[1.05] shadow-sm"
-                      )}
-                    >
-                      {page}
-                    </button>
-                  )}
+            <Pagination className="justify-center lg:justify-end">
+              <PaginationContent>
+                {/* Previous Button */}
+                <PaginationItem>
+                  <PaginationPrevious
+                    onClick={() => {
+                      const prevPage = pagination.current - 1;
+                      if (prevPage >= 1) {
+                        updateQueryString("page", prevPage.toString());
+                      }
+                    }}
+                    disabled={pagination.current <= 1}
+                  />
                 </PaginationItem>
-              ))}
 
-              <PaginationItem>
-                <button
-                  onClick={handlePaginationNext}
-                  disabled={!pagination.next}
-                  className={cn(
-                    "inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all duration-200",
-                    "border",
-                    pagination.next
-                      ? "bg-linear-to-br from-white to-slate-50/80 dark:from-slate-800 dark:to-slate-700/80 text-slate-700 dark:text-slate-300 border-slate-200/80 dark:border-slate-700/60 hover:shadow-md hover:scale-[1.02] shadow-sm"
-                      : "bg-slate-100/80 dark:bg-slate-800/50 text-slate-400 dark:text-slate-600 border-slate-200/60 dark:border-slate-700/40 cursor-not-allowed opacity-50"
-                  )}
-                >
-                  <span className="hidden sm:inline">Siguiente</span>
-                  <ChevronRight className="h-3.5 w-3.5" />
-                </button>
-              </PaginationItem>
-            </PaginationContent>
-          </Pagination>
+                {/* Page Numbers */}
+                {paginationButtons?.map((page, index) => (
+                  <PaginationItem key={`page-${index}-${page}`}>
+                    {page === "..." ? (
+                      <PaginationEllipsis />
+                    ) : (
+                      <PaginationLink
+                        onClick={() => {
+                          updateQueryString("page", page.toString());
+                        }}
+                        isActive={page === pagination.current}
+                      >
+                        {page}
+                      </PaginationLink>
+                    )}
+                  </PaginationItem>
+                ))}
+
+                {/* Next Button */}
+                <PaginationItem>
+                  <PaginationNext
+                    onClick={() => {
+                      const nextPage = pagination.current + 1;
+                      if (nextPage <= pagination.pages) {
+                        updateQueryString("page", nextPage.toString());
+                      }
+                    }}
+                    disabled={pagination.current >= pagination.pages}
+                  />
+                </PaginationItem>
+              </PaginationContent>
+            </Pagination>
+        
         </div>
       )}
     </div>

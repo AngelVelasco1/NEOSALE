@@ -7,6 +7,7 @@ import {
   FetchProductsResponse,
   ProductDetails,
 } from "./types";
+import { Pagination } from "@/app/(admin)/types/pagination";
 
 // Migrado a Server Actions con Prisma
 export async function fetchProducts(
@@ -61,7 +62,7 @@ export async function fetchProducts(
       : "out-of-stock"
     : undefined;
 
-  return getProducts({
+  const result = await getProducts({
     page,
     limit,
     search,
@@ -76,101 +77,27 @@ export async function fetchProducts(
     sortBy,
     sortOrder,
   });
-}
 
-/* CÓDIGO ORIGINAL CON SUPABASE - ARCHIVADO
-  const selectQuery = `
-    *,
-    categories!inner (
-      name,
-      slug
-    )
-  `;
-
-  let query = client.from("products").select(selectQuery, { count: "exact" });
-
-  if (search) {
-    query = query.ilike("name", `%${search}%`);
-  }
-
-  if (category) {
-    query = query.eq("categories.slug", category);
-  }
-
-  if (status) {
-    if (status === "selling") {
-      query = query.gt("stock", 0);
-    } else if (status === "out-of-stock") {
-      query = query.eq("stock", 0);
+  const mappedResult: FetchProductsResponse = {
+    data: result.data,
+    pagination: {
+      current: result.pagination.page,
+      limit: result.pagination.limit,
+      items: result.pagination.total,
+      pages: result.pagination.totalPages,
+      next: result.pagination.page < result.pagination.totalPages 
+        ? result.pagination.page + 1 
+        : null,
+      prev: result.pagination.page > 1 
+        ? result.pagination.page - 1 
+        : null,
     }
-  }
+  };
 
-  if (published !== undefined) {
-    query = query.eq("published", published);
-  }
-
-  if (priceSort) {
-    query = query.order("selling_price", {
-      ascending: priceSort === "lowest-first",
-    });
-  } else if (dateSort) {
-    const [field, direction] = dateSort.split("-");
-    query = query.order(field === "added" ? "created_at" : "updated_at", {
-      ascending: direction === "asc",
-    });
-  } else {
-    query = query.order("created_at", { ascending: false });
-  }
-
-  const paginatedProducts = await queryPaginatedTable<Product, "products">({
-    name: "products",
-    page,
-    limit,
-    query,
-  });
-
-  return paginatedProducts;
+  return mappedResult;
 }
 
-export async function fetchProductDetails(
-  client: SupabaseClient<Database>,
-  { slug }: { slug: string }
-) {
-  const selectQuery = `
-    id,
-    name,
-    description,
-    cost_price,
-    selling_price,
-    stock,
-    min_stock_threshold,
-    category_id,
-    image_url,
-    slug,
-    sku,
-    categories(name)
-  `;
 
-  const { data, error } = await client
-    .from("products")
-    .select(selectQuery)
-    .eq("slug", slug)
-    .single();
-
-  if (error) {
-    console.error(error.message);
-    throw new Error(`Failed to fetch product details: ${error.message}`);
-  }
-
-  if (!data) {
-    console.error("Failed to fetch product details");
-    throw new Error("Failed to fetch product details");
-  }
-
-  return {
-    product: data as ProductDetails,
-  };
-  */
 
 export async function fetchProductDetails(
   productId: number

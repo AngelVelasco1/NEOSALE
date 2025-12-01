@@ -12,7 +12,26 @@ import {
 export async function fetchStaff(
   params: FetchStaffParams
 ): Promise<FetchStaffResponse> {
-  return getStaff(params);
+  const result = await getStaff(params);
+  
+  // Mapear la estructura de paginación del servidor a la esperada por el frontend
+  const mappedResult: FetchStaffResponse = {
+    data: result.data,
+    pagination: {
+      current: result.pagination.page,
+      limit: result.pagination.limit,
+      items: result.pagination.total,
+      pages: result.pagination.totalPages,
+      next: result.pagination.page < result.pagination.totalPages 
+        ? result.pagination.page + 1 
+        : null,
+      prev: result.pagination.page > 1 
+        ? result.pagination.page - 1 
+        : null,
+    }
+  };
+
+  return mappedResult;
 }
 
 export async function fetchStaffRolesDropdown() {

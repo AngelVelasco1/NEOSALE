@@ -35,13 +35,14 @@ export default function AllCoupons({
   if (isLoading)
     return <TableSkeleton perPage={limit} columns={skeletonColumns} />;
 
-  if (isError)
+  if (isError || !coupons)
     return (
       <TableError
         errorMessage="Something went wrong while trying to fetch coupons."
         refetch={refetch}
       />
     );
+
 
   return (
     <CouponsTable
