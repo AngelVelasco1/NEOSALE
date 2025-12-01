@@ -9,7 +9,7 @@ export const metadata: Metadata = {
 export default async function ProductsPage() {
   return (
     <section>
-      <div className="mb-8 p-6 rounded-2xl bg-linear-to-br from-slate-100/80 via-blue-50/80 to-indigo-100/80 dark:from-slate-900/80 dark:via-slate-800/80 dark:to-slate-900/80 backdrop-blur-xl border border-slate-300/30 dark:border-slate-700/30 shadow-2xl shadow-slate-900/10 dark:shadow-black/50">
+      <div className="mb-8 py-5 px-7 rounded-2xl bg-linear-to-br from-slate-100/80 via-blue-50/80 to-indigo-100/80 dark:from-slate-900/80 dark:via-slate-800/80 dark:to-slate-900/80 backdrop-blur-xl border border-slate-300/30 dark:border-slate-700/30 shadow-2xl shadow-slate-900/10 dark:shadow-black/50">
         <div className="animate-in fade-in slide-in-from-bottom-4 duration-700">
           <h1 className="text-4xl font-bold bg-linear-to-r from-slate-900 via-blue-900 to-indigo-900 dark:from-slate-100 dark:via-blue-200 dark:to-indigo-200 bg-clip-text text-transparent mb-3">
             Productos

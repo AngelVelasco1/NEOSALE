@@ -204,7 +204,7 @@ export default function ProductFilters() {
     <Card className="mb-8 overflow-hidden border-0 bg-linear-to-br from-white via-slate-50 to-blue-50/30 dark:from-slate-900 dark:via-slate-900 dark:to-slate-800 shadow-xl shadow-slate-200/50 dark:shadow-black/30 backdrop-blur-sm">
 
 
-      <div className="p-6 space-y-5">
+      <div className="px-6 py-4 space-y-5">
         {/* Grid principal de filtros - Búsqueda + Selectores principales */}
         <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-8 gap-5">
           {/* Búsqueda - ocupa más espacio */}

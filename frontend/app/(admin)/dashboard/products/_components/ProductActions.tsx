@@ -25,7 +25,7 @@ export default function ProductActions({
   const selectedCount = Object.keys(rowSelection).length;
 
   return (
-    <Card className="mb-6 p-5 border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 shadow-sm rounded-xl">
+    <Card className=" p-5 border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 shadow-sm rounded-xl">
       <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
         {/* Export Section */}
         <div className="flex flex-col sm:flex-row gap-2">
