@@ -17,8 +17,6 @@ export const Footer = () => {
       { name: 'Sobre Nosotros', href: '/about' },
       { name: 'Nuestra Historia', href: '/story' },
       { name: 'Trabaja con Nosotros', href: '/careers' },
-      { name: 'Documentación', href: '/documentation' },
-      { name: 'Blog', href: '/blog' },
     ],
     shop: [
       { name: 'Productos', href: '/products' },
@@ -29,7 +27,6 @@ export const Footer = () => {
     support: [
       { name: 'Centro de Ayuda', href: '/help' },
       { name: 'Seguimiento de Orden', href: '/orders' },
-      { name: 'Cambios y Devoluciones', href: '/returns' },
       { name: 'Envíos', href: '/shipping' },
     ],
     legal: [

@@ -40,7 +40,6 @@ export async function deleteProduct(
       return { dbError: "Product not found." };
     }
 
-    // SOFT DELETE: Desactivar el producto en lugar de eliminarlo
     await prisma.products.update({
       where: { id: productIdInt },
       data: {
@@ -55,6 +54,8 @@ export async function deleteProduct(
     return { success: true };
   } catch (error) {
     console.error("Failed to deactivate product:", error);
-    return { dbError: "Something went wrong. Could not deactivate the product." };
+    return {
+      dbError: "Something went wrong. Could not deactivate the product.",
+    };
   }
 }

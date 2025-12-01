@@ -17,26 +17,44 @@ export async function fetchProducts(
     limit = 10,
     search,
     category,
+    brand,
     priceSort,
+    minPrice,
+    maxPrice,
     status,
+    minStock,
+    maxStock,
     published,
     dateSort,
+    sortBy: sortByParam,
+    sortOrder: sortOrderParam,
   } = params;
 
-  // Mapear parámetros al formato de la Server Action
-  const sortBy = priceSort
-    ? "price"
-    : dateSort
-    ? dateSort.includes("added")
-      ? "created_at"
-      : "updated_at"
-    : "created_at";
+  // Mapear ordenamiento
+  let sortBy: "price" | "created_at" | "updated_at" | "name" | "stock" =
+    "created_at";
+  let sortOrder: "asc" | "desc" = "desc";
 
-  const sortOrder =
-    priceSort === "lowest-first" || dateSort?.includes("asc")
-      ? "asc"
-      : "desc";
+  // Si viene sortBy y sortOrder explícitos (de la tabla)
+  if (sortByParam && sortOrderParam) {
+    sortBy = sortByParam as typeof sortBy;
+    sortOrder = sortOrderParam as typeof sortOrder;
+  } else if (priceSort) {
+    // Si viene de los filtros de precio
+    sortBy = "price";
+    sortOrder = priceSort === "lowest-first" ? "asc" : "desc";
+  } else if (dateSort) {
+    // Determinar si es fecha de creación o actualización
+    if (dateSort.includes("added")) {
+      sortBy = "created_at";
+    } else if (dateSort.includes("updated")) {
+      sortBy = "updated_at";
+    }
+    // Determinar dirección
+    sortOrder = dateSort.includes("asc") ? "asc" : "desc";
+  }
 
+  // Mapear estado de stock
   const stockStatus = status
     ? status === "selling"
       ? "in-stock"
@@ -48,13 +66,19 @@ export async function fetchProducts(
     limit,
     search,
     category: category ? parseInt(category) : undefined,
+    brand: brand ? parseInt(brand) : undefined,
     active: published,
+    minPrice: minPrice ? parseInt(minPrice) : undefined,
+    maxPrice: maxPrice ? parseInt(maxPrice) : undefined,
     stockStatus: stockStatus as "in-stock" | "out-of-stock" | undefined,
-    sortBy: sortBy as "price" | "created_at" | "updated_at",
-    sortOrder: sortOrder as "asc" | "desc",
+    minStock: minStock ? parseInt(minStock) : undefined,
+    maxStock: maxStock ? parseInt(maxStock) : undefined,
+    sortBy,
+    sortOrder,
   });
-  
-  /* CÓDIGO ORIGINAL CON SUPABASE - ARCHIVADO
+}
+
+/* CÓDIGO ORIGINAL CON SUPABASE - ARCHIVADO
   const selectQuery = `
     *,
     categories!inner (
@@ -147,7 +171,6 @@ export async function fetchProductDetails(
     product: data as ProductDetails,
   };
   */
-}
 
 export async function fetchProductDetails(
   productId: number

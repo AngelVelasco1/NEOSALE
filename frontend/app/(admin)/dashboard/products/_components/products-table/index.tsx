@@ -19,8 +19,27 @@ export default function AllProducts({
 }: RowSelectionProps) {
   const { hasPermission } = useAuthorization();
   const columns = getColumns({ hasPermission });
-  const { page, limit, search, category, price, published, status, date } =
-    getSearchParams(useSearchParams());
+  const searchParams = useSearchParams();
+
+  const {
+    page,
+    limit,
+    search,
+    category,
+    price,
+    published,
+    status,
+    date,
+    sortBy,
+    sortOrder,
+  } = getSearchParams(searchParams);
+
+  // Obtener params adicionales
+  const brand = searchParams.get("brand") || undefined;
+  const minPrice = searchParams.get("minPrice") || undefined;
+  const maxPrice = searchParams.get("maxPrice") || undefined;
+  const minStock = searchParams.get("minStock") || undefined;
+  const maxStock = searchParams.get("maxStock") || undefined;
 
   const {
     data: products,
@@ -34,10 +53,17 @@ export default function AllProducts({
       limit,
       search,
       category,
+      brand,
       price,
+      minPrice,
+      maxPrice,
       published,
       status,
+      minStock,
+      maxStock,
       date,
+      sortBy,
+      sortOrder,
     ],
     queryFn: () =>
       fetchProducts({
@@ -45,10 +71,17 @@ export default function AllProducts({
         limit,
         search,
         category,
+        brand,
         priceSort: price,
+        minPrice,
+        maxPrice,
         status,
+        minStock,
+        maxStock,
         published,
         dateSort: date,
+        sortBy,
+        sortOrder,
       }),
     placeholderData: keepPreviousData,
   });

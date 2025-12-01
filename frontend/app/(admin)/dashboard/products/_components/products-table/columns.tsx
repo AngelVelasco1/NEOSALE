@@ -13,6 +13,7 @@ import { formatAmount } from "@/app/(admin)/helpers/formatAmount";
 import { ImagePlaceholder } from "@/app/(admin)/components/shared/ImagePlaceholder";
 import { SheetTooltip } from "@/app/(admin)/components/shared/table/TableActionTooltip";
 import { TableActionAlertDialog } from "@/app/(admin)/components/shared/table/TableActionAlertDialog";
+import { SortableHeader } from "./SortableHeader";
 import ProductFormSheet from "../form/ProductFormSheet";
 import { Product } from "@/app/(admin)/services/products/types";
 import { SkeletonColumn } from "@/app/(admin)/types/skeleton";
@@ -28,7 +29,8 @@ export const getColumns = ({
 }) => {
   const columns: ColumnDef<Product>[] = [
     {
-      header: "Nombre",
+      accessorKey: "name",
+      header: () => <SortableHeader label="Nombre" sortKey="name" />,
       cell: ({ row }) => (
         <div className="flex gap-2 items-center">
           <ImagePlaceholder
@@ -59,7 +61,8 @@ export const getColumns = ({
       ),
     },
     {
-      header: "Precio",
+      accessorKey: "price",
+      header: () => <SortableHeader label="Precio" sortKey="price" />,
       cell: ({ row }) => {
         return formatAmount(row.original.price);
       },
@@ -73,7 +76,8 @@ export const getColumns = ({
       ,
     },
     {
-      header: "Stock",
+      accessorKey: "stock",
+      header: () => <SortableHeader label="Stock" sortKey="stock" />,
       cell: ({ row }) => row.original.stock,
     },
     {

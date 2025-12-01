@@ -19,10 +19,17 @@ export interface FetchProductsParams {
   limit?: number;
   search?: string;
   category?: string;
+  brand?: string;
   priceSort?: string;
+  minPrice?: string;
+  maxPrice?: string;
   status?: string;
+  minStock?: string;
+  maxStock?: string;
   published?: boolean;
   dateSort?: string;
+  sortBy?: string;
+  sortOrder?: string;
 }
 
 export interface FetchProductsResponse {

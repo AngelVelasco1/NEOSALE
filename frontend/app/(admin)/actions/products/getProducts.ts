@@ -2,7 +2,6 @@
 
 import { prisma } from "@/lib/prisma";
 import { Prisma } from "@prisma/client";
-import { log } from "console";
 
 export type GetProductsParams = {
   page?: number;
@@ -16,7 +15,9 @@ export type GetProductsParams = {
   minPrice?: number;
   maxPrice?: number;
   stockStatus?: "in-stock" | "out-of-stock";
-  sortBy?: "price" | "created_at" | "updated_at";
+  minStock?: number;
+  maxStock?: number;
+  sortBy?: "price" | "created_at" | "updated_at" | "name" | "stock";
   sortOrder?: "asc" | "desc";
 };
 
@@ -44,6 +45,8 @@ export async function getProducts({
   minPrice,
   maxPrice,
   stockStatus,
+  minStock,
+  maxStock,
   sortBy = "created_at",
   sortOrder = "desc",
 }: GetProductsParams = {}) {
@@ -51,33 +54,51 @@ export async function getProducts({
     // Construir el where dinámicamente
     const where: Prisma.productsWhereInput = {};
 
+    // Búsqueda por nombre, descripción o SKU
     if (search) {
       where.OR = [
         { name: { contains: search, mode: "insensitive" } },
         { description: { contains: search, mode: "insensitive" } },
+        {
+          product_variants: {
+            some: {
+              sku: { contains: search, mode: "insensitive" },
+            },
+          },
+        },
       ];
     }
 
+    // Filtro por categoría
     if (category) {
       where.category_id = category;
     }
 
+    // Filtro por subcategoría
     if (subcategory) {
-      where.categories.subcategory.id = subcategory;
+      where.categories = {
+        subcategory: {
+          id: subcategory,
+        },
+      };
     }
 
+    // Filtro por marca
     if (brand) {
       where.brand_id = brand;
     }
 
+    // Filtro por estado activo/publicado
     if (active !== undefined) {
       where.active = active;
     }
 
+    // Filtro por ofertas
     if (inOffer !== undefined) {
       where.in_offer = inOffer;
     }
 
+    // Filtro por rango de precio
     if (minPrice !== undefined || maxPrice !== undefined) {
       where.price = {};
       if (minPrice !== undefined) {
@@ -88,14 +109,25 @@ export async function getProducts({
       }
     }
 
+    // Filtro por disponibilidad de stock
     if (stockStatus) {
       where.stock = stockStatus === "in-stock" ? { gt: 0 } : { equals: 0 };
+    } else if (minStock !== undefined || maxStock !== undefined) {
+      // Filtro por rango de stock numérico (solo si no hay stockStatus)
+      where.stock = {};
+      if (minStock !== undefined) {
+        where.stock.gte = minStock;
+      }
+      if (maxStock !== undefined) {
+        where.stock.lte = maxStock;
+      }
     }
 
     // Construir el orderBy
     const orderBy: Prisma.productsOrderByWithRelationInput = {};
     orderBy[sortBy] = sortOrder;
 
+    // Ejecutar queries en paralelo para mejor rendimiento
     const [data, total] = await Promise.all([
       prisma.products.findMany({
         where,
@@ -107,16 +139,8 @@ export async function getProducts({
             select: {
               id: true,
               name: true,
-              subcategory: {
-                select: {
-                  id: true,
-                  name: true,
-                },
-              },
             },
-        
           },
-      
           brands: {
             select: {
               id: true,
@@ -137,9 +161,8 @@ export async function getProducts({
       prisma.products.count({ where }),
     ]);
 
-    // Serialize products to convert Decimal to number
+    // Serialize products para convertir Decimal a number
     const serializedData = data.map(serializeProduct);
-    console.log(serializedData[0].categories);
 
     return {
       data: serializedData,

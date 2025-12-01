@@ -37,27 +37,7 @@ export default function ProductActions({
           hasPermission("products", "canDelete") ||
           hasPermission("products", "canCreate")) && (
             <div className="flex flex-col sm:flex-row gap-2.5">
-              {hasPermission("products", "canEdit") && (
-                <ProductBulkActionSheet
-                  action={(formData) =>
-                    editProducts(Object.keys(rowSelection), formData)
-                  }
-                  onSuccess={() => setRowSelection({})}
-                >
-                  <SheetTrigger asChild>
-                    <Button
-                      variant="outline"
-                      size="default"
-                      type="button"
-                      disabled={!selectedCount}
-                      className="h-10 px-4 rounded-lg border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 hover:bg-slate-50 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 disabled:opacity-50 transition-all text-sm font-medium"
-                    >
-                      <PenSquare className="mr-2 h-4 w-4" />
-                      Editar {selectedCount > 0 && `(${selectedCount})`}
-                    </Button>
-                  </SheetTrigger>
-                </ProductBulkActionSheet>
-              )}
+
 
               {hasPermission("products", "canDelete") && (
                 <ActionAlertDialog
