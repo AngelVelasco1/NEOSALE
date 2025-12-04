@@ -15,7 +15,21 @@ import { useAuthorization } from "@/app/(admin)/hooks/use-authorization";
 export default function AllCustomers() {
   const { hasPermission } = useAuthorization();
   const columns = getColumns({ hasPermission });
-  const { page, limit, search } = getSearchParams(useSearchParams());
+  const searchParamsObj = useSearchParams();
+  const {
+    page,
+    limit,
+    search,
+    status,
+    sortBy,
+    sortOrder
+  } = getSearchParams(searchParamsObj);
+
+  // Extraer filtros adicionales de los searchParams
+  const minOrders = searchParamsObj.get("minOrders") || undefined;
+  const maxOrders = searchParamsObj.get("maxOrders") || undefined;
+  const minSpent = searchParamsObj.get("minSpent") || undefined;
+  const maxSpent = searchParamsObj.get("maxSpent") || undefined;
 
   const {
     data: customers,
@@ -23,8 +37,19 @@ export default function AllCustomers() {
     isError,
     refetch,
   } = useQuery({
-    queryKey: ["User", page, limit, search],
-    queryFn: () => fetchCustomers({ page, limit, search }),
+    queryKey: ["User", page, limit, search, status, minOrders, maxOrders, minSpent, maxSpent, sortBy, sortOrder],
+    queryFn: () => fetchCustomers({
+      page,
+      limit,
+      search,
+      status,
+      minOrders,
+      maxOrders,
+      minSpent,
+      maxSpent,
+      sortBy,
+      sortOrder
+    }),
     placeholderData: keepPreviousData,
   });
 

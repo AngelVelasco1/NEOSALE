@@ -14,6 +14,7 @@ import CouponFormSheet from "../form/CouponFormSheet";
 import { CouponBadgeVariants } from "@/app/(admin)/constants/badge";
 import { SkeletonColumn } from "@/app/(admin)/types/skeleton";
 import { Coupon, CouponStatus } from "@/app/(admin)/services/coupons/types";
+import SortableHeader from "./SortableHeader";
 
 import { editCoupon } from "@/app/(admin)/actions/coupons/editCoupon";
 import { deleteCoupon } from "@/app/(admin)/actions/coupons/deleteCoupon";
@@ -27,47 +28,53 @@ export const getColumns = ({
 }) => {
   const columns: ColumnDef<Coupon>[] = [
     {
-      header: "Nombre",
+      accessorKey: "name",
+      header: () => <SortableHeader column="name" label="Nombre" />,
       cell: ({ row }) => (
-        <Typography className="capitalize block truncate">
+        <Typography className="capitalize block truncate font-semibold">
           {row.original.name}
         </Typography>
       ),
     },
     {
-      header: "Código",
+      accessorKey: "code",
+      header: () => <SortableHeader column="code" label="Código" />,
       cell: ({ row }) => (
         <Typography className="uppercase">{row.original.code}</Typography>
       ),
     },
     {
-      header: "Descuento",
+      accessorKey: "discount_value",
+      header: () => <SortableHeader column="discount_value" label="Descuento" />,
       cell: ({ row }) => {
         const discountType = row.original.discount_type;
         const value = Number(row.original.discount_value);
 
         if (discountType === "fixed") {
-          return `$${value.toLocaleString()}`;
+          return <Typography className="font-medium">${value.toLocaleString()}</Typography>;
         }
 
-        return `${value}%`;
+        return <Typography className="font-medium">{value}%</Typography>;
       },
     },
     {
-      header: "Uso",
+      accessorKey: "usage_count",
+      header: () => <SortableHeader column="usage_count" label="Uso" />,
       cell: ({ row }) => {
         const used = row.original.usage_count || 0;
         const limit = row.original.usage_limit;
-        return limit ? `${used}/${limit}` : `${used}/∞`;
+        return <Typography>{limit ? `${used}/${limit}` : `${used}/∞`}</Typography>;
       },
     },
     {
-      header: "Fecha de Creación",
-      cell: ({ row }) => formatDate.medium(row.original.created_at),
+      accessorKey: "created_at",
+      header: () => <SortableHeader column="created_at" label="Fecha de Creación" />,
+      cell: ({ row }) => <Typography>{formatDate.medium(row.original.created_at)}</Typography>,
     },
     {
-      header: "Expira",
-      cell: ({ row }) => formatDate.medium(row.original.expires_at),
+      accessorKey: "expires_at",
+      header: () => <SortableHeader column="expires_at" label="Expira" />,
+      cell: ({ row }) => <Typography>{formatDate.medium(row.original.expires_at)}</Typography>,
     },
     {
       header: "Estado",

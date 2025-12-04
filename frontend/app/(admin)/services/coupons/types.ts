@@ -23,6 +23,12 @@ export interface FetchCouponsParams {
   page?: number;
   limit?: number;
   search?: string;
+  status?: string;
+  discountType?: string;
+  minDiscount?: number;
+  maxDiscount?: number;
+  sortBy?: string;
+  sortOrder?: string;
 }
 
 export interface FetchCouponsResponse {

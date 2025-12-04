@@ -13,11 +13,25 @@ export async function fetchCustomers({
   page = 1,
   limit = 10,
   search,
+  status,
+  minOrders,
+  maxOrders,
+  minSpent,
+  maxSpent,
+  sortBy,
+  sortOrder,
 }: FetchCustomersParams): Promise<FetchCustomersResponse> {
   const queryParams = new URLSearchParams({
     page: page.toString(),
     limit: limit.toString(),
     ...(search && { search }),
+    ...(status && { status }),
+    ...(minOrders && { minOrders }),
+    ...(maxOrders && { maxOrders }),
+    ...(minSpent && { minSpent }),
+    ...(maxSpent && { maxSpent }),
+    ...(sortBy && { sortBy }),
+    ...(sortOrder && { sortOrder }),
   });
 
   const response = await fetch(
@@ -29,9 +43,9 @@ export async function fetchCustomers({
   }
 
   const result = await response.json();
-  
+
   // Mapear la estructura de paginación si viene del servidor externo
-  if (result.pagination && typeof result.pagination.page !== 'undefined') {
+  if (result.pagination && typeof result.pagination.page !== "undefined") {
     const mappedResult: FetchCustomersResponse = {
       data: result.data,
       pagination: {
@@ -39,17 +53,16 @@ export async function fetchCustomers({
         limit: result.pagination.limit,
         items: result.pagination.total,
         pages: result.pagination.totalPages,
-        next: result.pagination.page < result.pagination.totalPages 
-          ? result.pagination.page + 1 
-          : null,
-        prev: result.pagination.page > 1 
-          ? result.pagination.page - 1 
-          : null,
-      }
+        next:
+          result.pagination.page < result.pagination.totalPages
+            ? result.pagination.page + 1
+            : null,
+        prev: result.pagination.page > 1 ? result.pagination.page - 1 : null,
+      },
     };
     return mappedResult;
   }
-  
+
   return result;
 }
 

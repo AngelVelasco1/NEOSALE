@@ -52,7 +52,34 @@ export const getUsers = async (
     const page = parseInt(req.query.page as string) || 1;
     const limit = parseInt(req.query.limit as string) || 10;
     const search = req.query.search as string;
-    const users = await getUsersService(page, limit, search);
+    const status = req.query.status as string;
+    const minOrders = req.query.minOrders
+      ? parseInt(req.query.minOrders as string)
+      : undefined;
+    const maxOrders = req.query.maxOrders
+      ? parseInt(req.query.maxOrders as string)
+      : undefined;
+    const minSpent = req.query.minSpent
+      ? parseFloat(req.query.minSpent as string)
+      : undefined;
+    const maxSpent = req.query.maxSpent
+      ? parseFloat(req.query.maxSpent as string)
+      : undefined;
+    const sortBy = req.query.sortBy as string;
+    const sortOrder = req.query.sortOrder as string;
+
+    const users = await getUsersService(
+      page,
+      limit,
+      search,
+      status,
+      minOrders,
+      maxOrders,
+      minSpent,
+      maxSpent,
+      sortBy,
+      sortOrder
+    );
     res.json(users);
   } catch (error) {
     next(error);

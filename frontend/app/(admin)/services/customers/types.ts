@@ -20,6 +20,13 @@ export interface FetchCustomersParams {
   page?: number;
   limit?: number;
   search?: string;
+  status?: string;
+  minOrders?: string;
+  maxOrders?: string;
+  minSpent?: string;
+  maxSpent?: string;
+  sortBy?: string;
+  sortOrder?: string;
 }
 
 export interface FetchCustomersResponse {

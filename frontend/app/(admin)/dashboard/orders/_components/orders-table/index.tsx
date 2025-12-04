@@ -15,8 +15,22 @@ import { useAuthorization } from "../../../../hooks/use-authorization";
 export default function RecentOrders() {
   const { hasPermission } = useAuthorization();
   const columns = getColumns({ hasPermission });
-  const { page, limit, search, status, method, startDate, endDate } =
-    getSearchParams(useSearchParams());
+  const searchParamsObj = useSearchParams();
+  const {
+    page,
+    limit,
+    search,
+    status,
+    method,
+    startDate,
+    endDate,
+    sortBy,
+    sortOrder
+  } = getSearchParams(searchParamsObj);
+
+  // Extraer filtros adicionales de los searchParams
+  const minAmount = searchParamsObj.get("minAmount") || undefined;
+  const maxAmount = searchParamsObj.get("maxAmount") || undefined;
 
   const {
     data: orders,
@@ -33,6 +47,10 @@ export default function RecentOrders() {
       method,
       startDate,
       endDate,
+      minAmount,
+      maxAmount,
+      sortBy,
+      sortOrder,
     ],
     queryFn: () =>
       fetchOrders({
@@ -43,6 +61,10 @@ export default function RecentOrders() {
         method,
         startDate,
         endDate,
+        minAmount,
+        maxAmount,
+        sortBy,
+        sortOrder,
       }),
     placeholderData: keepPreviousData,
   });

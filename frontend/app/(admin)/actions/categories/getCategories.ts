@@ -6,6 +6,9 @@ export type GetCategoriesParams = {
   page?: number;
   limit?: number;
   search?: string;
+  sortBy?: string;
+  sortOrder?: string;
+  status?: string;
 };
 
 export type CategoryWithSubcategories = {
@@ -26,28 +29,38 @@ export async function getCategories({
   page = 1,
   limit = 10,
   search,
+  sortBy,
+  sortOrder,
+  status,
 }: GetCategoriesParams = {}) {
   try {
-    const where = search
-      ? {
-          name: {
-            contains: search,
-            mode: "insensitive" as const,
-          },
-        }
-      : {};
+    const where: any = {};
+
+    // Filtro por búsqueda
+    if (search) {
+      where.name = {
+        contains: search,
+        mode: "insensitive" as const,
+      };
+    }
+
+    // Filtro por estado
+    if (status && status !== "all") {
+      where.active = status === "active";
+    }
+
+    // Construir orderBy dinámico
+    let orderBy: any = { id: "desc" }; // default
+    if (sortBy && sortOrder) {
+      orderBy = { [sortBy]: sortOrder };
+    }
 
     const [data, total] = await Promise.all([
       prisma.categories.findMany({
-        where: {
-          ...where,
-          // No filtrar por active: true para permitir ver categorías inactivas en admin
-        },
+        where,
         skip: (page - 1) * limit,
         take: limit,
-        orderBy: {
-          id: "desc",
-        },
+        orderBy,
         include: {
           subcategory: {
             select: {
@@ -58,10 +71,7 @@ export async function getCategories({
         },
       }),
       prisma.categories.count({
-        where: {
-          ...where,
-          // No filtrar por active: true en el conteo para admin
-        },
+        where,
       }),
     ]);
 

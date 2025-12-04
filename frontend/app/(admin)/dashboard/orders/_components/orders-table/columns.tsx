@@ -18,6 +18,7 @@ import { TableSelect } from "../../../../components/shared/table/TableSelect";
 import { OrderBadgeVariants } from "../../../../constants/badge";
 import { Order, OrderStatus } from "../../../../services/orders/types";
 import { SkeletonColumn } from "../../../../types/skeleton";
+import { SortableHeader } from "./SortableHeader";
 
 /* import { changeOrderStatus } from "../../../../actions/orders/changeOrderStatus";
  */import { PrintInvoiceButton } from "./PrintInvoiceButton";
@@ -35,15 +36,18 @@ export const getColumns = ({
 }) => {
   const columns: ColumnDef<Order>[] = [
     {
-      header: "N.º Orden",
+      accessorKey: "id",
+      header: () => <SortableHeader label="N.º Orden" sortKey="id" />,
       cell: ({ row }) => { return removeLetters(row.original.payments.transaction_id) },
     },
     {
-      header: "Fecha y Hora",
+      accessorKey: "created_at",
+      header: () => <SortableHeader label="Fecha y Hora" sortKey="created_at" />,
       cell: ({ row }) =>
         `${formatDate.medium(row.original.created_at)} ${formatDate.time(row.original.created_at)}`,
     },
     {
+      id: "customer",
       header: "Cliente",
       cell: ({ row }) => (
         <span className="block max-w-52 truncate">
@@ -52,17 +56,20 @@ export const getColumns = ({
       ),
     },
     {
+      id: "method",
       header: "Método",
       cell: ({ row }) => (
         <span className="capitalize">{row.original.payments.payment_method}</span>
       ),
     },
     {
-      header: "Monto",
+      accessorKey: "total",
+      header: () => <SortableHeader label="Monto" sortKey="total" />,
       cell: ({ row }) => formatAmount(row.original.total),
     },
     {
-      header: "Estado",
+      accessorKey: "status",
+      header: () => <SortableHeader label="Estado" sortKey="status" />,
       cell: ({ row }) => {
         const status = row.original.status;
 

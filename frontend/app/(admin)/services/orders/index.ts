@@ -22,6 +22,10 @@ export async function fetchOrders(
     method,
     startDate,
     endDate,
+    minAmount,
+    maxAmount,
+    sortBy,
+    sortOrder,
   } = params;
 
   const queryParams = new URLSearchParams({
@@ -32,6 +36,10 @@ export async function fetchOrders(
     ...(method && { method }),
     ...(startDate && { startDate }),
     ...(endDate && { endDate }),
+    ...(minAmount && { minAmount }),
+    ...(maxAmount && { maxAmount }),
+    ...(sortBy && { sortBy }),
+    ...(sortOrder && { sortOrder }),
   });
 
   const response = await fetch(
@@ -43,9 +51,9 @@ export async function fetchOrders(
   }
 
   const result = await response.json();
-  
+
   // Mapear la estructura de paginación si viene del servidor externo
-  if (result.pagination && typeof result.pagination.page !== 'undefined') {
+  if (result.pagination && typeof result.pagination.page !== "undefined") {
     const mappedResult: FetchOrdersResponse = {
       data: result.data,
       pagination: {
@@ -53,17 +61,16 @@ export async function fetchOrders(
         limit: result.pagination.limit,
         items: result.pagination.total,
         pages: result.pagination.totalPages,
-        next: result.pagination.page < result.pagination.totalPages 
-          ? result.pagination.page + 1 
-          : null,
-        prev: result.pagination.page > 1 
-          ? result.pagination.page - 1 
-          : null,
-      }
+        next:
+          result.pagination.page < result.pagination.totalPages
+            ? result.pagination.page + 1
+            : null,
+        prev: result.pagination.page > 1 ? result.pagination.page - 1 : null,
+      },
     };
     return mappedResult;
   }
-  
+
   return result;
 
   /* CÓDIGO ORIGINAL CON SUPABASE - ARCHIVADO

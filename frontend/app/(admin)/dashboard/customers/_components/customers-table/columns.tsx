@@ -8,10 +8,10 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { Badge } from "@/components/ui/badge";
 import Typography from "@/app/(admin)/components/ui/typography";
 
-
 import { Customer } from "@/app/(admin)/services/customers/types";
 import { SkeletonColumn } from "@/app/(admin)/types/skeleton";
 import { TooltipWrapper } from "@/app/(admin)/components/shared/table/TableActionTooltip";
+import { SortableHeader } from "./SortableHeader";
 
 import { deleteCustomer } from "@/app/(admin)/actions/customers/deleteCustomer";
 import { HasPermission } from "@/app/(admin)/hooks/use-authorization";
@@ -49,8 +49,8 @@ export const getColumns = ({
 }) => {
   const columns: ColumnDef<Customer>[] = [
     {
-      id: "name",
-      header: "Cliente",
+      accessorKey: "name",
+      header: () => <SortableHeader label="Cliente" sortKey="name" />,
       cell: ({ row }) => (
         <div className="flex flex-col">
           <Typography className="font-medium">{row.original.name}</Typography>
@@ -70,8 +70,8 @@ export const getColumns = ({
       ),
     },
     {
-      id: "total_orders",
-      header: () => <div className="flex items-center justify-center gap-1"><ShoppingBag className="h-4 w-4" /> Órdenes</div>,
+      accessorKey: "total_orders",
+      header: () => <div className="flex items-center justify-center gap-1"><SortableHeader label="Órdenes" sortKey="total_orders" /><ShoppingBag className="h-4 w-4" /></div>,
       cell: ({ row }) => (
         <div className="flex justify-center">
           <Badge variant={row.original.total_orders > 0 ? "default" : "secondary"} className="font-semibold">
@@ -81,8 +81,8 @@ export const getColumns = ({
       ),
     },
     {
-      id: "total_spent",
-      header: () => <div className="flex items-center justify-end gap-1"><DollarSign className="h-4 w-4" />Total Gastado</div>,
+      accessorKey: "total_spent",
+      header: () => <div className="flex items-center justify-end gap-1"><DollarSign className="h-4 w-4" /><SortableHeader label="Total Gastado" sortKey="total_spent" /></div>,
       cell: ({ row }) => (
         <div className="text-right">
           <Typography className="font-bold text-green-600 dark:text-green-400">
@@ -92,8 +92,8 @@ export const getColumns = ({
       ),
     },
     {
-      id: "average_spent",
-      header: () => <div className="flex items-center justify-end gap-1"><DollarSign className="h-4 w-4" />Promedio de Compras</div>,
+      accessorKey: "average_spent",
+      header: () => <div className="flex items-center justify-end gap-1"><DollarSign className="h-4 w-4" /><SortableHeader label="Promedio" sortKey="average_spent" /></div>,
       cell: ({ row }) => (
         <div className="text-right">
           <Typography className="font-bold text-green-600 dark:text-green-400">
@@ -103,8 +103,8 @@ export const getColumns = ({
       ),
     },
     {
-      id: "last_order",
-      header: () => <div className="flex items-center gap-1"><Calendar className="h-4 w-4" />Última Orden</div>,
+      accessorKey: "last_order_date",
+      header: () => <div className="flex items-center gap-1"><Calendar className="h-4 w-4" /><SortableHeader label="Última Orden" sortKey="last_order_date" /></div>,
       cell: ({ row }) => (
         <Typography className="text-sm">
           {formatDate(row.original.last_order_date)}

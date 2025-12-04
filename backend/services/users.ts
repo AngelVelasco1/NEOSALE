@@ -56,7 +56,14 @@ export const registerUserService = async ({
 export const getUsersService = async (
   page: number,
   limit: number,
-  search?: string
+  search?: string,
+  status?: string,
+  minOrders?: number,
+  maxOrders?: number,
+  minSpent?: number,
+  maxSpent?: number,
+  sortBy?: string,
+  sortOrder?: string
 ) => {
   const skip = (page - 1) * limit;
 
@@ -70,6 +77,11 @@ export const getUsersService = async (
         ],
       }
     : { role: "user" as roles_enum };
+
+  // Agregar filtro de estado si se proporciona
+  if (status && status !== "all") {
+    (where as any).active = status === "true";
+  }
 
   // Obtener usuarios con paginación
   const [users, total] = await Promise.all([
@@ -103,7 +115,7 @@ export const getUsersService = async (
   ]);
 
   // Calcular estadísticas de órdenes para cada usuario
-  const usersWithStats = users.map((user) => {
+  let usersWithStats = users.map((user) => {
     const completedOrders = user.orders.filter(
       (order) => order.status === "delivered" || order.status === "paid"
     );
@@ -111,7 +123,8 @@ export const getUsersService = async (
       (sum, order) => sum + order.total,
       0
     );
-    const avgSpent = totalSpent / completedOrders.length;
+    const avgSpent =
+      completedOrders.length > 0 ? totalSpent / completedOrders.length : 0;
     const lastOrder = user.orders.length > 0 ? user.orders[0] : null;
 
     return {
@@ -129,13 +142,79 @@ export const getUsersService = async (
     };
   });
 
+  // Aplicar filtros de rangos después de calcular estadísticas
+  if (minOrders !== undefined) {
+    usersWithStats = usersWithStats.filter(
+      (user) => user.total_orders >= minOrders
+    );
+  }
+  if (maxOrders !== undefined) {
+    usersWithStats = usersWithStats.filter(
+      (user) => user.total_orders <= maxOrders
+    );
+  }
+  if (minSpent !== undefined) {
+    usersWithStats = usersWithStats.filter(
+      (user) => user.total_spent >= minSpent
+    );
+  }
+  if (maxSpent !== undefined) {
+    usersWithStats = usersWithStats.filter(
+      (user) => user.total_spent <= maxSpent
+    );
+  }
+
+  // Aplicar ordenamiento
+  if (sortBy && sortOrder) {
+    usersWithStats.sort((a, b) => {
+      let aValue: any = a[sortBy as keyof typeof a];
+      let bValue: any = b[sortBy as keyof typeof b];
+
+      // Manejar valores nulos
+      if (aValue === null)
+        aValue =
+          sortOrder === "asc"
+            ? Number.MIN_SAFE_INTEGER
+            : Number.MAX_SAFE_INTEGER;
+      if (bValue === null)
+        bValue =
+          sortOrder === "asc"
+            ? Number.MIN_SAFE_INTEGER
+            : Number.MAX_SAFE_INTEGER;
+
+      // Comparar valores
+      if (typeof aValue === "string" && typeof bValue === "string") {
+        return sortOrder === "asc"
+          ? aValue.localeCompare(bValue)
+          : bValue.localeCompare(aValue);
+      }
+
+      if (aValue instanceof Date && bValue instanceof Date) {
+        return sortOrder === "asc"
+          ? aValue.getTime() - bValue.getTime()
+          : bValue.getTime() - aValue.getTime();
+      }
+
+      return sortOrder === "asc"
+        ? aValue > bValue
+          ? 1
+          : -1
+        : bValue > aValue
+        ? 1
+        : -1;
+    });
+  }
+
+  // Recalcular el total después del filtrado
+  const filteredTotal = usersWithStats.length;
+
   return {
     data: usersWithStats,
     pagination: {
-      total,
+      total: filteredTotal,
       page,
       limit,
-      totalPages: Math.ceil(total / limit),
+      totalPages: Math.ceil(filteredTotal / limit),
     },
   };
 };
