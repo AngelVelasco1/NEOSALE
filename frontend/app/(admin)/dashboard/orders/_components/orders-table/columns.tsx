@@ -20,10 +20,12 @@ import { Order, OrderStatus } from "../../../../services/orders/types";
 import { SkeletonColumn } from "../../../../types/skeleton";
 import { SortableHeader } from "./SortableHeader";
 
+
 /* import { changeOrderStatus } from "../../../../actions/orders/changeOrderStatus";
  */import { PrintInvoiceButton } from "./PrintInvoiceButton";
 import { HasPermission } from "../../../../hooks/use-authorization";
 import { TooltipProvider } from "@radix-ui/react-tooltip";
+import { translateOrderStatus } from "@/app/(admin)/lib/translations";
 
 const removeLetters = (word) => {
   return word.replace(/[^\d]/g, '')
@@ -72,13 +74,14 @@ export const getColumns = ({
       header: () => <SortableHeader label="Estado" sortKey="status" />,
       cell: ({ row }) => {
         const status = row.original.status;
+        const translatedStatus = translateOrderStatus(status);
 
         return (
           <Badge
             variant={OrderBadgeVariants[status]}
             className="shrink-0 text-xs capitalize"
           >
-            {status}
+            {translatedStatus}
           </Badge>
         );
       },

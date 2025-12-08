@@ -4,7 +4,7 @@ import { cva, type VariantProps } from "class-variance-authority";
 import { cn } from "@/lib/utils";
 
 const badgeVariants = cva(
-  "inline-flex items-center rounded-full border px-2 py-0.5 text-[0.675rem] font-medium transition-colors focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2",
+  "inline-flex items-center rounded-lg border px-2 py-1 text-[0.7rem] font-medium transition-colors focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2",
   {
     variants: {
       variant: {
@@ -14,9 +14,9 @@ const badgeVariants = cva(
           "border-transparent bg-secondary text-secondary-foreground hover:bg-secondary/80",
         outline: "text-foreground",
         destructive:
-          "border-transparent bg-red-600 text-red-600 dark:bg-destructive dark:text-red-200 print:!bg-red-200 print:!text-red-600 group-[.light-only]:bg-red-200 group-[.light-only]:text-red-600",
+          "border-red-300 bg-red-100 text-red-800 dark:border-red-700 dark:bg-red-900 dark:text-red-200 [a&]:hover:bg-red-200 dark:[a&]:hover:bg-red-800 focus-visible:ring-red-300 dark:focus-visible:ring-red-700",
         success:
-          "border-transparent bg-green-300 text-green-800  print:!bg-green-200 print:!text-green-600 group-[.light-only]:bg-green-200 group-[.light-only]:text-green-600",
+          "border-green-300 bg-green-100 text-green-800 dark:border-green-700 dark:bg-green-900 dark:text-green-200 [a&]:hover:bg-green-200 dark:[a&]:hover:bg-green-800",
         warning:
           "border-transparent bg-yellow-200 text-yellow-600 dark:bg-yellow-600 dark:text-yellow-200 print:!bg-yellow-200 print:!text-yellow-600 group-[.light-only]:bg-yellow-200 group-[.light-only]:text-yellow-600",
         processing:

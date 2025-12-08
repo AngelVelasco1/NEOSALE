@@ -3,13 +3,14 @@ import {
   PackageCheck,
   Truck,
   CheckCircle2,
-  XCircle,
   ArrowRight,
 } from "lucide-react";
 import { ReactNode } from "react";
 
 import { cn } from "@/lib/utils";
 import Typography from "@/app/(admin)/components/ui/typography";
+import { getOrderStatusStats, DateRangeParams } from "@/app/(admin)/actions/dashboard/getDashboardStats";
+
 
 interface OrderStatus {
   icon: ReactNode;
@@ -21,15 +22,20 @@ interface OrderStatus {
   borderColor: string;
 }
 
-export default function StatusOverview() {
-  const totalOrders = 815;
+interface StatusOverviewProps {
+  dateRange?: DateRangeParams;
+}
+
+export default async function StatusOverview({ dateRange }: StatusOverviewProps) {
+  const statusStats = await getOrderStatusStats(dateRange);
+  const totalOrders = statusStats.total || 1;
 
   const statuses: OrderStatus[] = [
     {
       icon: <Clock className="size-5" />,
       title: "Pending",
-      count: 263,
-      percentage: Math.round((263 / totalOrders) * 100),
+      count: statusStats.pending,
+      percentage: Math.round((statusStats.pending / totalOrders) * 100),
       color: "text-amber-700 dark:text-amber-400",
       bgColor: "bg-amber-50 dark:bg-amber-950/30",
       borderColor: "border-amber-300 dark:border-amber-900/50",
@@ -37,8 +43,8 @@ export default function StatusOverview() {
     {
       icon: <PackageCheck className="size-5" />,
       title: "Processing",
-      count: 97,
-      percentage: Math.round((97 / totalOrders) * 100),
+      count: statusStats.processing,
+      percentage: Math.round((statusStats.processing / totalOrders) * 100),
       color: "text-blue-700 dark:text-blue-400",
       bgColor: "bg-blue-50 dark:bg-blue-950/30",
       borderColor: "border-blue-300 dark:border-blue-900/50",
@@ -46,8 +52,8 @@ export default function StatusOverview() {
     {
       icon: <Truck className="size-5" />,
       title: "Shipped",
-      count: 37,
-      percentage: Math.round((37 / totalOrders) * 100),
+      count: statusStats.shipped,
+      percentage: Math.round((statusStats.shipped / totalOrders) * 100),
       color: "text-purple-700 dark:text-purple-400",
       bgColor: "bg-purple-50 dark:bg-purple-950/30",
       borderColor: "border-purple-300 dark:border-purple-900/50",
@@ -55,8 +61,8 @@ export default function StatusOverview() {
     {
       icon: <CheckCircle2 className="size-5" />,
       title: "Delivered",
-      count: 418,
-      percentage: Math.round((418 / totalOrders) * 100),
+      count: statusStats.delivered,
+      percentage: Math.round((statusStats.delivered / totalOrders) * 100),
       color: "text-emerald-700 dark:text-emerald-400",
       bgColor: "bg-emerald-50 dark:bg-emerald-950/30",
       borderColor: "border-emerald-300 dark:border-emerald-900/50",
@@ -75,10 +81,10 @@ export default function StatusOverview() {
             Distribución actual de pedidos por estado
           </Typography>
         </div>
-        <button className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-blue-600 dark:text-blue-400 hover:bg-blue-50 dark:hover:bg-blue-950/30 rounded-lg transition-colors">
-          View All
+        <a href="/dashboard/orders" className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-blue-600 dark:text-blue-400 hover:bg-blue-50 dark:hover:bg-blue-950/30 rounded-lg transition-colors">
+          Ver todos los pedidos
           <ArrowRight className="size-4" />
-        </button>
+        </a>
       </div>
 
       {/* Status Cards Grid */}

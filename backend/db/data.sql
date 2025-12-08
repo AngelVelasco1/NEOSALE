@@ -298,3 +298,4 @@ UPDATE products SET stock = (
     WHERE pv.product_id = products.id AND pv.active = TRUE
 );
 
+
