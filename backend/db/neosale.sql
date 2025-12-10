@@ -174,6 +174,7 @@ CREATE TABLE coupons (
     usage_limit INTEGER,
     usage_count INTEGER DEFAULT 0,
     active BOOLEAN DEFAULT TRUE NOT NULL,
+    featured BOOLEAN DEFAULT FALSE NOT NULL,
     created_by INTEGER NOT NULL,
     created_at TIMESTAMP(6) DEFAULT CURRENT_TIMESTAMP NOT NULL,
     expires_at TIMESTAMP(6) NOT NULL,

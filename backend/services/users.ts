@@ -252,7 +252,7 @@ export const getUserByIdService = async (id: number | undefined) => {
       id: true,
     },
   });
-  if (!cart) {
+  if (!cart && user?.role !== "admin") {
     await prisma.$executeRaw`CALL sp_create_cart(${id}::int)`;
   }
 

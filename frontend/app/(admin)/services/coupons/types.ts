@@ -12,6 +12,7 @@ export type Coupon = {
   usage_limit: number | null;
   usage_count: number | null;
   active: boolean;
+  featured: boolean;
   created_by: number;
   created_at: Date;
   expires_at: Date;

@@ -29,7 +29,6 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-
   const getLocalCart = (): CartProductsInfo[] => {
     if (typeof window === "undefined") return [];
     try {
@@ -394,7 +393,7 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
 export const useCart = () => {
   const context = useContext(CartContext);
   if (!context) {
-    throw new error("useCart must be used within a CartProvider");
+    throw new Error("useCart must be used within a CartProvider");
   }
   return context;
 };

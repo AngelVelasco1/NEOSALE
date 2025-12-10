@@ -47,9 +47,9 @@ export const LoginForm: React.FC = () => {
 
   useEffect(() => {
     if (session?.user.role === "admin") {
-      router.push("/dashboard");
+      router.replace("/dashboard");
     } else if (session?.user) {
-      router.push("/");
+      router.replace("/");
     }
   }, [session, router]);
 
@@ -90,6 +90,10 @@ export const LoginForm: React.FC = () => {
           "Sesión iniciada correctamente",
           "Bienvenido de vuelta"
         );
+
+        // Prefetch del dashboard para carga más rápida
+        router.prefetch("/dashboard");
+        router.prefetch("/");
       }
     } catch (error: unknown) {
       ErrorsHandler.showError("Error del servidor", "SERVER_ERROR");

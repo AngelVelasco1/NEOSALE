@@ -8,6 +8,7 @@ import Typography from "@/app/(admin)/components/ui/typography";
 import { Badge } from "@/components/ui/badge";
 
 import { TableSwitch } from "@/app/(admin)/components/shared/table/TableSwitch";
+import { TableFeaturedButton } from "@/app/(admin)/components/shared/table/TableFeaturedButton";
 import { SheetTooltip } from "@/app/(admin)/components/shared/table/TableActionTooltip";
 import { TableActionAlertDialog } from "@/app/(admin)/components/shared/table/TableActionAlertDialog";
 import CouponFormSheet from "../form/CouponFormSheet";
@@ -19,6 +20,7 @@ import SortableHeader from "./SortableHeader";
 import { editCoupon } from "@/app/(admin)/actions/coupons/editCoupon";
 import { deleteCoupon } from "@/app/(admin)/actions/coupons/deleteCoupon";
 import { toggleCouponActiveStatus } from "@/app/(admin)/actions/coupons/toggleCouponStatus";
+import { toggleCouponFeatured } from "@/app/(admin)/actions/coupons/toggleCouponFeatured";
 import { HasPermission } from "@/app/(admin)/hooks/use-authorization";
 
 export const getColumns = ({
@@ -75,6 +77,20 @@ export const getColumns = ({
       accessorKey: "expires_at",
       header: () => <SortableHeader column="expires_at" label="Expira" />,
       cell: ({ row }) => <Typography>{formatDate.medium(row.original.expires_at)}</Typography>,
+    },
+    {
+      accessorKey: "featured",
+      header: "Destacado",
+      cell: ({ row }) => {
+        return (
+          <Badge
+            variant={row.original.featured ? "success" : "outline"}
+            className="shrink-0 text-xs capitalize"
+          >
+            {row.original.featured ? "Sí" : "No"}
+          </Badge>
+        );
+      },
     },
     {
       header: "Estado",
@@ -145,6 +161,15 @@ export const getColumns = ({
                 />
               </div>
 
+            )}
+
+            {hasPermission("coupons", "canEdit") && (
+              <TableFeaturedButton
+                couponId={row.original.id}
+                initialFeatured={row.original.featured}
+                queryKey="coupons"
+                onToggle={toggleCouponFeatured}
+              />
             )}
 
             {hasPermission("coupons", "canEdit") && (

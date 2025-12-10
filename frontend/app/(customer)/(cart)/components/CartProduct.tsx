@@ -19,6 +19,10 @@ import {
 import { useCart } from "../hooks/useCart"
 import type { CartProductsInfo } from "../../types"
 import { getProductVariantApi } from "../../(products)/services/api"
+import CouponInput from "./CouponInput"
+import type { AppliedCoupon } from "../types/coupon"
+
+const COUPON_STORAGE_KEY = "neosale_applied_coupon"
 
 interface VariantStock {
   stock: number
@@ -279,6 +283,15 @@ export default function CartProducts() {
 
   const [variantStocks, setVariantStocks] = useState<VariantStockMap>({})
   const [isUpdatingStocks, setIsUpdatingStocks] = useState(false)
+  const [appliedCoupon, setAppliedCoupon] = useState<AppliedCoupon | null>(() => {
+    if (typeof window === "undefined") return null
+    try {
+      const stored = localStorage.getItem(COUPON_STORAGE_KEY)
+      return stored ? JSON.parse(stored) : null
+    } catch {
+      return null
+    }
+  })
 
   const getVariantKey = useCallback((product: CartProductsInfo) => {
     return `${product.id}-${product.color_code}-${product.size}`
@@ -377,6 +390,8 @@ export default function CartProducts() {
   const cartMetrics = useMemo(() => {
     const totalItems = getCartProductCount()
     const subtotal = getSubTotal()
+    const discount = appliedCoupon?.discount_amount || 0
+    const total = subtotal - discount
     const hasOutOfStockItems = cartProducts.some(product => getCurrentStock(product) === 0)
     const hasLimitedStockItems = cartProducts.some(product => {
       const stock = getCurrentStock(product)
@@ -386,11 +401,13 @@ export default function CartProducts() {
     return {
       totalItems,
       subtotal,
+      discount,
+      total,
       hasOutOfStockItems,
       hasLimitedStockItems,
       uniqueProducts: cartProducts.length
     }
-  }, [cartProducts, getCurrentStock, getCartProductCount, getSubTotal])
+  }, [cartProducts, getCurrentStock, getCartProductCount, getSubTotal, appliedCoupon])
 
   const handleContinueShopping = useCallback(() => {
     router.back()
@@ -406,8 +423,32 @@ export default function CartProducts() {
   const handleClearCart = useCallback(async () => {
     if (window.confirm('¿Estás seguro de que quieres vaciar tu carrito?')) {
       await clearCart()
+      setAppliedCoupon(null)
+      try {
+        localStorage.removeItem(COUPON_STORAGE_KEY)
+      } catch (error) {
+        console.error("Error removing coupon from localStorage:", error)
+      }
     }
   }, [clearCart])
+
+  const handleCouponApplied = useCallback((coupon: AppliedCoupon) => {
+    setAppliedCoupon(coupon)
+    try {
+      localStorage.setItem(COUPON_STORAGE_KEY, JSON.stringify(coupon))
+    } catch (error) {
+      console.error("Error saving coupon to localStorage:", error)
+    }
+  }, [])
+
+  const handleCouponRemoved = useCallback(() => {
+    setAppliedCoupon(null)
+    try {
+      localStorage.removeItem(COUPON_STORAGE_KEY)
+    } catch (error) {
+      console.error("Error removing coupon from localStorage:", error)
+    }
+  }, [])
 
   const handleRefreshCart = useCallback(async () => {
     await getCart()
@@ -539,26 +580,62 @@ export default function CartProducts() {
         {/* Cart Summary */}
         {cartProducts.length > 0 && (
           <motion.div
-            className="mb-10 bg-linear-to-br from-slate-900/80 via-slate-800/60 to-slate-900/80 backdrop-blur-xl rounded-3xl p-8 border border-slate-700/60 shadow-2xl"
+            className="flex flex-col mb-10 bg-linear-to-br from-slate-900/80 via-slate-800/60 to-slate-900/80 backdrop-blur-xl rounded-3xl p-8 border border-slate-700/60 shadow-2xl"
             initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6 }}
           >
-            <div className="flex flex-col lg:flex-row items-center justify-between gap-8">
-              <div>
-                <div className="text-sm text-slate-400 mb-2 uppercase tracking-wide">Subtotal</div>
-                <div className="text-4xl font-extrabold bg-linear-to-r from-slate-100 to-indigo-200 bg-clip-text text-transparent">
-                  ${cartMetrics.subtotal.toLocaleString()}
+            <div className="flex flex-col lg:flex-row gap-8">
+              {/* Left: Summary Details */}
+              <div className="flex-1 space-y-6">
+                <div className="space-y-3">
+                  <div className="flex justify-between text-slate-400">
+                    <span>Subtotal ({cartMetrics.totalItems} items)</span>
+                    <span className="font-semibold text-slate-200">${cartMetrics.subtotal.toLocaleString()}</span>
+                  </div>
+
+                  {appliedCoupon && (
+                    <div className="flex justify-between text-green-400">
+                      <span>Descuento ({appliedCoupon.coupon.code})</span>
+                      <span className="font-semibold">-${cartMetrics.discount.toLocaleString()}</span>
+                    </div>
+                  )}
+
+                  <div className="pt-3 border-t border-slate-800/60">
+                    <div className="flex justify-between items-baseline">
+                      <div className="text-sm text-slate-400 uppercase tracking-wide">Total</div>
+                      <div className="text-3xl font-extrabold bg-linear-to-r from-slate-100 to-indigo-200 bg-clip-text text-transparent">
+                        ${cartMetrics.total.toLocaleString()}
+                      </div>
+                    </div>
+                    {appliedCoupon && (
+                      <div className="text-right text-sm text-green-400 mt-1 font-medium">
+                        ¡Ahorraste ${cartMetrics.discount.toLocaleString()}!
+                      </div>
+                    )}
+                  </div>
                 </div>
+
+                {/* Coupon Input - Compact */}
+                <div className="pt-6 border-t border-slate-800/60">
+                  <CouponInput
+                    subtotal={cartMetrics.subtotal}
+                    onCouponApplied={handleCouponApplied}
+                    onCouponRemoved={handleCouponRemoved}
+                    appliedCoupon={appliedCoupon}
+                  />
+                </div>
+
                 {isUpdatingStocks && (
-                  <div className="text-sm text-slate-500 mt-3 flex items-center gap-2">
+                  <div className="text-sm text-slate-500 flex items-center gap-2">
                     <RefreshCw className="w-4 h-4 animate-spin" />
                     Actualizando stocks...
                   </div>
                 )}
               </div>
 
-              <div className="flex flex-col sm:flex-row gap-4 w-full lg:w-auto">
+              {/* Right: Action Buttons */}
+              <div className="flex flex-col gap-4 lg:min-w-[240px]">
                 <Button
                   variant="outline"
                   className="border-slate-700/60 bg-slate-800/50 backdrop-blur-sm text-slate-300 hover:bg-slate-700 hover:border-slate-600 rounded-xl font-semibold shadow-lg hover:shadow-slate-700/30 p-5"
