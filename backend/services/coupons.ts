@@ -65,7 +65,7 @@ export async function getActiveCoupons(): Promise<Coupon[]> {
   });
 
   return activeCoupons.slice(0, 3).map((coupon) => ({
-    ...coupon,
+    ...coupon, 
     discount_value: Number(coupon.discount_value),
     min_purchase_amount: Number(coupon.min_purchase_amount || 0),
   }));

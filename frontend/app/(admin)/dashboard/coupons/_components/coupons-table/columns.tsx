@@ -33,7 +33,7 @@ export const getColumns = ({
       accessorKey: "name",
       header: () => <SortableHeader column="name" label="Nombre" />,
       cell: ({ row }) => (
-        <Typography className="capitalize block truncate font-semibold">
+        <Typography className="capitalize block truncate font-semibold max-w-[200px]">
           {row.original.name}
         </Typography>
       ),
@@ -42,7 +42,7 @@ export const getColumns = ({
       accessorKey: "code",
       header: () => <SortableHeader column="code" label="Código" />,
       cell: ({ row }) => (
-        <Typography className="uppercase">{row.original.code}</Typography>
+        <Typography className="uppercase font-mono">{row.original.code}</Typography>
       ),
     },
     {
@@ -65,18 +65,18 @@ export const getColumns = ({
       cell: ({ row }) => {
         const used = row.original.usage_count || 0;
         const limit = row.original.usage_limit;
-        return <Typography>{limit ? `${used}/${limit}` : `${used}/∞`}</Typography>;
+        return <Typography className="text-center">{limit ? `${used}/${limit}` : `${used}/∞`}</Typography>;
       },
     },
     {
       accessorKey: "created_at",
       header: () => <SortableHeader column="created_at" label="Fecha de Creación" />,
-      cell: ({ row }) => <Typography>{formatDate.medium(row.original.created_at)}</Typography>,
+      cell: ({ row }) => <Typography className="whitespace-nowrap">{formatDate.medium(row.original.created_at)}</Typography>,
     },
     {
       accessorKey: "expires_at",
       header: () => <SortableHeader column="expires_at" label="Expira" />,
-      cell: ({ row }) => <Typography>{formatDate.medium(row.original.expires_at)}</Typography>,
+      cell: ({ row }) => <Typography className="whitespace-nowrap">{formatDate.medium(row.original.expires_at)}</Typography>,
     },
     {
       accessorKey: "featured",
@@ -239,27 +239,27 @@ export const skeletonColumns: SkeletonColumn[] = [
     cell: <Skeleton className="w-20 h-8" />,
   },
   {
-    header: "Activo",
-    cell: <Skeleton className="w-16 h-10" />,
-  },
-  {
     header: "Uso",
     cell: <Skeleton className="w-20 h-8" />,
   },
   {
     header: "Fecha de Creación",
-    cell: <Skeleton className="w-20 h-8" />,
+    cell: <Skeleton className="w-28 h-8" />,
   },
   {
     header: "Expira",
-    cell: <Skeleton className="w-20 h-8" />,
+    cell: <Skeleton className="w-28 h-8" />,
+  },
+  {
+    header: "Destacado",
+    cell: <Skeleton className="w-16 h-6 rounded-full" />,
   },
   {
     header: "Estado",
-    cell: <Skeleton className="w-20 h-10" />,
+    cell: <Skeleton className="w-20 h-6 rounded-full" />,
   },
   {
     header: "Acciones",
-    cell: <Skeleton className="w-20 h-8" />,
+    cell: <Skeleton className="w-32 h-8" />,
   },
 ];

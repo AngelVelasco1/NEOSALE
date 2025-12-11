@@ -26,6 +26,7 @@ export default function AllCoupons({
   const search = searchParams.get("search") || "";
   const status = searchParams.get("status") || "";
   const discountType = searchParams.get("discountType") || "";
+  const featured = searchParams.get("featured") || "";
   const minDiscount = searchParams.get("minDiscount") ? Number(searchParams.get("minDiscount")) : undefined;
   const maxDiscount = searchParams.get("maxDiscount") ? Number(searchParams.get("maxDiscount")) : undefined;
   const sortBy = searchParams.get("sortBy") || "";
@@ -37,8 +38,8 @@ export default function AllCoupons({
     isError,
     refetch,
   } = useQuery({
-    queryKey: ["coupons", page, limit, search, status, discountType, minDiscount, maxDiscount, sortBy, sortOrder],
-    queryFn: () => fetchCoupons({ page, limit, search, status, discountType, minDiscount, maxDiscount, sortBy, sortOrder }),
+    queryKey: ["coupons", page, limit, search, status, discountType, featured, minDiscount, maxDiscount, sortBy, sortOrder],
+    queryFn: () => fetchCoupons({ page, limit, search, status, discountType, featured, minDiscount, maxDiscount, sortBy, sortOrder }),
     placeholderData: keepPreviousData,
   });
 

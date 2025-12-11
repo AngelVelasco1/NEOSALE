@@ -23,7 +23,7 @@ export function TableFeaturedButton({
     const [isPending, startTransition] = useTransition();
 
     const handleToggle = () => {
-        // Actualización optimista - cambiar UI inmediatamente
+
         const previousState = isFeatured;
         setIsFeatured(!isFeatured);
 
@@ -32,15 +32,13 @@ export function TableFeaturedButton({
             const result = await onToggle(couponId, previousState);
 
             if ("dbError" in result) {
-                // Revertir si hay error
                 setIsFeatured(previousState);
-                toast.error("Error al actualizar cupón destacado");
+                toast.error(result.dbError, { position: "top-right" });
             } else {
                 toast.success(
                     !previousState ? "Cupón destacado en banner" : "Cupón removido del banner",
                     { position: "top-center" }
                 );
-                // Invalidar queries para sincronizar
                 queryClient.invalidateQueries({ queryKey: [queryKey] });
             }
         });

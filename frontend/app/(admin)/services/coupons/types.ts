@@ -26,6 +26,7 @@ export interface FetchCouponsParams {
   search?: string;
   status?: string;
   discountType?: string;
+  featured?: string;
   minDiscount?: number;
   maxDiscount?: number;
   sortBy?: string;

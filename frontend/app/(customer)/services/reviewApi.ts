@@ -23,6 +23,7 @@ export interface CreateReviewData {
   order_id: number;
   rating: number;
   comment?: string;
+  images?: string[];
 }
 
 /**

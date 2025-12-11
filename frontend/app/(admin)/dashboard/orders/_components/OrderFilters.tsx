@@ -183,7 +183,6 @@ export default function OrderFilters() {
       <div className="p-6 space-y-5">
         {/* Header con botón de descarga */}
         <div className="flex items-center justify-between">
-          <h3 className="text-lg font-semibold text-slate-900 dark:text-slate-100">Filtros de Órdenes</h3>
           <Button
             type="button"
             onClick={handleOrdersDownload}

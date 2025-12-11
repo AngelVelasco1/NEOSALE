@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
-import { Search, X, ToggleLeft, Percent, DollarSign, TrendingUp } from "lucide-react";
+import { Search, X, ToggleLeft, Percent, DollarSign, TrendingUp, Star, Sparkles } from "lucide-react";
 
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -23,6 +23,7 @@ export default function CouponFilters() {
   const [search, setSearch] = useState(searchParams.get("search") || "");
   const [status, setStatus] = useState(searchParams.get("status") || "all");
   const [discountType, setDiscountType] = useState(searchParams.get("discountType") || "all");
+  const [featured, setFeatured] = useState(searchParams.get("featured") || "all");
   const [minDiscount, setMinDiscount] = useState(searchParams.get("minDiscount") || "");
   const [maxDiscount, setMaxDiscount] = useState(searchParams.get("maxDiscount") || "");
 
@@ -55,6 +56,12 @@ export default function CouponFilters() {
       params.delete("discountType");
     }
 
+    if (featured && featured !== "all") {
+      params.set("featured", featured);
+    } else {
+      params.delete("featured");
+    }
+
     if (minDiscount) {
       params.set("minDiscount", minDiscount);
     } else {
@@ -71,7 +78,7 @@ export default function CouponFilters() {
     params.set("limit", searchParams.get("limit") || "10");
 
     router.push(`/dashboard/coupons?${params.toString()}`, { scroll: false });
-  }, [search, status, discountType, minDiscount, maxDiscount, searchParams, router]);
+  }, [search, status, discountType, featured, minDiscount, maxDiscount, searchParams, router]);
 
   // Debounce for search and numeric inputs
   useEffect(() => {
@@ -85,7 +92,7 @@ export default function CouponFilters() {
   // Immediate apply for dropdowns
   useEffect(() => {
     applyFilters();
-  }, [status, discountType]);
+  }, [status, discountType, featured]);
 
   // Clear individual filter
   const clearFilter = (filterName: string) => {
@@ -98,6 +105,9 @@ export default function CouponFilters() {
         break;
       case "discountType":
         setDiscountType("all");
+        break;
+      case "featured":
+        setFeatured("all");
         break;
       case "minDiscount":
         setMinDiscount("");
@@ -113,17 +123,23 @@ export default function CouponFilters() {
     search.trim() !== "" ||
     (status && status !== "all") ||
     (discountType && discountType !== "all") ||
+    (featured && featured !== "all") ||
     minDiscount !== "" ||
     maxDiscount !== "";
 
   return (
     <Card className="mb-6 p-6 border-0 bg-gradient-to-br from-white via-slate-50 to-blue-50/30 dark:from-slate-900 dark:via-slate-800 dark:to-slate-900 backdrop-blur-xl shadow-xl rounded-2xl">
       <div className="space-y-5">
+        {/* Header */}
+  
+
         {/* Main Filters Grid */}
-        <div className="grid grid-cols-1 lg:grid-cols-4 gap-4">
+        <div className="grid grid-cols-1 lg:grid-cols-5 gap-4">
           {/* Search - 2 columns */}
           <div className="lg:col-span-2 relative group">
-            <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400 group-focus-within:text-blue-500 transition-colors" />
+            <div className="absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none z-10">
+              <Search className="h-4 w-4 text-slate-400 group-focus-within:text-blue-500 transition-colors" />
+            </div>
             <Input
               type="search"
               placeholder="Buscar por código o nombre..."
@@ -134,8 +150,10 @@ export default function CouponFilters() {
           </div>
 
           {/* Status Filter */}
-          <div className="relative group">
-            <ToggleLeft className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400 pointer-events-none z-10" />
+          <div className="relative">
+            <div className="absolute left-3.5 top-1/3 -translate-y-1/3 pointer-events-none z-10">
+              <ToggleLeft className="h-4 w-4 text-slate-400" />
+            </div>
             <Select value={status} onValueChange={setStatus}>
               <SelectTrigger className="h-11 pl-10 bg-white/80 dark:bg-slate-800/80 border-slate-200 dark:border-slate-700 rounded-xl shadow-sm text-sm">
                 <SelectValue placeholder="Estado" />
@@ -149,8 +167,10 @@ export default function CouponFilters() {
           </div>
 
           {/* Discount Type Filter */}
-          <div className="relative group">
-            <Percent className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400 pointer-events-none z-10" />
+          <div className="relative">
+            <div className="absolute left-3.5 top-1/3 -translate-y-1/3 pointer-events-none z-10">
+              <Percent className="h-4 w-4 text-slate-400" />
+            </div>
             <Select value={discountType} onValueChange={setDiscountType}>
               <SelectTrigger className="h-11 pl-10 bg-white/80 dark:bg-slate-800/80 border-slate-200 dark:border-slate-700 rounded-xl shadow-sm text-sm">
                 <SelectValue placeholder="Tipo" />
@@ -162,13 +182,32 @@ export default function CouponFilters() {
               </SelectContent>
             </Select>
           </div>
+
+          {/* Featured Filter */}
+          <div className="relative">
+            <div className="absolute left-3.5 top-1/3 -translate-y-1/3 pointer-events-none z-10">
+              <Star className="h-4 w-4 text-slate-400" />
+            </div>
+            <Select value={featured} onValueChange={setFeatured}>
+              <SelectTrigger className="h-11 pl-10 bg-white/80 dark:bg-slate-800/80 border-slate-200 dark:border-slate-700 rounded-xl shadow-sm text-sm">
+                <SelectValue placeholder="Destacados" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">Todos</SelectItem>
+                <SelectItem value="true">Sí</SelectItem>
+                <SelectItem value="false">No</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
         </div>
 
         {/* Discount Range Filters */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
           {/* Min Discount */}
           <div className="relative group">
-            <DollarSign className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400 group-focus-within:text-blue-500 transition-colors" />
+            <div className="absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none z-10">
+              <DollarSign className="h-4 w-4 text-slate-400 group-focus-within:text-blue-500 transition-colors" />
+            </div>
             <Input
               type="number"
               placeholder="Descuento mínimo"
@@ -181,7 +220,9 @@ export default function CouponFilters() {
 
           {/* Max Discount */}
           <div className="relative group">
-            <TrendingUp className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400 group-focus-within:text-blue-500 transition-colors" />
+            <div className="absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none z-10">
+              <TrendingUp className="h-4 w-4 text-slate-400 group-focus-within:text-blue-500 transition-colors" />
+            </div>
             <Input
               type="number"
               placeholder="Descuento máximo"
@@ -226,6 +267,16 @@ export default function CouponFilters() {
               >
                 <Percent className="h-3 w-3" />
                 {discountType === "percentage" ? "Porcentaje" : "Fijo"}
+                <X className="h-3 w-3 ml-1" />
+              </Badge>
+            )}
+            {featured && featured !== "all" && (
+              <Badge
+                className="bg-yellow-100 dark:bg-yellow-900/30 text-yellow-700 dark:text-yellow-400 hover:bg-yellow-200 dark:hover:bg-yellow-900/50 transition-colors cursor-pointer text-xs font-medium px-3 py-1.5 gap-1.5"
+                onClick={() => clearFilter("featured")}
+              >
+                <Star className="h-3 w-3" />
+                Destacado: {featured === "true" ? "Sí" : "No"}
                 <X className="h-3 w-3 ml-1" />
               </Badge>
             )}

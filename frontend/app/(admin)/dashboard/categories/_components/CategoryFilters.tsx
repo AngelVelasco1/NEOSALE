@@ -85,9 +85,7 @@ export default function CategoryFilters() {
     <Card className="mb-8 overflow-hidden border-0 bg-linear-to-br from-white via-slate-50 to-blue-50/30 dark:from-slate-900 dark:via-slate-900 dark:to-slate-800 shadow-xl shadow-slate-200/50 dark:shadow-black/30 backdrop-blur-sm">
       <div className="p-6 space-y-5">
         {/* Header */}
-        <div className="flex items-center justify-between">
-          <h3 className="text-lg font-semibold text-slate-900 dark:text-slate-100">Filtros de Categorías</h3>
-        </div>
+    
 
         {/* Grid principal de filtros */}
         <div className="grid grid-cols-1 lg:grid-cols-4 gap-5">

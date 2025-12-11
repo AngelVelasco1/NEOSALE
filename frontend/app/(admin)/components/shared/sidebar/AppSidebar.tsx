@@ -17,13 +17,13 @@ export default function AppSidebar({ isOpen }: AppSidebarProps) {
   const pathname = usePathname();
 
   return (
-    <div className={`h-screen transition-all duration-300 border shadow-2xl backdrop-blur-xl bg-linear-to-br from-slate-900/95 via-slate-800/90 to-slate-900/95 dark:from-slate-950/95 dark:via-slate-900/90 dark:to-slate-950/95 border-r-2 border-slate-200 rounded-xl dark:border-white/5 ${isOpen ? 'w-64' : 'w-0 border-none'} overflow-hidden fixed`}>
+    <div className={`h-screen transition-all duration-300 border shadow-2xl backdrop-blur-xl bg-linear-to-br from-slate-900/95 via-slate-800/90 to-slate-900/95 dark:from-slate-950/95 dark:via-slate-900/90 dark:to-slate-950/95 border-r-2 border-slate-200 dark:border-white/5 ${isOpen ? 'w-64' : 'w-0 border-none'} overflow-hidden fixed`}>
       <div className="h-full flex flex-col py-8">
         {/* Logo Section */}
         <div className="shrink-0 px-5 relative">
           {/* Background Gradient Orbs */}
-          <div className="absolute top-0 left-1/2 -translate-x-1/2 w-32 h-32 bg-blue-500/20 rounded-full blur-3xl" />
           <div className="absolute bottom-0 right-0 w-24 h-24 bg-purple-500/15 rounded-full blur-2xl" />
+          <div className="absolute top-0 left-1/2 -translate-x-1/2 w-32 h-32 bg-blue-500/20 rounded-full blur-3xl" />
 
           <Link
             href="/dashboard"
@@ -37,7 +37,7 @@ export default function AppSidebar({ isOpen }: AppSidebarProps) {
               {/* Glass Frame */}
               <div className="relative rounded-2xl shadow-2xl overflow-hidden bg-white/10 dark:bg-white/5 backdrop-blur-md py-3 px-2 w-fit h-fit group-hover:scale-105 transition-all duration-500 border border-white/20 dark:border-white/10">
                 {/* Inner gradient overlay */}
-                <div className="absolute inset-0 bg-linear-to-br from-blue-500/10 via-transparent to-purple-500/10" />
+                <div className="absolute inset-0 bg-linear-to-br from-purple-500/10 via-transparent to-blue-500/10" />
 
                 <Image
                   src="/imgs/Logo.png"

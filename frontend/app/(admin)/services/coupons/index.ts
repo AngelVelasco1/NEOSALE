@@ -9,6 +9,7 @@ export async function fetchCoupons({
   search,
   status,
   discountType,
+  featured,
   minDiscount,
   maxDiscount,
   sortBy,
@@ -55,6 +56,11 @@ export async function fetchCoupons({
     // Discount type filter
     if (discountType && discountType !== "all") {
       where.discount_type = discountType;
+    }
+
+    // Featured filter
+    if (featured && featured !== "all") {
+      where.featured = featured === "true";
     }
 
     // Discount range filter

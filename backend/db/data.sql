@@ -48,7 +48,7 @@ INSERT INTO subcategories (name, active) VALUES
 ('Ropa casual', TRUE), ('Electrónicos móviles', TRUE), ('Computadores', TRUE), ('Audio y Video', TRUE),
 ('Gaming', TRUE), ('Electrodomésticos', TRUE), ('Muebles Sala', TRUE), ('Muebles Dormitorio', TRUE),
 ('Decoración Hogar', TRUE), ('Smartphones', TRUE), ('Tablets', TRUE);
-
+select * from coupons;
 -- CATEGORÍAS
 INSERT INTO categories (name, description, id_subcategory, active) VALUES 
 ('Ropa Deportiva', 'Prendas para actividades deportivas y ejercicio', 1, TRUE),
@@ -98,7 +98,6 @@ INSERT INTO coupons (code, name, discount_type, discount_value, min_purchase_amo
 ('FREESHIP', 'Envío Gratis', 'fixed', 15000, 100000, 100, '2026-12-31 23:59:59', 1),
 ('TECH20', '20% en Tecnología', 'percentage', 20.00, 1000000, 50, '2026-10-31 23:59:59', 1),
 ('EXPIRED', 'Cupón Vencido', 'percentage', 50.00, 0, 10, '2026-01-01 00:00:00', 1);
-
 -- PRODUCTOS
 INSERT INTO products (name, description, price, stock, weight_grams, sizes, base_discount, category_id, brand_id, active, in_offer, offer_discount, offer_start_date, offer_end_date, created_by, updated_by) VALUES
 ('Camiseta Dry-Fit Pro', 'Camiseta deportiva de alto rendimiento', 89000, 0, 250, 'XS,S,M,L,XL,XXL', 0, 1, 1, TRUE, TRUE, 20.0, '2024-08-01 00:00:00', '2025-12-31 23:59:59', 1, 1),
@@ -117,6 +116,7 @@ INSERT INTO products (name, description, price, stock, weight_grams, sizes, base
 ('Sofá Modular IKEA', 'Sofá modular de 3 puestos en tela gris', 1200000, 0, 45000, 'Único', 0, 11, 8, TRUE, FALSE, NULL, NULL, NULL, 1, 1),
 ('Cama King Size', 'Cama king size en madera maciza', 950000, 0, 60000, 'Único', 0, 12, 8, TRUE, TRUE, 40.0, '2024-08-25 00:00:00', '2025-12-31 23:59:59', 1, 1),
 ('Producto Descontinuado', 'Este producto ya no está disponible', 50000, 0, 100, 'Único', 0, 5, 1, FALSE, FALSE, NULL, NULL, NULL, 1, 1);
+
 
 -- VARIANTES DE PRODUCTOS
 INSERT INTO product_variants (product_id, color_code, color, size, stock, sku, price, weight_grams, active) VALUES

@@ -1,8 +1,8 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Star, MessageSquare, Send, X } from "lucide-react";
+import { Star, MessageSquare, Send, X, Upload, ImageIcon } from "lucide-react";
 import Image from "next/image";
 import { createPortal } from "react-dom";
 import { useUserSafe } from "@/app/(auth)/hooks/useUserSafe";
@@ -19,6 +19,10 @@ export default function ReviewableProducts() {
     const [comment, setComment] = useState("");
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [mounted, setMounted] = useState(false);
+    const [selectedImages, setSelectedImages] = useState<File[]>([]);
+    const [imagePreviews, setImagePreviews] = useState<string[]>([]);
+    const [isUploadingImages, setIsUploadingImages] = useState(false);
+    const fileInputRef = useRef<HTMLInputElement>(null);
 
     useEffect(() => {
         setMounted(true);
@@ -45,17 +49,110 @@ export default function ReviewableProducts() {
         }
     };
 
+    const handleImageSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const files = Array.from(e.target.files || []);
+        
+        // Validar cantidad máxima de imágenes (5)
+        if (selectedImages.length + files.length > 5) {
+            ErrorsHandler.showError("Error", "Máximo 5 imágenes por reseña");
+            return;
+        }
+
+        // Validar tipo de archivo
+        const validFiles = files.filter(file => {
+            if (!file.type.startsWith('image/')) {
+                ErrorsHandler.showError("Error", `${file.name} no es una imagen válida`);
+                return false;
+            }
+            // Validar tamaño (max 5MB)
+            if (file.size > 5 * 1024 * 1024) {
+                ErrorsHandler.showError("Error", `${file.name} es muy grande (máx. 5MB)`);
+                return false;
+            }
+            return true;
+        });
+
+        if (validFiles.length === 0) return;
+
+        // Crear previews
+        const newPreviews: string[] = [];
+        validFiles.forEach(file => {
+            const reader = new FileReader();
+            reader.onloadend = () => {
+                newPreviews.push(reader.result as string);
+                if (newPreviews.length === validFiles.length) {
+                    setImagePreviews([...imagePreviews, ...newPreviews]);
+                }
+            };
+            reader.readAsDataURL(file);
+        });
+
+        setSelectedImages([...selectedImages, ...validFiles]);
+    };
+
+    const removeImage = (index: number) => {
+        setSelectedImages(selectedImages.filter((_, i) => i !== index));
+        setImagePreviews(imagePreviews.filter((_, i) => i !== index));
+    };
+
+    const uploadImagesToCloudinary = async (files: File[]): Promise<string[]> => {
+        const uploadPromises = files.map(async (file) => {
+            const formData = new FormData();
+            formData.append('file', file);
+            formData.append('upload_preset', 'neosale_reviews'); // Necesitas crear este preset en Cloudinary
+            formData.append('folder', 'neosale/reviews');
+
+            try {
+                const response = await fetch(
+                    `https://api.cloudinary.com/v1_1/${process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME}/image/upload`,
+                    {
+                        method: 'POST',
+                        body: formData,
+                    }
+                );
+
+                if (!response.ok) {
+                    throw new Error('Error al subir imagen');
+                }
+
+                const data = await response.json();
+                return data.secure_url;
+            } catch (error) {
+                console.error('Error uploading image:', error);
+                throw error;
+            }
+        });
+
+        return Promise.all(uploadPromises);
+    };
+
     const handleSubmitReview = async () => {
         if (!userProfile || !selectedProduct || rating === 0) return;
 
         try {
             setIsSubmitting(true);
+            
+            // Subir imágenes a Cloudinary si hay alguna
+            let imageUrls: string[] = [];
+            if (selectedImages.length > 0) {
+                try {
+                    setIsUploadingImages(true);
+                    imageUrls = await uploadImagesToCloudinary(selectedImages);
+                } catch (error) {
+                    ErrorsHandler.showError("Error", "Error al subir las imágenes. La reseña se enviará sin imágenes.");
+                    console.error('Error uploading images:', error);
+                } finally {
+                    setIsUploadingImages(false);
+                }
+            }
+
             await createReview({
                 user_id: userProfile.id,
                 product_id: selectedProduct.product_id,
                 order_id: selectedProduct.order_id,
                 rating,
                 comment: comment.trim() || undefined,
+                images: imageUrls.length > 0 ? imageUrls : undefined,
             });
 
             ErrorsHandler.showSuccess("¡Reseña enviada!", "Gracias por tu opinión");
@@ -65,10 +162,12 @@ export default function ReviewableProducts() {
                 !(p.product_id === selectedProduct.product_id && p.order_id === selectedProduct.order_id)
             ));
 
-            // Cerrar modal
+            // Cerrar modal y limpiar estados
             setSelectedProduct(null);
             setRating(0);
             setComment("");
+            setSelectedImages([]);
+            setImagePreviews([]);
         } catch (error: unknown) {
             const message = error instanceof Error ? error.message : "No se pudo enviar la reseña";
             ErrorsHandler.showError("Error", message);
@@ -179,6 +278,8 @@ export default function ReviewableProducts() {
                                         setSelectedProduct(null);
                                         setRating(0);
                                         setComment("");
+                                        setSelectedImages([]);
+                                        setImagePreviews([]);
                                     }}
                                     className="p-2 hover:bg-slate-800 rounded-lg transition-colors"
                                 >
@@ -251,6 +352,61 @@ export default function ReviewableProducts() {
                                 </p>
                             </div>
 
+                            {/* Imágenes */}
+                            <div className="mb-6">
+                                <label className="block text-sm font-medium text-slate-300 mb-3">
+                                    Imágenes (opcional - máx. 5)
+                                </label>
+                                
+                                {/* Botón para seleccionar imágenes */}
+                                <input
+                                    ref={fileInputRef}
+                                    type="file"
+                                    accept="image/*"
+                                    multiple
+                                    onChange={handleImageSelect}
+                                    className="hidden"
+                                />
+                                
+                                <button
+                                    type="button"
+                                    onClick={() => fileInputRef.current?.click()}
+                                    disabled={selectedImages.length >= 5}
+                                    className="w-full py-3 px-4 border-2 border-dashed border-slate-700 hover:border-indigo-500 rounded-lg transition-colors flex items-center justify-center gap-2 text-slate-400 hover:text-indigo-400 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:border-slate-700 disabled:hover:text-slate-400"
+                                >
+                                    <Upload className="w-5 h-5" />
+                                    <span className="text-sm font-medium">
+                                        {selectedImages.length >= 5 ? 'Límite alcanzado' : 'Seleccionar imágenes'}
+                                    </span>
+                                </button>
+                                
+                                <p className="text-xs text-slate-500 mt-2">
+                                    Formatos: JPG, PNG, WebP (máx. 5MB cada una)
+                                </p>
+
+                                {/* Preview de imágenes */}
+                                {imagePreviews.length > 0 && (
+                                    <div className="mt-4 grid grid-cols-3 gap-3">
+                                        {imagePreviews.map((preview, index) => (
+                                            <div key={index} className="relative group aspect-square rounded-lg overflow-hidden bg-slate-800">
+                                                <Image
+                                                    src={preview}
+                                                    alt={`Preview ${index + 1}`}
+                                                    fill
+                                                    className="object-cover"
+                                                />
+                                                <button
+                                                    onClick={() => removeImage(index)}
+                                                    className="absolute top-1 right-1 p-1.5 bg-red-500/90 hover:bg-red-600 rounded-full transition-colors opacity-0 group-hover:opacity-100"
+                                                >
+                                                    <X className="w-3 h-3 text-white" />
+                                                </button>
+                                            </div>
+                                        ))}
+                                    </div>
+                                )}
+                            </div>
+
                             {/* Actions */}
                             <div className="flex gap-3">
                                 <button
@@ -258,6 +414,8 @@ export default function ReviewableProducts() {
                                         setSelectedProduct(null);
                                         setRating(0);
                                         setComment("");
+                                        setSelectedImages([]);
+                                        setImagePreviews([]);
                                     }}
                                     className="flex-1 py-3 px-4 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-lg font-medium transition-colors"
                                     disabled={isSubmitting}
@@ -266,11 +424,14 @@ export default function ReviewableProducts() {
                                 </button>
                                 <button
                                     onClick={handleSubmitReview}
-                                    disabled={rating === 0 || isSubmitting}
+                                    disabled={rating === 0 || isSubmitting || isUploadingImages}
                                     className="flex-1 py-3 px-4 bg-indigo-600 hover:bg-indigo-500 text-white rounded-lg font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
                                 >
-                                    {isSubmitting ? (
-                                        <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white"></div>
+                                    {isSubmitting || isUploadingImages ? (
+                                        <>
+                                            <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white"></div>
+                                            {isUploadingImages && <span className="text-sm">Subiendo imágenes...</span>}
+                                        </>
                                     ) : (
                                         <>
                                             <Send className="w-4 h-4" />

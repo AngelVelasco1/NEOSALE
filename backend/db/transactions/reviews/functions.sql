@@ -26,26 +26,6 @@ BEGIN
         RAISE EXCEPTION 'La calificación debe estar entre 1 y 5' USING ERRCODE = 'check_violation';
     END IF;
     
-    -- Verificar que el usuario no haya hecho ya una review para este producto en esta orden (si se proporciona order_id)
-    IF p_order_id IS NOT NULL THEN
-        SELECT id INTO v_existing_review 
-        FROM reviews 
-        WHERE user_id = p_user_id AND product_id = p_product_id AND order_id = p_order_id;
-        
-        IF v_existing_review IS NOT NULL THEN
-            RAISE EXCEPTION 'El usuario ya ha calificado este producto en esta orden' USING ERRCODE = 'unique_violation';
-        END IF;
-    ELSE
-        -- Si no hay order_id, verificar que no exista ninguna review del usuario para este producto
-        SELECT id INTO v_existing_review 
-        FROM reviews 
-        WHERE user_id = p_user_id AND product_id = p_product_id;
-        
-        IF v_existing_review IS NOT NULL THEN
-            RAISE EXCEPTION 'El usuario ya ha calificado este producto' USING ERRCODE = 'unique_violation';
-        END IF;
-    END IF;
-    
     -- Verificar que el usuario existe y está activo
     IF NOT EXISTS (SELECT 1 FROM "User" WHERE id = p_user_id AND active = true) THEN
         RAISE EXCEPTION 'Usuario no existe o está inactivo' USING ERRCODE = 'foreign_key_violation';
@@ -56,6 +36,50 @@ BEGIN
         RAISE EXCEPTION 'Producto no existe o está inactivo' USING ERRCODE = 'foreign_key_violation';
     END IF;
     
+    -- Si se proporciona order_id, verificar que la orden existe y pertenece al usuario
+    IF p_order_id IS NOT NULL THEN
+        -- Verificar que la orden existe, pertenece al usuario y está entregada
+        IF NOT EXISTS (
+            SELECT 1 FROM orders 
+            WHERE id = p_order_id 
+            AND user_id = p_user_id 
+            AND status = 'delivered'
+        ) THEN
+            RAISE EXCEPTION 'La orden no existe, no te pertenece o aún no ha sido entregada' USING ERRCODE = 'foreign_key_violation';
+        END IF;
+        
+        -- Verificar que el producto está en esa orden
+        IF NOT EXISTS (
+            SELECT 1 FROM order_items 
+            WHERE order_id = p_order_id 
+            AND product_id = p_product_id
+        ) THEN
+            RAISE EXCEPTION 'El producto no está en esta orden' USING ERRCODE = 'foreign_key_violation';
+        END IF;
+        
+        -- Verificar que el usuario no haya hecho ya una review para este producto en esta orden
+        SELECT id INTO v_existing_review 
+        FROM reviews 
+        WHERE user_id = p_user_id 
+        AND product_id = p_product_id 
+        AND order_id = p_order_id;
+        
+        IF v_existing_review IS NOT NULL THEN
+            RAISE EXCEPTION 'Ya has calificado este producto en esta orden' USING ERRCODE = 'unique_violation';
+        END IF;
+    ELSE
+        -- Si no hay order_id, verificar que no exista ninguna review del usuario para este producto
+        SELECT id INTO v_existing_review 
+        FROM reviews 
+        WHERE user_id = p_user_id 
+        AND product_id = p_product_id 
+        AND order_id IS NULL;
+        
+        IF v_existing_review IS NOT NULL THEN
+            RAISE EXCEPTION 'Ya has calificado este producto' USING ERRCODE = 'unique_violation';
+        END IF;
+    END IF;
+    
     -- Insertar la review con order_id
     INSERT INTO reviews(rating, comment, user_id, product_id, order_id) 
     VALUES (p_rating, p_comment, p_user_id, p_product_id, p_order_id)
@@ -64,11 +88,11 @@ BEGIN
     RETURN v_review_id;
 EXCEPTION
     WHEN foreign_key_violation THEN
-        RAISE EXCEPTION 'Usuario o producto no existe o está inactivo';
+        RAISE;
     WHEN unique_violation THEN
-        RAISE EXCEPTION 'El usuario ya ha calificado este producto';
+        RAISE;
     WHEN check_violation THEN
-        RAISE EXCEPTION 'La calificación debe estar entre 1 y 5';
+        RAISE;
     WHEN not_null_violation THEN
         RAISE EXCEPTION 'Campo obligatorio faltante al crear review: %', SQLERRM;
     WHEN OTHERS THEN
@@ -106,7 +130,7 @@ BEGIN
         RAISE EXCEPTION 'La calificación debe estar entre 1 y 5' USING ERRCODE = 'check_violation';
     END IF;
     
-    -- Actualizar solo los campos proporcionados
+    -- Actualizar solo los campos proporcionados (order_id NO se puede modificar)
     UPDATE reviews 
     SET 
         rating = COALESCE(p_rating, rating),

@@ -113,76 +113,76 @@ export default function OrderDetailPage() {
             case 'approved':
                 return {
                     color: 'from-emerald-500 to-green-500',
-                    bgColor: 'bg-emerald-50',
-                    textColor: 'text-emerald-700',
-                    borderColor: 'border-emerald-200',
+                    bgColor: 'bg-emerald-500/10',
+                    textColor: 'text-emerald-400',
+                    borderColor: 'border-emerald-500/20',
                     icon: CheckCircle2,
                     label: 'Confirmado',
                     description: 'Tu pago ha sido procesado exitosamente',
                     step: 2,
-                    glowColor: 'shadow-emerald-200'
+                    glowColor: 'shadow-emerald-500/30'
                 };
             case 'pending':
                 return {
                     color: 'from-amber-500 to-orange-500',
-                    bgColor: 'bg-amber-50',
-                    textColor: 'text-amber-700',
-                    borderColor: 'border-amber-200',
+                    bgColor: 'bg-amber-500/10',
+                    textColor: 'text-amber-400',
+                    borderColor: 'border-amber-500/20',
                     icon: Clock,
                     label: 'Pendiente',
                     description: 'Esperando confirmación de pago',
                     step: 1,
-                    glowColor: 'shadow-amber-200'
+                    glowColor: 'shadow-amber-500/30'
                 };
             case 'shipped':
                 return {
                     color: 'from-cyan-500 to-blue-500',
-                    bgColor: 'bg-cyan-50',
-                    textColor: 'text-cyan-700',
-                    borderColor: 'border-cyan-200',
+                    bgColor: 'bg-cyan-500/10',
+                    textColor: 'text-cyan-400',
+                    borderColor: 'border-cyan-500/20',
                     icon: Truck,
                     label: 'Enviado',
                     description: 'Tu pedido está en camino',
                     step: 3,
-                    glowColor: 'shadow-cyan-200'
+                    glowColor: 'shadow-cyan-500/30'
                 };
             case 'delivered':
                 return {
                     color: 'from-green-500 to-emerald-600',
-                    bgColor: 'bg-green-50',
-                    textColor: 'text-green-700',
-                    borderColor: 'border-green-200',
+                    bgColor: 'bg-green-500/10',
+                    textColor: 'text-green-400',
+                    borderColor: 'border-green-500/20',
                     icon: Package,
                     label: 'Entregado',
                     description: 'Tu pedido ha sido entregado',
                     step: 4,
-                    glowColor: 'shadow-green-200'
+                    glowColor: 'shadow-green-500/30'
                 };
             case 'cancelled':
             case 'declined':
             case 'error':
                 return {
                     color: 'from-red-500 to-rose-500',
-                    bgColor: 'bg-red-50',
-                    textColor: 'text-red-700',
-                    borderColor: 'border-red-200',
+                    bgColor: 'bg-red-500/10',
+                    textColor: 'text-red-400',
+                    borderColor: 'border-red-500/20',
                     icon: AlertCircle,
                     label: 'Cancelado',
                     description: 'Esta orden ha sido cancelada',
                     step: 0,
-                    glowColor: 'shadow-red-200'
+                    glowColor: 'shadow-red-500/30'
                 };
             default:
                 return {
-                    color: 'from-gray-500 to-slate-500',
-                    bgColor: 'bg-gray-50',
-                    textColor: 'text-gray-700',
-                    borderColor: 'border-gray-200',
+                    color: 'from-slate-500 to-slate-600',
+                    bgColor: 'bg-slate-500/10',
+                    textColor: 'text-slate-400',
+                    borderColor: 'border-slate-500/20',
                     icon: Package,
                     label: status,
                     description: 'Estado de la orden',
                     step: 0,
-                    glowColor: 'shadow-gray-200'
+                    glowColor: 'shadow-slate-500/30'
                 };
         }
     };
@@ -238,7 +238,7 @@ export default function OrderDetailPage() {
 
     if (isLoading) {
         return (
-            <div className="min-h-screen bg-linear-to-br from-slate-50 via-blue-50/30 to-cyan-50/20 py-12 flex items-center justify-center">
+            <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-900 to-slate-950 py-12 flex items-center justify-center">
                 <motion.div
                     initial={{ opacity: 0, scale: 0.8 }}
                     animate={{ opacity: 1, scale: 1 }}
@@ -249,21 +249,21 @@ export default function OrderDetailPage() {
                         <motion.div
                             animate={{ rotate: 360 }}
                             transition={{ duration: 2, repeat: Infinity, ease: "linear" }}
-                            className="absolute inset-0 border-4 border-blue-200 rounded-full border-t-transparent"
+                            className="absolute inset-0 border-4 border-indigo-500/20 rounded-full border-t-transparent"
                         />
                         <motion.div
                             animate={{ rotate: -360 }}
                             transition={{ duration: 1.5, repeat: Infinity, ease: "linear" }}
-                            className="absolute inset-2 border-4 border-cyan-300 rounded-full border-t-transparent"
+                            className="absolute inset-2 border-4 border-indigo-500 rounded-full border-t-transparent shadow-lg shadow-indigo-500/50"
                         />
                         <div className="absolute inset-0 flex items-center justify-center">
-                            <Package className="w-8 h-8 text-blue-600" />
+                            <Package className="w-8 h-8 text-indigo-400" />
                         </div>
                     </div>
                     <motion.p
                         animate={{ opacity: [0.5, 1, 0.5] }}
                         transition={{ duration: 2, repeat: Infinity }}
-                        className="text-lg font-semibold text-gray-700"
+                        className="text-lg font-semibold bg-gradient-to-r from-slate-200 via-indigo-200 to-slate-200 bg-clip-text text-transparent"
                     >
                         Cargando información de la orden...
                     </motion.p>
@@ -274,44 +274,44 @@ export default function OrderDetailPage() {
 
     if (error || !order) {
         return (
-            <div className="min-h-screen bg-linear-to-br from-slate-50 via-blue-50/30 to-cyan-50/20 py-12">
+            <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-900 to-slate-950 py-12">
                 <div className="max-w-2xl mx-auto px-4">
                     <motion.div
                         initial={{ opacity: 0, y: 30 }}
                         animate={{ opacity: 1, y: 0 }}
                         transition={{ type: "spring", stiffness: 100 }}
                     >
-                        <Card className="bg-white border-2 border-red-200 shadow-2xl rounded-3xl overflow-hidden">
-                            <CardHeader className="bg-linear-to-r from-red-50 via-orange-50 to-red-50 border-b border-red-100 pb-6">
+                        <Card className="bg-slate-900/80 backdrop-blur-xl border border-red-500/20 shadow-2xl shadow-red-500/10 rounded-3xl overflow-hidden">
+                            <CardHeader className="bg-gradient-to-r from-slate-900/90 to-red-900/30 border-b border-red-500/20 pb-6">
                                 <motion.div
                                     initial={{ scale: 0 }}
                                     animate={{ scale: 1 }}
                                     transition={{ type: "spring", stiffness: 200, delay: 0.2 }}
                                     className="flex items-center gap-4"
                                 >
-                                    <div className="w-16 h-16 rounded-2xl bg-linear-to-br from-red-500 to-orange-500 flex items-center justify-center shadow-lg">
+                                    <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-red-500 to-rose-500 flex items-center justify-center shadow-lg shadow-red-500/30 border border-white/10">
                                         <AlertCircle className="w-8 h-8 text-white" />
                                     </div>
                                     <div>
-                                        <CardTitle className="text-red-900 text-2xl">Error al cargar la orden</CardTitle>
-                                        <p className="text-sm text-red-600 mt-1">No se pudo obtener la información</p>
+                                        <CardTitle className="text-slate-100 text-2xl">Error al cargar la orden</CardTitle>
+                                        <p className="text-sm text-red-400 mt-1">No se pudo obtener la información</p>
                                     </div>
                                 </motion.div>
                             </CardHeader>
                             <CardContent className="p-8 space-y-6">
-                                <p className="text-gray-700 text-center text-lg">{error || "No se pudo cargar la información de la orden"}</p>
+                                <p className="text-slate-300 text-center text-lg">{error || "No se pudo cargar la información de la orden"}</p>
                                 <div className="flex gap-3 justify-center">
                                     <Button
                                         variant="outline"
                                         onClick={() => router.push('/orders')}
-                                        className="border-gray-300 hover:bg-gray-50 h-12 px-6"
+                                        className="border-slate-600/30 bg-slate-800/50 hover:bg-slate-700/50 text-slate-300 h-12 px-6"
                                     >
                                         <ArrowLeft className="w-4 h-4 mr-2" />
                                         Volver a órdenes
                                     </Button>
                                     <Button
                                         onClick={() => window.location.reload()}
-                                        className="bg-linear-to-r from-blue-600 to-cyan-600 hover:from-blue-700 hover:to-cyan-700 text-white h-12 px-6 shadow-lg"
+                                        className="bg-gradient-to-r from-indigo-600 to-violet-600 hover:from-indigo-500 hover:to-violet-500 text-white h-12 px-6 shadow-lg shadow-indigo-500/30"
                                     >
                                         Reintentar
                                     </Button>
@@ -335,7 +335,13 @@ export default function OrderDetailPage() {
     const total = convertFromCents(order.total || 0);
 
     return (
-        <div className="min-h-screen bg-linear-to-br from-slate-50 via-blue-50/30 to-cyan-50/20 py-8 relative overflow-hidden">
+        <div className="min-h-screen bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950 py-8 relative overflow-hidden">
+            {/* Gradient Orbs Background */}
+            <div className="absolute inset-0 overflow-hidden pointer-events-none">
+                <div className="absolute top-0 -left-40 w-96 h-96 bg-indigo-600/10 rounded-full blur-3xl"></div>
+                <div className="absolute top-1/3 -right-40 w-96 h-96 bg-violet-600/10 rounded-full blur-3xl"></div>
+                <div className="absolute bottom-0 left-1/3 w-96 h-96 bg-blue-600/10 rounded-full blur-3xl"></div>
+            </div>
             {/* Animated Background Elements */}
             <div className="absolute inset-0 overflow-hidden pointer-events-none">
                 <motion.div
@@ -344,7 +350,7 @@ export default function OrderDetailPage() {
                         rotate: [0, 90, 0],
                     }}
                     transition={{ duration: 20, repeat: Infinity, ease: "linear" }}
-                    className="absolute top-0 right-0 w-96 h-96 bg-linear-to-br from-blue-200/20 to-cyan-200/20 rounded-full blur-3xl"
+                    className="absolute top-0 right-0 w-96 h-96 bg-gradient-to-br from-indigo-500/5 to-violet-500/5 rounded-full blur-3xl"
                 />
                 <motion.div
                     animate={{
@@ -352,7 +358,7 @@ export default function OrderDetailPage() {
                         rotate: [0, -90, 0],
                     }}
                     transition={{ duration: 25, repeat: Infinity, ease: "linear" }}
-                    className="absolute bottom-0 left-0 w-96 h-96 bg-linear-to-tr from-purple-200/20 to-blue-200/20 rounded-full blur-3xl"
+                    className="absolute bottom-0 left-0 w-96 h-96 bg-gradient-to-tr from-violet-500/5 to-indigo-500/5 rounded-full blur-3xl"
                 />
             </div>
 
@@ -367,7 +373,7 @@ export default function OrderDetailPage() {
                     <Button
                         variant="outline"
                         onClick={() => router.push('/orders')}
-                        className="border-gray-200 bg-white/80 backdrop-blur-sm hover:bg-white hover:shadow-lg transition-all duration-300 h-11"
+                        className="border-slate-700/50 bg-slate-900/70 backdrop-blur-xl hover:bg-slate-800/70 hover:shadow-lg hover:shadow-indigo-500/10 text-slate-300 transition-all duration-300 h-11"
                     >
                         <ArrowLeft className="w-4 h-4 mr-2" />
                         Volver a mis órdenes
@@ -381,10 +387,9 @@ export default function OrderDetailPage() {
                         initial="rest"
                         variants={cardHoverVariants}
                     >
-                        <Card className="bg-white/90 backdrop-blur-md border-2 border-blue-100 shadow-2xl rounded-3xl overflow-hidden">
+                        <Card className="bg-slate-900/70 backdrop-blur-xl border border-white/5 shadow-2xl rounded-3xl overflow-hidden">
                             <div className="relative overflow-hidden">
                                 {/* Gradient Background */}
-                                <div className={`absolute inset-0 bg-linear-to-r ${statusConfig.color} opacity-5`} />
 
                                 <CardContent className="p-8 relative">
                                     <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-6">
@@ -409,7 +414,7 @@ export default function OrderDetailPage() {
                                                     transition={{ delay: 0.4 }}
                                                     className="flex items-center gap-3 mb-3"
                                                 >
-                                                    <h1 className="text-4xl font-bold text-gray-900">
+                                                    <h1 className="text-4xl font-bold text-slate-100">
                                                         Orden #{order.id}
                                                     </h1>
                                                 </motion.div>
@@ -419,11 +424,11 @@ export default function OrderDetailPage() {
                                                     transition={{ delay: 0.5 }}
                                                     className="flex flex-wrap items-center gap-3 mb-2"
                                                 >
-                                                    <Badge className={`${statusConfig.bgColor} ${statusConfig.textColor} ${statusConfig.borderColor} border-2 font-semibold px-4 py-2 text-sm flex items-center gap-2 shadow-md`}>
+                                                    <Badge className={`${statusConfig.bgColor} ${statusConfig.textColor} ${statusConfig.borderColor} border font-semibold px-4 py-2 text-sm flex items-center gap-2 shadow-md`}>
                                                         <StatusIcon className="w-5 h-5" />
                                                         {statusConfig.label}
                                                     </Badge>
-                                                    <div className="flex items-center gap-2 text-sm text-gray-600 bg-white/60 px-3 py-2 rounded-lg">
+                                                    <div className="flex items-center gap-2 text-sm text-slate-500 bg-slate-800/50 backdrop-blur-sm px-3 py-2 rounded-lg border border-white/5">
                                                         <Calendar className="w-4 h-4" />
                                                         {order.created_at && formatDate(order.created_at)}
                                                     </div>
@@ -432,7 +437,7 @@ export default function OrderDetailPage() {
                                                     initial={{ opacity: 0 }}
                                                     animate={{ opacity: 1 }}
                                                     transition={{ delay: 0.6 }}
-                                                    className="text-sm text-gray-600 font-medium"
+                                                    className="text-sm text-slate-500 font-medium"
                                                 >
                                                     {statusConfig.description}
                                                 </motion.p>
@@ -445,11 +450,10 @@ export default function OrderDetailPage() {
                                             transition={{ delay: 0.5, type: "spring" }}
                                             className="flex flex-col items-start lg:items-end gap-3"
                                         >
-                                            <p className="text-sm text-gray-500 font-medium">Total pagado</p>
+                                            <p className="text-sm text-slate-500 font-medium">Total pagado</p>
                                             <motion.p
-                                                animate={{ scale: [1, 1.05, 1] }}
                                                 transition={{ duration: 2, repeat: Infinity }}
-                                                className="text-5xl font-bold bg-linear-to-r from-blue-600 via-cyan-600 to-blue-600 bg-clip-text text-transparent"
+                                                className="text-5xl font-bold bg-gradient-to-r from-indigo-300 via-slate-200 to-indigo-300 bg-clip-text text-transparent"
                                             >
                                                 {formatCurrency(total)}
                                             </motion.p>
@@ -457,7 +461,7 @@ export default function OrderDetailPage() {
                                                 <Button
                                                     variant="outline"
                                                     size="sm"
-                                                    className="border-gray-300 bg-white/80 hover:bg-white hover:shadow-lg transition-all"
+                                                    className="border-slate-700/50 bg-slate-800/50 hover:bg-slate-700/50 text-slate-300 hover:shadow-lg hover:shadow-indigo-500/10 transition-all"
                                                 >
                                                     <Download className="w-4 h-4 mr-2" />
                                                     Descargar
@@ -465,7 +469,7 @@ export default function OrderDetailPage() {
                                                 <Button
                                                     variant="outline"
                                                     size="sm"
-                                                    className="border-gray-300 bg-white/80 hover:bg-white hover:shadow-lg transition-all"
+                                                    className="border-slate-700/50 bg-slate-800/50 hover:bg-slate-700/50 text-slate-300 hover:shadow-lg hover:shadow-indigo-500/10 transition-all"
                                                 >
                                                     <Share2 className="w-4 h-4 mr-2" />
                                                     Compartir
@@ -482,9 +486,9 @@ export default function OrderDetailPage() {
                 {/* Order Progress Tracker */}
                 <motion.div variants={itemVariants} className="mb-8">
                     <motion.div whileHover="hover" initial="rest" variants={cardHoverVariants}>
-                        <Card className="bg-white/90 backdrop-blur-md border-2 border-blue-100 shadow-xl rounded-3xl overflow-hidden">
-                            <CardHeader className="bg-linear-to-r from-slate-50 via-blue-50/50 to-slate-50 border-b border-gray-100 pb-5">
-                                <CardTitle className="flex items-center gap-3 text-2xl">
+                        <Card className="bg-slate-900/70 backdrop-blur-xl border border-white/5 shadow-xl rounded-3xl overflow-hidden">
+                            <CardHeader className=" border-b border-white/5 pb-5">
+                                <CardTitle className="flex items-center gap-3 text-2xl text-slate-100">
                                     <motion.div
                                         whileHover={{ rotate: 360 }}
                                         transition={{ duration: 0.6 }}
@@ -500,12 +504,12 @@ export default function OrderDetailPage() {
                                 <div className="relative py-8">
                                     <div className="flex items-center justify-between relative">
                                         {/* Progress Line */}
-                                        <div className="absolute top-6 left-0 right-0 h-1 bg-gray-200 mx-auto" style={{ width: 'calc(100% - 3rem)' }} />
+                                        <div className="absolute top-6 left-0 right-0 h-1 bg-slate-800 mx-auto" style={{ width: 'calc(100% - 3rem)' }} />
                                         <motion.div
                                             initial={{ width: 0 }}
                                             animate={{ width: `${(currentStep / 4) * 100}%` }}
                                             transition={{ duration: 1, ease: "easeOut" }}
-                                            className={`absolute top-6 left-0 h-1 bg-linear-to-r ${statusConfig.color}`}
+                                            className={`absolute top-6 left-0 h-1 bg-gradient-to-r ${statusConfig.color}`}
                                             style={{ maxWidth: 'calc(100% - 3rem)' }}
                                         />
 
@@ -599,12 +603,12 @@ export default function OrderDetailPage() {
                                     className="text-center mt-6"
                                 >
                                     <div
-                                        className={`inline-flex items-center gap-3 px-6 py-3 rounded-2xl ${statusConfig.bgColor} ${statusConfig.borderColor} border-2 shadow-lg`}
+                                        className={`inline-flex items-center gap-3 px-6 py-3 rounded-2xl ${statusConfig.bgColor} ${statusConfig.borderColor} border shadow-lg`}
                                     >
                                         <StatusIcon className={`w-5 h-5 ${statusConfig.textColor}`} />
                                         <div className="text-left">
                                             <p className={`font-bold ${statusConfig.textColor}`}>{statusConfig.label}</p>
-                                            <p className="text-xs text-gray-600">{statusConfig.description}</p>
+                                            <p className="text-xs text-slate-500">{statusConfig.description}</p>
                                         </div>
                                     </div>
                                 </motion.div>
@@ -619,10 +623,10 @@ export default function OrderDetailPage() {
                     <motion.div variants={itemVariants} className="lg:col-span-2 space-y-6">
                         {/* Products Card */}
                         <motion.div whileHover="hover" initial="rest" variants={cardHoverVariants}>
-                            <Card className="bg-white/90 backdrop-blur-md border-2 border-blue-100 shadow-xl rounded-3xl overflow-hidden">
-                                <CardHeader className="bg-linear-to-r from-slate-50 via-blue-50/50 to-slate-50 border-b border-gray-100 pb-5">
+                            <Card className="bg-slate-900/70 backdrop-blur-xl border border-white/5 shadow-xl rounded-3xl overflow-hidden">
+                                <CardHeader className=" border-b border-white/5 pb-5">
                                     <div className="flex items-center justify-between">
-                                        <CardTitle className="flex items-center gap-3 text-2xl">
+                                        <CardTitle className="flex items-center gap-3 text-2xl text-slate-100">
                                             <motion.div
                                                 whileHover={{ rotate: [0, -10, 10, -10, 0] }}
                                                 transition={{ duration: 0.5 }}
@@ -632,7 +636,7 @@ export default function OrderDetailPage() {
                                             </motion.div>
                                             Productos
                                         </CardTitle>
-                                        <Badge variant="outline" className="text-sm font-semibold bg-white px-4 py-2">
+                                        <Badge variant="outline" className="text-sm font-semibold bg-slate-800/50 border-slate-700/50 text-slate-300 px-4 py-2">
                                             {order.order_items?.length || 0}{' '}
                                             {order.order_items?.length === 1 ? 'artículo' : 'artículos'}
                                         </Badge>
@@ -652,11 +656,11 @@ export default function OrderDetailPage() {
                                                     stiffness: 100
                                                 }}
                                                 whileHover={{ scale: 1.02, x: 5 }}
-                                                className="group relative bg-linear-to-r from-slate-50 via-blue-50/30 to-slate-50 p-6 rounded-2xl border-2 border-gray-100 hover:border-blue-200 hover:shadow-xl transition-all duration-300"
+                                                className="group relative bg-gradient-to-r from-slate-800/50 to-slate-900/50 backdrop-blur-sm p-6 rounded-2xl border border-white/5 hover:border-indigo-500/30 hover:shadow-xl hover:shadow-indigo-500/10 transition-all duration-300"
                                             >
                                                 {/* Decorative Element */}
                                                 <motion.div
-                                                    className="absolute top-0 left-0 w-1 h-full bg-linear-to-b from-blue-500 to-cyan-500 rounded-l-2xl opacity-0 group-hover:opacity-100 transition-opacity"
+                                                    className="absolute top-0 left-0 w-1 h-full bg-gradient-to-b from-indigo-500 to-violet-500 rounded-l-2xl opacity-0 group-hover:opacity-100 transition-opacity"
                                                 />
 
                                                 <div className="flex items-start gap-5">
@@ -678,14 +682,14 @@ export default function OrderDetailPage() {
 
                                                     {/* Product Details */}
                                                     <div className="flex-1 min-w-0">
-                                                        <h4 className="font-bold text-gray-900 text-xl mb-3 group-hover:text-blue-600 transition-colors">
+                                                        <h4 className="font-bold text-slate-100 text-xl mb-3 group-hover:text-indigo-400 transition-colors">
                                                             {item.products?.name || 'Producto'}
                                                         </h4>
                                                         <div className="flex flex-wrap gap-2 mb-4">
                                                             {item.products?.brands?.name && (
                                                                 <Badge
                                                                     variant="outline"
-                                                                    className="text-xs bg-white font-medium border-blue-200 text-blue-700"
+                                                                    className="text-xs bg-slate-800/50 font-medium border-indigo-500/30 text-indigo-300"
                                                                 >
                                                                     {item.products.brands.name}
                                                                 </Badge>
@@ -693,30 +697,30 @@ export default function OrderDetailPage() {
                                                             {item.products?.categories?.name && (
                                                                 <Badge
                                                                     variant="outline"
-                                                                    className="text-xs bg-white font-medium border-cyan-200 text-cyan-700"
+                                                                    className="text-xs bg-slate-800/50 font-medium border-cyan-500/30 text-cyan-300"
                                                                 >
                                                                     {item.products.categories.name}
                                                                 </Badge>
                                                             )}
                                                         </div>
-                                                        <div className="flex flex-wrap items-center gap-4 text-sm text-gray-600">
-                                                            <div className="flex items-center gap-2 bg-white px-3 py-1.5 rounded-lg">
-                                                                <Package className="w-4 h-4 text-blue-500" />
+                                                        <div className="flex flex-wrap items-center gap-4 text-sm text-slate-500">
+                                                            <div className="flex items-center gap-2 bg-slate-800/50 backdrop-blur-sm px-3 py-1.5 rounded-lg border border-white/5">
+                                                                <Package className="w-4 h-4 text-indigo-400" />
                                                                 <span>
-                                                                    Cantidad: <strong className="text-gray-900">{item.quantity}</strong>
+                                                                    Cantidad: <strong className="text-slate-300">{item.quantity}</strong>
                                                                 </span>
                                                             </div>
                                                             {item.size && (
-                                                                <div className="flex items-center gap-2 bg-white px-3 py-1.5 rounded-lg">
+                                                                <div className="flex items-center gap-2 bg-slate-800/50 backdrop-blur-sm px-3 py-1.5 rounded-lg border border-white/5">
                                                                     <span>
-                                                                        Talla: <strong className="text-gray-900">{item.size}</strong>
+                                                                        Talla: <strong className="text-slate-300">{item.size}</strong>
                                                                     </span>
                                                                 </div>
                                                             )}
                                                             {item.color_code && (
-                                                                <div className="flex items-center gap-2 bg-white px-3 py-1.5 rounded-lg">
+                                                                <div className="flex items-center gap-2 bg-slate-800/50 backdrop-blur-sm px-3 py-1.5 rounded-lg border border-white/5">
                                                                     <div
-                                                                        className="w-5 h-5 rounded-full border-2 border-gray-200 shadow-sm"
+                                                                        className="w-5 h-5 rounded-full border-2 border-slate-700 shadow-sm"
                                                                         style={{ backgroundColor: item.color_code }}
                                                                     />
                                                                     <span>Color</span>
@@ -729,11 +733,11 @@ export default function OrderDetailPage() {
                                                     <div className="text-right flex-shrink-0">
                                                         <motion.p
                                                             whileHover={{ scale: 1.05 }}
-                                                            className="text-3xl font-bold bg-linear-to-r from-blue-600 to-cyan-600 bg-clip-text text-transparent mb-1"
+                                                            className="text-3xl font-bold bg-gradient-to-r from-indigo-400 via-violet-400 to-indigo-400 bg-clip-text text-transparent mb-1"
                                                         >
                                                             {formatCurrency(item.subtotal)}
                                                         </motion.p>
-                                                        <p className="text-sm text-gray-500 font-medium">
+                                                        <p className="text-sm text-slate-600 font-medium">
                                                             {formatCurrency(item.price)} c/u
                                                         </p>
                                                     </div>
@@ -774,7 +778,7 @@ export default function OrderDetailPage() {
                                                         label: 'Método de pago',
                                                         value: order.payment.payment_method,
                                                         type: 'text',
-                                                        color: 'from-blue-500 to-cyan-500'
+                                                        color: 'from-indigo-500 to-violet-500'
                                                     },
                                                     {
                                                         icon: CheckCircle,
@@ -788,14 +792,14 @@ export default function OrderDetailPage() {
                                                         label: 'Monto pagado',
                                                         value: formatCurrency(order.payment.amount_in_cents / 100),
                                                         type: 'amount',
-                                                        color: 'from-purple-500 to-pink-500'
+                                                        color: 'from-violet-500 to-indigo-500'
                                                     },
                                                     {
                                                         icon: Hash,
                                                         label: 'ID de transacción',
                                                         value: order.payment.transaction_id,
                                                         type: 'code',
-                                                        color: 'from-orange-500 to-red-500'
+                                                        color: 'from-indigo-500 to-cyan-500'
                                                     }
                                                 ].map((field, idx) => (
                                                     <motion.div
@@ -804,9 +808,9 @@ export default function OrderDetailPage() {
                                                         animate={{ opacity: 1, y: 0 }}
                                                         transition={{ delay: 0.1 * idx }}
                                                         whileHover={{ scale: 1.02 }}
-                                                        className="space-y-3 p-4 bg-linear-to-br from-slate-50 to-blue-50/30 rounded-xl border border-gray-100 hover:border-blue-200 transition-all"
+                                                        className="space-y-3 p-4 bg-slate-800/50 backdrop-blur-sm rounded-xl border border-white/5 hover:border-indigo-500/30 hover:shadow-lg hover:shadow-indigo-500/10 transition-all"
                                                     >
-                                                        <div className="flex items-center gap-2 text-sm text-gray-500">
+                                                        <div className="flex items-center gap-2 text-sm text-slate-400">
                                                             <div className={`w-8 h-8 rounded-lg bg-linear-to-br ${field.color} flex items-center justify-center shadow-md`}>
                                                                 <field.icon className="w-4 h-4 text-white" />
                                                             </div>
@@ -821,15 +825,15 @@ export default function OrderDetailPage() {
                                                                 {field.value as string}
                                                             </Badge>
                                                         ) : field.type === 'code' ? (
-                                                            <p className="font-mono text-sm text-gray-900 bg-white px-4 py-3 rounded-lg border-2 border-gray-200 shadow-sm">
+                                                            <p className="font-mono text-sm text-slate-200 bg-slate-900/50 px-4 py-3 rounded-lg border border-white/10 shadow-sm">
                                                                 {field.value as string}
                                                             </p>
                                                         ) : field.type === 'amount' ? (
-                                                            <p className="text-2xl font-bold bg-linear-to-r from-blue-600 to-cyan-600 bg-clip-text text-transparent">
+                                                            <p className="text-2xl font-bold bg-gradient-to-r from-indigo-400 via-violet-400 to-indigo-400 bg-clip-text text-transparent">
                                                                 {field.value as string}
                                                             </p>
                                                         ) : (
-                                                            <p className="font-bold text-gray-900 text-lg capitalize">
+                                                            <p className="font-bold text-slate-100 text-lg capitalize">
                                                                 {field.value as string}
                                                             </p>
                                                         )}
@@ -841,13 +845,13 @@ export default function OrderDetailPage() {
                                                     initial={{ opacity: 0, y: 20 }}
                                                     animate={{ opacity: 1, y: 0 }}
                                                     transition={{ delay: 0.5 }}
-                                                    className="mt-6 pt-6 border-t-2 border-gray-100"
+                                                    className="mt-6 pt-6 border-t border-white/5"
                                                 >
-                                                    <div className="flex items-center gap-3 p-4 bg-linear-to-r from-blue-50 to-cyan-50 rounded-xl">
-                                                        <Calendar className="w-5 h-5 text-blue-600" />
+                                                    <div className="flex items-center gap-3 p-4 bg-slate-800/50 backdrop-blur-sm rounded-xl border border-white/5">
+                                                        <Calendar className="w-5 h-5 text-indigo-400" />
                                                         <div>
-                                                            <p className="text-xs text-gray-500 mb-1">Fecha y hora del pago</p>
-                                                            <p className="font-bold text-gray-900">{formatDate(order.payment.created_at)}</p>
+                                                            <p className="text-xs text-slate-400 mb-1">Fecha y hora del pago</p>
+                                                            <p className="font-bold text-slate-100">{formatDate(order.payment.created_at)}</p>
                                                         </div>
                                                     </div>
                                                 </motion.div>
@@ -865,13 +869,13 @@ export default function OrderDetailPage() {
                             transition={{ delay: 0.5 }}
                         >
                             <motion.div whileHover="hover" initial="rest" variants={cardHoverVariants}>
-                                <Card className="bg-white/90 backdrop-blur-md border-2 border-blue-100 shadow-xl rounded-3xl overflow-hidden">
-                                    <CardHeader className="bg-linear-to-r from-blue-50 via-cyan-50 to-blue-50 border-b border-gray-100 pb-5">
-                                        <CardTitle className="flex items-center gap-3 text-2xl">
+                                <Card className="bg-slate-900/70 backdrop-blur-xl border border-white/5 shadow-xl rounded-3xl overflow-hidden">
+                                    <CardHeader className=" border-b border-white/5 pb-5">
+                                        <CardTitle className="flex items-center gap-3 text-2xl text-slate-100">
                                             <motion.div
                                                 animate={{ y: [0, -5, 0] }}
                                                 transition={{ duration: 2, repeat: Infinity }}
-                                                className="w-12 h-12 rounded-xl bg-linear-to-br from-blue-600 to-cyan-600 flex items-center justify-center shadow-lg"
+                                                className="w-12 h-12 rounded-xl bg-gradient-to-br from-indigo-600 to-violet-600 flex items-center justify-center shadow-lg"
                                             >
                                                 <MapPin className="w-6 h-6 text-white" />
                                             </motion.div>
@@ -882,16 +886,16 @@ export default function OrderDetailPage() {
                                         <div className="space-y-4">
                                             <motion.div
                                                 whileHover={{ scale: 1.02 }}
-                                                className="flex items-start gap-4 p-5 bg-linear-to-r from-blue-50 to-cyan-50 rounded-2xl border-2 border-blue-100 hover:border-blue-200 transition-all"
+                                                className="flex items-start gap-4 p-5 bg-slate-800/50 backdrop-blur-sm rounded-2xl border border-white/5 hover:border-indigo-500/30 hover:shadow-lg hover:shadow-indigo-500/10 transition-all"
                                             >
-                                                <Home className="w-6 h-6 text-blue-600 mt-1 flex-shrink-0" />
+                                                <Home className="w-6 h-6 text-indigo-400 mt-1 flex-shrink-0" />
                                                 <div className="flex-1">
-                                                    <p className="text-sm text-gray-600 mb-2 font-medium">Dirección de entrega</p>
-                                                    <p className="font-bold text-gray-900 text-lg mb-2">
+                                                    <p className="text-sm text-slate-400 mb-2 font-medium">Dirección de entrega</p>
+                                                    <p className="font-bold text-slate-100 text-lg mb-2">
                                                         {order.addresses?.address || 'Dirección de envío no disponible'}
                                                     </p>
                                                     {order.addresses?.city && order.addresses?.department && (
-                                                        <p className="text-sm text-gray-600 flex items-center gap-2">
+                                                        <p className="text-sm text-slate-400 flex items-center gap-2">
                                                             <MapPin className="w-4 h-4" />
                                                             {order.addresses.city}, {order.addresses.department},{' '}
                                                             {order.addresses.country}
@@ -902,28 +906,28 @@ export default function OrderDetailPage() {
                                             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                                 <motion.div
                                                     whileHover={{ scale: 1.05 }}
-                                                    className="flex items-center gap-4 p-5 bg-linear-to-br from-slate-50 to-cyan-50 rounded-2xl border-2 border-gray-100 hover:border-cyan-200 transition-all"
+                                                    className="flex items-center gap-4 p-5 bg-slate-800/50 backdrop-blur-sm rounded-2xl border border-white/5 hover:border-indigo-500/30 hover:shadow-lg hover:shadow-indigo-500/10 transition-all"
                                                 >
-                                                    <div className="w-12 h-12 rounded-xl bg-linear-to-br from-cyan-500 to-blue-500 flex items-center justify-center shadow-md">
+                                                    <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-indigo-500 to-violet-500 flex items-center justify-center shadow-md">
                                                         <Truck className="w-6 h-6 text-white" />
                                                     </div>
                                                     <div>
-                                                        <p className="text-xs text-gray-500 mb-1">Costo de envío</p>
-                                                        <p className="text-xl font-bold text-gray-900">
+                                                        <p className="text-xs text-slate-400 mb-1">Costo de envío</p>
+                                                        <p className="text-xl font-bold text-slate-100">
                                                             {formatCurrency(shipping)}
                                                         </p>
                                                     </div>
                                                 </motion.div>
                                                 <motion.div
                                                     whileHover={{ scale: 1.05 }}
-                                                    className="flex items-center gap-4 p-5 bg-linear-to-br from-slate-50 to-blue-50 rounded-2xl border-2 border-gray-100 hover:border-blue-200 transition-all"
+                                                    className="flex items-center gap-4 p-5 bg-slate-800/50 backdrop-blur-sm rounded-2xl border border-white/5 hover:border-violet-500/30 hover:shadow-lg hover:shadow-violet-500/10 transition-all"
                                                 >
-                                                    <div className="w-12 h-12 rounded-xl bg-linear-to-br from-blue-600 to-cyan-600 flex items-center justify-center shadow-md">
+                                                    <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-violet-600 to-indigo-600 flex items-center justify-center shadow-md">
                                                         <Package className="w-6 h-6 text-white" />
                                                     </div>
                                                     <div>
-                                                        <p className="text-xs text-gray-500 mb-1">Estado de envío</p>
-                                                        <p className="text-xl font-bold text-gray-900 capitalize">
+                                                        <p className="text-xs text-slate-400 mb-1">Estado de envío</p>
+                                                        <p className="text-xl font-bold text-slate-100 capitalize">
                                                             {order.status || 'Pendiente'}
                                                         </p>
                                                     </div>
@@ -946,13 +950,13 @@ export default function OrderDetailPage() {
                             className="sticky top-6"
                         >
                             <motion.div whileHover="hover" initial="rest" variants={cardHoverVariants}>
-                                <Card className="bg-white/90 backdrop-blur-md border-2 border-blue-100 shadow-2xl rounded-3xl overflow-hidden">
-                                    <CardHeader className="bg-linear-to-r from-slate-50 via-blue-50 to-slate-50 border-b border-gray-100 pb-5">
-                                        <CardTitle className="flex items-center gap-3 text-2xl">
+                                <Card className="bg-slate-900/70 backdrop-blur-xl border border-white/5 shadow-2xl rounded-3xl overflow-hidden">
+                                    <CardHeader className=" border-b border-white/5 pb-5">
+                                        <CardTitle className="flex items-center gap-3 text-2xl text-slate-100">
                                             <motion.div
                                                 animate={{ rotate: [0, 5, -5, 0] }}
                                                 transition={{ duration: 3, repeat: Infinity }}
-                                                className="w-12 h-12 rounded-xl bg-linear-to-br from-blue-600 to-cyan-600 flex items-center justify-center shadow-lg"
+                                                className="w-12 h-12 rounded-xl bg-gradient-to-br from-indigo-600 to-violet-600 flex items-center justify-center shadow-lg"
                                             >
                                                 <FileText className="w-6 h-6 text-white" />
                                             </motion.div>
@@ -971,15 +975,15 @@ export default function OrderDetailPage() {
                                                     initial={{ opacity: 0, x: 20 }}
                                                     animate={{ opacity: 1, x: 0 }}
                                                     transition={{ delay: 0.1 * idx }}
-                                                    className="flex items-center justify-between text-gray-700 p-3 rounded-xl bg-slate-50 hover:bg-slate-100 transition-colors"
+                                                    className="flex items-center justify-between text-slate-300 p-3 rounded-xl bg-slate-800/50 backdrop-blur-sm hover:bg-slate-800/70 transition-colors"
                                                 >
                                                     <div className="flex items-center gap-2">
-                                                        <item.icon className="w-4 h-4 text-gray-500" />
+                                                        <item.icon className="w-4 h-4 text-slate-400" />
                                                         <span className="font-medium">{item.label}</span>
                                                     </div>
-                                                    <span className="font-bold text-lg">
+                                                    <span className="font-bold text-lg text-slate-100">
                                                         {item.special ? (
-                                                            <span className="text-green-600 font-bold">Gratis</span>
+                                                            <span className="text-green-400 font-bold">Gratis</span>
                                                         ) : (
                                                             formatCurrency(item.value)
                                                         )}
@@ -992,14 +996,14 @@ export default function OrderDetailPage() {
                                             initial={{ opacity: 0, scale: 0.95 }}
                                             animate={{ opacity: 1, scale: 1 }}
                                             transition={{ delay: 0.4 }}
-                                            className="pt-5 border-t-2 border-gray-200"
+                                            className="pt-5 border-t border-white/10"
                                         >
-                                            <div className="flex items-center justify-between p-4 bg-linear-to-r from-blue-50 to-cyan-50 rounded-2xl">
-                                                <span className="text-xl font-bold text-gray-900">Total</span>
+                                            <div className="flex items-center justify-between p-4 bg-gradient-to-r from-slate-800/50 to-slate-900/50 backdrop-blur-sm rounded-2xl border border-indigo-500/20">
+                                                <span className="text-xl font-bold text-slate-100">Total</span>
                                                 <motion.span
                                                     animate={{ scale: [1, 1.05, 1] }}
                                                     transition={{ duration: 2, repeat: Infinity }}
-                                                    className="text-3xl font-bold bg-linear-to-r from-blue-600 via-cyan-600 to-blue-600 bg-clip-text text-transparent"
+                                                    className="text-3xl font-bold bg-gradient-to-r from-indigo-400 via-violet-400 to-indigo-400 bg-clip-text text-transparent"
                                                 >
                                                     {formatCurrency(total)}
                                                 </motion.span>
@@ -1011,10 +1015,10 @@ export default function OrderDetailPage() {
                                                 initial={{ opacity: 0, scale: 0.9 }}
                                                 animate={{ opacity: 1, scale: 1 }}
                                                 transition={{ delay: 0.5 }}
-                                                className="flex items-start gap-3 p-4 bg-linear-to-r from-green-50 to-emerald-50 rounded-2xl border-2 border-green-200"
+                                                className="flex items-start gap-3 p-4 bg-gradient-to-r from-green-900/20 to-emerald-900/20 rounded-2xl border border-green-500/20"
                                             >
-                                                <CheckCircle className="w-6 h-6 text-green-600 mt-0.5 flex-shrink-0" />
-                                                <p className="text-sm text-green-800 font-medium">
+                                                <CheckCircle className="w-6 h-6 text-green-400 mt-0.5 flex-shrink-0" />
+                                                <p className="text-sm text-green-300 font-medium">
                                                     <strong className="block mb-1">¡Envío gratis!</strong>
                                                     Aplicado en compras mayores a $100,000
                                                 </p>
@@ -1032,13 +1036,13 @@ export default function OrderDetailPage() {
                             transition={{ delay: 0.4 }}
                         >
                             <motion.div whileHover="hover" initial="rest" variants={cardHoverVariants}>
-                                <Card className="bg-white/90 backdrop-blur-md border-2 border-blue-100 shadow-xl rounded-3xl overflow-hidden">
-                                    <CardHeader className="bg-linear-to-r from-cyan-50 via-blue-50 to-cyan-50 border-b border-gray-100 pb-5">
-                                        <CardTitle className="flex items-center gap-3 text-xl">
+                                <Card className="bg-slate-900/70 backdrop-blur-xl border border-white/5 shadow-xl rounded-3xl overflow-hidden">
+                                    <CardHeader className=" border-b border-white/5 pb-5">
+                                        <CardTitle className="flex items-center gap-3 text-xl text-slate-100">
                                             <motion.div
                                                 whileHover={{ rotate: 360 }}
                                                 transition={{ duration: 0.6 }}
-                                                className="w-10 h-10 rounded-xl bg-linear-to-br from-cyan-500 to-blue-500 flex items-center justify-center shadow-lg"
+                                                className="w-10 h-10 rounded-xl bg-gradient-to-br from-indigo-500 to-violet-500 flex items-center justify-center shadow-lg"
                                             >
                                                 <Info className="w-5 h-5 text-white" />
                                             </motion.div>
@@ -1057,14 +1061,14 @@ export default function OrderDetailPage() {
                                                 animate={{ opacity: 1, x: 0 }}
                                                 transition={{ delay: 0.1 * idx }}
                                                 whileHover={{ x: 5 }}
-                                                className="flex items-center gap-3 p-4 bg-linear-to-r from-slate-50 to-blue-50/30 rounded-xl border border-gray-100 hover:border-blue-200 transition-all"
+                                                className="flex items-center gap-3 p-4 bg-slate-800/50 backdrop-blur-sm rounded-xl border border-white/5 hover:border-indigo-500/30 hover:shadow-lg hover:shadow-indigo-500/10 transition-all"
                                             >
-                                                <div className="w-10 h-10 rounded-lg bg-linear-to-br from-blue-500 to-cyan-500 flex items-center justify-center shadow-md">
+                                                <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-indigo-500 to-violet-500 flex items-center justify-center shadow-md">
                                                     <detail.icon className="w-5 h-5 text-white" />
                                                 </div>
                                                 <div className="flex-1">
-                                                    <p className="text-xs text-gray-500 mb-0.5">{detail.label}</p>
-                                                    <p className="font-bold text-gray-900">{detail.value}</p>
+                                                    <p className="text-xs text-slate-400 mb-0.5">{detail.label}</p>
+                                                    <p className="font-bold text-slate-100">{detail.value}</p>
                                                 </div>
                                             </motion.div>
                                         ))}
@@ -1082,7 +1086,7 @@ export default function OrderDetailPage() {
                         >
                             <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
                                 <Button
-                                    className="w-full h-14 bg-linear-to-r from-blue-600 via-cyan-600 to-blue-600 hover:from-blue-700 hover:via-cyan-700 hover:to-blue-700 text-white shadow-2xl font-bold text-lg rounded-2xl"
+                                    className="w-full h-14 bg-gradient-to-r from-indigo-600 via-violet-600 to-indigo-600 hover:from-indigo-700 hover:via-violet-700 hover:to-indigo-700 text-white shadow-2xl shadow-indigo-500/20 font-bold text-lg rounded-2xl"
                                     onClick={() => router.push('/')}
                                 >
                                     Seguir comprando
@@ -1093,7 +1097,7 @@ export default function OrderDetailPage() {
                                 <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
                                     <Button
                                         variant="outline"
-                                        className="w-full h-14 border-2 border-gray-300 hover:bg-gray-50 hover:border-gray-400 font-bold text-lg rounded-2xl shadow-lg"
+                                        className="w-full h-14 border-2 border-slate-700/50 bg-slate-800/30 hover:bg-slate-800/50 hover:border-slate-600/50 text-slate-100 font-bold text-lg rounded-2xl shadow-lg"
                                     >
                                         <Star className="w-5 h-5 mr-2" />
                                         Comprar de nuevo

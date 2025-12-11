@@ -644,49 +644,96 @@ export const Navbar = () => {
                   <DropdownMenuTrigger asChild>
                     <Button
                       variant="ghost"
-                      className="flex items-center gap-2 h-10 px-3 rounded-xl hover:bg-white/10 transition-colors"
+                      className="flex items-center gap-2 h-10 px-3 rounded-xl hover:bg-white/10 transition-all duration-300 group"
                     >
                       <div className="relative">
-                        <div className="w-8 h-8 bg-linear-to-r from-blue-500 to-cyan-500 rounded-full flex items-center justify-center text-white text-sm font-bold">
-                          {userProfile?.name?.charAt(0).toUpperCase() || "U"}
+                        {/* Avatar with gradient and glow effect */}
+                        <div className="relative w-8 h-8 rounded-full bg-gradient-to-br from-indigo-500 via-blue-500 to-blue-600 flex items-center justify-center text-white text-sm font-bold shadow-lg shadow-indigo-500/30 group-hover:shadow-indigo-500/50 transition-all duration-300">
+                          <div className="absolute inset-0 rounded-full bg-gradient-to-br from-slate-900/90 to-blue-800 blur-md opacity-50 group-hover:opacity-70 transition-opacity"></div>
+                          <span className="relative z-10">{userProfile?.name?.charAt(0).toUpperCase() || "U"}</span>
                         </div>
-                        <div className="absolute -bottom-0.5 -right-0.5 w-3 h-3 bg-green-400 rounded-full border-2 border-slate-800"></div>
+                        {/* Online status indicator */}
+                        <div className="absolute -bottom-0.5 -right-0.5 w-3 h-3 bg-gradient-to-br from-green-400 to-emerald-500 rounded-full border-2 border-slate-900 shadow-lg">
+                          <div className="absolute inset-0 rounded-full bg-green-400 animate-ping opacity-75"></div>
+                        </div>
                       </div>
-                      <ChevronDown className="h-4 w-4 text-white" />
+                      <ChevronDown className="h-4 w-4 text-white group-hover:text-indigo-300 transition-colors" />
                     </Button>
                   </DropdownMenuTrigger>
                   <DropdownMenuContent
                     align="end"
-                    className="w-64 bg-slate-800 border border-slate-600 shadow-2xl rounded-xl p-2"
+                    className="w-72 bg-slate-900/95 backdrop-blur-xl border border-slate-700/50 shadow-2xl rounded-2xl p-0 overflow-hidden"
                   >
-                    <div className="p-4 border-b border-slate-600">
-                      <div className="flex items-center gap-3">
-                        <div className="w-10 h-10 bg-linear-to-r from-blue-500 to-cyan-500 rounded-full flex items-center justify-center text-white text-sm font-bold">
-                          {userProfile?.name?.charAt(0).toUpperCase() || "U"}
+                    {/* Header with user info */}
+                    <div className="relative p-6 bg-gradient-to-br from-indigo-600/20 via-violet-600/20 to-slate-900/50 border-b border-slate-700/50">
+                      {/* Decorative gradient overlay */}
+                      <div className="absolute inset-0 bg-gradient-to-br from-purple-950/30 to-slate-900/95 "></div>
+                      
+                      <div className="relative flex items-center gap-4">
+                        {/* Larger avatar for header */}
+                        <div className="relative">
+                          <div className="w-12 h-12 rounded-full bg-gradient-to-br from-indigo-500 via-blue-500 to-blue-600 flex items-center justify-center text-white text-lg font-bold ">
+                            <div className="absolute inset-0 rounded-full bg-gradient-to-br from-indigo-400 to-violet-600 blur-lg opacity-50"></div>
+                            <span className="relative z-10">{userProfile?.name?.charAt(0).toUpperCase() || "U"}</span>
+                          </div>
+                          <div className="absolute -bottom-1 -right-1 w-4 h-4 bg-gradient-to-br from-green-400 to-emerald-500 rounded-full border-2 border-slate-900 shadow-lg"></div>
                         </div>
-                        <div className="font-medium text-white">
-                          {userProfile?.name}
+                        
+                        {/* User info */}
+                        <div className="flex-1 min-w-0">
+                          <p className="font-bold text-white text-base truncate">
+                            {userProfile?.name}
+                          </p>
+                          <p className="text-xs text-slate-400 truncate mt-0.5">
+                            {userProfile?.email || "usuario@neosale.com"}
+                          </p>
                         </div>
                       </div>
                     </div>
-                    <DropdownMenuItem
-                      onClick={() => router.push("/profile")}
-                      className="hover:bg-white/10 cursor-pointer rounded-lg p-3 font-medium text-white"
-                    >
-                      <User className="h-4 w-4 mr-3" />
-                      Mi Perfil
-                    </DropdownMenuItem>
-                    <DropdownMenuItem
-                      onClick={() => router.push("/orders")}
-                      className="hover:bg-white/10 cursor-pointer rounded-lg p-3 font-medium text-white"
-                    >
-                      <ShoppingCart className="h-4 w-4 mr-3" />
-                      Mis Pedidos
-                    </DropdownMenuItem>
-                    <DropdownMenuSeparator className="my-2" />
-                    <DropdownMenuItem className="text-red-400 hover:bg-red-500/10 rounded-lg p-3 font-medium">
-                      <SignOut />
-                    </DropdownMenuItem>
+
+                    {/* Menu items */}
+                    <div className="p-2">
+                      <DropdownMenuItem
+                        onClick={() => router.push("/profile")}
+                        className="group cursor-pointer rounded-xl p-3  hover:bg-indigo-600/10 transition-all duration-300 border border-transparent hover:border-indigo-500/30"
+                      >
+                        <div className="flex items-center gap-3">
+                          <div className="w-9 h-9 rounded-lg bg-slate-800/50 group-hover:bg-indigo-600/20 flex items-center justify-center transition-all duration-300 group-hover:shadow-lg group-hover:shadow-indigo-500/20">
+                            <User className="h-4 w-4 text-slate-400 group-hover:text-indigo-400 transition-colors" />
+                          </div>
+                          <div className="flex-1">
+                            <p className="font-semibold text-white text-sm">Mi Perfil</p>
+                            <p className="text-xs text-slate-400 group-hover:text-slate-300">Ver y editar información</p>
+                          </div>
+                        </div>
+                      </DropdownMenuItem>
+
+                      <DropdownMenuItem
+                        onClick={() => router.push("/orders")}
+                        className="group cursor-pointer rounded-xl p-3 mb-1 hover:bg-violet-600/10 transition-all duration-300 border border-transparent hover:border-violet-500/30"
+                      >
+                        <div className="flex items-center gap-3">
+                          <div className="w-9 h-9 rounded-lg bg-slate-800/50 group-hover:bg-violet-600/20 flex items-center justify-center transition-all duration-300 group-hover:shadow-lg group-hover:shadow-violet-500/20">
+                            <ShoppingCart className="h-4 w-4 text-slate-400 group-hover:text-violet-400 transition-colors" />
+                          </div>
+                          <div className="flex-1">
+                            <p className="font-semibold text-white text-sm">Mis Pedidos</p>
+                            <p className="text-xs text-slate-400 group-hover:text-slate-300">Historial de compras</p>
+                          </div>
+                        </div>
+                      </DropdownMenuItem>
+                    </div>
+
+                    <DropdownMenuSeparator className="my-2 bg-slate-700/50" />
+
+                    {/* Logout button */}
+                    <div className="px-2 pb-2">
+ <DropdownMenuItem className="group cursor-pointer rounded-xl p-3 hover:bg-red-500/10 transition-all duration-300 border border-transparent hover:border-red-500/30">
+                            <SignOut />
+                        
+                      </DropdownMenuItem>
+                    </div>
+                     
                   </DropdownMenuContent>
                 </DropdownMenu>
               ) : (
