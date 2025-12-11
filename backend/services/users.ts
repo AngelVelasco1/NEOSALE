@@ -246,13 +246,15 @@ export const getUserByIdService = async (id: number | undefined) => {
     },
   });
 
-  const cart = await prisma.cart.findUnique({
-    where: { id },
+  // Verificar si el usuario tiene carrito usando user_id, no id
+  const cart = await prisma.cart.findFirst({
+    where: { user_id: id },
     select: {
       id: true,
     },
   });
-  if (!cart && user?.role !== "admin") {
+
+  if (!cart && user?.role === "user") {
     await prisma.$executeRaw`CALL sp_create_cart(${id}::int)`;
   }
 

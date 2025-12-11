@@ -28,6 +28,7 @@ import {
 import { ErrorsHandler } from "@/app/errors/errorsHandler";
 import { getUserOrdersApi, type Order } from "./services/ordersApi";
 import { motion, AnimatePresence } from "framer-motion";
+import ReviewableProducts from "../components/ReviewableProducts";
 
 export default function OrdersPage() {
   const router = useRouter();
@@ -205,7 +206,7 @@ export default function OrdersPage() {
         ))}
       </div>
 
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative">
         {/* Header Section */}
         <motion.div
           initial={{ opacity: 0, y: -20 }}
@@ -336,6 +337,18 @@ export default function OrdersPage() {
                 ))}
               </motion.div>
             )}
+          </div>
+        </motion.div>
+
+        {/* Reviewable Products Section */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.6 }}
+          className="mb-8"
+        >
+          <div className="bg-slate-800/60 backdrop-blur-md rounded-3xl shadow-2xl border border-purple-500/20 p-8">
+            <ReviewableProducts />
           </div>
         </motion.div>
 
