@@ -2,7 +2,8 @@ CREATE OR REPLACE FUNCTION sp_create_review (
     p_rating INT, 
     p_comment TEXT, 
     p_user_id INT, 
-    p_product_id INT
+    p_product_id INT,
+    p_order_id INT DEFAULT NULL
 )
 RETURNS INT
 LANGUAGE plpgsql
@@ -25,13 +26,24 @@ BEGIN
         RAISE EXCEPTION 'La calificación debe estar entre 1 y 5' USING ERRCODE = 'check_violation';
     END IF;
     
-    -- Verificar que el usuario no haya hecho ya una review para este producto
-    SELECT id INTO v_existing_review 
-    FROM reviews 
-    WHERE user_id = p_user_id AND product_id = p_product_id;
-    
-    IF v_existing_review IS NOT NULL THEN
-        RAISE EXCEPTION 'El usuario ya ha calificado este producto' USING ERRCODE = 'unique_violation';
+    -- Verificar que el usuario no haya hecho ya una review para este producto en esta orden (si se proporciona order_id)
+    IF p_order_id IS NOT NULL THEN
+        SELECT id INTO v_existing_review 
+        FROM reviews 
+        WHERE user_id = p_user_id AND product_id = p_product_id AND order_id = p_order_id;
+        
+        IF v_existing_review IS NOT NULL THEN
+            RAISE EXCEPTION 'El usuario ya ha calificado este producto en esta orden' USING ERRCODE = 'unique_violation';
+        END IF;
+    ELSE
+        -- Si no hay order_id, verificar que no exista ninguna review del usuario para este producto
+        SELECT id INTO v_existing_review 
+        FROM reviews 
+        WHERE user_id = p_user_id AND product_id = p_product_id;
+        
+        IF v_existing_review IS NOT NULL THEN
+            RAISE EXCEPTION 'El usuario ya ha calificado este producto' USING ERRCODE = 'unique_violation';
+        END IF;
     END IF;
     
     -- Verificar que el usuario existe y está activo
@@ -44,9 +56,9 @@ BEGIN
         RAISE EXCEPTION 'Producto no existe o está inactivo' USING ERRCODE = 'foreign_key_violation';
     END IF;
     
-    -- Insertar la review
-    INSERT INTO reviews(rating, comment, user_id, product_id) 
-    VALUES (p_rating, p_comment, p_user_id, p_product_id)
+    -- Insertar la review con order_id
+    INSERT INTO reviews(rating, comment, user_id, product_id, order_id) 
+    VALUES (p_rating, p_comment, p_user_id, p_product_id, p_order_id)
     RETURNING id INTO v_review_id;
     
     RETURN v_review_id;

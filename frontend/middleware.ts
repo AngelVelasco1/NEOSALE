@@ -6,22 +6,42 @@ export default async function middleware(request: NextRequest) {
   const session = await auth();
   const { pathname } = request.nextUrl;
 
-  // Si es admin y trata de acceder a rutas públicas/auth
+  // ==========================================
+  // PROTECCIÓN PARA ADMINS
+  // ==========================================
   if (session?.user?.role === "admin") {
-    const publicRoutes = ["/", "/products", "/about", "/contact", "/login", "/register"];
-    const isPublicRoute = publicRoutes.some(route => 
-      pathname === route 
+    // Rutas de clientes que admins NO pueden acceder
+    const customerOnlyRoutes = [
+      "/",
+      "/products",
+      "/category",
+      "/subcategory",
+      "/orders", // Pedidos de cliente
+      "/cart", // Carrito
+      "/checkout", // Checkout
+      "/favorites", // Favoritos
+      "/profile", // Perfil de cliente
+      "/login",
+      "/register",
+    ];
+
+    const isCustomerRoute = customerOnlyRoutes.some(
+      (route) => pathname === route || pathname.startsWith(route + "/")
     );
 
-    if (isPublicRoute) {
+    // Redirigir admin a dashboard si intenta acceder a rutas de clientes
+    if (isCustomerRoute) {
       return NextResponse.redirect(new URL("/dashboard", request.url));
     }
   }
 
-   if (!session || !session.user) {
-    const privateRoutes = ["/profile", "/orders"];
-    const isPrivateRoute = privateRoutes.some(route => 
-      pathname === route || pathname.startsWith(route + "/")
+  // ==========================================
+  // PROTECCIÓN PARA USUARIOS NO AUTENTICADOS
+  // ==========================================
+  if (!session || !session.user) {
+    const privateRoutes = ["/profile", "/orders", "/checkout", "/favorites"];
+    const isPrivateRoute = privateRoutes.some(
+      (route) => pathname === route || pathname.startsWith(route + "/")
     );
 
     if (isPrivateRoute) {
@@ -29,7 +49,9 @@ export default async function middleware(request: NextRequest) {
     }
   }
 
-  // Si no es admin y trata de acceder al dashboard
+  // ==========================================
+  // PROTECCIÓN DEL DASHBOARD (Solo admins)
+  // ==========================================
   if (pathname.startsWith("/dashboard")) {
     if (!session) {
       return NextResponse.redirect(new URL("/login", request.url));
@@ -43,7 +65,5 @@ export default async function middleware(request: NextRequest) {
 }
 
 export const config = {
-  matcher: [
-    "/((?!api|_next/static|_next/image|favicon.ico).*)",
-  ],
+  matcher: ["/((?!api|_next/static|_next/image|favicon.ico).*)"],
 };

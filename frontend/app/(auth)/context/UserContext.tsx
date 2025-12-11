@@ -17,6 +17,7 @@ interface UserProfile {
   email: string | null;
   phone_number: string | null;
   identification?: string | null;
+  role: "user" | "admin";
   password: string | null;
   addresses: string[] | null;
 }
@@ -26,7 +27,7 @@ interface UserContextType {
   isLoading: boolean;
   setSelectedAddress: (addressIndex: string) => void;
   selectedAddress: string | undefined;
-  reFetchUserProfile: () => Promise<UserProfile | null>; 
+  reFetchUserProfile: () => Promise<UserProfile | null>;
 }
 
 const UserContext = createContext<UserContextType | undefined>(undefined);
@@ -42,7 +43,6 @@ export const UserProvider = ({ children }: UserProviderProps) => {
   const [isLoading, setIsLoading] = useState(true);
   const [mounted, setMounted] = useState(false);
 
-  // ✅ Manejar la hidratación
   useEffect(() => {
     setMounted(true);
   }, []);
@@ -85,7 +85,7 @@ export const UserProvider = ({ children }: UserProviderProps) => {
   const defaultValue: UserContextType = {
     userProfile: null,
     isLoading: true,
-    setSelectedAddress: () => {},
+    setSelectedAddress: () => { },
     selectedAddress: undefined,
     reFetchUserProfile: async () => null,
   };

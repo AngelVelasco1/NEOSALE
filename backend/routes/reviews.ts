@@ -9,11 +9,15 @@ import {
   getUserReviews,
   addReviewImages,
   deleteReviewImage,
+  getReviewableProducts,
+  canUserReview,
 } from "../controllers/reviews.js";
 
 export const reviewsRoutes = () =>
   Router()
     .get("/getReviews", getReviews)
+    .get("/reviewable/:userId", getReviewableProducts)
+    .get("/can-review/:userId/:productId/:orderId", canUserReview)
     .get("/product/:productId/stats", getProductReviewStats)
     .get("/user/:userId", getUserReviews)
     .get("/:id", getReviewById)

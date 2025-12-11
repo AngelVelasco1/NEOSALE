@@ -8,6 +8,7 @@ import Typography from "../../../../components/ui/typography";
 import { TableSwitch } from "../../../../components/shared/table/TableSwitch";
 import { SheetTooltip } from "../../../../components/shared/table/TableActionTooltip";
 import { TableActionAlertDialog } from "../../../../components/shared/table/TableActionAlertDialog";
+import { SortableHeader } from "./SortableHeader";
 import CategoryFormSheet from "../form/CategoryFormSheet";
 import { Category } from "../../../../services/categories/types";
 import { SkeletonColumn } from "../../../../types/skeleton";
@@ -24,18 +25,20 @@ export const getColumns = ({
 }) => {
   const columns: ColumnDef<Category>[] = [
     {
-      header: "Nombre",
+      accessorKey: "name",
+      header: () => <SortableHeader label="Nombre" sortKey="name" />,
       cell: ({ row }) => (
-        <span
-          className={`${!row.original.active ? 'text-muted-foreground line-through' : ''
+        <Typography
+          className={`font-semibold ${!row.original.active ? 'text-muted-foreground line-through' : ''
             }`}
         >
           {row.original.name}
-        </span>
+        </Typography>
       ),
     },
     {
-      header: "Descripción",
+      accessorKey: "description",
+      header: () => <SortableHeader label="Descripción" sortKey="description" />,
       cell: ({ row }) => (
         <Typography
           className={`block max-w-md xl:max-w-lg truncate ${!row.original.active ? 'text-muted-foreground line-through' : ''
@@ -64,8 +67,8 @@ export const getColumns = ({
             }
           />
           <span className={`text-xs font-medium ${row.original.active
-              ? 'text-green-600 dark:text-green-400'
-              : 'text-red-600 dark:text-red-400'
+            ? 'text-green-600 dark:text-green-400'
+            : 'text-red-600 dark:text-red-400'
             }`}>
             {row.original.active ? 'Activa' : 'Inactiva'}
           </span>

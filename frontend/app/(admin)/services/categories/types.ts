@@ -9,6 +9,9 @@ export interface FetchCategoriesParams {
   page?: number;
   limit?: number;
   search?: string;
+  sortBy?: string;
+  sortOrder?: string;
+  status?: string;
 }
 
 export interface FetchCategoriesResponse {

@@ -34,6 +34,10 @@ export interface FetchOrdersParams {
   method?: string;
   startDate?: string;
   endDate?: string;
+  minAmount?: string;
+  maxAmount?: string;
+  sortBy?: string;
+  sortOrder?: string;
 }
 
 export interface FetchOrdersResponse {

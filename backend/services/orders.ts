@@ -15,6 +15,10 @@ interface GetOrdersParams {
   method?: string;
   startDate?: string;
   endDate?: string;
+  minAmount?: number;
+  maxAmount?: number;
+  sortBy?: string;
+  sortOrder?: string;
 }
 
 interface CreateOrderFromPaymentResponse {
@@ -519,6 +523,10 @@ export const getOrdersService = async ({
   method,
   startDate,
   endDate,
+  minAmount,
+  maxAmount,
+  sortBy,
+  sortOrder,
 }: GetOrdersParams) => {
   try {
     const skip = (page - 1) * limit;
@@ -549,6 +557,29 @@ export const getOrdersService = async ({
       }
       if (endDate) {
         where.created_at.lte = new Date(endDate);
+      }
+    }
+
+    // Filtro por rango de montos
+    if (minAmount !== undefined || maxAmount !== undefined) {
+      where.total = {};
+      if (minAmount !== undefined) {
+        where.total.gte = minAmount;
+      }
+      if (maxAmount !== undefined) {
+        where.total.lte = maxAmount;
+      }
+    }
+
+    // Construir orderBy dinámico
+    let orderBy: any = { created_at: "desc" }; // default
+    if (sortBy && sortOrder) {
+      if (sortBy === "customer") {
+        // Ordenar por nombre de usuario
+        orderBy = { users: { name: sortOrder } };
+      } else {
+        // Ordenar por campos directos (created_at, total, status, id)
+        orderBy = { [sortBy]: sortOrder };
       }
     }
 
@@ -593,7 +624,7 @@ export const getOrdersService = async ({
             },
           },
         },
-        orderBy: { created_at: "desc" },
+        orderBy,
       }),
       prisma.orders.count({ where }),
     ]);

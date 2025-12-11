@@ -9,6 +9,7 @@ import { useRouter } from "next/navigation";
 import { Testimonials } from "../components/Testimonials";
 import { BenefitsList } from "../components/BenefitsList";
 import { ArrowRight, Sparkles } from "lucide-react";
+import CouponBanner from "./components/CouponBanner";
 import { Pricing } from "../components/Pricing";
 import { motion } from "framer-motion";
 
@@ -28,6 +29,7 @@ export default function Home() {
   return (
     <>
       <div className="relative mx-auto flex flex-col from-slate-900  via-slate-900 to-slate-900  bg-linear-to-br">
+
         <Banner />
         <div className="absolute inset-0 bg-[linear-gradient(rgba(71,85,105,0.12)_1px,transparent_1px),linear-gradient(90deg,rgba(71,85,105,0.12)_1px,transparent_1px)] bg-position-[80px_80px]" />
 

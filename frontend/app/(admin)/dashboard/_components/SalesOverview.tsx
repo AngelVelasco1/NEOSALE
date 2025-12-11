@@ -11,6 +11,7 @@ import { ReactNode } from "react";
 
 import { cn } from "@/lib/utils";
 import Typography from "@/app/(admin)/components/ui/typography";
+import { getDashboardStats, DateRangeParams } from "@/app/(admin)/actions/dashboard/getDashboardStats";
 
 interface MetricCard {
   icon: ReactNode;
@@ -23,44 +24,73 @@ interface MetricCard {
   iconBg: string;
 }
 
-export default function SalesOverview() {
+interface SalesOverviewProps {
+  dateRange?: DateRangeParams;
+}
+
+export default async function SalesOverview({ dateRange }: SalesOverviewProps) {
+  const stats = await getDashboardStats(dateRange);
+
+  // Helper function to format currency
+  const formatCurrency = (value: number) => {
+    return new Intl.NumberFormat('es-CO', {
+      style: 'currency',
+      currency: 'COP',
+      minimumFractionDigits: 0,
+      maximumFractionDigits: 0,
+    }).format(value);
+  };
+
+  // Helper function to format change percentage
+  const formatChange = (value: number): string => {
+    const sign = value >= 0 ? "+" : "";
+    return `${sign}${value.toFixed(1)}%`;
+  };
+
+  // Helper function to determine change type
+  const getChangeType = (value: number): "increase" | "decrease" | "neutral" => {
+    if (value > 0) return "increase";
+    if (value < 0) return "decrease";
+    return "neutral";
+  };
+
   const metrics: MetricCard[] = [
     {
       icon: <DollarSign className="size-6" />,
-      title: "Total Revenue",
-      value: "$45,231.89",
-      change: "+20.1%",
-      changeType: "increase",
+      title: "Ganancias",
+      value: formatCurrency(stats.totalRevenue),
+      change: formatChange(stats.revenueChange),
+      changeType: getChangeType(stats.revenueChange),
       subtitle: "from last month",
       gradient: "from-blue-500 to-blue-600",
       iconBg: "bg-blue-50 dark:bg-blue-500/10",
     },
     {
       icon: <ShoppingCart className="size-6" />,
-      title: "Total Orders",
-      value: "2,350",
-      change: "+12.5%",
-      changeType: "increase",
+      title: "Pedidos Totales",
+      value: stats.totalOrders.toLocaleString(),
+      change: formatChange(stats.ordersChange),
+      changeType: getChangeType(stats.ordersChange),
       subtitle: "from last month",
       gradient: "from-purple-500 to-purple-600",
       iconBg: "bg-purple-50 dark:bg-purple-500/10",
     },
     {
       icon: <Package className="size-6" />,
-      title: "Products Sold",
-      value: "8,420",
-      change: "+8.2%",
-      changeType: "increase",
+      title: "Productos Vendidos",
+      value: stats.productsSold.toLocaleString(),
+      change: formatChange(stats.productsSoldChange),
+      changeType: getChangeType(stats.productsSoldChange),
       subtitle: "from last month",
       gradient: "from-emerald-500 to-emerald-600",
       iconBg: "bg-emerald-50 dark:bg-emerald-500/10",
     },
     {
       icon: <Users className="size-6" />,
-      title: "New Customers",
-      value: "573",
-      change: "-3.1%",
-      changeType: "decrease",
+      title: "Nuevos Clientes",
+      value: stats.newCustomers.toLocaleString(),
+      change: formatChange(stats.customersChange),
+      changeType: getChangeType(stats.customersChange),
       subtitle: "from last month",
       gradient: "from-orange-500 to-orange-600",
       iconBg: "bg-orange-50 dark:bg-orange-500/10",
@@ -70,16 +100,7 @@ export default function SalesOverview() {
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="flex items-center justify-between">
-        <div>
-          <Typography component="h2" className="text-2xl font-bold text-slate-900 dark:text-white">
-            Resumen de Ventas
-          </Typography>
-          <Typography className="text-sm text-slate-500 dark:text-slate-400 mt-1">
-            Métricas clave e indicadores de rendimiento
-          </Typography>
-        </div>
-      </div>
+
 
       {/* Metrics Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-6">
@@ -168,10 +189,10 @@ export default function SalesOverview() {
             </div>
             <div>
               <Typography className="text-xs block text-blue-700 dark:text-blue-400 font-medium">
-                Avg Order Value
+                Promedio de Valor de Orden
               </Typography>
               <Typography className="text-lg font-bold text-blue-900 dark:text-blue-300">
-                $192.47
+                {formatCurrency(stats.avgOrderValue)}
               </Typography>
             </div>
           </div>
@@ -187,7 +208,7 @@ export default function SalesOverview() {
                 Conversion Rate
               </Typography>
               <Typography className="text-lg font-bold text-purple-900 dark:text-purple-300">
-                3.24%
+                {stats.conversionRate.toFixed(2)}%
               </Typography>
             </div>
           </div>
@@ -203,7 +224,7 @@ export default function SalesOverview() {
                 Pending Orders
               </Typography>
               <Typography className="text-lg font-bold text-emerald-900 dark:text-emerald-300">
-                47
+                {stats.pendingOrders.toLocaleString()}
               </Typography>
             </div>
           </div>
@@ -219,7 +240,7 @@ export default function SalesOverview() {
                 Active Users
               </Typography>
               <Typography className="text-lg font-bold text-orange-900 dark:text-orange-300">
-                1,259
+                {stats.activeUsers.toLocaleString()}
               </Typography>
             </div>
           </div>

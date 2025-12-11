@@ -19,7 +19,14 @@ export default function AllCategories({
 }: RowSelectionProps) {
   const { hasPermission } = useAuthorization();
   const columns = getColumns({ hasPermission });
-  const { page, limit, search } = getSearchParams(useSearchParams());
+  const searchParams = useSearchParams();
+
+  const page = parseInt(searchParams.get("page") || "1");
+  const limit = parseInt(searchParams.get("limit") || "10");
+  const search = searchParams.get("search") || "";
+  const sortBy = searchParams.get("sortBy") || "";
+  const sortOrder = searchParams.get("sortOrder") || "";
+  const status = searchParams.get("status") || "";
 
   const {
     data: categories,
@@ -27,8 +34,8 @@ export default function AllCategories({
     isError,
     refetch,
   } = useQuery({
-    queryKey: ["categories", page, limit, search],
-    queryFn: () => fetchCategories({ page, limit, search }),
+    queryKey: ["categories", page, limit, search, sortBy, sortOrder, status],
+    queryFn: () => fetchCategories({ page, limit, search, sortBy, sortOrder, status }),
     placeholderData: keepPreviousData,
   });
 

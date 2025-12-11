@@ -19,7 +19,17 @@ export default function AllCoupons({
 }: RowSelectionProps) {
   const { hasPermission } = useAuthorization();
   const columns = getColumns({ hasPermission });
-  const { page, limit, search } = getSearchParams(useSearchParams());
+  const searchParams = useSearchParams();
+
+  const page = parseInt(searchParams.get("page") || "1");
+  const limit = parseInt(searchParams.get("limit") || "10");
+  const search = searchParams.get("search") || "";
+  const status = searchParams.get("status") || "";
+  const discountType = searchParams.get("discountType") || "";
+  const minDiscount = searchParams.get("minDiscount") ? Number(searchParams.get("minDiscount")) : undefined;
+  const maxDiscount = searchParams.get("maxDiscount") ? Number(searchParams.get("maxDiscount")) : undefined;
+  const sortBy = searchParams.get("sortBy") || "";
+  const sortOrder = searchParams.get("sortOrder") || "";
 
   const {
     data: coupons,
@@ -27,8 +37,8 @@ export default function AllCoupons({
     isError,
     refetch,
   } = useQuery({
-    queryKey: ["coupons", page, limit, search],
-    queryFn: () => fetchCoupons({ page, limit, search }),
+    queryKey: ["coupons", page, limit, search, status, discountType, minDiscount, maxDiscount, sortBy, sortOrder],
+    queryFn: () => fetchCoupons({ page, limit, search, status, discountType, minDiscount, maxDiscount, sortBy, sortOrder }),
     placeholderData: keepPreviousData,
   });
 

@@ -1,39 +1,26 @@
-"use client";
-
-import {
-  Chart as ChartJS,
-  CategoryScale,
-  LinearScale,
-  PointElement,
-  LineElement,
-  ArcElement,
-  Tooltip,
-  Legend,
-} from "chart.js";
-
 import WeeklySales from "./WeeklySales";
 import BestSellers from "./BestSellers";
+import { getDailyChartData, getCategorySalesData, DateRangeParams } from "../../../actions/dashboard/getChartData";
 
-ChartJS.register(
-  LinearScale,
-  CategoryScale,
-  PointElement,
-  LineElement,
-  ArcElement,
-  Legend,
-  Tooltip
-);
+interface DashboardChartsProps {
+  dateRange?: DateRangeParams;
+}
 
-export default function DashboardCharts() {
-  ChartJS.defaults.font.family = "'Poppins', sans-serif";
-  ChartJS.defaults.font.size = 12;
-  ChartJS.defaults.font.weight = "normal";
-  ChartJS.defaults.responsive = true;
+export default async function DashboardCharts({ dateRange }: DashboardChartsProps) {
+  // Create a unique key based on date range for cache busting
+  const cacheKey = dateRange?.from && dateRange?.to
+    ? `${dateRange.from}-${dateRange.to}`
+    : 'default';
+
+  const [dailyData, categoryResponse] = await Promise.all([
+    getDailyChartData(dateRange),
+    getCategorySalesData(dateRange),
+  ]);
 
   return (
-    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-      <WeeklySales />
-      <BestSellers />
+    <div className="grid grid-cols-1 md:grid-cols-2 gap-4" key={cacheKey}>
+      <WeeklySales data={dailyData} dateRange={dateRange} />
+      <BestSellers data={categoryResponse.data} totalOrders={categoryResponse.totalOrders} dateRange={dateRange} />
     </div>
   );
 }

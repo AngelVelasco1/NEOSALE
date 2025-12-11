@@ -24,6 +24,7 @@ import {
     updateProductStock,
     updateProductPrice
 } from "./ProductActions";
+import { ProductReviews } from "./ProductReviews";
 
 interface Product {
     id: number;
@@ -1055,6 +1056,9 @@ export function EditableProductPage({
                     </div>
                 </AlertDialogContent>
             </AlertDialog>
+
+            {/* Sección de Reseñas */}
+            <ProductReviews productId={product.id} />
         </section>
     );
 }

@@ -196,7 +196,7 @@ INSERT INTO addresses (address, country, city, department, is_default, user_id) 
 INSERT INTO cart (user_id, session_token, subtotal, expires_at) VALUES
 (4, NULL, 391200, '2025-09-30 23:59:59'), -- Carlos Rodríguez
 (5, NULL, 3900000, '2025-09-30 23:59:59'); -- Ana Martínez
-
+select * from "User";
 -- ITEMS EN CARRITOS
 INSERT INTO cart_items (cart_id, product_id, quantity, unit_price, color_code, size) VALUES
 (1, 1, 1, 71200, '#000000', 'M'),
@@ -297,4 +297,5 @@ UPDATE products SET stock = (
     FROM product_variants pv
     WHERE pv.product_id = products.id AND pv.active = TRUE
 );
+
 

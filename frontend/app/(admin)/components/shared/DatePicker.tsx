@@ -22,11 +22,10 @@ type Props = {
 function formatDate(dateString: string): string {
   const date = new Date(dateString);
 
-
-  return new Intl.DateTimeFormat('en-US', {
+  return new Intl.DateTimeFormat('es-ES', {
+    day: '2-digit',
+    month: '2-digit',
     year: 'numeric',
-    month: 'long',
-    day: 'numeric',
   }).format(date);
 }
 
@@ -39,18 +38,22 @@ export function DatePicker({ className, date, setDate, container }: Props) {
         <Button
           variant={"outline"}
           className={cn(
-            "w-full h-12 justify-between text-left font-normal",
+            "w-full h-12 justify-start text-left font-normal text-sm bg-white dark:bg-slate-800 border-2 border-slate-200 dark:border-slate-700 rounded-xl hover:border-orange-300 dark:hover:border-orange-700 hover:bg-white dark:hover:bg-slate-800 transition-colors shadow-sm",
             !date && "text-muted-foreground",
             className
           )}
         >
-          {date ? formatDate(date) : <span>Pick a date</span>}
-
-          <CalendarIcon className="ml-2 size-4" />
+          <CalendarIcon className="mr-2 h-4 w-4 text-slate-400 shrink-0" />
+          <span className="truncate">{date ? formatDate(date) : "Seleccionar"}</span>
         </Button>
       </PopoverTrigger>
 
-      <PopoverContent portalContainer={container} className="w-auto p-0">
+      <PopoverContent
+        portalContainer={container}
+        className="w-auto p-0 rounded-xl border-2 border-slate-200 dark:border-slate-700 shadow-xl"
+        align="start"
+        sideOffset={8}
+      >
         <Calendar
           mode="single"
           selected={date ? new Date(date) : new Date()}

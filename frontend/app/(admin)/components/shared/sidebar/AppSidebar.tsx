@@ -1,14 +1,12 @@
 "use client";
 
 import Link from "next/link";
-import { LogOut } from "lucide-react";
 import { usePathname } from "next/navigation";
 
 
 import { cn } from "@/lib/utils";
 import { navItems } from "./navItems";
 import Typography from "@/app/(admin)/components/ui/typography";
-import { Button } from "@/app/(admin)/components/ui/button";
 import Image from "next/image";
 
 interface AppSidebarProps {
@@ -19,37 +17,63 @@ export default function AppSidebar({ isOpen }: AppSidebarProps) {
   const pathname = usePathname();
 
   return (
-    <div className={`h-screen transition-all duration-300 border-r shadow-xl bg-gradient-to-b from-white via-slate-50 to-slate-100 dark:from-slate-900 dark:via-slate-900 dark:to-slate-900 ${isOpen ? 'w-64' : 'w-0'} overflow-hidden fixed`}>
-      <div className="h-full flex flex-col">
-        {/* Logo Section with Premium Design */}
-        <div className="flex-shrink-0 py-6 px-6 border-b border-slate-200 dark:border-slate-800">
+    <div className={`h-screen transition-all duration-300 border shadow-2xl backdrop-blur-xl bg-linear-to-br from-slate-900/95 via-slate-800/90 to-slate-900/95 dark:from-slate-950/95 dark:via-slate-900/90 dark:to-slate-950/95 border-r-2 border-slate-200 rounded-xl dark:border-white/5 ${isOpen ? 'w-64' : 'w-0 border-none'} overflow-hidden fixed`}>
+      <div className="h-full flex flex-col py-8">
+        {/* Logo Section */}
+        <div className="shrink-0 px-5 relative">
+          {/* Background Gradient Orbs */}
+          <div className="absolute top-0 left-1/2 -translate-x-1/2 w-32 h-32 bg-blue-500/20 rounded-full blur-3xl" />
+          <div className="absolute bottom-0 right-0 w-24 h-24 bg-purple-500/15 rounded-full blur-2xl" />
+
           <Link
             href="/dashboard"
-            className="flex items-center gap-3 group hover:opacity-90 transition-opacity"
+            className="relative flex flex-col items-center gap-4 group"
           >
+            {/* Logo Container with Glass Effect */}
             <div className="relative">
-              <div className="relative rounded-xl shadow-lg">
+              {/* Outer Glow */}
+              <div className="absolute inset-0 bg-linear-to-br from-blue-500/40 via-purple-500/30 to-pink-500/20 rounded-2xl blur-2xl group-hover:blur-3xl opacity-60 group-hover:opacity-80 transition-all duration-500 animate-pulse" />
+
+              {/* Glass Frame */}
+              <div className="relative rounded-2xl shadow-2xl overflow-hidden bg-white/10 dark:bg-white/5 backdrop-blur-md py-3 px-2 w-fit h-fit group-hover:scale-105 transition-all duration-500 border border-white/20 dark:border-white/10">
+                {/* Inner gradient overlay */}
+                <div className="absolute inset-0 bg-linear-to-br from-blue-500/10 via-transparent to-purple-500/10" />
+
                 <Image
                   src="/imgs/Logo.png"
                   alt="NEOSALE"
-                  width={60}
-                  height={60}
-                  className="transition-all duration-300 group-hover:scale-105 filter drop-shadow-lg"
+                  width={58}
+                  height={58}
+                  className="transition-all duration-500 relative z-10 drop-shadow-2xl"
                 />
+
+                {/* Shine effect */}
+                <div className="absolute inset-0 bg-linear-to-tr from-transparent via-white/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 -translate-x-full group-hover:translate-x-full" style={{ transition: 'all 1s' }} />
               </div>
             </div>
-            <div>
-              <Typography component="span" className="font-bold text-xl text-slate-900 dark:text-white block leading-tight">
+
+            {/* Text Container */}
+            <div className="text-center relative z-10 space-y-1">
+              <Typography
+                component="span"
+                className="font-black text-3xl bg-linear-to-r from-white via-blue-200 to-purple-200 dark:from-white dark:via-blue-100 dark:to-purple-100 bg-clip-text text-transparent block leading-tight tracking-tight drop-shadow-lg"
+              >
                 NeoSale
               </Typography>
-              <span className="text-xs text-slate-600 dark:text-slate-400 font-medium mb-2">Admin Panel</span>
+              <div className="flex items-center justify-center gap-2">
+                <div className="h-px w-8 bg-linear-to-r from-transparent via-blue-400/50 to-transparent" />
+                <span className="text-[11px] text-slate-300 dark:text-slate-400 font-semibold tracking-widest uppercase">
+                  Admin Panel
+                </span>
+                <div className="h-px w-8 bg-linear-to-r from-transparent via-purple-400/50 to-transparent" />
+              </div>
             </div>
           </Link>
         </div>
 
         {/* Navigation Items - Scrollable */}
-        <nav className="flex-1 overflow-y-auto px-3 py-5">
-          <ul className="space-y-2">
+        <nav className="flex-1 overflow-y-auto px-4 scrollbar-thin scrollbar-thumb-white/10 dark:scrollbar-thumb-white/5 scrollbar-track-transparent">
+          <ul className="space-y-2 flex flex-col h-full justify-center">
             {navItems.map((navItem, index) => {
               const isActive = pathname === navItem.url;
               return (
@@ -57,58 +81,44 @@ export default function AppSidebar({ isOpen }: AppSidebarProps) {
                   <Link
                     href={navItem.url}
                     className={cn(
-                      "group relative flex items-center gap-3 px-4 py-3 rounded-xl font-medium text-sm transition-all duration-200",
-                      "hover:bg-slate-100 dark:hover:bg-slate-800/60",
-                      "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2",
+                      "group relative flex items-center gap-3 px-4 py-3.5 rounded-xl font-medium text-sm transition-all duration-300 overflow-hidden",
+                      "hover:bg-white/10 dark:hover:bg-white/5 backdrop-blur-sm",
+                      "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-400/50",
                       isActive
-                        ? "bg-gradient-to-r from-blue-50 to-purple-50 dark:from-blue-950/40 dark:to-purple-950/40 text-slate-900 dark:text-white shadow-sm border border-blue-100 dark:border-blue-900/50"
-                        : "text-slate-700 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white"
+                        ? "bg-linear-to-r from-blue-700/30 via-blue-600/30 to-transparent text-white shadow-lg  border-l-4 border-blue-500"
+                        : "text-slate-300 dark:text-slate-400 hover:text-white border-l-4 border-transparent hover:border-none"
                     )}
                   >
-                    {/* Active Indicator */}
+                    {/* Active gradient overlay */}
                     {isActive && (
-                      <div className="absolute left-0 top-1/2 -translate-y-1/2 w-1 h-8 bg-gradient-to-b from-blue-500 to-purple-600 rounded-r-full shadow-lg shadow-blue-500/50" />
+                      <div className="absolute inset-0 bg-linear-to-r from-blue-500/10 via-purple-500/5 to-transparent animate-pulse" />
                     )}
 
                     {/* Icon */}
                     <div className={cn(
-                      "relative flex items-center justify-center transition-transform duration-200",
+                      "relative flex items-center justify-center transition-all duration-300 z-10",
                       isActive && "scale-110"
                     )}>
                       <div className={cn(
-                        "[&_svg]:size-5 [&_svg]:flex-shrink-0 transition-all duration-200",
-                        isActive ? "text-blue-600 dark:text-blue-400 [&_svg]:drop-shadow-[0_2px_8px_rgba(59,130,246,0.3)]" : ""
+                        "[&_svg]:size-5 [&_svg]:shrink-0 transition-all duration-300",
+                        isActive ? "text-blue-400 drop-shadow-[0_0_8px_rgba(96,165,250,0.5)]" : "group-hover:text-blue-300"
                       )}>
                         {navItem.icon}
                       </div>
                     </div>
 
-                    <span className="flex-1 font-semibold">{navItem.title}</span>
-
-                    {/* Hover Effect */}
-                    {isActive && (
-                      <div className="w-1.5 h-1.5 rounded-full bg-gradient-to-r from-blue-500 to-purple-600 shadow-lg shadow-blue-500/50" />
-                    )}
+                    <span className={cn(
+                      "flex-1 font-semibold transition-all duration-300 z-10",
+                      isActive && "font-bold"
+                    )}>
+                      {navItem.title}
+                    </span>
                   </Link>
                 </li>
               );
             })}
           </ul>
         </nav>
-
-        {/* Logout Button - Fixed at bottom */}
-        <div className="flex-shrink-0 p-4 border-t border-slate-200 dark:border-slate-800 bg-slate-50/80 dark:bg-slate-950/80 backdrop-blur-sm">
-          <form action="/auth/sign-out" method="post">
-            <Button
-              type="submit"
-              variant="outline"
-              className="w-full bg-white dark:bg-slate-800/80 border-slate-300 dark:border-slate-700 hover:bg-red-50 dark:hover:bg-red-950/30 hover:border-red-300 dark:hover:border-red-500/50 text-slate-700 dark:text-slate-200 hover:text-red-600 dark:hover:text-red-400 transition-all duration-200 group shadow-sm hover:shadow-md"
-            >
-              <LogOut className="size-4 mr-2 flex-shrink-0 group-hover:text-red-500 dark:group-hover:text-red-400 transition-colors" />
-              <span className="font-semibold">Log out</span>
-            </Button>
-          </form>
-        </div>
       </div>
     </div>
   );

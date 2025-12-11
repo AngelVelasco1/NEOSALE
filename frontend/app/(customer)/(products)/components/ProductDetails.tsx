@@ -29,6 +29,7 @@ import {
 } from "react-icons/ri";
 import { ErrorsHandler } from "@/app/errors/errorsHandler";
 import { getProductVariantApi } from "../services/api";
+import { ProductReviews } from "./ProductReviews";
 
 export interface ProductDetailsProps {
   data: IProductDetails;
@@ -558,6 +559,9 @@ export const ProductDetails = ({ data }: ProductDetailsProps) => {
           </div>
         </div>
       </div>
+
+      {/* Sección de Reseñas */}
+      <ProductReviews productId={data.id} />
     </div>
   );
 };

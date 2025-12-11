@@ -78,6 +78,14 @@ export const getOrders = async (
     const method = req.query.method as string;
     const startDate = req.query.startDate as string;
     const endDate = req.query.endDate as string;
+    const minAmount = req.query.minAmount
+      ? parseFloat(req.query.minAmount as string)
+      : undefined;
+    const maxAmount = req.query.maxAmount
+      ? parseFloat(req.query.maxAmount as string)
+      : undefined;
+    const sortBy = req.query.sortBy as string;
+    const sortOrder = req.query.sortOrder as string;
 
     const result = await getOrdersService({
       page,
@@ -87,6 +95,10 @@ export const getOrders = async (
       method,
       startDate,
       endDate,
+      minAmount,
+      maxAmount,
+      sortBy,
+      sortOrder,
     });
 
     res.json({
