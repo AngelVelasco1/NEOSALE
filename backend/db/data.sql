@@ -259,12 +259,19 @@ INSERT INTO orders (
 -- Orden 3 - Pendiente
 (3, 'pending', 71200, 0, 8000, 11392, 90592, 7, NULL, 0, 7, 7, '2024-08-30 16:00:00', '2024-08-30 16:00:00');
 
+INSERT INTO orders (
+    payment_id, status, subtotal, discount, shipping_cost, taxes, total,
+    shipping_address_id, coupon_id, coupon_discount,
+    user_id, updated_by, created_at, updated_at
+) VALUES
+-- Orden 1 - Entregada
+(3, 'delivered', 391200, 39120, 15000, 64252, 431332, 4, 1, 39120, 4, 1, '2025-08-25 14:30:00', '2025-08-27 10:00:00');
 -- ITEMS DE ÓRDENES
 INSERT INTO order_items (price, quantity, subtotal, color_code, size, product_id, order_id) VALUES
-(71200, 1, 71200, '#000000', 'M', 1, 1),
-(320000, 1, 320000, '#000000', '40', 6, 1),
-(120000, 1, 120000, '#4ECDC4', 'S', 4, 2),
-(71200, 1, 71200, '#000000', 'M', 1, 3);
+(71200, 1, 71200, '#000000', 'M', 1, 4),
+(320000, 1, 320000, '#000000', '40', 6, 4),
+(120000, 1, 120000, '#4ECDC4', 'S', 4, 4),
+(71200, 1, 71200, '#000000', 'M', 1, 4);
 
 -- LOGS DE ÓRDENES
 INSERT INTO order_logs (previous_status, new_status, note, order_id, updated_by, user_type) VALUES
@@ -280,10 +287,12 @@ INSERT INTO favorites (user_id, product_id) VALUES
 (4, 8), (4, 12), (5, 1), (6, 6), (7, 4);
 
 -- REVIEWS DE PRODUCTOS
-INSERT INTO reviews (user_id, product_id, rating, comment) VALUES
-(4, 1, 5, 'Excelente camiseta, muy cómoda para correr'),
-(4, 6, 4, 'Buenos tenis, aunque un poco pesados'),
-(5, 4, 5, 'Perfectos leggings, gran calidad');
+INSERT INTO reviews (user_id, product_id, rating, comment, active, order_id) VALUES
+(4, 1, 5, 'Excelente camiseta, muy cómoda para correr', TRUE, 4),
+(4, 6, 4, 'Buenos tenis, aunque un poco pesados', TRUE, 4),
+(5, 4, 4, 'Leggings cómodos pero un poco caros', TRUE, 3),
+(6, 8, 5, 'El iPhone 15 Pro es increíble, muy rápido y con gran cámara', TRUE, NULL),   
+(5, 4, 5, 'Perfectos leggings, gran calidad', FALSE, NULL);
 
 -- IMÁGENES DE REVIEWS
 INSERT INTO review_images (review_id, image_url) VALUES
@@ -297,5 +306,4 @@ UPDATE products SET stock = (
     FROM product_variants pv
     WHERE pv.product_id = products.id AND pv.active = TRUE
 );
-
 

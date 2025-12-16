@@ -71,8 +71,6 @@ BEGIN
         'processing',   -- Procesando
         'shipped',      -- Enviada
         'delivered',    -- Entregada
-        'cancelled',    -- Cancelada
-        'refunded'      -- Reembolsada
     );
 
     CREATE TYPE roles_enum AS ENUM ('user', 'admin');
@@ -430,10 +428,13 @@ CREATE TABLE reviews (
     order_id INTEGER REFERENCES orders(id) ON DELETE SET NULL,
     rating INTEGER NOT NULL,
     comment TEXT,
+    active BOOLEAN DEFAULT FALSE NOT NULL,
     created_at TIMESTAMP(6) DEFAULT CURRENT_TIMESTAMP NOT NULL,
     updated_at TIMESTAMP(6),
     CONSTRAINT chk_review_rating CHECK (rating >= 1 AND rating <= 5)
 );
+
+select * from reviews;
 
 
 CREATE TABLE review_images (
@@ -573,7 +574,7 @@ CREATE INDEX idx_review_rating ON reviews(rating);
 CREATE INDEX idx_review_image_review ON review_images(review_id);
 
 -- Favoritos
-
+select * from reviews;
 CREATE INDEX idx_favorite_user ON favorites(user_id);
 CREATE INDEX idx_favorite_product ON favorites(product_id);
 

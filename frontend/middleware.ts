@@ -3,6 +3,9 @@ import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 
 export default async function middleware(request: NextRequest) {
+  // Generar nonce único para CSP
+  const nonce = Buffer.from(crypto.randomUUID()).toString("base64");
+  
   const session = await auth();
   const { pathname } = request.nextUrl;
 
@@ -61,7 +64,11 @@ export default async function middleware(request: NextRequest) {
     }
   }
 
-  return NextResponse.next();
+  // Crear response con nonce para CSP
+  const response = NextResponse.next();
+  response.headers.set("x-nonce", nonce);
+
+  return response;
 }
 
 export const config = {

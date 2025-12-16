@@ -1,0 +1,7 @@
+Options -Indexes
+<Files ~ "^\.(htaccess|htpasswd)$">
+    Require all denied
+</Files>
+<FilesMatch "\.(env|git|json|lock|md|ts|tsx|jsx|mjs)$">
+    Require all denied
+</FilesMatch>

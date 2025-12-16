@@ -1,0 +1,7 @@
+User-agent: *
+Disallow: /api/
+Disallow: /_next/
+Disallow: /backend/
+Allow: /
+
+Sitemap: /sitemap.xml

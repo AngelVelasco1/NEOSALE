@@ -2,6 +2,9 @@ import { Request, Response } from "express";
 import { Prisma } from "@prisma/client";
 import { AppError } from "../errors/errorsClass";
 
+/* eslint-disable no-undef */
+// process está disponible en Node.js
+
 interface ValidationError extends Error {
   name: "ValidationError";
   details?: unknown[];
@@ -60,20 +63,34 @@ export const errorsHandler = (
   req: Request,
   res: Response,
 ): void => {
-  console.error(`Error capturado en middleware:`, {
-    name: error.name,
-    message: error.message,
-    code: "code" in error ? error.code : "N/A",
-    stack: error.stack?.split("\n")[0], 
-    isPrismaError: error instanceof Prisma.PrismaClientKnownRequestError,
-    url: req.url,
-    method: req.method, 
-    timestamp: new Date().toISOString(),
-  });
+  // Prevenir exposición de información en headers
+  res.removeHeader("X-Powered-By");
+  res.setHeader("Content-Type", "application/json; charset=utf-8");
+  
+  // Solo loggear detalles completos en desarrollo
+  if (process.env.NODE_ENV === "development") {
+    console.error(`Error capturado en middleware:`, {
+      name: error.name,
+      message: error.message,
+      code: "code" in error ? error.code : "N/A",
+      stack: error.stack?.split("\n")[0], 
+      isPrismaError: error instanceof Prisma.PrismaClientKnownRequestError,
+      url: req.url,
+      method: req.method,
+    });
+  } else {
+    // En producción, solo loggear información básica sin exponer rutas
+    console.error(`Error capturado:`, {
+      type: error.name,
+      code: "code" in error ? error.code : "N/A",
+    });
+  }
 
   // Errores de Prisma
   if (isPrismaKnownError(error)) {
-    console.log(`Prisma error - Code: ${error.code}`, error.meta);
+    if (process.env.NODE_ENV === "development") {
+      console.log(`Prisma error - Code: ${error.code}`, error.meta);
+    }
 
     if (error.code === "P2001" || error.code === "P2010") {
       const target = error.meta?.target as string[] | undefined;
@@ -92,8 +109,6 @@ export const errorsHandler = (
         success: false,
         message: `Este ${friendlyName} ya está registrado`,
         code: "DUPLICATE_ERROR",
-        details: { field: fieldName },
-        timestamp: new Date().toISOString(),
       });
       return; 
     }
@@ -103,7 +118,6 @@ export const errorsHandler = (
         success: false,
         message: "Recurso no encontrado",
         code: "NOT_FOUND",
-        timestamp: new Date().toISOString(),
       });
       return;
     }
@@ -112,8 +126,6 @@ export const errorsHandler = (
       success: false,
       message: "Error en la base de datos",
       code: "DATABASE_ERROR",
-      details: { prismaCode: error.code },
-      timestamp: new Date().toISOString(),
     });
     return;
   }
@@ -122,8 +134,6 @@ export const errorsHandler = (
       success: false,
       message: "Error de validación en los datos",
       code: "PRISMA_VALIDATION_ERROR",
-      details: { message: error.message },
-      timestamp: new Date().toISOString(),
     });
     return
   }
@@ -134,7 +144,6 @@ export const errorsHandler = (
       success: false,
       message: error.message,
       code: error.code,
-      timestamp: new Date().toISOString(),
     });
     return;
   }
@@ -145,8 +154,6 @@ export const errorsHandler = (
       success: false,
       message: error.message,
       code: "VALIDATION_ERROR",
-      details: error.details || null,
-      timestamp: new Date().toISOString(),
     });
     return;
   }
@@ -157,7 +164,6 @@ export const errorsHandler = (
       success: false,
       message: error.message,
       code: "NOT_FOUND",
-      timestamp: new Date().toISOString(),
     });
     return;
   }
@@ -171,7 +177,6 @@ export const errorsHandler = (
       success: false,
       message: "Token de acceso inválido o expirado",
       code: "UNAUTHORIZED",
-      timestamp: new Date().toISOString(),
     });
     return;
   }
@@ -181,22 +186,22 @@ export const errorsHandler = (
       success: false,
       message: "El token ha expirado",
       code: "TOKEN_EXPIRED",
-      timestamp: new Date().toISOString(),
     });
     return;
   }
 
   //  Error genérico 
-  console.error("Error no manejado específicamente:", {
-    name: error.name,
-    message: error.message,
-    stack: error.stack,
-  });
+  if (process.env.NODE_ENV === "development") {
+    console.error("Error no manejado específicamente:", {
+      name: error.name,
+      message: error.message,
+      stack: error.stack,
+    });
+  }
 
   res.status(500).json({
     success: false,
     message: "Error interno del servidor",
     code: "INTERNAL_ERROR",
-    timestamp: new Date().toISOString(),
   });
 };

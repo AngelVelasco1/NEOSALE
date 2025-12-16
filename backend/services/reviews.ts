@@ -18,7 +18,7 @@ export const getReviewsService = async (
   productId?: number,
   userId?: number
 ) => {
-  const whereClause: any = {};
+  const whereClause: any = { active: true }; // Solo reseñas aprobadas
 
   if (productId) whereClause.product_id = productId;
   if (userId) whereClause.user_id = userId;
@@ -117,7 +117,11 @@ export const createReviewService = async (data: CreateReviewData) => {
     // Si hay imágenes, agregarlas usando stored procedure
     if (data.images && data.images.length > 0) {
       await prisma.$executeRaw`
-        CALL sp_add_review_images(${reviewId}, ${data.user_id}, ${data.images})
+        CALL sp_add_review_images(
+          ${reviewId}::INTEGER, 
+          ${data.user_id}::INTEGER, 
+          ${data.images}::TEXT[]
+        )
       `;
     }
 
@@ -151,9 +155,12 @@ export const updateReviewService = async (
   try {
     // Usar el stored procedure para actualizar la review
     await prisma.$executeRaw`
-      CALL sp_update_review(${id}, ${data.rating || null}, ${
-      data.comment !== undefined ? data.comment : null
-    }, ${userId})
+      CALL sp_update_review(
+        ${id}::INTEGER, 
+        ${data.rating || null}::INTEGER, 
+        ${data.comment !== undefined ? data.comment : null}::TEXT, 
+        ${userId}::INTEGER
+      )
     `;
 
     // Retornar la review actualizada
@@ -197,7 +204,10 @@ export const deleteReviewService = async (id: number, userId: number) => {
 
 export const getProductReviewStatsService = async (productId: number) => {
   const stats = await prisma.reviews.aggregate({
-    where: { product_id: productId },
+    where: { 
+      product_id: productId,
+      active: true // Solo reseñas aprobadas
+    },
     _avg: {
       rating: true,
     },
@@ -208,7 +218,10 @@ export const getProductReviewStatsService = async (productId: number) => {
 
   const ratingDistribution = await prisma.reviews.groupBy({
     by: ["rating"],
-    where: { product_id: productId },
+    where: { 
+      product_id: productId,
+      active: true // Solo reseñas aprobadas
+    },
     _count: {
       rating: true,
     },
@@ -276,7 +289,11 @@ export const addReviewImagesService = async (
 
     // Usar el stored procedure para agregar imágenes
     await prisma.$executeRaw`
-      CALL sp_add_review_images(${reviewId}, ${userId}, ${images})
+      CALL sp_add_review_images(
+        ${reviewId}::INTEGER, 
+        ${userId}::INTEGER, 
+        ${images}::TEXT[]
+      )
     `;
 
     // Retornar la review actualizada con las nuevas imágenes
@@ -305,7 +322,7 @@ export const deleteReviewImageService = async (
   try {
     // Usar el stored procedure para eliminar la imagen
     await prisma.$executeRaw`
-      CALL sp_delete_review_image(${imageId}, ${userId})
+      CALL sp_delete_review_image(${imageId}::INTEGER, ${userId}::INTEGER)
     `;
 
     return { message: "Imagen eliminada exitosamente" };

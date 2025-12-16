@@ -1,6 +1,7 @@
 import { FRONT_CONFIG } from "./config/credentials.js";
 import path from "path";
 import { fileURLToPath } from "url";
+import { getSecurityHeaders } from "./lib/security.ts";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -85,12 +86,51 @@ const nextConfig = {
   turbopack: {
     root: __dirname,
   },
-  // Headers para mejorar CORS
+  
+  // Security Headers con CSP y mejores prácticas
   async headers() {
     return [
       {
-        source: "/(.*)",
+        source: "/:path*",
         headers: [
+          ...getSecurityHeaders(),
+          {
+            key: "X-Content-Type-Options",
+            value: "nosniff",
+          },
+          {
+            key: "X-Permitted-Cross-Domain-Policies",
+            value: "none",
+          },
+        ],
+      },
+      // Headers específicos para API routes
+      {
+        source: "/api/:path*",
+        headers: [
+          ...getSecurityHeaders(),
+          {
+            key: "X-Content-Type-Options",
+            value: "nosniff",
+          },
+          {
+            key: "Cache-Control",
+            value: "no-store, max-age=0",
+          },
+          {
+            key: "X-Robots-Tag",
+            value: "noindex, nofollow",
+          },
+        ],
+      },
+      // CORS para el backend
+      {
+        source: "/backend/:path*",
+        headers: [
+          {
+            key: "X-Content-Type-Options",
+            value: "nosniff",
+          },
           {
             key: "Access-Control-Allow-Origin",
             value: `${FRONT_CONFIG.api_origin}`,
