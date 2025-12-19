@@ -1,4 +1,5 @@
 import { prisma } from "../lib/prisma.js";
+import { notifyNewReview } from "./notifications.js";
 
 export interface CreateReviewData {
   user_id: number;
@@ -108,14 +109,20 @@ export const createReviewService = async (data: CreateReviewData) => {
       ) as sp_create_review
     `;
 
+    console.log('📝 Review creation result:', result);
+
     const reviewId = result[0]?.sp_create_review;
 
     if (!reviewId) {
-      throw new Error("Error al crear la review");
+      console.error('❌ No review ID returned:', result);
+      throw new Error("Error al crear la review - No se recibió ID");
     }
+
+    console.log('✅ Review created with ID:', reviewId);
 
     // Si hay imágenes, agregarlas usando stored procedure
     if (data.images && data.images.length > 0) {
+      console.log('📸 Adding images to review:', reviewId);
       await prisma.$executeRaw`
         CALL sp_add_review_images(
           ${reviewId}::INTEGER, 
@@ -126,8 +133,64 @@ export const createReviewService = async (data: CreateReviewData) => {
     }
 
     // Obtener la review completa con imágenes
-    const completeReview = await getReviewByIdService(reviewId);
-    return completeReview;
+    console.log('🔍 Fetching complete review with ID:', reviewId);
+    
+    if (!reviewId || isNaN(reviewId)) {
+      throw new Error(`Invalid review ID: ${reviewId}`);
+    }
+    
+    // Obtener directamente con Prisma en lugar de usar el servicio
+    const completeReview = await prisma.reviews.findUnique({
+      where: { id: reviewId },
+      include: {
+        User: {
+          select: {
+            id: true,
+            name: true,
+            image: true,
+          },
+        },
+        products: {
+          select: {
+            id: true,
+            name: true,
+          },
+        },
+        review_images: true,
+      },
+    });
+
+    if (!completeReview) {
+      console.error('❌ Review not found after creation with ID:', reviewId);
+      throw new Error("Review not found after creation");
+    }
+
+    console.log('✅ Review fetched successfully:', completeReview.id);
+
+    console.log('✅ Review fetched successfully:', completeReview.id);
+
+    // 🔔 Notificar a todos los admins sobre la nueva reseña
+    try {
+      await notifyNewReview(
+        data.product_id,
+        completeReview.products?.name || "Producto",
+        data.rating
+      );
+    } catch (notifyError) {
+      console.error("⚠️ Error al crear notificación de nueva reseña:", notifyError);
+      // No lanzar error, la notificación es opcional
+    }
+
+    return {
+      id: completeReview.id,
+      rating: completeReview.rating,
+      comment: completeReview.comment,
+      created_at: completeReview.created_at,
+      updated_at: completeReview.updated_at,
+      user: completeReview.User,
+      product: completeReview.products,
+      images: completeReview.review_images,
+    };
   } catch (error: any) {
     // Mapear errores específicos de PostgreSQL
     if (error.message.includes("Usuario ya ha calificado este producto")) {

@@ -20,6 +20,7 @@ interface UserProfile {
   role: "user" | "admin";
   password: string | null;
   addresses: string[] | null;
+  image?: string | null;
 }
 
 interface UserContextType {

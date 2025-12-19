@@ -235,6 +235,7 @@ export const getUserByIdService = async (id: number | undefined) => {
       password: true,
       identification: true,
       role: true,
+      image: true,
       addresses: {
         select: {
           id: true,
@@ -320,6 +321,35 @@ export const updatePasswordService = async ({
 
   await prisma.$executeRaw`CALL sp_update_password(${id}::int, ${hashedPassword}::text)`;
   return { success: true, message: "Contraseña actualizada exitosamente" };
+};
+
+export const updateUserImageService = async ({
+  id,
+  image,
+}: {
+  id: number;
+  image: string;
+}) => {
+  if (!id || !image) {
+    throw new Error("ID de usuario e imagen son requeridos");
+  }
+
+  const user = await prisma.user.update({
+    where: { id },
+    data: { image },
+    select: {
+      id: true,
+      name: true,
+      email: true,
+      image: true,
+    },
+  });
+
+  return {
+    success: true,
+    data: user,
+    message: "Imagen de perfil actualizada exitosamente",
+  };
 };
 
 export const addFavoriteService = async (userId: number, productId: number) => {

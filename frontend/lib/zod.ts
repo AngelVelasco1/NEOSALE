@@ -83,3 +83,39 @@ export const updateUserPasswordSchema = z.object({
   message: "Las contraseñas no coinciden",
   path: ["confirmPassword"],
 });
+
+export const createAddressSchema = z.object({
+  address: z.string()
+    .min(5, 'La dirección debe tener al menos 5 caracteres')
+    .max(200, 'La dirección no debe exceder 200 caracteres'),
+  country: z.string()
+    .min(2, 'El país debe tener al menos 2 caracteres')
+    .max(100, 'El país no debe exceder 100 caracteres'),
+  city: z.string()
+    .min(2, 'La ciudad debe tener al menos 2 caracteres')
+    .max(100, 'La ciudad no debe exceder 100 caracteres'),
+  department: z.string()
+    .min(2, 'El departamento debe tener al menos 2 caracteres')
+    .max(100, 'El departamento no debe exceder 100 caracteres'),
+  is_default: z.boolean().optional().default(false),
+});
+
+export const updateAddressSchema = z.object({
+  address: z.string()
+    .min(5, 'La dirección debe tener al menos 5 caracteres')
+    .max(200, 'La dirección no debe exceder 200 caracteres')
+    .optional(),
+  country: z.string()
+    .min(2, 'El país debe tener al menos 2 caracteres')
+    .max(100, 'El país no debe exceder 100 caracteres')
+    .optional(),
+  city: z.string()
+    .min(2, 'La ciudad debe tener al menos 2 caracteres')
+    .max(100, 'La ciudad no debe exceder 100 caracteres')
+    .optional(),
+  department: z.string()
+    .min(2, 'El departamento debe tener al menos 2 caracteres')
+    .max(100, 'El departamento no debe exceder 100 caracteres')
+    .optional(),
+  is_default: z.boolean().optional(),
+});

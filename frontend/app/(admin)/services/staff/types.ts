@@ -7,6 +7,7 @@ export type SBStaff = {
   name: string;
   email: string;
   phone_number: string | null;
+  phone?: string | null;
   identification: string | null;
   identification_type: string | null;
   role: string;
@@ -14,6 +15,7 @@ export type SBStaff = {
   email_notifications: boolean | null;
   created_at: Date;
   updated_at: Date;
+  image?: string | null;
 };
 
 export type Staff = {

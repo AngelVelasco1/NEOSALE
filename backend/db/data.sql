@@ -91,7 +91,6 @@ INSERT INTO "User" (name, email, email_verified, password, phone_number, identif
 ('Luis Fernández', 'luis.fernandez@email.com', '2023-12-01 16:45:00', crypt('User789!', gen_salt('bf', 12)), '3045678901', '1065432109', 'CE', 'user', TRUE, FALSE),
 ('Sofia Herrera', 'sofia.herrera@email.com', '2023-12-05 11:20:00', crypt('User101!', gen_salt('bf', 12)), '3056789012', '1054321098', 'CC', 'user', TRUE, TRUE),
 ('Diego Morales', 'diego.morales@email.com', '2023-12-10 13:10:00', crypt('User202!', gen_salt('bf', 12)), '3067890123', '1043210987', 'CC', 'user', TRUE, TRUE);
-
 -- CUPONES
 INSERT INTO coupons (code, name, discount_type, discount_value, min_purchase_amount, usage_limit, expires_at, created_by) VALUES
 ('WELCOME10', '10% Descuento de Bienvenida', 'percentage', 10.00, 50000, 1, '2026-12-31 23:59:59', 1),

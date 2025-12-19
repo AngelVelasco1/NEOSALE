@@ -26,9 +26,10 @@ interface DashboardPageProps {
 
 export default async function DashboardPage({ searchParams }: DashboardPageProps) {
   // Si no hay parámetros, usar "este mes" por defecto
+  
   let dateRange;
   if (searchParams.from && searchParams.to) {
-    dateRange = { from: searchParams.from, to: searchParams.to };
+    dateRange = { from: await searchParams.from, to: await searchParams.to };
   } else {
     // Default: este mes (mismo que DashboardFilters)
     const now = new Date();

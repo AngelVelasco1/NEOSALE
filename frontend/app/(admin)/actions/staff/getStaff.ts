@@ -103,6 +103,7 @@ export async function getStaffDetails(userId: number) {
         email_notifications: true,
         created_at: true,
         updated_at: true,
+        image: true,
       },
     });
 

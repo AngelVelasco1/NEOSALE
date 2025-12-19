@@ -4,6 +4,7 @@ import {
   getUserById,
   updateUser,
   updatePassword,
+  updateUserImage,
   addFavorite,
   removeFavorite,
   checkIsFavorite,
@@ -18,6 +19,7 @@ export const usersRoutes = () =>
     .get("/getUser", getUserById)
     .put("/updateUser", updateUser)
     .put("/updatePassword", updatePassword)
+    .put("/updateUserImage", updateUserImage)
     .post("/addFavorite", addFavorite)
     .delete("/removeFavorite", removeFavorite)
     .get("/checkIsFavorite/:userId/:productId", checkIsFavorite)

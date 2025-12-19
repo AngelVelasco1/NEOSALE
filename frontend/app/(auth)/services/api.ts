@@ -38,3 +38,61 @@ export const updatePassword = async (userData: {
   const { data } = await api.put("/api/users/updatePassword", userData);
   return data;
 }
+
+// Address services
+export const getUserAddresses = async (userId: number) => {
+  const { data } = await api.get(`/api/addresses/getUserAddresses?user_id=${userId}`);
+  return data;
+}
+
+export const createAddress = async (userId: number, addressData: {
+  address: string;
+  country: string;
+  city: string;
+  department: string;
+  is_default?: boolean;
+}) => {
+  const { data } = await api.post(`/api/addresses/createAddress?user_id=${userId}`, addressData);
+  return data;
+}
+
+export const updateAddress = async (userId: number, addressId: number, addressData: {
+  address?: string;
+  country?: string;
+  city?: string;
+  department?: string;
+  is_default?: boolean;
+}) => {
+  const { data } = await api.put(`/api/addresses/updateAddress/${addressId}?user_id=${userId}`, addressData);
+  return data;
+}
+
+export const deleteAddress = async (userId: number, addressId: number) => {
+  const { data } = await api.delete(`/api/addresses/deleteAddress/${addressId}?user_id=${userId}`);
+  return data;
+}
+
+export const setDefaultAddress = async (userId: number, addressId: number) => {
+  const { data } = await api.post(`/api/addresses/setDefaultAddress/${addressId}?user_id=${userId}`);
+  return data;
+}
+
+// Image upload service
+export const uploadProfileImage = async (file: File) => {
+  const formData = new FormData();
+  formData.append("file", file);
+  formData.append("folder", "neosale/profiles");
+  formData.append("preset", "profile");
+  
+  const { data } = await api.post("/api/upload-profile-image", formData, {
+    headers: {
+      "Content-Type": "multipart/form-data",
+    },
+  });
+  return data;
+}
+
+export const updateUserImage = async (userId: number, imageUrl: string) => {
+  const { data } = await api.put("/api/users/updateUserImage", { id: userId, image: imageUrl });
+  return data;
+}

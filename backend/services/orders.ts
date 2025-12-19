@@ -1,4 +1,5 @@
 import { prisma } from "../lib/prisma";
+import { notifyNewOrder, notifyOrderStatusChange, notifyLowStock } from "./notifications.js";
 
 interface CreateOrderFromPaymentRequest {
   paymentId: number;
@@ -88,6 +89,40 @@ export const createOrderService = async ({
 
     if (!orderResult.success) {
       throw new Error(orderResult.message || "Error creando orden");
+    }
+
+    // 🔔 Notificar a todos los admins sobre el nuevo pedido
+    try {
+      const orderDetails = await prisma.orders.findUnique({
+        where: { id: orderResult.order_id },
+        include: {
+          users: { select: { name: true, email: true } },
+        },
+      });
+
+      if (orderDetails) {
+        await notifyNewOrder(
+          orderDetails.id,
+          orderDetails.users?.name || orderDetails.users?.email || "Cliente",
+          orderDetails.total / 100 // Convertir de centavos a unidades
+        );
+
+        // 🔔 Verificar stock bajo en productos de la orden
+        const orderItems = await prisma.order_items.findMany({
+          where: { order_id: orderDetails.id },
+          include: { products: true },
+        });
+
+        for (const item of orderItems) {
+          const product = item.products;
+          if (product && product.stock <= 10) {
+            await notifyLowStock(product.id, product.name, product.stock, 10);
+          }
+        }
+      }
+    } catch (notifyError) {
+      console.error("⚠️ Error al crear notificación de nuevo pedido:", notifyError);
+      // No lanzar error, la notificación es opcional
     }
 
     return {
@@ -494,6 +529,13 @@ export const updateOrderStatusService = async (
       orderId: order.id,
       newStatus: order.status,
     });
+
+    // Notificar a todos los admins sobre el cambio de estado
+    try {
+      await notifyOrderStatusChange(order.id, status);
+    } catch (notifyError) {
+      console.error("Error al crear notificación de cambio de estado:", notifyError);
+    }
 
     return order;
   } catch (error) {

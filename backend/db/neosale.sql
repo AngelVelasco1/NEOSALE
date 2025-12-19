@@ -22,6 +22,7 @@ DROP TABLE IF EXISTS categories;
 DROP TABLE IF EXISTS subcategories;
 DROP TABLE IF EXISTS brands;
 DROP TABLE IF EXISTS "User";
+DROP TABLE IF EXISTS notifications;
 DROP TABLE IF EXISTS "verificationtoken";
 
 DO $$
@@ -70,18 +71,18 @@ BEGIN
         'paid',         -- Pagada (cuando payment_status = 'APPROVED')
         'processing',   -- Procesando
         'shipped',      -- Enviada
-        'delivered',    -- Entregada
+        'delivered'    -- Entregada
     );
 
     CREATE TYPE roles_enum AS ENUM ('user', 'admin');
 
     CREATE TYPE notification_type_enum AS ENUM (
-        'order_confirmed',     -- Orden confirmada
-        'order_shipped',       -- Orden enviada
-        'order_delivered',     -- Orden entregada
-        'price_drop',          -- Bajada de precio
-        'back_in_stock',       -- Producto disponible
-        'review_request',      -- Solicitud de review
+        'low_stock',           -- Stock bajo
+        'out_of_stock',        -- Sin stock
+        'new_order',           -- Nueva orden
+        'order_status_change', -- Cambio estado de orden
+        'new_review',          -- Nueva reseña
+        'system_alert',        -- Alerta del sistema
         'promotion'            -- Promoción especial
     );
 
@@ -119,6 +120,26 @@ CREATE TABLE "User" (
     ),
     CONSTRAINT chk_user_identification_type CHECK (
         identification_type IN ('CC', 'CE', 'PP')
+    )
+);
+
+
+-- Tabla de notificaciones para administradores
+CREATE TABLE notifications (
+    id SERIAL PRIMARY KEY,
+    staff_id INTEGER NOT NULL REFERENCES "User"(id) ON DELETE CASCADE,
+    type notification_type_enum NOT NULL,
+    title VARCHAR(255) NOT NULL,
+    message TEXT NOT NULL,
+    link VARCHAR(500), -- URL para redireccionar 
+    related_entity_type VARCHAR(50), -- 'order', 'product', 'review', etc.
+    related_entity_id INTEGER, -- ID de la entidad relacionada
+    is_read BOOLEAN DEFAULT FALSE NOT NULL,
+    read_at TIMESTAMP(6),
+    created_at TIMESTAMP(6) DEFAULT CURRENT_TIMESTAMP NOT NULL,
+    CONSTRAINT chk_notification_related CHECK (
+        (related_entity_type IS NULL AND related_entity_id IS NULL) OR
+        (related_entity_type IS NOT NULL AND related_entity_id IS NOT NULL)
     )
 );
 
@@ -577,6 +598,14 @@ CREATE INDEX idx_review_image_review ON review_images(review_id);
 select * from reviews;
 CREATE INDEX idx_favorite_user ON favorites(user_id);
 CREATE INDEX idx_favorite_product ON favorites(product_id);
+
+-- Notificaciones
+
+CREATE INDEX idx_notification_staff ON notifications(staff_id);
+CREATE INDEX idx_notification_unread ON notifications(staff_id, is_read) WHERE is_read = FALSE;
+CREATE INDEX idx_notification_type ON notifications(type);
+CREATE INDEX idx_notification_created ON notifications(created_at DESC);
+CREATE INDEX idx_notification_related ON notifications(related_entity_type, related_entity_id) WHERE related_entity_type IS NOT NULL;
 
 -- Devoluciones (comentado porque las tablas están comentadas)
 -- CREATE INDEX idx_return_order ON returns(order_id);

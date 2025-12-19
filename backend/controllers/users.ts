@@ -4,6 +4,7 @@ import {
   getUserByIdService,
   updateUserService,
   updatePasswordService,
+  updateUserImageService,
   addFavoriteService,
   removeFavoriteService,
   checkIsFavoriteService,
@@ -134,6 +135,21 @@ export const updatePassword = async (
     const { id, newPassword } = req.body;
 
     const result = await updatePasswordService({ id, newPassword });
+    res.json(result);
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const updateUserImage = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  try {
+    const { id, image } = req.body;
+
+    const result = await updateUserImageService({ id, image });
     res.json(result);
   } catch (error) {
     next(error);

@@ -4,7 +4,6 @@ import { Suspense } from "react";
 import { MenuIcon, Search } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import Profile from "@/app/(admin)/components/shared/header/Profile";
-import ThemeToggle from "@/app/(admin)/components/shared/header/ThemeToggle";
 import Notifications from "@/app/(admin)/components/shared/notifications/Notifications";
 import { useSession } from "next-auth/react";
 

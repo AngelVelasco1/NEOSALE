@@ -13,6 +13,13 @@ const nextConfig = {
     `${FRONT_CONFIG.api_origin}`,
   ],
 
+  // Configuración experimental para Server Actions
+  experimental: {
+    serverActions: {
+      bodySizeLimit: "4mb", // Permitir hasta 4MB para subida de imágenes
+    },
+  },
+
   webpack: (config, { dev }) => {
     if (dev) {
       config.cache = false;
@@ -110,10 +117,6 @@ const nextConfig = {
         headers: [
           ...getSecurityHeaders(),
           {
-            key: "X-Content-Type-Options",
-            value: "nosniff",
-          },
-          {
             key: "Cache-Control",
             value: "no-store, max-age=0",
           },
@@ -127,10 +130,6 @@ const nextConfig = {
       {
         source: "/backend/:path*",
         headers: [
-          {
-            key: "X-Content-Type-Options",
-            value: "nosniff",
-          },
           {
             key: "Access-Control-Allow-Origin",
             value: `${FRONT_CONFIG.api_origin}`,

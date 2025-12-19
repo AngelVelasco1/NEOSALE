@@ -143,6 +143,7 @@ model User {
   categories                     categories[]
   coupons                        coupons[]
   favorites                      favorites[]
+  notifications                  notifications[]
   order_logs                     order_logs[]
   orders_orders_updated_byToUser orders[]           @relation("orders_updated_byToUser")
   orders                         orders[]
@@ -365,14 +366,28 @@ model payments {
   User                     User                @relation(fields: [user_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
 }
 
+/// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
+model notifications {
+  id                  Int                    @id @default(autoincrement())
+  staff_id            Int
+  type                notification_type_enum
+  title               String                 @db.VarChar(255)
+  message             String
+  link                String?                @db.VarChar(500)
+  related_entity_type String?                @db.VarChar(50)
+  related_entity_id   Int?
+  is_read             Boolean                @default(false)
+  read_at             DateTime?              @db.Timestamp(6)
+  created_at          DateTime               @default(now()) @db.Timestamp(6)
+  User                User                   @relation(fields: [staff_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+}
+
 enum orders_status_enum {
   pending
   paid
   processing
   shipped
   delivered
-  cancelled
-  refunded
 }
 
 enum roles_enum {
@@ -389,12 +404,12 @@ enum return_status_enum {
 }
 
 enum notification_type_enum {
-  order_confirmed
-  order_shipped
-  order_delivered
-  price_drop
-  back_in_stock
-  review_request
+  low_stock
+  out_of_stock
+  new_order
+  order_status_change
+  new_review
+  system_alert
   promotion
 }
 

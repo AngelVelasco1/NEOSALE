@@ -43,7 +43,7 @@ export default function Profile() {
         <div className="relative">
           <Avatar className="h-9 w-9 ring-2 ring-slate-700/50 group-hover:ring-indigo-500/50 transition-all duration-300 group-hover:scale-105 group-hover:shadow-lg group-hover:shadow-indigo-500/30">
             <AvatarImage
-              src={undefined}
+              src={userProfile?.image ?? undefined}
               alt={userProfile?.name ?? "User avatar"}
               className="object-cover object-center"
             />
@@ -86,7 +86,7 @@ export default function Profile() {
               <div className="relative">
                 <Avatar className="h-12 w-12 ring-2 ring-indigo-500/30 shadow-lg shadow-indigo-500/20">
                   <AvatarImage
-                    src={undefined}
+                    src={userProfile?.image ?? undefined}
                     alt={userProfile?.name ?? "User avatar"}
                     className="object-cover object-center"
                   />

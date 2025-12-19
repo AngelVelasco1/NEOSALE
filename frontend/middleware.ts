@@ -3,15 +3,9 @@ import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 
 export default async function middleware(request: NextRequest) {
-  // Generar nonce único para CSP
-  const nonce = Buffer.from(crypto.randomUUID()).toString("base64");
-  
   const session = await auth();
   const { pathname } = request.nextUrl;
 
-  // ==========================================
-  // PROTECCIÓN PARA ADMINS
-  // ==========================================
   if (session?.user?.role === "admin") {
     // Rutas de clientes que admins NO pueden acceder
     const customerOnlyRoutes = [
@@ -38,9 +32,6 @@ export default async function middleware(request: NextRequest) {
     }
   }
 
-  // ==========================================
-  // PROTECCIÓN PARA USUARIOS NO AUTENTICADOS
-  // ==========================================
   if (!session || !session.user) {
     const privateRoutes = ["/profile", "/orders", "/checkout", "/favorites"];
     const isPrivateRoute = privateRoutes.some(
@@ -52,9 +43,7 @@ export default async function middleware(request: NextRequest) {
     }
   }
 
-  // ==========================================
-  // PROTECCIÓN DEL DASHBOARD (Solo admins)
-  // ==========================================
+
   if (pathname.startsWith("/dashboard")) {
     if (!session) {
       return NextResponse.redirect(new URL("/login", request.url));
@@ -64,11 +53,7 @@ export default async function middleware(request: NextRequest) {
     }
   }
 
-  // Crear response con nonce para CSP
-  const response = NextResponse.next();
-  response.headers.set("x-nonce", nonce);
-
-  return response;
+  return NextResponse.next();
 }
 
 export const config = {

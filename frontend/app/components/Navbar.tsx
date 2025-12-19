@@ -739,7 +739,7 @@ export const Navbar = () => {
               ) : (
                 <Button
                   onClick={() => router.push("/login")}
-                  className="h-10 px-4 ml-4 rounded-xl bg-blue-600 hover:bg-blue-700 text-white transition-colors font-medium"
+                  className="cursor-pointer h-10 px-4 ml-4 rounded-xl bg-blue-600 hover:bg-blue-700 text-white transition-colors font-medium"
                 >
                   Iniciar Sesión
                 </Button>

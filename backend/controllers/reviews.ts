@@ -40,14 +40,18 @@ export const getReviewById = async (
 ) => {
   try {
     const id = Number(req.params.id);
+    console.log('🔍 Fetching review with ID:', id, 'Type:', typeof id, 'isNaN:', isNaN(id));
 
     if (!id || isNaN(id)) {
+      console.error('❌ Invalid ID received:', req.params.id);
       return res.status(400).json({ error: "Invalid review ID" });
     }
 
     const review = await getReviewByIdService(id);
+    console.log('✅ Review found:', review.id);
     res.status(200).json(review);
   } catch (err) {
+    console.error('❌ Error in getReviewById:', err);
     next(err);
   }
 };
@@ -59,6 +63,8 @@ export const createReview = async (
 ) => {
   try {
     const { user_id, product_id, rating, comment, images, order_id } = req.body;
+
+    console.log('📝 Creating review with data:', { user_id, product_id, rating, comment, order_id });
 
     // Validaciones básicas
     if (!user_id || !product_id || !rating) {
@@ -83,8 +89,10 @@ export const createReview = async (
     };
 
     const review = await createReviewService(reviewData);
+    console.log('✅ Review created successfully:', review);
     res.status(201).json(review);
   } catch (err) {
+    console.error('❌ Error in createReview controller:', err);
     next(err);
   }
 };
@@ -99,7 +107,7 @@ export const updateReview = async (
     const { user_id, rating, comment } = req.body;
 
     if (!id || isNaN(id)) {
-      return res.status(400).json({ error: "Invalid review ID" });
+      return res.status(400).json({ error: "Invalid review IDO" });
     }
 
     if (!user_id) {
@@ -133,7 +141,7 @@ export const deleteReview = async (
     const { user_id } = req.body;
 
     if (!id || isNaN(id)) {
-      return res.status(400).json({ error: "Invalid review ID" });
+      return res.status(400).json({ error: "Invalid review IDE" });
     }
 
     if (!user_id) {
@@ -242,7 +250,7 @@ export const addReviewImages = async (
     const { user_id, images } = req.body;
 
     if (!reviewId || isNaN(reviewId)) {
-      return res.status(400).json({ error: "Invalid review ID" });
+      return res.status(400).json({ error: "Invalid review IDI" });
     }
 
     if (!user_id) {

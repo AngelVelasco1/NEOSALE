@@ -143,17 +143,17 @@ export const createAddressService = async (
 
   try {
     return await prisma.$transaction(async (ts) => {
-      const result = await ts.$queryRaw<[{ fn_create_address: number }]>`
-        SELECT * FROM fn_create_address(
+      const result = await ts.$queryRaw<[{ p_new_id: number }]>`
+        SELECT fn_create_address(
           ${address}::TEXT,
           ${country}::TEXT,
           ${city}::TEXT,
           ${department}::TEXT,
           ${user_id}::INT,
           ${is_default}::BOOLEAN
-        )`;
+        ) as p_new_id`;
 
-      const newAddressId = result[0].fn_create_address;
+      const newAddressId = result[0].p_new_id;
       if (!newAddressId) {
         throw new Error("Error al crear la dirección");
       }
