@@ -17,7 +17,7 @@ import {
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "@/components/ui/select";
+} from "@/app/(admin)/components/ui/select";
 
 import { fetchSubcategoriesDropdown } from "@/app/(admin)/services/categories";
 import FetchDropdownContainer from "@/app/(admin)/components/shared/FetchDropdownContainer";

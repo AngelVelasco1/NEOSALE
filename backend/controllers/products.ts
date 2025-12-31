@@ -3,6 +3,7 @@ import {
   getProductsService,
   getLatestProductsService,
   getVariantStockService,
+  getOffersService,
 } from "../services/products.js";
 import { Request, Response } from "express";
 
@@ -56,6 +57,20 @@ export const getVariantStock = async (
     const productVariant = await getVariantStockService(id, color_code, size);
     res.status(200).json(productVariant);
   } catch (err) {
+    next(err);
+  }
+};
+
+export const getOffers = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  try {
+    const offers = await getOffersService();
+    res.status(200).json(offers);
+  } catch (err) {
+    console.error("❌ Error en controller getOffers:", err);
     next(err);
   }
 };

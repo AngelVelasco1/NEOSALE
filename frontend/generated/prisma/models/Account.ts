@@ -42,7 +42,7 @@ export type AccountMinAggregateOutputType = {
   provider: string | null
   provider_account_id: string | null
   refresh_token: string | null
-  access_token: string | null
+  accessToken: string | null
   expires_at: number | null
   token_type: string | null
   scope: string | null

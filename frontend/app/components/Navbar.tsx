@@ -277,12 +277,12 @@ export const Navbar = () => {
                         </Link>
 
                         <Link
-                          href="/ofertas"
-                          className="flex items-center gap-3 p-3 rounded-lg border-none  transition-colors group"
+                          href="/offers"
+                          className="flex items-center gap-3 py-3 px-4 rounded-lg hover:bg-gradient-to-r hover:from-orange-500/20 hover:to-red-500/20 transition-colors group border border-transparent hover:border-orange-500/30"
                           onClick={() => setIsMobileMenuOpen(false)}
                         >
-                          <Zap className="h-5 w-5 " />
-                          <span className="font-medium text-white ">
+                          <Zap className="h-5 w-5 text-orange-400 group-hover:animate-pulse" />
+                          <span className="font-medium text-white group-hover:text-orange-300">
                             Ofertas
                           </span>
                         </Link>
@@ -411,6 +411,8 @@ export const Navbar = () => {
                 </NavigationMenuLink>
               </NavigationMenuItem>
 
+            
+
               <NavigationMenuItem>
                 <NavigationMenuTrigger className="h-11 border-none bg-transparent hover:bg-white/10 rounded-xl font-medium transition-all duration-300  text-white data-[state=open]:bg-white/10 focus:outline-none focus:ring-0 [&>svg]:!text-white ">
                   Categorías
@@ -503,8 +505,8 @@ export const Navbar = () => {
               <NavigationMenuItem>
                 <NavigationMenuLink asChild className="flex flex-row">
                   <Link
-                    href="/ofertas"
-                    className="flex h-11 w-fit items-center justify-center rounded-xl bg-linear-to-r from-indigo-500 to-purple-500 px-6 py-2 text-sm font-medium text-white transition-all duration-300 hover:from-indigo-600 hover:to-purple-600 hover:shadow-lg hover:shadow-indigo-500/25 hover:scale-105  gap-2"
+                    href="/offers"
+                    className="flex h-11 w-fit items-center justify-center rounded-xl bg-linear-to-r from-orange-400/90 to-orange-600 px-6 py-2 text-sm font-medium text-white transition-all duration-300 hover:from-orange-600 hover:to-red-700 hover:shadow-lg hover:shadow-orange-500/25 hover:scale-105  gap-2"
                   >
                     <Zap className="h-4 w-4 flex-shrink-0" />
                     <span>Ofertas</span>
@@ -517,7 +519,7 @@ export const Navbar = () => {
           {/* Actions Section */}
           <div className="flex items-center gap-3">
             {/* Search Bar - Desktop */}
-            <div className="hidden md:flex flex-1 max-w-sm mx-4">
+            <div className="hidden md:flex flex-1 max-w-md mx-4">
               <form onSubmit={handleSearchSubmit} className="relative w-full">
                 <SearchIcon className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-slate-300 z-10" />
                 <Input
@@ -632,12 +634,6 @@ export const Navbar = () => {
                   </Badge>
                 )}
               </div>
-
-              {/* Theme Toggle */}
-              <div className=" rounded-lg p-1">
-                <ThemeToggle />
-              </div>
-
               {/* User Menu */}
               {userProfile ? (
                 <DropdownMenu>

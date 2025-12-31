@@ -17,7 +17,7 @@ import {
     SelectItem,
     SelectTrigger,
     SelectValue,
-} from "@/components/ui/select";
+} from "@/app/(admin)/components/ui/select";
 
 import { fetchSubcategoriesByCategoryDropdown } from "@/app/(admin)/services/categories";
 import FetchDropdownContainer from "@/app/(admin)/components/shared/FetchDropdownContainer";
@@ -92,8 +92,8 @@ const FormSubcategoryByCategory = forwardRef(function FormSubcategoryByCategoryR
                             }}
                             disabled={isLoading}
                         >
-                            <FormControl className="px-4 mt-2 rounded-xl border-2 border-slate-600/40 bg-slate-800/50 text-slate-200 placeholder:text-slate-400/70 focus:border-indigo-400/60 focus:bg-slate-700/50 hover:border-slate-500/60 transition-all duration-200 focus:ring-0 focus:ring-offset-0 shadow-sm">
-                                <SelectTrigger ref={ref} className="md:basis-1/5 h-12 border-0 bg-transparent">
+                            <FormControl className="px-4 mt-2 rounded-xl border-2 border-slate-500/30 text-slate-200 placeholder:text-slate-400/70 focus:ring-0 focus:ring-offset-0 shadow-sm transition-all duration-200 ">
+                                <SelectTrigger ref={ref} className="md:basis-1/5 h-12">
                                     <SelectValue
                                         placeholder={
                                             isLoading
@@ -106,7 +106,7 @@ const FormSubcategoryByCategory = forwardRef(function FormSubcategoryByCategoryR
                                 </SelectTrigger>
                             </FormControl>
 
-                            <SelectContent className="" portalContainer={container}>
+                            <SelectContent className="max-h-56 bg-slate-900/95" portalContainer={container}>
                                 <FetchDropdownContainer
                                     isLoading={isLoading}
                                     isError={isError}

@@ -5,6 +5,8 @@ import { UserProviders } from "@/app/providers/UserProviders";
 import { Navbar } from "../components/Navbar";
 import { useMounted } from "@/app/(auth)/hooks/useMounted";
 import CouponBanner from "./components/CouponBanner";
+import { EmailVerificationBanner } from "../components/EmailVerificationBanner";
+import { useSession } from "next-auth/react";
 import React from "react";
 
 export default function UserLayout({
@@ -13,6 +15,7 @@ export default function UserLayout({
   children: React.ReactNode;
 }) {
   const mounted = useMounted();
+  const { data: session } = useSession();
 
   if (!mounted) {
     return (
@@ -40,6 +43,9 @@ export default function UserLayout({
 
     <UserProviders>
       <div className="flex flex-col min-h-screen w-full font-montserrat bg-linear-to-br from-slate-900 via-slate-900 to-slate-900">
+        {session?.user && !session.user.emailVerified && (
+          <EmailVerificationBanner userEmail={session.user.email || ''} />
+        )}
         <CouponBanner />
         <Navbar />
         <main className="grow">{children}</main>

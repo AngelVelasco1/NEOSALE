@@ -1,4 +1,4 @@
-CREATE OR REPLACE FUNCTION fn_create_cart()
+CREATE OR REPLACE FUNCTION <
 RETURNS TRIGGER AS $$
 BEGIN
     INSERT INTO cart (user_id, created_at, subtotal) 

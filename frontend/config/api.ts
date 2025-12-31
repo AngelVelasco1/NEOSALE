@@ -149,7 +149,7 @@ function getErrorMessage(status: number): string {
     case 404:
       return "Recurso no encontrado";
     case 409:
-      return "Conflicto con datos existentes";
+      return "stentes";
     case 422:
       return "Datos no procesables";
     case 500:

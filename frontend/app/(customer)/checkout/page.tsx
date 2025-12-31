@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect, useCallback } from "react";
 import { useRouter } from "next/navigation";
+import { useSession } from "next-auth/react";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -23,6 +24,7 @@ import { createOrderApi } from "../orders/services/ordersApi";
 import { useAddresses } from "./hooks/useAddresses";
 import { useUser } from "@/app/(auth)/context/UserContext";
 import { motion, AnimatePresence } from "framer-motion";
+import { toast } from "sonner";
 import {
   ShoppingCart,
   MapPin,
@@ -36,6 +38,7 @@ import {
 
 export default function CheckoutPage() {
   const router = useRouter();
+  const { data: session } = useSession();
   const {
     getUserAddresses,
     createAddress,
@@ -59,6 +62,17 @@ export default function CheckoutPage() {
 
   // Step management
   const [currentStep, setCurrentStep] = useState(1);
+
+  // Verificar email verificado
+  useEffect(() => {
+    if (session?.user && !session.user.emailVerified) {
+      toast.error('Debes verificar tu email antes de realizar compras', {
+        description: 'Revisa tu bandeja de entrada y verifica tu email.',
+        duration: 5000,
+      });
+      router.push('/');
+    }
+  }, [session, router]);
 
   useEffect(() => {
     const timer = setTimeout(() => {

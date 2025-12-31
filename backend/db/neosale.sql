@@ -1,7 +1,6 @@
 CREATE DATABASE neosale;
 
 -- Eliminar Tablas y enums
-
 DROP TABLE IF EXISTS review_images;
 DROP TABLE IF EXISTS favorites;
 DROP TABLE IF EXISTS order_logs;
@@ -23,7 +22,7 @@ DROP TABLE IF EXISTS subcategories;
 DROP TABLE IF EXISTS brands;
 DROP TABLE IF EXISTS "User";
 DROP TABLE IF EXISTS notifications;
-DROP TABLE IF EXISTS "verificationtoken";
+DROP TABLE IF EXISTS "verificationToken";
 
 DO $$
 BEGIN
@@ -99,7 +98,7 @@ END $$;
 
 CREATE TABLE "User" (
     id SERIAL PRIMARY KEY,
-    name VARCHAR(255) NOT NULL,
+    name VARCHAR(255),
     email VARCHAR(255) UNIQUE NOT NULL,
     email_verified TIMESTAMP(6),
     password VARCHAR(255),
@@ -368,8 +367,9 @@ CREATE TABLE orders (
     CONSTRAINT chk_order_coupon_discount CHECK (coupon_discount >= 0)
 );
 
+DROP TABLE IF EXISTS "Account" CASCADE;
 
-CREATE TABLE "Account" (
+CREATE TABLE account (
     user_id INTEGER NOT NULL REFERENCES "User"(id) ON DELETE CASCADE,
     type VARCHAR(255) NOT NULL,
     provider VARCHAR(255) NOT NULL,
@@ -383,7 +383,8 @@ CREATE TABLE "Account" (
     session_state VARCHAR(255),
     created_at TIMESTAMP(6) DEFAULT CURRENT_TIMESTAMP NOT NULL,
     updated_at TIMESTAMP(6) DEFAULT CURRENT_TIMESTAMP NOT NULL,
-    PRIMARY KEY (provider, provider_account_id)
+    PRIMARY KEY (provider, provider_account_id),
+    CONSTRAINT provider_provider_account_id UNIQUE (provider, provider_account_id)
 );
 
 
@@ -472,6 +473,13 @@ CREATE TABLE favorites (
     product_id INTEGER NOT NULL REFERENCES products(id) ON DELETE CASCADE,
     created_at TIMESTAMP(6) DEFAULT CURRENT_TIMESTAMP NOT NULL,
     CONSTRAINT unq_user_product_favorite UNIQUE(user_id, product_id)
+);
+
+CREATE TABLE "verificationToken" (
+    identifier VARCHAR(255) NOT NULL,
+    token VARCHAR(255) NOT NULL,
+    expires TIMESTAMP(6) NOT NULL,
+    PRIMARY KEY (identifier, token)
 );
 
 -- Para otra version

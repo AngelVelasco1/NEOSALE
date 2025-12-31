@@ -4,6 +4,8 @@ import { prisma } from "@/lib/prisma";
 import { loginSchema } from "../../lib/zod";
 import bcrypt from "bcryptjs";
 import Google from "next-auth/providers/google";
+import { nanoid } from "nanoid";
+import { sendVerificationEmail } from "@/lib/verifyEmail";
 
 export class AuthError extends Error {
   type: string;
@@ -45,40 +47,67 @@ export default {
             throw new AuthError("Contraseña incorrecta", "INVALID_PASSWORD");
           }
 
-          /*   if (!user.emailVerified) {
-          const tokenExists = await prisma.verificationToken.findFirst({
-            where: {
-              identifier: user.email,
-            },
-          });
-          if(tokenExists?.identifier) {
-            await prisma.verificationToken.delete({
-              where: {
-                identifier: user.email
+          // Si email no verificado, permitir login pero enviar email de verificación
+          if (!user.emailVerified) {
+            console.log('⚠️ Login with unverified email:', user.email);
+            
+            try {
+              // Verificar si ya existe un token válido
+              const existingToken = await prisma.verificationToken.findFirst({
+                where: {
+                  identifier: user.email,
+                  expires: {
+                    gt: new Date(), // Token aún no expirado
+                  },
+                },
+                orderBy: {
+                  expires: 'desc'
+                }
+              });
+
+              // Solo crear y enviar nuevo token si no existe uno válido
+              if (!existingToken) {
+                // Limpiar TODOS los tokens del email (incluso expirados)
+                await prisma.verificationToken.deleteMany({
+                  where: { identifier: user.email },
+                });
+
+                const emailToken = nanoid();
+
+                await prisma.verificationToken.create({
+                  data: {
+                    identifier: user.email,
+                    token: emailToken,
+                    expires: new Date(Date.now() + 24 * 60 * 60 * 1000),
+                  },
+                });
+
+                console.log('✅ Token creado para:', user.email);
+
+                // Enviar email en background (no bloquear login si falla)
+                sendVerificationEmail({
+                  email: user.email,
+                  token: emailToken,
+                  name: user.name || 'Usuario',
+                }).catch(err => console.error('⚠️ Email send error:', err));
+              } else {
+                console.log('ℹToken válido ya existe para:', user.email);
               }
-            })
+            } catch (tokenError: any) {
+              console.error('⚠️ Error manejando token de verificación:', tokenError);
+              // NO lanzar error - permitir login incluso si falla la creación del token
+            }
           }
 
-          const emailToken = nanoid();
-
-          await prisma.verificationToken.create({
-            data: {
-              identifier: user.email,
-              token: emailToken,
-              expires: new Date(Date.now() + 1140),
-            },
-          })
-            throw new AuthError('Email no verificado. Revisa tu bandeja de entrada', 'EMAIL_NOT_VERIFIED');
-          }  */
           return {
             id: user.id.toString(),
             name: user.name,
             email: user.email,
             role: user.role,
-            emailVerified: user.email_verified,
+            emailVerified: user.emailVerified,
             image: user.image,
             password: user.password,
-            phonenumber: user.phone_number,
+            phonenumber: user.phoneNumber,
             identification: user.identification,
           };
         } catch (error) {
@@ -87,6 +116,19 @@ export default {
         }
       },
     }),
-    Google
+    Google({
+      clientId: process.env.AUTH_GOOGLE_ID,
+      clientSecret: process.env.AUTH_GOOGLE_SECRET,
+      profile(profile) {
+        return {
+          id: profile.sub,
+          name: profile.name,
+          email: profile.email,
+          image: profile.picture,
+          emailVerified: profile.email_verified ? new Date() : null,
+          role: "user",
+        }
+      },
+    }),
   ],
 } satisfies NextAuthConfig;

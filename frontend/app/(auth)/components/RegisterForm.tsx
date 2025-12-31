@@ -15,9 +15,7 @@ import {
   Phone,
   Lock,
   CheckCircle,
-  UserPlus,
   ArrowRight,
-  Sparkles,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -29,7 +27,7 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
-import { signIn, useSession } from "next-auth/react";
+import { useSession } from "next-auth/react";
 import { registerUser } from "../services/api";
 import { ErrorsHandler } from "@/app/errors/errorsHandler";
 import { motion } from "framer-motion";
@@ -52,7 +50,7 @@ export const RegisterForm: React.FC = () => {
       email: "",
       emailVerified: undefined,
       password: "",
-      phoneNumber: "",
+      phone_number: "",
       confirmPassword: "",
     },
   });
@@ -69,28 +67,35 @@ export const RegisterForm: React.FC = () => {
     setIsLoading(true);
 
     try {
-      await registerUser({
+      const userData = {
         name: values.name,
         email: values.email,
         emailVerified: values.emailVerified,
         password: values.password,
-        phoneNumber: values.phoneNumber || undefined,
-      });
+        phone_number: values.phone_number || undefined,
+      };
+
+      // Registrar usuario
+      await registerUser(userData);
+
+      // Enviar email de verificación automáticamente
+      try {
+        await fetch('/api/auth/send-verification', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ email: values.email }),
+        });
+      } catch (emailError) {
+        console.error('Error sending verification email:', emailError);
+        // No bloquear el registro si falla el envío del email
+      }
 
       ErrorsHandler.showSuccess(
-        "Usuario registrado exitosamente",
-        "Iniciando sesión..."
+        "¡Registro exitoso!",
+        "Te hemos enviado un correo de verificación. Por favor revisa tu bandeja de entrada."
       );
 
-      const signInResult = await signIn("credentials", {
-        email: values.email,
-        password: values.password,
-        redirect: false,
-      });
-
-      if (signInResult?.error) {
-        ErrorsHandler.showError("Error al iniciar sesión", signInResult.error);
-      }
+      // No intentar login automático - el usuario debe verificar primero
       setSuccess(true);
     } catch (error: unknown) {
       if (!error.isHandledError) {
@@ -154,16 +159,37 @@ export const RegisterForm: React.FC = () => {
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ duration: 0.5, delay: 0.6 }}
                 >
-                  ¡Cuenta creada exitosamente!
+                  ¡Revisa tu correo!
                 </motion.h2>
                 <motion.p
-                  className="text-slate-400 mb-4"
+                  className="text-slate-300 mb-2 text-lg"
                   initial={{ opacity: 0 }}
                   animate={{ opacity: 1 }}
                   transition={{ duration: 0.5, delay: 0.8 }}
                 >
-                  Te redirigiremos a la aplicación en unos segundos...
+                  Te hemos enviado un correo de verificación
                 </motion.p>
+                <motion.p
+                  className="text-slate-400 mb-6 text-sm"
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  transition={{ duration: 0.5, delay: 1 }}
+                >
+                  Haz clic en el enlace del correo para verificar tu cuenta y poder iniciar sesión
+                </motion.p>
+                <motion.div
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.5, delay: 1.2 }}
+                >
+                  <Link
+                    href="/login"
+                    className="inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white font-semibold rounded-xl transition-all duration-300 shadow-lg shadow-blue-500/30"
+                  >
+                    Ir al inicio de sesión
+                    <ArrowRight className="w-4 h-4" />
+                  </Link>
+                </motion.div>
               </div>
             </motion.div>
           </motion.div>
@@ -481,4 +507,4 @@ export const RegisterForm: React.FC = () => {
       </div>
     </div>
   );
-};
+}

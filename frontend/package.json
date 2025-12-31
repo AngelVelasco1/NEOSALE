@@ -4,7 +4,7 @@
   "type": "module",
   "private": true,
   "scripts": {
-    "dev": "next dev --turbopack",
+    "dev": "next dev",
     "build": "next build",
     "start": "next start",
     "lint": "eslint . --ext .js,.jsx,.ts,.tsx"
@@ -12,6 +12,7 @@
   "dependencies": {
     "@auth/core": "^0.40.0",
     "@auth/prisma-adapter": "^2.10.0",
+    "@getbrevo/brevo": "^3.0.1",
     "@hookform/resolvers": "^5.1.1",
     "@prisma/client": "^6.15.0",
     "@prisma/extension-accelerate": "^2.0.1",
@@ -32,6 +33,7 @@
     "@radix-ui/react-switch": "^1.2.6",
     "@radix-ui/react-tabs": "^1.1.13",
     "@radix-ui/react-tooltip": "^1.2.8",
+    "@react-email/render": "^2.0.0",
     "@tailwindcss/postcss": "^4.1.10",
     "@tanstack/react-devtools": "^0.8.0",
     "@tanstack/react-query": "^5.90.6",
@@ -48,6 +50,7 @@
     "html2canvas": "^1.4.1",
     "jspdf": "^3.0.4",
     "lucide-react": "^0.560.0",
+    "mailersend": "^2.6.0",
     "nanoid": "^5.1.5",
     "next": "^15.3.4",
     "next-auth": "^5.0.0-beta.29",
@@ -61,6 +64,7 @@
     "react-icons": "^5.5.0",
     "react-loader-spinner": "^8.0.0",
     "recharts": "^3.5.1",
+    "resend": "^6.6.0",
     "sonner": "^2.0.6",
     "tailwind-merge": "^3.3.1",
     "tailwind-scrollbar": "^4.0.2",

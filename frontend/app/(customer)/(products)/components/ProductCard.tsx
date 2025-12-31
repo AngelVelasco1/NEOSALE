@@ -131,21 +131,8 @@ export const ProductCard = ({
         }}
       >
         <div className="relative p-4 pb-0">
-          <div className="flex justify-between items-start mb-4">
-            <motion.div
-              initial={{ scale: 0.8, opacity: 0 }}
-              animate={{ scale: 1, opacity: 1 }}
-              transition={{ delay: 0.2, type: "spring", stiffness: 400 }}
-            >
-              <div
-                className={`px-4 py-2 rounded-full text-xs font-semibold backdrop-blur-md border shadow-xl ${data.stock > 0
-                  ? "bg-linear-to-r from-emerald-400 to-green-500 text-white border-emerald-300/50"
-                  : "bg-linear-to-r from-red-400 to-pink-500 text-white border-red-300/50"
-                  }`}
-              >
-                {data.stock > 0 ? "Disponible" : "Agotado"}
-              </div>
-            </motion.div>
+          <div className="flex justify-end items-end mb-4">
+         
 
             <motion.button
               onClick={handleAddToFavorites}

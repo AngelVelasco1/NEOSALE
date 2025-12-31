@@ -5,6 +5,8 @@ import { Input } from "@/components/ui/input"
 import { User, Mail, Phone, MapPin, Edit2Icon, Lock, CreditCard, EyeOff, Eye, Settings } from "lucide-react"
 import { useUser } from "../context/UserContext"
 import { useSession } from "next-auth/react"
+import { useRouter } from "next/navigation"
+import { toast } from "sonner"
 import { Form, FormField, FormControl, FormItem, FormLabel, FormMessage } from "@/components/ui/form"
 import { updateUserSchema, updateUserPasswordSchema } from "@/lib/zod"
 import { useForm } from "react-hook-form"
@@ -38,8 +40,22 @@ interface Address {
 type Section = 'info' | 'edit' | 'password' | 'addresses'
 
 export default function Profile() {
-  const { data: session, status } = useSession()
-  const { userProfile, isLoading, reFetchUserProfile } = useUser()
+      const { data: session, status } = useSession();
+        const { userProfile, isLoading, reFetchUserProfile } = useUser()
+
+  const [currentSection, setCurrentSection] = useState<Section>('info');
+
+  // Verificar email verificad  o para editar perfil
+  useEffect(() => {
+    if (session?.user && !userProfile?.email_verified && currentSection !== 'info') {
+      toast.error('Debes verificar tu email antes de editar tu perfil', {
+        description: 'Revisa tu bandeja de entrada y verifica tu email.',
+        duration: 5000,
+      });
+      setCurrentSection('info');
+    }
+  }, [session, currentSection]);
+
   const [activeSection, setActiveSection] = useState<Section>('info')
   const [showCurrentPassword, setShowCurrentPassword] = useState(false)
   const [showNewPassword, setShowNewPassword] = useState(false)
@@ -61,7 +77,7 @@ export default function Profile() {
     } finally {
       setLoadingFavorites(false)
     }
-  }h
+  }
 
   const fetchOrders = async () => {
     if (!session?.user?.id) return
@@ -190,7 +206,7 @@ export default function Profile() {
     },
     {
       icon: Mail,
-      label: "Email",
+      label: "Correo Electrónico",
       value: userProfile?.email || "No especificado",
       color: "text-indigo-400",
       bgColor: "bg-slate-800/50",
@@ -376,7 +392,6 @@ export default function Profile() {
                       </div>
                       <motion.div
                         className="p-3 bg-gradient-to-br from-blue-600/20 to-purple-600/20 rounded-xl border border-blue-500/30"
-                        animate={{ rotate: [0, 10, -10, 0] }}
                         transition={{ duration: 2, repeat: Infinity, repeatDelay: 3 }}
                       >
                         <Settings className="w-6 h-6 text-blue-400" />
@@ -410,7 +425,7 @@ export default function Profile() {
                               </div>
                             </div>
                             {/* Corner accent */}
-                            <div className="absolute top-0 right-0 w-20 h-20 bg-gradient-to-br from-blue-500/10 via-purple-500/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity rounded-bl-3xl" />
+                            <div className="absolute top-0 right-0 w-20 h-20 bg-gradient-to-br from-blue-500/10 via-purple-500/5 to-transparent rounded-bl-3xl" />
                           </div>
                         </motion.div>
                       ))}

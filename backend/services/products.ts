@@ -201,3 +201,56 @@ export const getVariantStockService = async (
     isAvailable: (variant?.stock || 0) > 0,
   };
 };
+
+export const getOffersService = async () => {
+  const currentDate = new Date();
+  
+  const offers = await prisma.products.findMany({
+    where: {
+      in_offer: true,
+      active: true,
+      offer_start_date: {
+        lte: currentDate,
+      },
+      offer_end_date: {
+        gte: currentDate,
+      },
+    },
+    include: {
+      images: true,
+      categories: {
+        include: {
+          category_subcategory: {
+            include: {
+              subcategories: true,
+            },
+          },
+        },
+      },
+    },
+    orderBy: {
+      offer_discount: 'desc',
+    },
+  });
+
+  return offers.map((p) => ({
+    id: p.id,
+    name: p.name,
+    description: p.description,
+    price: p.price,
+    stock: p.stock,
+    sizes: p.sizes,
+    base_discount: p.base_discount,
+    offer_discount: p.offer_discount,
+    offer_end_date: p.offer_end_date,
+    image_url: p.images[0]?.image_url,
+    color_code: p.images[0]?.color_code,
+    color: p.images[0]?.color,
+    category: p.categories?.name,
+    subcategories:
+      p.categories?.category_subcategory?.map(
+        (cs) => cs.subcategories.name
+      ) || [],
+    images: p.images,
+  }));
+};

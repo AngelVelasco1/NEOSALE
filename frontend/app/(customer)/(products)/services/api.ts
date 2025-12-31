@@ -43,3 +43,8 @@ export const getProductVariantApi = async (productData: {
   });
   return data;
 };
+
+export const getOffers = async () => {
+  const { data } = await api.get("/api/products/getOffers");
+  return data;
+};

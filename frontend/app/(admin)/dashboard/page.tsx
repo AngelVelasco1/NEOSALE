@@ -17,19 +17,19 @@ export const dynamic = 'force-dynamic';
 export const revalidate = 0;
 
 interface DashboardPageProps {
-  searchParams: {
+  searchParams: Promise<{
     from?: string;
     to?: string;
     preset?: string;
-  };
+  }>;
 }
 
 export default async function DashboardPage({ searchParams }: DashboardPageProps) {
-  // Si no hay parámetros, usar "este mes" por defecto
+  const params = await searchParams;
   
   let dateRange;
-  if (searchParams.from && searchParams.to) {
-    dateRange = { from: await searchParams.from, to: await searchParams.to };
+  if (params.from && params.to) {
+    dateRange = { from: params.from, to: params.to };
   } else {
     // Default: este mes (mismo que DashboardFilters)
     const now = new Date();

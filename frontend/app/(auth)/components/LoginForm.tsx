@@ -15,18 +15,18 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { Eye, EyeOff, User, Lock, Sparkles, ArrowRight } from "lucide-react";
+import { Eye, EyeOff, User, Lock, ArrowRight } from "lucide-react";
 import { signIn, useSession } from "next-auth/react";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import {
   RiGoogleFill,
-  RiGithubFill,
   RiTwitterXFill,
   RiFacebookFill,
 } from "react-icons/ri";
 import { ErrorsHandler } from "@/app/errors/errorsHandler";
 import { useMounted } from "../hooks/useMounted";
 import { motion } from "framer-motion";
+import { toast } from "sonner";
 
 type loginFormValues = z.infer<typeof loginSchema>;
 
@@ -36,6 +36,7 @@ export const LoginForm: React.FC = () => {
   const { data: session } = useSession();
   const router = useRouter();
   const mounted = useMounted();
+  const searchParams = useSearchParams();
 
   const form = useForm<loginFormValues>({
     resolver: zodResolver(loginSchema),
@@ -53,6 +54,42 @@ export const LoginForm: React.FC = () => {
     }
   }, [session, router]);
 
+  // Manejar mensajes de verificación y errores en la URL
+  useEffect(() => {
+    const error = searchParams.get('error');
+    const verified = searchParams.get('verified');
+
+    if (error) {
+      const errorMessages: Record<string, string> = {
+        'token_invalido': 'El enlace de verificación es inválido',
+        'token_expirado': 'El enlace de verificación ha expirado. Solicita uno nuevo.',
+        'usuario_no_encontrado': 'Usuario no encontrado',
+        'error_verificacion': 'Error al verificar el correo',
+        'OAuthAccountNotLinked': 'Ya existe una cuenta con este correo electrónico'
+      };
+
+      // Si el error contiene el mensaje personalizado, usarlo directamente
+      const errorMessage = error.includes('Ya existe una cuenta') 
+        ? error 
+        : errorMessages[error] || 'Ocurrió un error inesperado';
+
+      toast.error('Error de autenticación', {
+        description: errorMessage,
+      });
+
+      // Limpiar URL
+    }
+
+    if (verified === 'true' || verified === 'success') {
+      toast.success('¡Email verificado!', {
+        description: 'Tu correo ha sido verificado exitosamente. Ahora puedes iniciar sesión.',
+        duration: 5000,
+      });
+      // Limpiar URL
+      router.replace('/login');
+    }
+  }, [searchParams, router]);
+
   const onSubmit = async (values: loginFormValues) => {
     setIsLoading(true);
 
@@ -64,20 +101,62 @@ export const LoginForm: React.FC = () => {
       });
 
       if (result?.error) {
+        // Si falla el login, verificar si es por email no verificado
+        if (result.error === "CredentialsSignin") {
+          try {
+            const response = await fetch('/api/auth/check-verification', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ email: values.email }),
+            });
+
+            const data = await response.json();
+
+            // Si el usuario existe pero no está verificado
+            if (data.exists && !data.verified) {
+              toast.warning('Email no verificado', {
+                description: 'Por favor verifica tu correo electrónico. Te hemos reenviado un enlace de verificación.',
+                duration: 6000,
+                action: {
+                  label: 'Reenviar email',
+                  onClick: async () => {
+                    try {
+                      await fetch('/api/auth/send-verification', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ email: values.email }),
+                      });
+                      toast.success('Email enviado', {
+                        description: 'Revisa tu bandeja de entrada',
+                      });
+                    } catch (err) {
+                      toast.error('Error al enviar email');
+                    }
+                  },
+                },
+              });
+              return;
+            }
+          } catch (err) {
+            console.error('Error checking verification:', err);
+          }
+          
+          // Credenciales incorrectas
+          ErrorsHandler.showError("Email o contraseña incorrectos", "INVALID_CREDENTIALS");
+          return;
+        }
+
+        // Otros errores
         let errorMessage;
         let errorCode;
 
         switch (result.error) {
-          case "CredentialsSignin":
-            errorMessage = "Email o contraseña incorrectos";
-            errorCode = "INVALID_CREDENTIALS";
-            break;
           case "AccessDenied":
             errorMessage = "Acceso denegado";
             errorCode = "ACCESS_DENIED";
             break;
           default:
-            errorMessage = "Error de autenticación. Inténtalo de nuevo.";
+            errorMessage = "Verifica tus credenciales e inténtalo de nuevo";
             errorCode = "AUTH_ERROR";
         }
 
@@ -303,7 +382,7 @@ export const LoginForm: React.FC = () => {
 
                 {/* Social Buttons */}
                 <motion.div
-                  className="grid grid-cols-4 gap-3"
+                  className="grid grid-cols-3 gap-4"
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ duration: 0.5, delay: 0.9 }}
@@ -329,14 +408,7 @@ export const LoginForm: React.FC = () => {
                       hoverColor:
                         "hover:bg-slate-500/10 hover:border-slate-500/30",
                       label: "X",
-                    },
-                    {
-                      icon: RiGithubFill,
-                      color: "text-indigo-300",
-                      hoverColor:
-                        "hover:bg-indigo-500/10 hover:border-indigo-500/30",
-                      label: "GitHub",
-                    },
+                    }
                   ].map((social, index) => (
                     <motion.div
                       key={social.label}

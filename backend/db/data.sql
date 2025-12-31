@@ -306,3 +306,7 @@ UPDATE products SET stock = (
     WHERE pv.product_id = products.id AND pv.active = TRUE
 );
 
+
+ALTER TABLE "User" ALTER COLUMN name DROP NOT NULL;
+
+select * from "User";

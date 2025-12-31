@@ -170,7 +170,10 @@ export const ProductDetails = ({ data }: ProductDetailsProps) => {
 
   const isVariantInStock = variantStock > 0;
   const showStockInfo = isSelectedVariant || (selectedColor && selectedSize);
-  const discountPercentage = data.base_discount;
+  // Usar offer_discount si está en oferta, sino usar base_discount
+  const discountPercentage = data.in_offer && data.offer_discount 
+    ? data.offer_discount 
+    : data.base_discount || 0;
 
   return (
     <div className="min-h-screen">
@@ -224,9 +227,15 @@ export const ProductDetails = ({ data }: ProductDetailsProps) => {
               {/* Discount badge */}
               {discountPercentage > 0 && (
                 <div className="absolute top-5 left-5 animate-bounce-slow">
-                  <div className="bg-linear-to-r from-rose-500 to-pink-500 text-white px-4 py-2 rounded-full text-sm font-bold shadow-2xl shadow-rose-500/50 backdrop-blur-xl border border-white/20 hover:scale-110 transition-transform duration-300">
-                    <span className="inline-block animate-pulse">🔥</span> -
+                  <div className={`${data.in_offer && data.offer_discount
+                      ? 'bg-gradient-to-r from-orange-500 to-red-600 shadow-orange-500/50'
+                      : 'bg-gradient-to-r from-rose-500 to-pink-500 shadow-rose-500/50'
+                    } text-white px-4 py-2 rounded-full text-sm font-bold shadow-2xl backdrop-blur-xl border border-white/20 hover:scale-110 transition-transform duration-300`}>
+                   -
                     {discountPercentage}% OFF
+                    {data.in_offer && data.offer_discount && (
+                      <span className="ml-1 text-xs font-normal">OFERTA</span>
+                    )}
                   </div>
                 </div>
               )}

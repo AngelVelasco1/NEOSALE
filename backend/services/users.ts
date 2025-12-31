@@ -38,9 +38,9 @@ export const registerUserService = async ({
       id: true,
       name: true,
       email: true,
-      email_verified: true,
+      emailVerified: true,
       password: true,
-      phone_number: true,
+      phoneNumber: true,
       identification: true,
       role: true,
     },
@@ -93,23 +93,23 @@ export const getUsersService = async (
         id: true,
         name: true,
         email: true,
-        phone_number: true,
+        phoneNumber: true,
         image: true,
         active: true,
-        created_at: true,
+        createdAt: true,
         orders: {
           select: {
             id: true,
             total: true,
-            created_at: true,
+            createdAt: true,
             status: true,
           },
           orderBy: {
-            created_at: "desc",
+            createdAt: "desc",
           },
         },
       },
-      orderBy: { created_at: "desc" },
+      orderBy: { createdAt: "desc" },
     }),
     prisma.user.count({ where }),
   ]);
@@ -131,14 +131,14 @@ export const getUsersService = async (
       id: user.id,
       name: user.name,
       email: user.email,
-      phone_number: user.phone_number,
+      phone_number: user.phoneNumber,
       image: user.image,
       active: user.active,
-      created_at: user.created_at,
+      created_at: user.createdAt,
       total_orders: user.orders.length,
       total_spent: totalSpent,
       average_spent: avgSpent,
-      last_order_date: lastOrder?.created_at || null,
+      last_order_date: lastOrder?.createdAt || null,
     };
   });
 
@@ -230,8 +230,8 @@ export const getUserByIdService = async (id: number | undefined) => {
       id: true,
       name: true,
       email: true,
-      email_verified: true,
-      phone_number: true,
+      emailVerified: true,
+      phoneNumber: true,
       password: true,
       identification: true,
       role: true,
@@ -247,17 +247,7 @@ export const getUserByIdService = async (id: number | undefined) => {
     },
   });
 
-  // Verificar si el usuario tiene carrito usando user_id, no id
-  const cart = await prisma.cart.findFirst({
-    where: { user_id: id },
-    select: {
-      id: true,
-    },
-  });
 
-  if (!cart && user?.role === "user") {
-    await prisma.$executeRaw`CALL sp_create_cart(${id}::int)`;
-  }
 
   return user;
 };
@@ -298,8 +288,8 @@ export const updateUserService = async ({
       id: true,
       name: true,
       email: true,
-      email_verified: true,
-      phone_number: true,
+      emailVerified: true,
+      phoneNumber: true,
       identification: true,
     },
   });

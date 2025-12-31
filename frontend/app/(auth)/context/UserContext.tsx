@@ -16,6 +16,7 @@ interface UserProfile {
   name: string | null;
   email: string | null;
   phone_number: string | null;
+  email_verified: Date | null;
   identification?: string | null;
   role: "user" | "admin";
   password: string | null;
