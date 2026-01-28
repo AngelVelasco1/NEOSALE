@@ -109,7 +109,6 @@ export const createReviewService = async (data: CreateReviewData) => {
       ) as sp_create_review
     `;
 
-    console.log('📝 Review creation result:', result);
 
     const reviewId = result[0]?.sp_create_review;
 
@@ -118,11 +117,9 @@ export const createReviewService = async (data: CreateReviewData) => {
       throw new Error("Error al crear la review - No se recibió ID");
     }
 
-    console.log('✅ Review created with ID:', reviewId);
 
     // Si hay imágenes, agregarlas usando stored procedure
     if (data.images && data.images.length > 0) {
-      console.log('📸 Adding images to review:', reviewId);
       await prisma.$executeRaw`
         CALL sp_add_review_images(
           ${reviewId}::INTEGER, 
@@ -132,8 +129,6 @@ export const createReviewService = async (data: CreateReviewData) => {
       `;
     }
 
-    // Obtener la review completa con imágenes
-    console.log('🔍 Fetching complete review with ID:', reviewId);
     
     if (!reviewId || isNaN(reviewId)) {
       throw new Error(`Invalid review ID: ${reviewId}`);

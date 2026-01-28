@@ -8,10 +8,12 @@ import { getColumns, skeletonColumns } from "./columns";
 import TableSkeleton from "@/app/(admin)/components/shared/table/TableSkeleton";
 import TableError from "@/app/(admin)/components/shared/table/TableError";
 
-import { getSearchParams } from "@/app/(admin)/helpers/getSearchParams";
 import { fetchCoupons } from "@/app/(admin)/services/coupons";
 import { RowSelectionProps } from "@/app/(admin)/types/data-table";
 import { useAuthorization } from "@/app/(admin)/hooks/use-authorization";
+
+const STALE_TIME = 60 * 1000;
+const GC_TIME = 5 * 60 * 1000;
 
 export default function AllCoupons({
   rowSelection,
@@ -41,6 +43,11 @@ export default function AllCoupons({
     queryKey: ["coupons", page, limit, search, status, discountType, featured, minDiscount, maxDiscount, sortBy, sortOrder],
     queryFn: () => fetchCoupons({ page, limit, search, status, discountType, featured, minDiscount, maxDiscount, sortBy, sortOrder }),
     placeholderData: keepPreviousData,
+    staleTime: STALE_TIME,
+    gcTime: GC_TIME,
+    refetchOnWindowFocus: false,
+    refetchOnReconnect: false,
+    retry: 1,
   });
 
   if (isLoading)

@@ -749,7 +749,6 @@ export const createOrderFromPaymentController = async (
         take: 10,
       });
 
-      console.log("Últimos 10 payments en BD:", allPayments);
 
       res.status(404).json({
         success: false,
@@ -859,12 +858,6 @@ export const createPSEPaymentController = async (
     const { user_id } = req.query;
     const requestBody = req.body;
 
-    console.log(
-      "📦 Request body completo recibido:",
-      JSON.stringify(requestBody, null, 2)
-    );
-
-    // ✅ EXTRAER DATOS SEGÚN LA ESTRUCTURA QUE ENVÍA EL FRONTEND
     const {
       amount,
       currency = "COP",

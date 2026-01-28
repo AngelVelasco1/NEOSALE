@@ -1,3 +1,4 @@
+export { default as FormBrandInput } from "./FormBrandInput";
 export { default as FormCategoryInput } from "./FormCategoryInput";
 export { default as FormDatetimeInput } from "./FormDatetimeInput";
 export { default as FormDiscountInput } from "./FormDiscountInput";

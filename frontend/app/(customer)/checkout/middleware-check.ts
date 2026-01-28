@@ -10,7 +10,7 @@ export async function requireVerifiedEmail() {
     redirect('/login');
   }
   
-  if (!userProfile?.email_verified) {
+  if (!userProfile?.emailVerified) {
     redirect('/?verification=required');
   }
   

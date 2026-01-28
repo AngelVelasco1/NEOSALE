@@ -1,118 +1,137 @@
 "use client";
 
+import { useEffect, useTransition } from "react";
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import Image from "next/image";
+import { usePathname, useRouter } from "next/navigation";
+import { X } from "lucide-react";
 
-
+import Typography from "@/app/(admin)/components/ui/typography";
 import { cn } from "@/lib/utils";
 import { navItems } from "./navItems";
-import Typography from "@/app/(admin)/components/ui/typography";
-import Image from "next/image";
 
 interface AppSidebarProps {
   isOpen: boolean;
+  isMobile?: boolean;
+  onClose?: () => void;
 }
 
-export default function AppSidebar({ isOpen }: AppSidebarProps) {
+export default function AppSidebar({ isOpen, isMobile = false, onClose }: AppSidebarProps) {
   const pathname = usePathname();
+  const router = useRouter();
+  const [isPending, startTransition] = useTransition();
+
+  // Prefetch agresivo de todas las rutas en paralelo
+  useEffect(() => {
+    const prefetchAll = async () => {
+      const promises = navItems.map((item) => 
+        router.prefetch(item.url)
+      );
+      await Promise.allSettled(promises);
+    };
+    prefetchAll();
+  }, [router]);
+
+  const handleLinkClick = () => {
+    if (isMobile && onClose) {
+      onClose();
+    }
+  };
 
   return (
-    <div className={`h-screen transition-all duration-300 border shadow-2xl backdrop-blur-xl bg-linear-to-br from-slate-900/95 via-slate-800/90 to-slate-900/95 dark:from-slate-950/95 dark:via-slate-900/90 dark:to-slate-950/95 border-r-2 border-slate-200 dark:border-white/5 ${isOpen ? 'w-64' : 'w-0 border-none'} overflow-hidden fixed`}>
-      <div className="h-full flex flex-col py-8">
-        {/* Logo Section */}
-        <div className="shrink-0 px-5 relative">
-          {/* Background Gradient Orbs */}
-          <div className="absolute bottom-0 right-0 w-24 h-24 bg-purple-500/15 rounded-full blur-2xl" />
-          <div className="absolute top-0 left-1/2 -translate-x-1/2 w-32 h-32 bg-blue-500/20 rounded-full blur-3xl" />
+    <aside
+      className={cn(
+        "group/sidebar fixed inset-y-0 left-0 flex h-screen flex-col overflow-hidden border-r border-white/10 bg-slate-950/80 text-white shadow-[0_30px_70px_rgba(2,6,23,0.45)] backdrop-blur-xl transition-all duration-300 ease-in-out",
+        // Desktop behavior
+        "lg:z-40",
+        !isMobile && (isOpen ? "lg:w-64" : "lg:w-0 lg:border-transparent"),
+        // Mobile behavior
+        isMobile && "z-50 w-64",
+        isMobile && (isOpen ? "translate-x-0" : "-translate-x-full")
+      )}
+    >
+      <div className="absolute inset-0 pointer-events-none">
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_top,_rgba(59,130,246,0.15),transparent_60%)]" />
+        <div className="absolute inset-0 bg-[linear-gradient(135deg,rgba(148,163,184,0.06)_1px,transparent_1px)] bg-[length:150px_150px] opacity-35" />
+      </div>
 
-          <Link
-            href="/dashboard"
-            className="relative flex flex-col items-center gap-4 group"
+      <div
+        className={cn(
+          "relative flex h-full flex-col px-5 py-6 transition-opacity duration-300",
+          isOpen ? "opacity-100" : "opacity-0 pointer-events-none"
+        )}
+      >
+        {/* Close button for mobile */}
+        {isMobile && (
+          <button
+            onClick={onClose}
+            className="absolute top-4 right-4 z-50 flex h-8 w-8 items-center justify-center rounded-lg bg-white/5 text-slate-400 hover:bg-white/10 hover:text-white transition-all duration-200 lg:hidden"
+            aria-label="Cerrar menú"
           >
-            {/* Logo Container with Glass Effect */}
+            <X className="h-5 w-5" />
+          </button>
+        )}
+
+        <div className="relative mb-6 rounded-3xl border-none px-4 py-5 text-center">
+          <div className="absolute -top-8 left-1/2 h-28 w-28 -translate-x-1/2 rounded-full bg-blue-500/20 blur-3xl" />
+          <div className="absolute -bottom-10 right-6 h-24 w-24 rounded-full bg-purple-500/15 blur-2xl" />
+          <Link href="/dashboard" onClick={handleLinkClick} className="relative z-10 flex flex-col items-center gap-4 group">
             <div className="relative">
-              {/* Outer Glow */}
-              <div className="absolute inset-0 bg-linear-to-br from-blue-500/40 via-purple-500/30 to-pink-500/20 rounded-2xl blur-2xl group-hover:blur-3xl opacity-60 group-hover:opacity-80 transition-all duration-500 animate-pulse" />
-
-              {/* Glass Frame */}
-              <div className="relative rounded-2xl shadow-2xl overflow-hidden bg-white/10 dark:bg-white/5 backdrop-blur-md py-3 px-2 w-fit h-fit group-hover:scale-105 transition-all duration-500 border border-white/20 dark:border-white/10">
-                {/* Inner gradient overlay */}
+              <div className="relative overflow-hidden rounded-2xl border border-white/20 bg-white/10 py-3 px-2 backdrop-blur">
                 <div className="absolute inset-0 bg-linear-to-br from-purple-500/10 via-transparent to-blue-500/10" />
-
-                <Image
-                  src="/imgs/Logo.png"
-                  alt="NEOSALE"
-                  width={58}
-                  height={58}
-                  className="transition-all duration-500 relative z-10 drop-shadow-2xl"
-                />
-
-                {/* Shine effect */}
-                <div className="absolute inset-0 bg-linear-to-tr from-transparent via-white/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 -translate-x-full group-hover:translate-x-full" style={{ transition: 'all 1s' }} />
+                <Image src="/imgs/Logo.png" alt="NEOSALE" width={58} height={58} className="relative z-10 drop-shadow-2xl" />
+                <div className="absolute inset-0 bg-linear-to-tr from-transparent via-white/20 to-transparent opacity-0 transition-all duration-700 -translate-x-full group-hover:translate-x-full group-hover:opacity-100" />
               </div>
             </div>
-
-            {/* Text Container */}
-            <div className="text-center relative z-10 space-y-1">
-              <Typography
-                component="span"
-                className="font-black text-3xl bg-linear-to-r from-white via-blue-200 to-purple-200 dark:from-white dark:via-blue-100 dark:to-purple-100 bg-clip-text text-transparent block leading-tight tracking-tight drop-shadow-lg"
-              >
+            <div className="space-y-1">
+              <Typography component="span" className="block font-black text-3xl tracking-tight bg-linear-to-r from-white via-blue-100 to-purple-100 bg-clip-text text-transparent">
                 NeoSale
               </Typography>
-              <div className="flex items-center justify-center gap-2">
-                <div className="h-px w-8 bg-linear-to-r from-transparent via-blue-400/50 to-transparent" />
-                <span className="text-[11px] text-slate-300 dark:text-slate-400 font-semibold tracking-widest uppercase">
-                  Admin Panel
-                </span>
-                <div className="h-px w-8 bg-linear-to-r from-transparent via-purple-400/50 to-transparent" />
+              <div className="flex items-center justify-center gap-2 text-[11px] uppercase tracking-[0.5em] text-slate-300">
+                <span className="h-px w-8 bg-linear-to-r from-transparent via-blue-400/60 to-transparent" />
+                Admin Panel
+                <span className="h-px w-8 bg-linear-to-r from-transparent via-purple-400/60 to-transparent" />
               </div>
             </div>
           </Link>
         </div>
 
-        {/* Navigation Items - Scrollable */}
-        <nav className="flex-1 overflow-y-auto px-4 scrollbar-thin scrollbar-thumb-white/10 dark:scrollbar-thumb-white/5 scrollbar-track-transparent">
-          <ul className="space-y-2 flex flex-col h-full justify-center">
-            {navItems.map((navItem, index) => {
+        <nav className="flex-1 overflow-y-auto scrollbar-thin scrollbar-thumb-white/10 scrollbar-track-transparent">
+          <ul className="space-y-1.5 border-none">
+            {navItems.map((navItem) => {
+              const toneClass = navItem.accent ?? "from-cyan-500/20 via-blue-500/15 to-transparent";
               const isActive = pathname === navItem.url;
               return (
-                <li key={`nav-item-${index}`}>
+                <li key={navItem.title} className="border-none">
                   <Link
                     href={navItem.url}
+                    prefetch={true}
+                    onClick={handleLinkClick}
+                    aria-current={isActive ? "page" : undefined}
                     className={cn(
-                      "group relative flex items-center gap-3 px-4 py-3.5 rounded-xl font-medium text-sm transition-all duration-300 overflow-hidden",
-                      "hover:bg-white/10 dark:hover:bg-white/5 backdrop-blur-sm",
-                      "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-400/50",
-                      isActive
-                        ? "bg-linear-to-r from-blue-700/30 via-blue-600/30 to-transparent text-white shadow-lg  border-l-4 border-blue-500"
-                        : "text-slate-300 dark:text-slate-400 hover:text-white border-l-4 border-transparent hover:border-none"
+                      "group relative flex items-center gap-3 rounded-2xl border border-transparent px-4 py-3 text-sm font-medium text-slate-300 transition-colors duration-200",
+                      "hover:border-white/5 hover:bg-white/5",
+                      isActive && cn("text-white", "bg-gradient-to-r", toneClass)
                     )}
                   >
-                    {/* Active gradient overlay */}
-                    {isActive && (
-                      <div className="absolute inset-0 bg-linear-to-r from-blue-500/10 via-purple-500/5 to-transparent animate-pulse" />
-                    )}
-
-                    {/* Icon */}
-                    <div className={cn(
-                      "relative flex items-center justify-center transition-all duration-300 z-10",
-                      isActive && "scale-110"
-                    )}>
-                      <div className={cn(
-                        "[&_svg]:size-5 [&_svg]:shrink-0 transition-all duration-300",
-                        isActive ? "text-blue-400 drop-shadow-[0_0_8px_rgba(96,165,250,0.5)]" : "group-hover:text-blue-300"
-                      )}>
-                        {navItem.icon}
-                      </div>
-                    </div>
-
-                    <span className={cn(
-                      "flex-1 font-semibold transition-all duration-300 z-10",
-                      isActive && "font-bold"
-                    )}>
+                    <span
+                      className={cn(
+                        "relative flex h-9 w-9 items-center justify-center rounded-2xl bg-white/5 text-base text-slate-300 transition-all duration-200",
+                        "[&_svg]:size-5",
+                        isActive ? "text-white" : "group-hover:text-white"
+                      )}
+                    >
+                      {navItem.icon}
+                    </span>
+                    <span className="relative z-10 flex-1 font-medium tracking-wide">
                       {navItem.title}
                     </span>
+                    <span
+                      className={cn(
+                        "h-1.5 w-1.5 rounded-full bg-white/0 transition-opacity duration-200",
+                        isActive ? "bg-white opacity-100" : "opacity-0 group-hover:opacity-70"
+                      )}
+                    />
                   </Link>
                 </li>
               );
@@ -120,6 +139,6 @@ export default function AppSidebar({ isOpen }: AppSidebarProps) {
           </ul>
         </nav>
       </div>
-    </div>
+    </aside>
   );
 }

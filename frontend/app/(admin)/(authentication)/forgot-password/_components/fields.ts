@@ -7,8 +7,8 @@ interface PasswordResetField extends InputField {
 export const passwordResetFields: PasswordResetField[] = [
   {
     name: "email",
-    label: "Email",
-    placeholder: "john@doe.com",
+    label: "Correo registrado",
+    placeholder: "cliente@neosale.com",
     inputType: "email",
     autoComplete: "email",
   },

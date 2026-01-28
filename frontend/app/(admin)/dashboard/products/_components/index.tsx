@@ -10,16 +10,16 @@ export default function Products() {
   const [rowSelection, setRowSelection] = useState({});
 
   return (
-    <Fragment>
+    <>
+      <ProductFilters />
       <ProductActions
         rowSelection={rowSelection}
         setRowSelection={setRowSelection}
       />
-      <ProductFilters />
       <AllProducts
         rowSelection={rowSelection}
         setRowSelection={setRowSelection}
       />
-    </Fragment>
+    </>
   );
 }

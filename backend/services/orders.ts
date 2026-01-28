@@ -573,6 +573,20 @@ export const getOrdersService = async ({
   try {
     const skip = (page - 1) * limit;
 
+    const PAYMENT_METHOD_MAP: Record<string, string> = {
+      PSE: "PSE",
+      CARD: "CARD",
+      NEQUI: "NEQUI",
+      "TRANSFERENCIA BANCARIA": "PSE",
+      TARJETA: "CARD",
+      BANCOLOMBIA: "BANCOLOMBIA",
+      BANCOLOMBIA_TRANSFER: "BANCOLOMBIA_TRANSFER",
+    };
+
+    const methodFilter = method
+      ? PAYMENT_METHOD_MAP[method.toUpperCase()] || null
+      : null;
+
     // Construir filtro base
     const where: any = {};
 
@@ -676,7 +690,7 @@ export const getOrdersService = async ({
       orders.map(async (order) => {
         let paymentResult: PaymentInfo[];
 
-        if (method) {
+        if (methodFilter) {
           paymentResult = await prisma.$queryRaw<PaymentInfo[]>`
             SELECT
               id, transaction_id, payment_status, payment_method,
@@ -684,7 +698,7 @@ export const getOrdersService = async ({
               created_at, approved_at
             FROM payments
             WHERE id = (SELECT payment_id FROM orders WHERE id = ${order.id}::INTEGER)
-              AND payment_method = ${method}
+              AND payment_method = ${methodFilter}::payment_method_enum
           `;
         } else {
           // Sin filtro de método

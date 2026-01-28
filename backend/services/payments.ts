@@ -1113,9 +1113,8 @@ export const createPaymentService = async (
         cartData: cartDataForDb || undefined, // NUEVO: Pasar datos del carrito
       });
 
-      console.log("✅ Payment guardado exitosamente en BD:", paymentDbResult);
     } catch (dbError) {
-      console.error("❌ Error CRÍTICO almacenando payment en BD:", dbError);
+      console.error("Error almacenando payment en BD:", dbError);
       throw new Error(
         `Error guardando payment en base de datos: ${
           dbError instanceof Error ? dbError.message : "Error desconocido"

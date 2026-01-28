@@ -1,4 +1,4 @@
-import { Pagination } from "@/types/pagination";
+import { Pagination } from "@/app/(admin)/types/pagination";
 
 export type CouponStatus = "expired" | "active";
 

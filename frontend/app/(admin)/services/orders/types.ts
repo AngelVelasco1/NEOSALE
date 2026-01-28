@@ -5,8 +5,7 @@ export type OrderStatus =
   | "processing"
   | "shipped"
   | "delivered"
-  | "cancelled"
-  | "refunded";
+  | "cancelled";
 
 export interface Pagination {
   page: number;
@@ -17,12 +16,35 @@ export interface Pagination {
 
 export interface Order {
   id: number;
-  invoice_no?: string;
+  payment_id: number;
   status: OrderStatus;
+  subtotal: number;
+  discount: number | null;
+  shipping_cost: number;
+  taxes: number;
   total: number;
+  shipping_address_id: number;
+  user_note: string | null;
+  admin_notes: string | null;
+  coupon_id: number | null;
+  coupon_discount: number | null;
+  tracking_number: string | null;
+  carrier: string | null;
+  estimated_delivery_date: string | null;
   created_at: string;
-  customers?: {
-    name: string;
+  updated_at: string | null;
+  shipped_at: string | null;
+  delivered_at: string | null;
+  cancelled_at: string | null;
+  user_id: number;
+  updated_by: number;
+  payments: {
+    transaction_id: string | null;
+    payment_method: string;
+  };
+  users?: {
+    name: string | null;
+    email?: string | null;
   } | null;
 }
 
@@ -47,42 +69,91 @@ export interface FetchOrdersResponse {
 
 export type OrderDetails = {
   id: number;
-  invoice_no: string;
-  order_time: string;
-  total_amount: number;
-  shipping_cost: number;
-  payment_method: string;
+  payment_id: number;
   status: OrderStatus;
-  customers: {
-    name: string;
+  subtotal: number;
+  discount: number | null;
+  shipping_cost: number;
+  taxes: number;
+  total: number;
+  shipping_address_id: number;
+  user_note: string | null;
+  admin_notes: string | null;
+  coupon_id: number | null;
+  coupon_discount: number | null;
+  tracking_number: string | null;
+  carrier: string | null;
+  estimated_delivery_date: string | null;
+  created_at: string;
+  updated_at: string | null;
+  shipped_at: string | null;
+  delivered_at: string | null;
+  cancelled_at: string | null;
+  user_id: number;
+  updated_by: number;
+  User: {
+    name: string | null;
     email: string;
-    phone: string | null;
-    address: string | null;
+    phoneNumber: string | null;
+  };
+  addresses: {
+    street: string;
+    city: string;
+    state: string;
+    zip_code: string;
   };
   order_items: Array<{
+    id: number;
+    price: number;
     quantity: number;
-    unit_price: number;
+    subtotal: number;
+    color_code: string;
+    size: string;
+    product_id: number;
+    order_id: number;
+    created_at: string;
+    updated_at: string | null;
     products: {
       name: string;
     };
   }>;
   coupons: {
+    code: string;
     discount_type: string;
     discount_value: number;
   } | null;
+  payments: {
+    transaction_id: string | null;
+    payment_method: string;
+  };
 };
 
 export type OrdersExport = {
   id: number;
-  invoice_no: string;
-  order_time: string;
-  total_amount: number;
-  shipping_cost: number;
-  payment_method: string;
+  payment_id: number;
   status: string;
+  subtotal: number;
+  discount: number | null;
+  shipping_cost: number;
+  taxes: number;
+  total: number;
+  shipping_address_id: number;
+  user_note: string | null;
+  admin_notes: string | null;
+  coupon_id: number | null;
+  coupon_discount: number | null;
+  tracking_number: string | null;
+  carrier: string | null;
+  estimated_delivery_date: string | null;
   created_at: string;
-  updated_at: string;
-  discount: string;
-  customer_name: string;
+  updated_at: string | null;
+  shipped_at: string | null;
+  delivered_at: string | null;
+  cancelled_at: string | null;
+  user_id: number;
+  updated_by: number;
+  customer_name: string | null;
   customer_email: string;
+  payment_method: string;
+  transaction_id: string | null;
 };

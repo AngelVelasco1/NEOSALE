@@ -2,7 +2,21 @@
 
 import { useState, useEffect, useCallback, useTransition } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
+
+  const handleStatusChange = (value: string) => {
+    applyFilters({ ...currentFilters, status: value });
+  };
+
+  const handleMethodChange = (value: string) => {
+    applyFilters({ ...currentFilters, method: value });
+  };
+
+  const handleSetStartDate = (date: string) => {
+    applyFilters({ ...currentFilters, startDate: date });
+  };
 import { DownloadCloud, Loader2, Search, X, Tag, TrendingUp, Calendar, DollarSign } from "lucide-react";
+
+import { cn } from "@/lib/utils";
 
 import {
   Select,
@@ -17,11 +31,73 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
-import { Separator } from "@/components/ui/separator";
 import { DatePicker } from "@/app/(admin)/components/shared/DatePicker";
 
 import { exportAsCSV } from "@/app/(admin)/helpers/exportData";
 import { exportOrders } from "@/app/(admin)/actions/orders/exportOrders";
+import {
+  FILTER_ACTIVE_BADGE_CLASS,
+  FILTER_CARD_CLASS,
+  FILTER_CHIP_ACTIVE_CLASS,
+  FILTER_CHIP_CLASS,
+  FILTER_INPUT_CLASS,
+  FILTER_LABEL_CLASS,
+  FILTER_RESET_BUTTON_CLASS,
+  FILTER_SELECT_TRIGGER_CLASS,
+} from "@/app/(admin)/components/shared/filters/styles";
+
+const STATUS_QUICK_FILTERS = [
+  { label: "Pendientes", value: "pending" },
+  { label: "Procesando", value: "processing" },
+  { label: "Entregados", value: "delivered" },
+  { label: "Cancelados", value: "cancelled" },
+];
+
+const METHOD_QUICK_FILTERS = [
+  { label: "Transferencia bancaria (PSE)", value: "PSE" },
+  { label: "Tarjeta", value: "CARD" },
+  { label: "Nequi", value: "NEQUI" },
+];
+
+const AMOUNT_QUICK_FILTERS = [
+  { label: "Ticket Alto", min: "300" },
+  { label: "Ticket Premium", min: "800" },
+  { label: "Ticket Bajo", max: "100" },
+];
+
+type FilterState = {
+  search: string;
+  status: string;
+  method: string;
+  startDate: string;
+  endDate: string;
+  minAmount: string;
+  maxAmount: string;
+};
+
+const STATUS_LABELS: Record<string, string> = {
+  all: "Todos",
+  pending: "Pendientes",
+  processing: "Procesando",
+  delivered: "Entregados",
+  cancelled: "Cancelados",
+};
+
+const METHOD_LABELS: Record<string, string> = {
+  all: "Todos",
+  PSE: "Transferencia bancaria (PSE)",
+  CARD: "Tarjeta",
+  NEQUI: "Nequi",
+};
+
+const formatCurrency = (value: string) => {
+  if (!value) return "";
+  const parsed = Number(value);
+  if (Number.isNaN(parsed)) {
+    return value;
+  }
+  return `$${parsed.toLocaleString()}`;
+};
 
 export default function OrderFilters() {
   const router = useRouter();
@@ -44,6 +120,40 @@ export default function OrderFilters() {
     maxAmount: searchParams.get("maxAmount") || "",
   };
 
+  const ticketNarrative = (() => {
+    if (currentFilters.minAmount && currentFilters.maxAmount) {
+      return `${formatCurrency(currentFilters.minAmount)} - ${formatCurrency(currentFilters.maxAmount)}`;
+    }
+    if (currentFilters.minAmount) {
+      return `Desde ${formatCurrency(currentFilters.minAmount)}`;
+    }
+    if (currentFilters.maxAmount) {
+      return `Hasta ${formatCurrency(currentFilters.maxAmount)}`;
+    }
+    return "Ticket libre";
+  })();
+
+  const heroHighlights = [
+    {
+      label: "Estado",
+      value:
+        currentFilters.status === "all"
+          ? "Estados mixtos"
+          : STATUS_LABELS[currentFilters.status] || currentFilters.status,
+    },
+    {
+      label: "Método",
+      value:
+        currentFilters.method === "all"
+          ? "Método flexible"
+          : METHOD_LABELS[currentFilters.method] || currentFilters.method,
+    },
+    {
+      label: "Ticket",
+      value: ticketNarrative,
+    },
+  ];
+
   const handleOrdersDownload = () => {
     toast.info(`Downloading orders...`);
 
@@ -58,66 +168,24 @@ export default function OrderFilters() {
     });
   };
 
-  // Función para aplicar filtros automáticamente
-  const applyFilters = useCallback((newFilters: Record<string, string>) => {
-    const params = new URLSearchParams();
+  const applyFilters = useCallback(
+    (newFilters: FilterState) => {
+      const params = new URLSearchParams(searchParams.toString());
 
-    // Búsqueda
-    if (newFilters.search) {
-      params.set("search", newFilters.search);
-    }
+      if (newFilters.search) params.set("search", newFilters.search); else params.delete("search");
+      if (newFilters.status && newFilters.status !== "all") params.set("status", newFilters.status); else params.delete("status");
+      if (newFilters.method && newFilters.method !== "all") params.set("method", newFilters.method); else params.delete("method");
+      if (newFilters.startDate) params.set("start-date", newFilters.startDate); else params.delete("start-date");
+      if (newFilters.endDate) params.set("end-date", newFilters.endDate); else params.delete("end-date");
+      if (newFilters.minAmount) params.set("minAmount", newFilters.minAmount); else params.delete("minAmount");
+      if (newFilters.maxAmount) params.set("maxAmount", newFilters.maxAmount); else params.delete("maxAmount");
 
-    // Estado
-    if (newFilters.status && newFilters.status !== "all") {
-      params.set("status", newFilters.status);
-    }
+      params.set("page", "1");
 
-    // Método
-    if (newFilters.method && newFilters.method !== "all") {
-      params.set("method", newFilters.method);
-    }
-
-    // Fechas
-    if (newFilters.startDate) {
-      params.set("start-date", newFilters.startDate);
-    }
-    if (newFilters.endDate) {
-      params.set("end-date", newFilters.endDate);
-    }
-
-    // Rangos de monto
-    if (newFilters.minAmount) {
-      params.set("minAmount", newFilters.minAmount);
-    }
-    if (newFilters.maxAmount) {
-      params.set("maxAmount", newFilters.maxAmount);
-    }
-
-    // Mantener sorting si existe
-    const sortBy = searchParams.get("sortBy");
-    const sortOrder = searchParams.get("sortOrder");
-    if (sortBy) params.set("sortBy", sortBy);
-    if (sortOrder) params.set("sortOrder", sortOrder);
-
-    // Resetear a página 1
-    params.set("page", "1");
-
-    router.push(`?${params.toString()}`, { scroll: false });
-  }, [router, searchParams]);
-
-  // Handlers para cambios inmediatos (dropdowns y fechas)
-  const handleStatusChange = (value: string) => {
-    applyFilters({ ...currentFilters, status: value });
-  };
-
-  const handleMethodChange = (value: string) => {
-    applyFilters({ ...currentFilters, method: value });
-  };
-
-  const handleSetStartDate = (date: string) => {
-    applyFilters({ ...currentFilters, startDate: date });
-  };
-
+      router.push(`?${params.toString()}`, { scroll: false });
+    },
+    [router, searchParams]
+  );
   const handleSetEndDate = (date: string) => {
     applyFilters({ ...currentFilters, endDate: date });
   };
@@ -131,6 +199,55 @@ export default function OrderFilters() {
   const handleMinAmountChange = (value: string) => {
     setMinAmountValue(value);
   };
+
+  const handleQuickStatus = (value: string) => {
+    const nextValue = currentFilters.status === value ? "all" : value;
+    handleStatusChange(nextValue);
+  };
+
+  const handleQuickMethod = (value: string) => {
+    const nextValue = currentFilters.method === value ? "all" : value;
+    handleMethodChange(nextValue);
+  };
+
+  const handleQuickAmount = (min?: string, max?: string) => {
+    setMinAmountValue(min || "");
+    setMaxAmountValue(max || "");
+
+    applyFilters({
+      ...currentFilters,
+      minAmount: min || "",
+      maxAmount: max || "",
+    });
+  };
+
+  const handleResetFilters = () => {
+    setSearchValue("");
+    setMinAmountValue("");
+    setMaxAmountValue("");
+
+    applyFilters({
+      search: "",
+      status: "all",
+      method: "all",
+      startDate: "",
+      endDate: "",
+      minAmount: "",
+      maxAmount: "",
+    });
+  };
+
+  const chipClass = (isActive: boolean) =>
+    isActive
+      ? cn(
+          FILTER_CHIP_CLASS,
+          FILTER_CHIP_ACTIVE_CLASS,
+          "bg-gradient-to-r from-emerald-500 via-teal-500 to-cyan-400 text-white border-transparent shadow-lg shadow-emerald-900/35"
+        )
+      : cn(
+          FILTER_CHIP_CLASS,
+          "border-emerald-900/45 bg-slate-900/60 text-slate-200 hover:border-emerald-400/70 hover:text-white"
+        );
 
   const handleMaxAmountChange = (value: string) => {
     setMaxAmountValue(value);
@@ -179,259 +296,303 @@ export default function OrderFilters() {
     currentFilters.maxAmount;
 
   return (
-    <Card className="mb-8 overflow-hidden border-0 bg-linear-to-br from-white via-slate-50 to-blue-50/30 dark:from-slate-900 dark:via-slate-900 dark:to-slate-800 shadow-xl shadow-slate-200/50 dark:shadow-black/30 backdrop-blur-sm">
-      <div className="p-6 space-y-5">
-        {/* Header con botón de descarga */}
-        <div className="flex items-center justify-between">
-          <Button
-            type="button"
-            onClick={handleOrdersDownload}
-            disabled={isPending}
-            size="sm"
-            className="h-9 bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-600 hover:to-teal-700 text-white rounded-lg text-sm font-medium shadow-sm hover:shadow-md transition-all"
-          >
-            {isPending ? (
-              <Loader2 className="mr-2 h-3.5 w-3.5 animate-spin" />
-            ) : (
-              <DownloadCloud className="mr-2 h-3.5 w-3.5" />
-            )}
-            Descargar CSV
-          </Button>
+    <Card className={FILTER_CARD_CLASS}>
+      <div className="space-y-2">
+        <div className="relative overflow-hidden rounded-3xl border border-slate-800/50 bg-linear-to-br from-slate-950 via-slate-900 to-slate-950 p-6 text-white shadow-lg shadow-emerald-900/25">
+          <div
+            className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_top,rgba(56,189,248,0.4),transparent_55%)]"
+            aria-hidden="true"
+          />
+          <div className="pointer-events-none absolute -right-6 top-1/2 h-32 w-32 -translate-y-1/2 rounded-full bg-emerald-400/25 blur-3xl" aria-hidden="true" />
+          <div className="relative flex flex-col gap-6 lg:flex-row lg:items-center lg:justify-between">
+            <div className="space-y-4">
+              <div>
+                <p className="text-[11px] font-semibold uppercase tracking-[0.3em] text-emerald-200/70">Panel estratégico</p>
+                <p className="text-3xl font-semibold tracking-tight">Control de pedidos</p>
+              </div>
+             
+              <div className="flex flex-wrap gap-3">
+                {heroHighlights.map((highlight) => (
+                  <div
+                    key={highlight.label}
+                    className="min-w-[130px] rounded-2xl border border-white/20 bg-white/10 px-3 py-2 text-left"
+                  >
+                    <p className="text-[9px] font-semibold uppercase tracking-[0.35em] text-white/70">{highlight.label}</p>
+                    <p className="text-sm font-medium text-white">{highlight.value}</p>
+                  </div>
+                ))}
+              </div>
+            </div>
+            <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
+              <button
+                type="button"
+                className={`${FILTER_RESET_BUTTON_CLASS} text-white/80 transition-all hover:text-white`}
+                onClick={handleResetFilters}
+              >
+                Reiniciar filtros
+              </button>
+              <Button
+                type="button"
+                onClick={handleOrdersDownload}
+                disabled={isPending}
+                size="sm"
+                className="h-11 rounded-2xl bg-linear-to-r from-emerald-400 via-teal-500 to-cyan-500 px-5 text-xs font-semibold uppercase tracking-[0.28em] text-white shadow-md shadow-emerald-700/20 transition-all hover:scale-[1.01]"
+              >
+                {isPending ? (
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                ) : (
+                  <DownloadCloud className="mr-2 h-4 w-4" />
+                )}
+                Descargar CSV
+              </Button>
+            </div>
+          </div>
         </div>
 
-        {/* Grid principal de filtros */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-8 gap-2">
-          {/* Búsqueda */}
-          <div className="md:col-span-3 lg:col-span-4 space-y-2.5">
-            <Label className="text-sm font-semibold text-slate-900 dark:text-slate-100 flex items-center gap-2">
-              <div className="p-1.5 rounded-md bg-blue-100 dark:bg-blue-900/30">
-                <Search className="h-3.5 w-3.5 text-blue-600 dark:text-blue-400" />
+        <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
+          <div className="relative overflow-hidden rounded-3xl border border-slate-200/80 bg-white/92 p-5 shadow-sm dark:border-slate-800 dark:bg-slate-900/70">
+            <div className="pointer-events-none absolute -right-10 top-6 h-24 w-24 rounded-full bg-purple-200/50 blur-3xl dark:bg-purple-500/30" aria-hidden="true" />
+            <div className="relative space-y-4">
+              <div className="flex items-start justify-between">
+                <div>
+                  <p className="text-[10px] font-semibold uppercase tracking-[0.35em] text-slate-500 dark:text-slate-400">Estados</p>
+                  <p className="mt-1 text-sm text-slate-600 dark:text-slate-300">Prioriza la etapa de fulfillment que necesita atención.</p>
+                </div>
+                <span className="rounded-2xl bg-purple-100/80 p-2 text-purple-600 dark:bg-purple-900/40 dark:text-purple-200">
+                  <Tag className="h-4 w-4" />
+                </span>
               </div>
-              Búsqueda
-            </Label>
-            <div className="relative group">
-              <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-slate-400 group-focus-within:text-blue-500 transition-colors" />
-              <Input
-                type="search"
-                placeholder="Buscar por cliente, email..."
-                className="h-12 pl-12 pr-12 text-base bg-white dark:bg-slate-800 border-2 border-slate-200 dark:border-slate-700 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all shadow-sm hover:shadow-md"
-                value={searchValue}
-                onChange={(e) => handleSearchChange(e.target.value)}
-              />
-              {searchValue && (
-                <button
+              <div className="flex flex-wrap gap-2">
+                {STATUS_QUICK_FILTERS.map((preset) => (
+                  <button
+                    key={preset.value}
+                    type="button"
+                    className={chipClass(currentFilters.status === preset.value)}
+                    onClick={() => handleQuickStatus(preset.value)}
+                  >
+                    <Tag className="h-3.5 w-3.5" />
+                    {preset.label}
+                  </button>
+                ))}
+              </div>
+            </div>
+          </div>
+
+          <div className="relative overflow-hidden rounded-3xl border border-slate-200/80 bg-white/92 p-5 shadow-sm dark:border-slate-800 dark:bg-slate-900/70">
+            <div className="pointer-events-none absolute -left-6 bottom-0 h-24 w-24 rounded-full bg-emerald-200/50 blur-3xl dark:bg-emerald-400/30" aria-hidden="true" />
+            <div className="relative space-y-4">
+              <div className="flex items-start justify-between">
+                <div>
+                  <p className="text-[10px] font-semibold uppercase tracking-[0.35em] text-slate-500 dark:text-slate-400">Métodos</p>
+                  <p className="mt-1 text-sm text-slate-600 dark:text-slate-300">Detecta tendencias de pago y ajusta tus campañas.</p>
+                </div>
+                <span className="rounded-2xl bg-emerald-100/80 p-2 text-emerald-600 dark:bg-emerald-900/40 dark:text-emerald-200">
+                  <TrendingUp className="h-4 w-4" />
+                </span>
+              </div>
+              <div className="flex flex-wrap gap-2">
+                {METHOD_QUICK_FILTERS.map((preset) => (
+                  <button
+                    key={preset.value}
+                    type="button"
+                    className={chipClass(currentFilters.method === preset.value)}
+                    onClick={() => handleQuickMethod(preset.value)}
+                  >
+                    <TrendingUp className="h-3.5 w-3.5" />
+                    {preset.label}
+                  </button>
+                ))}
+              </div>
+            </div>
+          </div>
+
+          <div className="relative overflow-hidden rounded-3xl border border-slate-200/80 bg-white/92 p-5 shadow-sm dark:border-slate-800 dark:bg-slate-900/70">
+            <div className="pointer-events-none absolute right-0 top-0 h-16 w-16 rounded-full bg-amber-200/60 blur-2xl dark:bg-amber-400/30" aria-hidden="true" />
+          <div className="space-y-5">
+              <div className="rounded-2xl  shadow-sm dark:border-slate-800 dark:bg-slate-900/60">
+                <div className="flex items-start justify-between">
+                  <div>
+                    <p className={FILTER_LABEL_CLASS}>Ticket objetivo</p>
+                    <p className="mt-1 text-sm text-slate-600 dark:text-slate-300">Define el rango económico ideal para tu análisis.</p>
+                  </div>
+                  <span className="rounded-2xl bg-emerald-100/80 p-2 text-emerald-600 dark:bg-emerald-900/40 dark:text-emerald-200">
+                    <DollarSign className="h-4 w-4" />
+                  </span>
+                </div>
+                <div className="mt-4 grid gap-3 sm:grid-cols-2">
+                  <div className="space-y-2.5">
+                    <Label className="text-sm font-semibold text-slate-900 dark:text-slate-100">Monto mínimo $</Label>
+                    <Input
+                      type="number"
+                      placeholder="0"
+                      min="0"
+                      className={`${FILTER_INPUT_CLASS} focus:border-emerald-500 focus:ring-emerald-500/30`}
+                      value={minAmountValue}
+                      onChange={(e) => handleMinAmountChange(e.target.value)}
+                    />
+                  </div>
+                  <div className="space-y-2.5">
+                    <Label className="text-sm font-semibold text-slate-900 dark:text-slate-100">Monto máximo $</Label>
+                    <Input
+                      type="number"
+                      placeholder="1000000"
+                      min="0"
+                      className={`${FILTER_INPUT_CLASS} focus:border-emerald-500 focus:ring-emerald-500/30`}
+                      value={maxAmountValue}
+                      onChange={(e) => handleMaxAmountChange(e.target.value)}
+                    />
+                  </div>
+                </div>
+              </div>
+
+            
+            </div>
+          </div>
+        </div>
+
+        <div className="rounded-3xl border border-slate-200/70 bg-linear-to-br from-white via-slate-50 to-slate-100 p-5 shadow-sm dark:border-slate-900 dark:from-slate-950/50 dark:via-slate-900/40 dark:to-slate-950/30">
+          <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+            <div className="flex flex-1 flex-col gap-2">
+              <Label className="flex items-center gap-2 text-sm font-semibold text-slate-900 dark:text-slate-100">
+                <div className="rounded-xl bg-blue-100/70 p-1.5 dark:bg-blue-900/30">
+                  <Search className="h-3.5 w-3.5 text-blue-600 dark:text-blue-400" />
+                </div>
+                Búsqueda avanzada
+              </Label>
+              <div className="relative group">
+                <Search className="pointer-events-none absolute left-4 top-1/2 h-5 w-5 -translate-y-1/2 text-slate-400 transition-colors group-focus-within:text-blue-500" />
+                <Input
+                  type="search"
+                  placeholder="Buscar por cliente, email..."
+                  className={`${FILTER_INPUT_CLASS} h-11 pl-12 pr-12 text-base`}
+                  value={searchValue}
+                  onChange={(e) => handleSearchChange(e.target.value)}
+                />
+                {searchValue && (
+                  <button
+                    onClick={() => handleSearchChange("")}
+                    className="absolute right-4 top-1/2 -translate-y-1/2 rounded-full bg-slate-100 p-1 text-slate-500 transition-all hover:bg-slate-200 hover:text-slate-700 dark:bg-slate-700 dark:text-slate-400 dark:hover:bg-slate-600 dark:hover:text-slate-100"
+                  >
+                    <X className="h-4 w-4" />
+                  </button>
+                )}
+              </div>
+            </div>
+
+            <div className="flex flex-1 flex-col gap-3 rounded-2xl  bg-white/90 p-4  dark:border-slate-800 dark:bg-slate-900/60 md:flex-row md:items-end md:gap-4">
+              <div className="space-y-2 flex-1">
+                <Label className="flex items-center gap-2 text-sm font-semibold text-slate-900 dark:text-slate-100">
+                  <div className="rounded-xl bg-orange-100/70 p-1.5 dark:bg-orange-900/30">
+                    <Calendar className="h-3.5 w-3.5 text-orange-600 dark:text-orange-400" />
+                  </div>
+                  Inicio
+                </Label>
+                <DatePicker className="h-11" date={currentFilters.startDate} setDate={handleSetStartDate} />
+              </div>
+
+              <div className="space-y-2 flex-1">
+                <Label className="flex items-center gap-2 text-sm font-semibold text-slate-900 dark:text-slate-100">
+                  <div className="rounded-xl bg-orange-100/70 p-1.5 dark:bg-orange-900/30">
+                    <Calendar className="h-3.5 w-3.5 text-orange-600 dark:text-orange-400" />
+                  </div>
+                  Fin
+                </Label>
+                <DatePicker className="h-11" date={currentFilters.endDate} setDate={handleSetEndDate} />
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {hasActiveFilters && (
+          <div className="rounded-3xl border border-slate-200/80 bg-linear-to-r from-slate-50 via-white to-slate-100 p-5 shadow-sm dark:border-slate-900 dark:from-slate-900/70 dark:via-slate-900/40 dark:to-slate-900/20">
+            <div className="flex flex-wrap items-center gap-3">
+              <span className="flex items-center gap-2 rounded-2xl bg-slate-900 px-4 py-2 text-[10px] font-semibold uppercase tracking-[0.35em] text-white dark:bg-white/10">
+                <div className="h-2 w-2 animate-pulse rounded-full bg-emerald-400" />
+                Filtros activos
+              </span>
+              {currentFilters.search && (
+                <Badge
+                  variant="secondary"
+                  className={`${FILTER_ACTIVE_BADGE_CLASS} border-blue-200/70 text-blue-700 dark:border-blue-900/50 dark:text-blue-200`}
                   onClick={() => handleSearchChange("")}
-                  className="absolute right-4 top-1/2 -translate-y-1/2 p-1 rounded-full bg-slate-100 dark:bg-slate-700 text-slate-500 dark:text-slate-400 hover:bg-slate-200 dark:hover:bg-slate-600 hover:text-slate-700 dark:hover:text-slate-200 transition-all"
                 >
-                  <X className="h-4 w-4" />
-                </button>
+                  <Search className="h-3.5 w-3.5" />
+                  <span className="font-medium">{currentFilters.search}</span>
+                  <div className="rounded-sm bg-transparent p-0.5 transition-colors group-hover:bg-blue-100/70 dark:group-hover:bg-blue-900/40">
+                    <X className="h-3 w-3" />
+                  </div>
+                </Badge>
+              )}
+              {currentFilters.status !== "all" && (
+                <Badge
+                  variant="secondary"
+                  className={`${FILTER_ACTIVE_BADGE_CLASS} border-purple-200/70 text-purple-700 dark:border-purple-900/50 dark:text-purple-200`}
+                  onClick={() => handleStatusChange("all")}
+                >
+                  <Tag className="h-3.5 w-3.5" />
+                  <span className="font-medium">{STATUS_LABELS[currentFilters.status] || currentFilters.status}</span>
+                  <div className="rounded-sm bg-transparent p-0.5 transition-colors group-hover:bg-purple-100/70 dark:group-hover:bg-purple-900/40">
+                    <X className="h-3 w-3" />
+                  </div>
+                </Badge>
+              )}
+              {currentFilters.method !== "all" && (
+                <Badge
+                  variant="secondary"
+                  className={`${FILTER_ACTIVE_BADGE_CLASS} border-green-200/70 text-green-700 dark:border-green-900/50 dark:text-green-200`}
+                  onClick={() => handleMethodChange("all")}
+                >
+                  <TrendingUp className="h-3.5 w-3.5" />
+                  <span className="font-medium">{METHOD_LABELS[currentFilters.method] || currentFilters.method}</span>
+                  <div className="rounded-sm bg-transparent p-0.5 transition-colors group-hover:bg-green-100/70 dark:group-hover:bg-green-900/40">
+                    <X className="h-3 w-3" />
+                  </div>
+                </Badge>
+              )}
+              {(currentFilters.startDate || currentFilters.endDate) && (
+                <Badge
+                  variant="secondary"
+                  className={`${FILTER_ACTIVE_BADGE_CLASS} border-orange-200/70 text-orange-700 dark:border-orange-900/50 dark:text-orange-100`}
+                  onClick={() => {
+                    handleSetStartDate("");
+                    handleSetEndDate("");
+                  }}
+                >
+                  <Calendar className="h-3.5 w-3.5" />
+                  <span className="font-medium">Rango de Fechas</span>
+                  <div className="ml-1 rounded-sm p-0.5 transition-colors group-hover:bg-orange-100/80 dark:group-hover:bg-orange-900/40">
+                    <X className="h-3 w-3" />
+                  </div>
+                </Badge>
+              )}
+              {currentFilters.minAmount && (
+                <Badge
+                  variant="secondary"
+                  className={`${FILTER_ACTIVE_BADGE_CLASS} border-green-200/70 text-green-700 dark:border-green-900/50 dark:text-green-200`}
+                  onClick={() => handleMinAmountChange("")}
+                >
+                  <DollarSign className="h-3.5 w-3.5" />
+                  <span className="font-medium">Min: {formatCurrency(currentFilters.minAmount)}</span>
+                  <div className="ml-1 rounded-sm p-0.5 transition-colors group-hover:bg-green-100/80 dark:group-hover:bg-green-900/40">
+                    <X className="h-3 w-3" />
+                  </div>
+                </Badge>
+              )}
+              {currentFilters.maxAmount && (
+                <Badge
+                  variant="secondary"
+                  className={`${FILTER_ACTIVE_BADGE_CLASS} border-green-200/70 text-green-700 dark:border-green-900/50 dark:text-green-200`}
+                  onClick={() => handleMaxAmountChange("")}
+                >
+                  <DollarSign className="h-3.5 w-3.5" />
+                  <span className="font-medium">Max: {formatCurrency(currentFilters.maxAmount)}</span>
+                  <div className="ml-1 rounded-sm p-0.5 transition-colors group-hover:bg-green-100/80 dark:group-hover:bg-green-900/40">
+                    <X className="h-3 w-3" />
+                  </div>
+                </Badge>
               )}
             </div>
           </div>
-          <div className="flex justify-around items-center w-full lg:justify-evenly lg:col-span-4">
-            <div className=" space-y-3">
-              <Label className="text-sm font-semibold text-slate-900 dark:text-slate-100 flex items-center gap-2">
-                <div className="p-1.5 rounded-md bg-purple-100 dark:bg-purple-900/30">
-                  <Tag className="h-3.5 w-3.5 text-purple-600 dark:text-purple-400" />
-                </div>
-                Estado
-              </Label>
-              <Select value={currentFilters.status} onValueChange={handleStatusChange}>
-                <SelectTrigger className="h-12 bg-white dark:bg-slate-800 border-2 border-slate-200 dark:border-slate-700 rounded-xl hover:border-purple-300 dark:hover:border-purple-700 transition-colors shadow-sm">
-                  <SelectValue placeholder="Todos" />
-                </SelectTrigger>
-                <SelectContent className="rounded-xl border-2 border-slate-200 dark:border-slate-700 shadow-xl">
-                  <SelectItem value="all" className="rounded-lg">Todos</SelectItem>
-                  <SelectItem value="pending" className="rounded-lg">Pendiente</SelectItem>
-                  <SelectItem value="processing" className="rounded-lg">Procesando</SelectItem>
-                  <SelectItem value="delivered" className="rounded-lg">Entregado</SelectItem>
-                  <SelectItem value="cancelled" className="rounded-lg">Cancelado</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-
-            {/* Método de Pago */}
-            <div className=" space-y-3">
-              <Label className="text-sm font-semibold text-slate-900 dark:text-slate-100 flex items-center gap-2">
-                <div className="p-1.5 rounded-md bg-green-100 dark:bg-green-900/30">
-                  <TrendingUp className="h-3.5 w-3.5 text-green-600 dark:text-green-400" />
-                </div>
-                Método
-              </Label>
-              <Select value={currentFilters.method} onValueChange={handleMethodChange}>
-                <SelectTrigger className="h-12 bg-white dark:bg-slate-800 border-2 border-slate-200 dark:border-slate-700 rounded-xl hover:border-green-300 dark:hover:border-green-700 transition-colors shadow-sm">
-                  <SelectValue placeholder="Todos" />
-                </SelectTrigger>
-                <SelectContent className="rounded-xl border-2 border-slate-200 dark:border-slate-700 shadow-xl">
-                  <SelectItem value="all" className="rounded-lg">Todos</SelectItem>
-                  <SelectItem value="card" className="rounded-lg">Tarjeta</SelectItem>
-                  <SelectItem value="cash" className="rounded-lg">Efectivo</SelectItem>
-                  <SelectItem value="credit" className="rounded-lg">Crédito</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-
-            {/* Fecha Inicio */}
-            <div className=" space-y-2.5">
-              <Label className="text-sm font-semibold text-slate-900 dark:text-slate-100 flex items-center gap-2">
-                <div className="p-1.5 rounded-md bg-orange-100 dark:bg-orange-900/30">
-                  <Calendar className="h-3.5 w-3.5 text-orange-600 dark:text-orange-400" />
-                </div>
-                Inicio
-              </Label>
-              <DatePicker date={currentFilters.startDate} setDate={handleSetStartDate} />
-            </div>
-
-            {/* Fecha Fin */}
-            <div className=" space-y-2.5">
-              <Label className="text-sm font-semibold text-slate-900 dark:text-slate-100 flex items-center gap-2">
-                <div className="p-1.5 rounded-md bg-orange-100 dark:bg-orange-900/30">
-                  <Calendar className="h-3.5 w-3.5 text-orange-600 dark:text-orange-400" />
-                </div>
-                Fin
-              </Label>
-              <DatePicker date={currentFilters.endDate} setDate={handleSetEndDate} />
-            </div>
-          </div>
-          {/* Estado */}
-
-        </div>
-
-        <Separator className="dark:bg-slate-700/50" />
-
-        {/* Grid secundario - Rangos de monto */}
-        <div className="grid grid-cols-2 gap-5">
-          {/* Monto Mínimo */}
-          <div className="space-y-2.5">
-            <Label className="text-sm font-semibold text-slate-900 dark:text-slate-100 flex items-center gap-2">
-              <div className="p-1.5 rounded-md bg-green-100 dark:bg-green-900/30">
-                <DollarSign className="h-3.5 w-3.5 text-green-600 dark:text-green-400" />
-              </div>
-              Monto Mínimo $
-            </Label>
-            <Input
-              type="number"
-              placeholder="0"
-              min="0"
-              className="h-12 bg-white dark:bg-slate-800 border-2 border-slate-200 dark:border-slate-700 rounded-xl focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-all shadow-sm"
-              value={minAmountValue}
-              onChange={(e) => handleMinAmountChange(e.target.value)}
-            />
-          </div>
-
-          {/* Monto Máximo */}
-          <div className="space-y-2.5">
-            <Label className="text-sm font-semibold text-slate-900 dark:text-slate-100 flex items-center gap-2">
-              <div className="p-1.5 rounded-md bg-green-100 dark:bg-green-900/30">
-                <DollarSign className="h-3.5 w-3.5 text-green-600 dark:text-green-400" />
-              </div>
-              Monto Máximo $
-            </Label>
-            <Input
-              type="number"
-              placeholder="1000000"
-              min="0"
-              className="h-12 bg-white dark:bg-slate-800 border-2 border-slate-200 dark:border-slate-700 rounded-xl focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-all shadow-sm"
-              value={maxAmountValue}
-              onChange={(e) => handleMaxAmountChange(e.target.value)}
-            />
-          </div>
-        </div>
-
-        {/* Filtros activos */}
-        {hasActiveFilters && (
-          <>
-            <Separator className="dark:bg-slate-700/50" />
-            <div className="bg-slate-50 dark:bg-slate-800/50 rounded-xl p-4 border border-slate-200 dark:border-slate-700">
-              <div className="flex flex-wrap items-center gap-2.5">
-                <span className="text-sm font-semibold text-slate-700 dark:text-slate-300 flex items-center gap-2">
-                  <div className="w-2 h-2 rounded-full bg-blue-500 animate-pulse" />
-                  Filtros Activos:
-                </span>
-                {currentFilters.search && (
-                  <Badge
-                    variant="secondary"
-                    className="gap-1.5 cursor-pointer hover:bg-blue-100 dark:hover:bg-blue-900/40 transition-colors pl-2 pr-1.5 py-1.5 border border-blue-200 dark:border-blue-800"
-                    onClick={() => handleSearchChange("")}
-                  >
-                    <Search className="h-3.5 w-3.5" />
-                    <span className="font-medium">{currentFilters.search}</span>
-                    <div className="ml-1 p-0.5 rounded-sm hover:bg-blue-200 dark:hover:bg-blue-800">
-                      <X className="h-3 w-3" />
-                    </div>
-                  </Badge>
-                )}
-                {currentFilters.status !== "all" && (
-                  <Badge
-                    variant="secondary"
-                    className="gap-1.5 cursor-pointer hover:bg-purple-100 dark:hover:bg-purple-900/40 transition-colors pl-2 pr-1.5 py-1.5 border border-purple-200 dark:border-purple-800 capitalize"
-                    onClick={() => handleStatusChange("all")}
-                  >
-                    <Tag className="h-3.5 w-3.5" />
-                    <span className="font-medium">{currentFilters.status}</span>
-                    <div className="ml-1 p-0.5 rounded-sm hover:bg-purple-200 dark:hover:bg-purple-800">
-                      <X className="h-3 w-3" />
-                    </div>
-                  </Badge>
-                )}
-                {currentFilters.method !== "all" && (
-                  <Badge
-                    variant="secondary"
-                    className="gap-1.5 cursor-pointer hover:bg-green-100 dark:hover:bg-green-900/40 transition-colors pl-2 pr-1.5 py-1.5 border border-green-200 dark:border-green-800 capitalize"
-                    onClick={() => handleMethodChange("all")}
-                  >
-                    <TrendingUp className="h-3.5 w-3.5" />
-                    <span className="font-medium">{currentFilters.method}</span>
-                    <div className="ml-1 p-0.5 rounded-sm hover:bg-green-200 dark:hover:bg-green-800">
-                      <X className="h-3 w-3" />
-                    </div>
-                  </Badge>
-                )}
-                {(currentFilters.startDate || currentFilters.endDate) && (
-                  <Badge
-                    variant="secondary"
-                    className="gap-1.5 cursor-pointer hover:bg-orange-100 dark:hover:bg-orange-900/40 transition-colors pl-2 pr-1.5 py-1.5 border border-orange-200 dark:border-orange-800"
-                    onClick={() => {
-                      handleSetStartDate("");
-                      handleSetEndDate("");
-                    }}
-                  >
-                    <Calendar className="h-3.5 w-3.5" />
-                    <span className="font-medium">Rango de Fechas</span>
-                    <div className="ml-1 p-0.5 rounded-sm hover:bg-orange-200 dark:hover:bg-orange-800">
-                      <X className="h-3 w-3" />
-                    </div>
-                  </Badge>
-                )}
-                {currentFilters.minAmount && (
-                  <Badge
-                    variant="secondary"
-                    className="gap-1.5 cursor-pointer hover:bg-green-100 dark:hover:bg-green-900/40 transition-colors pl-2 pr-1.5 py-1.5 border border-green-200 dark:border-green-800"
-                    onClick={() => handleMinAmountChange("")}
-                  >
-                    <DollarSign className="h-3.5 w-3.5" />
-                    <span className="font-medium">Min: ${parseInt(currentFilters.minAmount).toLocaleString()}</span>
-                    <div className="ml-1 p-0.5 rounded-sm hover:bg-green-200 dark:hover:bg-green-800">
-                      <X className="h-3 w-3" />
-                    </div>
-                  </Badge>
-                )}
-                {currentFilters.maxAmount && (
-                  <Badge
-                    variant="secondary"
-                    className="gap-1.5 cursor-pointer hover:bg-green-100 dark:hover:bg-green-900/40 transition-colors pl-2 pr-1.5 py-1.5 border border-green-200 dark:border-green-800"
-                    onClick={() => handleMaxAmountChange("")}
-                  >
-                    <DollarSign className="h-3.5 w-3.5" />
-                    <span className="font-medium">Max: ${parseInt(currentFilters.maxAmount).toLocaleString()}</span>
-                    <div className="ml-1 p-0.5 rounded-sm hover:bg-green-200 dark:hover:bg-green-800">
-                      <X className="h-3 w-3" />
-                    </div>
-                  </Badge>
-                )}
-              </div>
-            </div>
-          </>
         )}
       </div>
     </Card>

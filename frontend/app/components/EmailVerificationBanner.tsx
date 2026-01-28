@@ -13,7 +13,7 @@ export function EmailVerificationBanner() {
   const [isResending, setIsResending] = useState(false);
 
   // No mostrar si: sesión no cargada, usuario verificado, o banner cerrado
-  if (!userProfile || userProfile.email_verified || isDismissed) {
+  if (!userProfile || userProfile.emailVerified || isDismissed) {
     return null;
   }
 

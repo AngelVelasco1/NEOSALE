@@ -47,8 +47,8 @@ export default async function CustomerOrders({ params }: PageParams) {
               </Typography>
               <div className="flex flex-col gap-1 text-sm text-slate-400">
                 <span>Email: {customer.email}</span>
-                {customer.phone_number && (
-                  <span>Teléfono: {customer.phone_number}</span>
+                {customer.phoneNumber && (
+                  <span>Teléfono: {customer.phoneNumber}</span>
                 )}
               </div>
             </div>

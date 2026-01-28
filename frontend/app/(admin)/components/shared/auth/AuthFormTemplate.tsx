@@ -6,6 +6,11 @@ type Props = {
 };
 
 export default function AuthFormTemplate({ image, children }: Props) {
+  const imagePlaceholderProps =
+    typeof image !== "string" && image.blurDataURL
+      ? { placeholder: "blur" as const, blurDataURL: image.blurDataURL }
+      : { placeholder: "empty" as const };
+
   return (
     <section>
       <div className="p-6 min-h-dvh flex items-center">
@@ -14,7 +19,7 @@ export default function AuthFormTemplate({ image, children }: Props) {
             <Image
               src={image}
               alt=""
-              placeholder="blur"
+              {...imagePlaceholderProps}
               className="w-full object-cover object-center brightness-90"
               fill
             />

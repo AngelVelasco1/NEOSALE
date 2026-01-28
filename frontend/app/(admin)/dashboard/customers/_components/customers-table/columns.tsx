@@ -65,7 +65,7 @@ export const getColumns = ({
       header: () => <span className="block text-center">Teléfono</span>,
       cell: ({ row }) => (
         <Typography className="block text-center">
-          {row.original.phone_number || "—"}
+          {row.original.phoneNumber || "—"}
         </Typography>
       ),
     },

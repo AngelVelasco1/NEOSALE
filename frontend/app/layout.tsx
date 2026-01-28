@@ -39,7 +39,7 @@ export default function RootLayout({
   return (
     <html lang="es" suppressHydrationWarning>
       <body
-        className={`${userFont.variable} ${adminFont.variable} font-montserrat antialiased @container`}
+        className={`${userFont.variable} ${adminFont.variable} font-montserrat antialiased @container min-h-screen`}
       >
         <ThemeProvider
           attribute="class"

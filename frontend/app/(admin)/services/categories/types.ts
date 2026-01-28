@@ -1,9 +1,18 @@
-import { Database } from "@/types/supabase";
-import { Pagination } from "@/types/pagination";
+import { Pagination } from "@/app/(admin)/types/pagination";
 
-export type SBCategory = Database["public"]["Tables"]["categories"]["Row"];
-
-export type Category = SBCategory;
+export type Category = {
+  id: number;
+  name: string;
+  description: string | null;
+  id_subcategory: number | null;
+  active: boolean;
+  deleted_at: Date | null;
+  deleted_by: number | null;
+  subcategory: {
+    id: number;
+    name: string;
+  } | null;
+};
 
 export interface FetchCategoriesParams {
   page?: number;
@@ -19,4 +28,4 @@ export interface FetchCategoriesResponse {
   pagination: Pagination;
 }
 
-export type CategoryDropdown = Pick<SBCategory, "id" | "name" | "slug">;
+export type CategoryDropdown = Pick<Category, "id" | "name">;

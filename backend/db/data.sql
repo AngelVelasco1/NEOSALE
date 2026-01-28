@@ -48,7 +48,6 @@ INSERT INTO subcategories (name, active) VALUES
 ('Ropa casual', TRUE), ('Electrónicos móviles', TRUE), ('Computadores', TRUE), ('Audio y Video', TRUE),
 ('Gaming', TRUE), ('Electrodomésticos', TRUE), ('Muebles Sala', TRUE), ('Muebles Dormitorio', TRUE),
 ('Decoración Hogar', TRUE), ('Smartphones', TRUE), ('Tablets', TRUE);
-select * from coupons;
 -- CATEGORÍAS
 INSERT INTO categories (name, description, id_subcategory, active) VALUES 
 ('Ropa Deportiva', 'Prendas para actividades deportivas y ejercicio', 1, TRUE),
@@ -81,7 +80,6 @@ INSERT INTO brands (name, description, image_url, active) VALUES
 ('Sony', 'Multinacional japonesa de electrónicos y entretenimiento', 'https://example.com/sony-logo.png', TRUE),
 ('LG', 'Conglomerado surcoreano de electrodomésticos', 'https://example.com/lg-logo.png', TRUE),
 ('IKEA', 'Empresa sueca de muebles y decoración', 'https://example.com/ikea-logo.png', TRUE);
-
 -- USUARIOS
 INSERT INTO "User" (name, email, email_verified, password, phone_number, identification, identification_type, role, active, email_notifications) VALUES
 ('Angel García', 'angel.admin@neosale.com', '2023-10-01 10:00:00', crypt('Admin123!', gen_salt('bf', 12)), '3001234567', '123456789', 'CC', 'admin', TRUE, TRUE),
@@ -99,21 +97,21 @@ INSERT INTO coupons (code, name, discount_type, discount_value, min_purchase_amo
 ('EXPIRED', 'Cupón Vencido', 'percentage', 50.00, 0, 10, '2026-01-01 00:00:00', 1);
 -- PRODUCTOS
 INSERT INTO products (name, description, price, stock, weight_grams, sizes, base_discount, category_id, brand_id, active, in_offer, offer_discount, offer_start_date, offer_end_date, created_by, updated_by) VALUES
-('Camiseta Dry-Fit Pro', 'Camiseta deportiva de alto rendimiento', 89000, 0, 250, 'XS,S,M,L,XL,XXL', 0, 1, 1, TRUE, TRUE, 20.0, '2024-08-01 00:00:00', '2025-12-31 23:59:59', 1, 1),
+('Camiseta Dry-Fit Pro', 'Camiseta deportiva de alto rendimiento', 89000, 0, 250, 'XS,S,M,L,XL,XXL', 0, 1, 1, TRUE, TRUE, 20.0, '2026-01-01 00:00:00', '2026-12-31 23:59:59', 1, 1),
 ('Pantaloneta Running Elite', 'Pantaloneta liviana para running', 75000, 0, 200, 'S,M,L,XL', 0, 2, 1, TRUE, FALSE, NULL, NULL, NULL, 1, 1),
-('Camiseta Training Adidas', 'Camiseta de entrenamiento transpirable', 95000, 0, 300, 'S,M,L,XL,XXL', 0, 1, 2, TRUE, TRUE, 15.0, '2024-08-15 00:00:00', '2025-12-31 23:59:59', 1, 1),
+('Camiseta Training Adidas', 'Camiseta de entrenamiento transpirable', 95000, 0, 300, 'S,M,L,XL,XXL', 0, 1, 2, TRUE, TRUE, 15.0, '2026-01-01 00:00:00', '2026-12-31 23:59:59', 1, 1),
 ('Leggings Deportivos', 'Leggings de compresión para mujer', 120000, 0, 350, 'XS,S,M,L,XL', 0, 2, 3, TRUE, FALSE, NULL, NULL, NULL, 1, 1),
-('Chaqueta Deportiva Puma', 'Chaqueta resistente al viento', 180000, 0, 800, 'S,M,L,XL', 0, 1, 3, TRUE, TRUE, 30.0, '2024-09-01 00:00:00', '2025-12-31 23:59:59', 1, 1),
+('Chaqueta Deportiva Puma', 'Chaqueta resistente al viento', 180000, 0, 800, 'S,M,L,XL', 0, 1, 3, TRUE, TRUE, 30.0, '2026-01-01 00:00:00', '2026-12-31 23:59:59', 1, 1),
 ('Tenis Running Nike Air', 'Tenis de running con amortiguación Air Max', 320000, 0, 900, '36,37,38,39,40,41,42,43,44', 0, 3, 1, TRUE, FALSE, NULL, NULL, NULL, 1, 1),
-('Tenis Training Adidas', 'Tenis versátiles para entrenamiento', 280000, 0, 850, '37,38,39,40,41,42,43', 0, 3, 2, TRUE, TRUE, 25.0, '2024-08-20 00:00:00', '2025-12-31 23:59:59', 1, 1),
-('iPhone 15 Pro', 'Smartphone Apple con chip A17 Pro', 4200000, 0, 190, 'Único', 0, 6, 4, TRUE, TRUE, 10.0, '2024-08-01 00:00:00', '2025-12-31 23:59:59', 1, 1),
+('Tenis Training Adidas', 'Tenis versátiles para entrenamiento', 280000, 0, 850, '37,38,39,40,41,42,43', 0, 3, 2, TRUE, TRUE, 25.0, '2026-01-01 00:00:00', '2026-12-31 23:59:59', 1, 1),
+('iPhone 15 Pro', 'Smartphone Apple con chip A17 Pro', 4200000, 0, 190, 'Único', 0, 6, 4, TRUE, TRUE, 10.0, '2026-01-01 00:00:00', '2026-12-31 23:59:59', 1, 1),
 ('Samsung Galaxy S24', 'Smartphone Samsung con Dynamic AMOLED 2X', 3800000, 0, 210, 'Único', 0, 6, 5, TRUE, FALSE, NULL, NULL, NULL, 1, 1),
 ('MacBook Air M2', 'Laptop Apple con pantalla Liquid Retina', 5500000, 0, 1240, 'Único', 0, 7, 4, TRUE, FALSE, NULL, NULL, NULL, 1, 1),
-('AirPods Pro 2', 'Audífonos inalámbricos con cancelación de ruido', 850000, 0, 50, 'Único', 0, 8, 4, TRUE, TRUE, 20.0, '2024-08-10 00:00:00', '2025-12-31 23:59:59', 1, 1),
+('AirPods Pro 2', 'Audífonos inalámbricos con cancelación de ruido', 850000, 0, 50, 'Único', 0, 8, 4, TRUE, TRUE, 20.0, '2026-01-01 00:00:00', '2026-12-31 23:59:59', 1, 1),
 ('PlayStation 5', 'Consola de videojuegos con SSD ultra-rápido', 2800000, 0, 4500, 'Único', 0, 9, 6, TRUE, FALSE, NULL, NULL, NULL, 1, 1),
-('Smart TV LG 55"', 'Televisor LG 55" 4K UHD con webOS', 1800000, 0, 15000, 'Único', 0, 8, 7, TRUE, TRUE, 35.0, '2024-09-01 00:00:00', '2025-12-31 23:59:59', 1, 1),
+('Smart TV LG 55"', 'Televisor LG 55" 4K UHD con webOS', 1800000, 0, 15000, 'Único', 0, 8, 7, TRUE, TRUE, 35.0, '2026-01-01 00:00:00', '2026-12-31 23:59:59', 1, 1),
 ('Sofá Modular IKEA', 'Sofá modular de 3 puestos en tela gris', 1200000, 0, 45000, 'Único', 0, 11, 8, TRUE, FALSE, NULL, NULL, NULL, 1, 1),
-('Cama King Size', 'Cama king size en madera maciza', 950000, 0, 60000, 'Único', 0, 12, 8, TRUE, TRUE, 40.0, '2024-08-25 00:00:00', '2025-12-31 23:59:59', 1, 1),
+('Cama King Size', 'Cama king size en madera maciza', 950000, 0, 60000, 'Único', 0, 12, 8, TRUE, TRUE, 40.0, '2026-01-01 00:00:00', '2026-12-31 23:59:59', 1, 1),
 ('Producto Descontinuado', 'Este producto ya no está disponible', 50000, 0, 100, 'Único', 0, 5, 1, FALSE, FALSE, NULL, NULL, NULL, 1, 1);
 
 
@@ -307,6 +305,3 @@ UPDATE products SET stock = (
 );
 
 
-ALTER TABLE "User" ALTER COLUMN name DROP NOT NULL;
-
-select * from "User";

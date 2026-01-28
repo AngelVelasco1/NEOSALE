@@ -15,14 +15,20 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { Eye, EyeOff, User, Lock, ArrowRight } from "lucide-react";
+import {
+  Eye,
+  EyeOff,
+  User,
+  Lock,
+  ArrowRight,
+  ShieldCheck,
+  CheckCircle2,
+  Star,
+  ShoppingBag
+} from "lucide-react";
 import { signIn, useSession } from "next-auth/react";
 import { useRouter, useSearchParams } from "next/navigation";
-import {
-  RiGoogleFill,
-  RiTwitterXFill,
-  RiFacebookFill,
-} from "react-icons/ri";
+import { RiGoogleFill, RiTwitterXFill, RiFacebookFill } from "react-icons/ri";
 import { ErrorsHandler } from "@/app/errors/errorsHandler";
 import { useMounted } from "../hooks/useMounted";
 import { motion } from "framer-motion";
@@ -30,9 +36,48 @@ import { toast } from "sonner";
 
 type loginFormValues = z.infer<typeof loginSchema>;
 
+type TrustMetric = {
+  value: string;
+  label: string;
+  helper: string;
+};
+
+type TrustMetricsResponse = {
+  totalCustomers: number;
+  totalProducts: number;
+  positiveReviewRate: number;
+};
+
+const loginHighlights: {
+  title: string;
+  description: string;
+  icon: React.ElementType;
+  accent: string;
+}[] = [
+  {
+    title: "Diseño intuitivo",
+    description: "Interfaz limpia que facilita el acceso rápido a tus compras y productos",
+    icon: ShieldCheck,
+    accent: "from-emerald-400/30 to-blue-500/30",
+  },
+  {
+    title: "Compras fluidas",
+    description: "Autenticación en milisegundos y acceso instantáneo a tu historial.",
+    icon: ShoppingBag,
+    accent: "from-blue-400/30 to-indigo-500/30",
+  }
+];
+
+const defaultTrustMetrics: TrustMetric[] = [
+  { value: "--", label: "Compradores verificados", helper: "Cargando datos reales..." },
+  { value: "--", label: "Pedidos entregados este mes", helper: "Sincronizando con el historial" },
+  { value: "--", label: "Clientes que nos califican 5★", helper: "Validando reseñas recientes" },
+];
+
 export const LoginForm: React.FC = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const [trustMetrics, setTrustMetrics] = useState<TrustMetric[]>(defaultTrustMetrics);
   const { data: session } = useSession();
   const router = useRouter();
   const mounted = useMounted();
@@ -54,41 +99,83 @@ export const LoginForm: React.FC = () => {
     }
   }, [session, router]);
 
-  // Manejar mensajes de verificación y errores en la URL
   useEffect(() => {
-    const error = searchParams.get('error');
-    const verified = searchParams.get('verified');
+    const error = searchParams.get("error");
+    const verified = searchParams.get("verified");
 
     if (error) {
       const errorMessages: Record<string, string> = {
-        'token_invalido': 'El enlace de verificación es inválido',
-        'token_expirado': 'El enlace de verificación ha expirado. Solicita uno nuevo.',
-        'usuario_no_encontrado': 'Usuario no encontrado',
-        'error_verificacion': 'Error al verificar el correo',
-        'OAuthAccountNotLinked': 'Ya existe una cuenta con este correo electrónico'
+        token_invalido: "El enlace de verificación es inválido",
+        token_expirado: "El enlace de verificación ha expirado. Solicita uno nuevo.",
+        usuario_no_encontrado: "Usuario no encontrado",
+        error_verificacion: "Error al verificar el correo",
+        OAuthAccountNotLinked: "Ya existe una cuenta con este correo electrónico",
       };
 
-      // Si el error contiene el mensaje personalizado, usarlo directamente
-      const errorMessage = error.includes('Ya existe una cuenta') 
-        ? error 
-        : errorMessages[error] || 'Ocurrió un error inesperado';
+      const errorMessage = error.includes("Ya existe una cuenta")
+        ? error
+        : errorMessages[error] || "Ocurrió un error inesperado";
 
-      toast.error('Error de autenticación', {
+      toast.error("Error de autenticación", {
         description: errorMessage,
       });
-
-      // Limpiar URL
     }
 
-    if (verified === 'true' || verified === 'success') {
-      toast.success('¡Email verificado!', {
-        description: 'Tu correo ha sido verificado exitosamente. Ahora puedes iniciar sesión.',
+    if (verified === "true" || verified === "success") {
+      toast.success("¡Email verificado!", {
+        description: "Tu correo ha sido verificado exitosamente. Ahora puedes iniciar sesión.",
         duration: 5000,
       });
-      // Limpiar URL
-      router.replace('/login');
+      router.replace("/login");
     }
   }, [searchParams, router]);
+
+  useEffect(() => {
+    const controller = new AbortController();
+
+    const fetchTrustMetrics = async () => {
+      try {
+        const response = await fetch("/api/trust-metrics", {
+          method: "GET",
+          headers: { "Content-Type": "application/json" },
+          signal: controller.signal,
+          cache: "no-store",
+        });
+
+        if (!response.ok) {
+          return;
+        }
+
+        const data: TrustMetricsResponse = await response.json();
+        const numberFormatter = new Intl.NumberFormat("es-CO");
+ 
+        setTrustMetrics([
+          {
+            value: numberFormatter.format(data.totalCustomers),
+            label: "Compradores verificados",
+            helper: "Personas que ya confiaron en NeoSale",
+          },
+          {
+            value: numberFormatter.format(data.totalProducts),
+            label: "Productos disponibles",
+            helper: "Cantidad de productos en el catálogo",
+          },
+          {
+            value: `${data.positiveReviewRate}%`,
+            label: "Clientes que nos califican 5★",
+            helper: `Tasa de reseñas positivas`,
+          },
+        ]);
+      } catch (error) {
+        if ((error as Error).name === "AbortError") return;
+        console.error("Failed to load trust metrics", error);
+      }
+    };
+
+    fetchTrustMetrics();
+
+    return () => controller.abort();
+  }, []);
 
   const onSubmit = async (values: loginFormValues) => {
     setIsLoading(true);
@@ -101,36 +188,34 @@ export const LoginForm: React.FC = () => {
       });
 
       if (result?.error) {
-        // Si falla el login, verificar si es por email no verificado
         if (result.error === "CredentialsSignin") {
           try {
-            const response = await fetch('/api/auth/check-verification', {
-              method: 'POST',
-              headers: { 'Content-Type': 'application/json' },
+            const response = await fetch("/api/auth/check-verification", {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
               body: JSON.stringify({ email: values.email }),
             });
 
             const data = await response.json();
 
-            // Si el usuario existe pero no está verificado
             if (data.exists && !data.verified) {
-              toast.warning('Email no verificado', {
-                description: 'Por favor verifica tu correo electrónico. Te hemos reenviado un enlace de verificación.',
+              toast.warning("Email no verificado", {
+                description: "Por favor verifica tu correo electrónico. Te hemos reenviado un enlace de verificación.",
                 duration: 6000,
                 action: {
-                  label: 'Reenviar email',
+                  label: "Reenviar email",
                   onClick: async () => {
                     try {
-                      await fetch('/api/auth/send-verification', {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
+                      await fetch("/api/auth/send-verification", {
+                        method: "POST",
+                        headers: { "Content-Type": "application/json" },
                         body: JSON.stringify({ email: values.email }),
                       });
-                      toast.success('Email enviado', {
-                        description: 'Revisa tu bandeja de entrada',
+                      toast.success("Email enviado", {
+                        description: "Revisa tu bandeja de entrada",
                       });
                     } catch (err) {
-                      toast.error('Error al enviar email');
+                      toast.error("Error al enviar email");
                     }
                   },
                 },
@@ -138,15 +223,13 @@ export const LoginForm: React.FC = () => {
               return;
             }
           } catch (err) {
-            console.error('Error checking verification:', err);
+            console.error("Error checking verification:", err);
           }
-          
-          // Credenciales incorrectas
+
           ErrorsHandler.showError("Email o contraseña incorrectos", "INVALID_CREDENTIALS");
           return;
         }
 
-        // Otros errores
         let errorMessage;
         let errorCode;
 
@@ -169,8 +252,6 @@ export const LoginForm: React.FC = () => {
           "Sesión iniciada correctamente",
           "Bienvenido de vuelta"
         );
-
-        // Prefetch del dashboard para carga más rápida
         router.prefetch("/dashboard");
         router.prefetch("/");
       }
@@ -187,293 +268,267 @@ export const LoginForm: React.FC = () => {
   }
 
   return (
-    <div className="min-h-screen bg-linear-to-br from-slate-950 via-slate-900 to-slate-950 relative overflow-hidden">
-      {/* Animated background particles */}
+    <div className="relative min-h-screen overflow-hidden bg-slate-950 text-white">
+      <div className="absolute inset-x-0 top-[-25%] h-[480px] bg-gradient-to-br from-blue-600/30 via-indigo-700/20 to-fuchsia-600/20 blur-3xl" />
+      <div className="absolute inset-x-0 bottom-[-40%] h-[520px] bg-gradient-to-tr from-slate-900 via-blue-900/40 to-transparent blur-3xl" />
+
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
-        {[...Array(20)].map((_, i) => (
+        {[...Array(28)].map((_, index) => (
           <div
-            key={i}
-            className="absolute rounded-full bg-blue-500/10 animate-pulse"
+            key={`particle-${index}`}
+            className="absolute rounded-full bg-blue-400/15 animate-pulse"
             style={{
-              width: Math.random() * 8 + 3 + "px",
-              height: Math.random() * 8 + 3 + "px",
-              left: Math.random() * 100 + "%",
-              top: Math.random() * 100 + "%",
-              animationDelay: Math.random() * 3 + "s",
-              animationDuration: Math.random() * 3 + 2 + "s",
+              width: `${Math.random() * 6 + 4}px`,
+              height: `${Math.random() * 6 + 4}px`,
+              left: `${Math.random() * 100}%`,
+              top: `${Math.random() * 100}%`,
+              animationDelay: `${Math.random() * 3}s`,
+              animationDuration: `${Math.random() * 3 + 2.5}s`,
             }}
           />
         ))}
       </div>
 
-      {/* Gradient orbs */}
-      <div className="absolute top-0 left-0 w-96 h-96 bg-blue-600/20 rounded-full blur-3xl"></div>
-      <div className="absolute bottom-0 right-0 w-96 h-96 bg-indigo-600/20 rounded-full blur-3xl"></div>
+      <div className="relative z-10 flex min-h-screen flex-col">
+        <div className="flex-1 w-full px-4 pt-10 pb-12 lg:px-10">
+          <div className="mx-auto flex max-w-6xl flex-col gap-8">
+            <div className="flex flex-col gap-3 rounded-3xl  bg-transparent px-6 py-6 shadow-[0_25px_80px_rgba(15,23,42,0.6)] backdrop-blur-2xl">
+              <div className="flex flex-wrap items-center gap-3 text-[11px] font-semibold uppercase tracking-[0.35em] text-slate-300">
+                <span className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-4 py-2 text-[10px] tracking-[0.45em] text-blue-200">
+                  <ShieldCheck className="h-4 w-4 text-blue-300" />
+                  Portal seguro
+                </span>
+          
+              </div>
 
-      <div className="min-h-screen flex flex-col items-center justify-center relative z-10 px-4">
-        <motion.div
-          className="max-w-md w-full"
-          initial={{ opacity: 0, y: 30 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6, ease: "easeOut" }}
-        >
-          <motion.div
-            className="px-8 py-10 rounded-3xl bg-slate-800/60 backdrop-blur-xl shadow-2xl border border-blue-500/20 hover:border-blue-500/30 transition-all duration-300"
-            initial={{ opacity: 0, scale: 0.9 }}
-            animate={{ opacity: 1, scale: 1 }}
-            transition={{ duration: 0.5, delay: 0.1 }}
-          >
-            {/* Header */}
-            <motion.div
-              className="text-center mb-8"
-              initial={{ opacity: 0, y: -20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.6, delay: 0.3 }}
-            >
-              <div className="flex items-center justify-center gap-2 mb-3"></div>
-              <h2 className="text-3xl font-bold bg-gradient-to-r from-blue-300 via-indigo-300 to-blue-300 bg-clip-text text-transparent mb-2">
-                Iniciar Sesión
-              </h2>
-            </motion.div>
+              <div className="space-y-3">
+                <h1 className="text-4xl font-semibold tracking-tight text-transparent md:text-5xl bg-gradient-to-r from-blue-200 via-cyan-300 to-indigo-200 bg-clip-text drop-shadow-[0_0_30px_rgba(14,165,233,0.25)]">
+                  Inicia sesión y vive una experiencia NeoSale
+                </h1>
+                <p className="text-base text-slate-300 md:max-w-3xl">
+                  Autenticación inmediata, inicia con cuentas sociales de forma rapida y segura.
+                </p>
+              </div>
 
-            <Form {...form}>
-              <form
-                className="space-y-5"
-                onSubmit={form.handleSubmit(onSubmit)}
-              >
-                {/* Email Field */}
-                <motion.div
-                  initial={{ opacity: 0, x: -20 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  transition={{ duration: 0.5, delay: 0.4 }}
-                >
-                  <FormField
-                    control={form.control}
-                    name="email"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel className="text-blue-200 text-sm font-semibold">
-                          Email
-                        </FormLabel>
-                        <FormControl>
-                          <div className="relative group">
-                            <Input
-                              type="email"
-                              placeholder="ejemplo@correo.com"
-                              className="pl-11 h-12 border-blue-500/30 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 bg-slate-700/50 backdrop-blur-sm rounded-xl transition-all duration-300 group-hover:shadow-lg group-hover:shadow-blue-500/10 text-blue-100 placeholder:text-slate-500"
-                              {...field}
-                            />
-                            <User className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-slate-400 group-focus-within:text-blue-400 transition-colors duration-200" />
-                          </div>
-                        </FormControl>
-                        <FormMessage className="text-red-400" />
-                      </FormItem>
-                    )}
-                  />
-                </motion.div>
-
-                {/* Password Field */}
-                <motion.div
-                  initial={{ opacity: 0, x: -20 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  transition={{ duration: 0.5, delay: 0.5 }}
-                >
-                  <FormField
-                    control={form.control}
-                    name="password"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel className="text-blue-200 text-sm font-semibold">
-                          Contraseña
-                        </FormLabel>
-                        <FormControl>
-                          <div className="relative group">
-                            <Input
-                              type={showPassword ? "text" : "password"}
-                              placeholder="Escribe tu contraseña"
-                              className="pl-11 pr-11 h-12 border-blue-500/30 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 bg-slate-700/50 backdrop-blur-sm rounded-xl transition-all duration-300 group-hover:shadow-lg group-hover:shadow-blue-500/10 text-blue-100 placeholder:text-slate-500"
-                              {...field}
-                            />
-                            <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-slate-400 group-focus-within:text-blue-400 transition-colors duration-200" />
-                            <motion.button
-                              type="button"
-                              onClick={() => setShowPassword(!showPassword)}
-                              className="absolute right-3 top-1/2 transform -translate-y-1/2 text-slate-400 hover:text-blue-400 transition-colors duration-200"
-                              whileHover={{ scale: 1.1 }}
-                              whileTap={{ scale: 0.9 }}
-                            >
-                              {showPassword ? (
-                                <EyeOff className="h-5 w-5" />
-                              ) : (
-                                <Eye className="h-5 w-5" />
-                              )}
-                            </motion.button>
-                          </div>
-                        </FormControl>
-                        <FormMessage className="text-red-400" />
-                      </FormItem>
-                    )}
-                  />
-                </motion.div>
-
-                {/* Forgot Password */}
-                <motion.div
-                  className="flex justify-end"
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  transition={{ duration: 0.5, delay: 0.6 }}
-                >
-                  <Link
-                    href="/forgot-password"
-                    className="text-sm text-blue-400 hover:text-indigo-400 font-medium hover:underline transition-all duration-200 group flex items-center gap-1"
-                  >
-                    ¿Olvidaste tu contraseña?
-                    <ArrowRight className="w-3 h-3 group-hover:translate-x-1 transition-transform duration-200" />
-                  </Link>
-                </motion.div>
-
-                {/* Submit Button */}
-                <motion.div
-                  className="pt-2"
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.5, delay: 0.7 }}
-                >
-                  <motion.div
-                    whileHover={{ scale: 1.02 }}
-                    whileTap={{ scale: 0.98 }}
-                  >
-                    <Button
-                      type="submit"
-                      className="w-full h-12 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white font-semibold rounded-xl transition-all duration-300 shadow-lg shadow-blue-500/30 hover:shadow-xl hover:shadow-blue-500/40 group"
-                      disabled={isLoading}
-                    >
-                      {isLoading ? (
-                        <div className="flex items-center gap-2">
-                          <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
-                          Iniciando sesión...
-                        </div>
-                      ) : (
-                        <span className="flex items-center gap-2 group-hover:gap-3 transition-all duration-200">
-                          Iniciar sesión
-                          <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform duration-200" />
-                        </span>
-                      )}
-                    </Button>
-                  </motion.div>
-                </motion.div>
-
-                {/* Divider */}
-                <motion.div
-                  className="relative py-4"
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  transition={{ duration: 0.5, delay: 0.8 }}
-                >
-                  <div className="absolute inset-0 flex items-center">
-                    <span className="w-full border-t border-blue-500/20" />
-                  </div>
-                  <div className="relative flex justify-center text-xs uppercase">
-                    <span className="bg-slate-900/40 backdrop-blur-sm px-3 text-slate-400 font-medium">
-                      O continuar con
-                    </span>
-                  </div>
-                </motion.div>
-
-                {/* Social Buttons */}
-                <motion.div
-                  className="grid grid-cols-3 gap-4"
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.5, delay: 0.9 }}
-                >
-                  {[
-                    {
-                      icon: RiGoogleFill,
-                      color: "text-red-400",
-                      hoverColor: "hover:bg-red-500/10 hover:border-red-500/30",
-                      label: "Google",
-                      onClick: () => signIn("google"),
-                    },
-                    {
-                      icon: RiFacebookFill,
-                      color: "text-blue-400",
-                      hoverColor:
-                        "hover:bg-blue-500/10 hover:border-blue-500/30",
-                      label: "Facebook",
-                    },
-                    {
-                      icon: RiTwitterXFill,
-                      color: "text-slate-300",
-                      hoverColor:
-                        "hover:bg-slate-500/10 hover:border-slate-500/30",
-                      label: "X",
-                    }
-                  ].map((social, index) => (
-                    <motion.div
-                      key={social.label}
-                      initial={{ opacity: 0, scale: 0.8 }}
-                      animate={{ opacity: 1, scale: 1 }}
-                      transition={{ duration: 0.3, delay: 0.9 + index * 0.1 }}
-                    >
-                      <motion.div
-                        whileHover={{ scale: 1.05, y: -2 }}
-                        whileTap={{ scale: 0.95 }}
-                      >
-                        <Button
-                          type="button"
-                          variant="outline"
-                          size="icon"
-                          className={`w-full h-12 border-blue-500/20 bg-slate-700/30 backdrop-blur-sm ${social.hoverColor} transition-all duration-200 rounded-xl`}
-                          aria-label={`Iniciar sesión con ${social.label}`}
-                          onClick={social.onClick}
-                        >
-                          <social.icon
-                            className={social.color}
-                            size={22}
-                            aria-hidden="true"
-                          />
-                        </Button>
-                      </motion.div>
-                    </motion.div>
-                  ))}
-                </motion.div>
-
-                {/* Register Link */}
-                <motion.div
-                  className="text-center pt-6"
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  transition={{ duration: 0.5, delay: 1.1 }}
-                >
-                  <p className="text-slate-400 text-sm">
-                    ¿No tienes cuenta?{" "}
-                    <Link
-                      href="/register"
-                      className="text-blue-400 hover:text-indigo-400 font-semibold hover:underline transition-all duration-200 inline-flex items-center gap-1 group"
-                    >
-                      Regístrate
-                      <ArrowRight className="w-3 h-3 group-hover:translate-x-1 transition-transform duration-200" />
-                    </Link>
-                  </p>
-                </motion.div>
-              </form>
-            </Form>
-          </motion.div>
-
-          {/* Security Badge */}
-          <motion.div
-            className="mt-6 text-center"
-            initial={{ opacity: 0, y: 10 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5, delay: 1.2 }}
-          >
-            <div className="flex items-center justify-center gap-2 text-slate-400 text-xs">
-              <Lock className="w-3 h-3" />
-              <span>Conexión segura y encriptada</span>
+           
             </div>
-          </motion.div>
-        </motion.div>
+
+            <div className="grid gap-8 lg:grid-cols-[1.05fr_0.95fr]">
+              <motion.section
+                className="relative overflow-hidden rounded-[32px] border border-white/10 bg-gradient-to-br from-slate-900/70 via-slate-900/30 to-blue-900/40 p-8 shadow-2xl shadow-slate-950/60"
+                initial={{ opacity: 0, x: -20 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ duration: 0.6 }}
+              >
+                <div className="relative z-10 space-y-6">
+                  <div className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-3 py-1 text-xs font-semibold text-slate-200">
+                    <Star className="h-4 w-4 text-blue-300" />
+                    Experiencia premium
+                  </div>
+                  <div>
+                    <h2 className="text-3xl font-semibold leading-tight text-white">
+                      Un acceso diseñado para fluir con tus compras
+                    </h2>
+                    <p className="mt-3 text-md text-slate-300">
+                      Miles de productos y ofertas exclusivas te esperan. 
+                      Inicia sesión para descubrir beneficios que harán que tus compras sean más rápidas, seguras y satisfactorias.
+                    </p>
+                  </div>
+
+                  <div className="grid gap-4 sm:grid-cols-3">
+                    {trustMetrics.map((metric) => (
+                      <div key={metric.label} className="rounded-2xl border border-white/10 bg-white/5 px-4 py-5">
+                        <p className="text-3xl font-semibold text-white">{metric.value}</p>
+                        <p className="text-sm text-slate-300">{metric.label}</p>
+                        <p className="text-xs text-slate-500">{metric.helper}</p>
+                      </div>
+                    ))}
+                  </div>
+
+                  <div className="mt-6 space-y-4">
+                    {loginHighlights.map(({ title, description, icon: Icon, accent }) => (
+                      <div
+                        key={title}
+                        className="flex items-start gap-4 rounded-2xl border border-white/5 bg-white/5 px-4 py-4"
+                      >
+                        <div className={`rounded-2xl bg-gradient-to-br ${accent} p-3 text-white`}>
+                          <Icon className="h-5 w-5" />
+                        </div>
+                        <div>
+                          <p className="text-base font-semibold text-white">{title}</p>
+                          <p className="text-sm text-slate-300">{description}</p>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+
+          
+                </div>
+
+                <div className="pointer-events-none absolute -right-20 top-10 h-64 w-64 rounded-full bg-blue-600/20 blur-3xl" />
+                <div className="pointer-events-none absolute -bottom-10 left-4 h-48 w-48 rounded-full bg-indigo-600/20 blur-3xl" />
+              </motion.section>
+
+              <motion.section
+                className="relative"
+                initial={{ opacity: 0, x: 20 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ duration: 0.6 }}
+              >
+          
+
+                <motion.div
+                  className="relative rounded-[30px] border border-white/10 bg-slate-900/80 p-8 shadow-2xl shadow-slate-950/60 backdrop-blur-2xl"
+                  initial={{ opacity: 0, scale: 0.96 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  transition={{ duration: 0.5, delay: 0.1 }}
+                >
+                  <Form {...form}>
+                    <form className="mt-6 space-y-6" onSubmit={form.handleSubmit(onSubmit)}>
+                      <div className="space-y-5">
+                        <FormField
+                          control={form.control}
+                          name="email"
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel className="text-sm font-semibold text-slate-200">Correo electrónico</FormLabel>
+                              <FormControl>
+                                <div className="relative">
+                                  <Input
+                                    type="email"
+                                    placeholder="ejemplo@correo.com"
+                                    className="h-12 rounded-2xl border border-white/10 bg-slate-900/80 pl-12 pr-4 text-slate-100 placeholder:text-slate-500 focus-visible:border-blue-400 focus-visible:ring-2 focus-visible:ring-blue-500/30"
+                                    {...field}
+                                  />
+                                  <User className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-slate-500" />
+                                </div>
+                              </FormControl>
+                              <FormMessage className="text-rose-300 text-xs" />
+                            </FormItem>
+                          )}
+                        />
+
+                        <FormField
+                          control={form.control}
+                          name="password"
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel className="text-sm font-semibold text-slate-200">Contraseña</FormLabel>
+                              <FormControl>
+                                <div className="relative">
+                                  <Input
+                                    type={showPassword ? "text" : "password"}
+                                    placeholder="••••••••"
+                                    className="h-12 rounded-2xl border border-white/10 bg-slate-900/80 pl-12 pr-12 text-slate-100 placeholder:text-slate-500 focus-visible:border-blue-400 focus-visible:ring-2 focus-visible:ring-blue-500/30"
+                                    {...field}
+                                  />
+                                  <Lock className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-slate-500" />
+                                  <button
+                                    type="button"
+                                    onClick={() => setShowPassword(!showPassword)}
+                                    className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 transition-colors hover:text-blue-200"
+                                    aria-label={showPassword ? "Ocultar contraseña" : "Mostrar contraseña"}
+                                  >
+                                    {showPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
+                                  </button>
+                                </div>
+                              </FormControl>
+                              <FormMessage className="text-rose-300 text-xs" />
+                            </FormItem>
+                          )}
+                        />
+                      </div>
+
+                      <div className="flex flex-wrap items-center justify-between gap-3 text-sm">
+                        <Link
+                          href="/forgot-password"
+                          className="inline-flex items-center gap-1 font-semibold text-blue-300 hover:text-indigo-300"
+                        >
+                          ¿Olvidaste tu contraseña?
+                          <ArrowRight className="h-3 w-3" />
+                        </Link>
+                        <p className="text-slate-400">Soporte prioritario 24/7</p>
+                      </div>
+
+                      <Button
+                        type="submit"
+                        disabled={isLoading}
+                        className="group h-12 w-full rounded-2xl bg-gradient-to-r from-blue-600 via-indigo-600 to-fuchsia-600 font-semibold text-white shadow-lg shadow-blue-900/40 transition-all hover:shadow-xl"
+                      >
+                        {isLoading ? (
+                          <div className="flex items-center gap-2">
+                            <div className="h-4 w-4 rounded-full border-2 border-white/30 border-t-white animate-spin" />
+                            Iniciando sesión...
+                          </div>
+                        ) : (
+                          <span className="flex items-center gap-2 cursor-pointer">
+                            Iniciar sesión
+                            <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-0.5" />
+                          </span>
+                        )}
+                      </Button>
+
+                      <div className="relative py-3 text-xs uppercase tracking-[0.3em] text-slate-500">
+                        <div className="absolute inset-0 flex items-center" aria-hidden>
+                          <span className="w-full border-t border-white/5" />
+                        </div>
+                        <span className="relative mx-auto block w-max bg-slate-900/80 px-3">O continua con</span>
+                      </div>
+
+                      <div className="grid gap-3 sm:grid-cols-3">
+                        {[
+                          {
+                            icon: RiGoogleFill,
+                            color: "text-red-400",
+                            hoverColor: "hover:border-red-400/40 hover:bg-red-400/10",
+                            label: "Google",
+                            onClick: () => signIn("google"),
+                          },
+                          {
+                            icon: RiFacebookFill,
+                            color: "text-blue-400",
+                            hoverColor: "hover:border-blue-400/40 hover:bg-blue-400/10",
+                            label: "Facebook",
+                            onClick: () => signIn("facebook"),
+                          },
+                          {
+                            icon: RiTwitterXFill,
+                            color: "text-slate-200",
+                            hoverColor: "hover:border-slate-200/40 hover:bg-slate-200/10",
+                            label: "X",
+                          },
+                        ].map((provider) => (
+                          <Button
+                            key={provider.label}
+                            type="button"
+                            variant="outline"
+                            className={`flex h-12 items-center justify-center gap-2 rounded-2xl border border-white/10 bg-slate-900/80 text-sm font-semibold text-slate-200 transition ${provider.hoverColor}`}
+                            onClick={provider.onClick}
+                            aria-label={`Iniciar sesión con ${provider.label}`}
+                          >
+                            <provider.icon className={provider.color} size={20} />
+                            <span>{provider.label}</span>
+                          </Button>
+                        ))}
+                      </div>
+
+                    
+
+                      <div className="rounded-2xl border border-blue-500/30 bg-blue-500/5 px-4 py-4 text-sm text-slate-300">
+                        <p>
+                          ¿Aún no tienes cuenta? {""}
+                          <Link href="/register" className="font-semibold text-blue-300 hover:text-indigo-200">
+                            Regístrate gratis
+                          </Link>
+                        </p>
+                      </div>
+                    </form>
+                  </Form>
+                </motion.div>
+              </motion.section>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
   );

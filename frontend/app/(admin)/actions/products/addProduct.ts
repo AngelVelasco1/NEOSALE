@@ -35,7 +35,7 @@ export async function addProduct(
     return { dbError: "Unauthorized. Admin access required." };
   }
 
-  const parsedData = productFormSchema.safeParse({
+  const formDataObject = {
     name: formData.get("name"),
     description: formData.get("description"),
     image: formData.get("image"),
@@ -49,9 +49,14 @@ export async function addProduct(
     sizes: formData.get("sizes"),
     color: formData.get("color"),
     color_code: formData.get("color_code"),
-  });
+  };
+
+  console.log("[SERVER] Received formData:", formDataObject);
+
+  const parsedData = productFormSchema.safeParse(formDataObject);
 
   if (!parsedData.success) {
+    console.log("[SERVER] Validation failed:", parsedData.error.flatten().fieldErrors);
     return {
       validationErrors: formatValidationErrors(
         parsedData.error.flatten().fieldErrors
@@ -59,38 +64,143 @@ export async function addProduct(
     };
   }
 
+  console.log("[SERVER] Validation passed!");
+
   const { image, ...productData } = parsedData.data;
 
-  // Subir imagen a Cloudinary
-  let imageUrl: string | undefined;
-
-  if (typeof image === "string") {
-    // Si ya es una URL, la usamos directamente
-    imageUrl = image;
-  } else if (image instanceof File && image.size > 0) {
+  try {
+    // Parsear colores
+    const colorsData = formData.get("colors");
+    let colors: Array<{ name: string; code: string }> = [];
+    
     try {
-      // Subir el archivo a Cloudinary
-      imageUrl = await uploadImageToCloudinary(image, "neosale/products");
+      if (colorsData) {
+        colors = JSON.parse(colorsData as string);
+        console.log("[SERVER] Parsed colors:", colors);
+      }
     } catch (error) {
-      console.error("Image upload failed:", error);
+      console.error("[SERVER] Error parsing colors:", error);
+    }
+
+    if (colors.length === 0) {
+      console.log("[SERVER] No colors provided");
       return {
         validationErrors: {
-          image: "Failed to upload image. Please try again.",
+          color: "Debes agregar al menos un color",
         },
       };
     }
-  }
 
-  try {
-    // Crear el producto con su imagen y variante en una transacción
+    const sizesArray = productData.sizes.split(",").map(s => s.trim()).filter(Boolean);
+    console.log("[SERVER] Parsed sizes:", sizesArray);
+
+    // Parsear variantStock
+    const variantStockData = formData.get("variantStock");
+    let variantStock: Record<string, number> = {};
+    
+    try {
+      if (variantStockData) {
+        variantStock = JSON.parse(variantStockData as string);
+        console.log("[SERVER] Parsed variantStock:", variantStock);
+        console.log("[SERVER] Stock keys available:", Object.keys(variantStock));
+      }
+    } catch (error) {
+      console.error("[SERVER] Error parsing variantStock:", error);
+    }
+
+    // Recopilar todas las imágenes por color
+    const allColorImages: { file: File; colorCode: string; isPrimary: boolean }[] = [];
+    const colorImagesInfo = formData.get("colorImages");
+    let colorImagesData: Record<string, Array<{ isPrimary: boolean }>> = {};
+    
+    try {
+      if (colorImagesInfo) {
+        colorImagesData = JSON.parse(colorImagesInfo as string);
+      }
+    } catch (error) {
+      console.error("Error parsing colorImages:", error);
+    }
+    
+    // Buscar todas las imágenes en el FormData
+    formData.forEach((value, key) => {
+      if (key.startsWith('colorImage_') && value instanceof File) {
+        const parts = key.split('_');
+        const colorCode = parts[1];
+        const index = parseInt(parts[2] || '0');
+        const isPrimary = colorImagesData[colorCode]?.[index]?.isPrimary || false;
+        
+        allColorImages.push({
+          file: value,
+          colorCode: colorCode,
+          isPrimary: isPrimary
+        });
+      }
+    });
+
+    console.log("[SERVER] Collected", allColorImages.length, "images");
+
+    // Validar que al menos haya una imagen
+    if (allColorImages.length === 0) {
+      console.log("[SERVER] No images found");
+      return {
+        validationErrors: {
+          image: "Debes subir al menos una imagen",
+        },
+      };
+    }
+
+    // Subir todas las imágenes a Cloudinary ANTES de la transacción
+    console.log("[SERVER] Uploading", allColorImages.length, "images to Cloudinary...");
+    const uploadedImages: { url: string; colorCode: string; colorName: string; isPrimary: boolean }[] = [];
+    
+    for (const img of allColorImages) {
+      try {
+        const imageUrl = await uploadImageToCloudinary(img.file, "neosale/products");
+        const colorInfo = colors.find(c => c.code === img.colorCode);
+        uploadedImages.push({
+          url: imageUrl,
+          colorCode: img.colorCode,
+          colorName: colorInfo?.name || "Unknown",
+          isPrimary: img.isPrimary
+        });
+        console.log(`[SERVER] ✓ Uploaded image for ${colorInfo?.name}: ${imageUrl}`);
+      } catch (error) {
+        console.error(`[SERVER] ✗ Failed to upload image for color ${img.colorCode}:`, error);
+      }
+    }
+
+    // Si no se subió ninguna imagen, retornar error
+    if (uploadedImages.length === 0) {
+      console.log("[SERVER] All image uploads failed");
+      return {
+        dbError: "Error al subir las imágenes a Cloudinary",
+      };
+    }
+
+    console.log("[SERVER] Successfully uploaded", uploadedImages.length, "of", allColorImages.length, "images");
+
+    // Asegurar que cada color tenga al menos una imagen primaria
+    colors.forEach(color => {
+      const colorImages = uploadedImages.filter(img => img.colorCode === color.code);
+      const hasPrimary = colorImages.some(img => img.isPrimary);
+      if (!hasPrimary && colorImages.length > 0) {
+        colorImages[0].isPrimary = true;
+      }
+    });
+
+    console.log("[SERVER] Images uploaded successfully, starting database transaction...");
+
+    // Crear el producto con sus variantes e imágenes en una transacción
     const newProduct = await prisma.$transaction(async (tx) => {
+      console.log("[SERVER] Creating base product...");
+      
       // Crear el producto base
       const product = await tx.products.create({
         data: {
           name: productData.name,
           description: productData.description,
           price: productData.price,
-          stock: productData.stock,
+          stock: 0, // Se calculará después
           weight_grams: productData.weight_grams,
           sizes: productData.sizes,
           base_discount: 0,
@@ -103,48 +213,93 @@ export async function addProduct(
         },
       });
 
-      // Crear la variante del producto
-      const variant = await tx.product_variants.create({
-        data: {
-          product_id: product.id,
-          color_code: productData.color_code,
-          color: productData.color,
-          size: productData.sizes.split(",")[0].trim(),
-          stock: productData.stock,
-          sku: productData.sku,
-          price: productData.price,
-          weight_grams: productData.weight_grams,
-          active: true,
-        },
+      console.log("[SERVER] Base product created with ID:", product.id);
+
+      // Crear variantes para cada combinación de color + tamaño
+      let totalStock = 0;
+      let variantCount = 0;
+      
+      // Almacenar IDs de variantes por color para asociar imágenes después
+      const variantsByColor: Record<string, number[]> = {};
+      
+      for (const color of colors) {
+        variantsByColor[color.code] = [];
+        
+        for (const size of sizesArray) {
+          const variantKey = `${size}-${color.code}`;
+          const stock = variantStock[variantKey] || 0;
+          totalStock += stock;
+
+          console.log(`[SERVER] Creating variant ${variantCount + 1}: ${color.name} - ${size} (stock: ${stock})`);
+
+          const variant = await tx.product_variants.create({
+            data: {
+              product_id: product.id,
+              color_code: color.code,
+              color: color.name,
+              size: size,
+              stock: stock,
+              sku: `${productData.sku}-${color.name.substring(0, 3).toUpperCase()}-${size}`,
+              price: productData.price,
+              weight_grams: productData.weight_grams,
+              active: true,
+            },
+          });
+
+          variantsByColor[color.code].push(variant.id);
+          variantCount++;
+        }
+      }
+
+      // Crear imágenes una sola vez por color (no por cada talla)
+      for (const color of colors) {
+        const colorImages = uploadedImages.filter(img => img.colorCode === color.code);
+        
+        for (const img of colorImages) {
+          // Asociar imagen al producto y al primer variant de este color
+          const firstVariantId = variantsByColor[color.code][0];
+          
+          await tx.images.create({
+            data: {
+              image_url: img.url,
+              color_code: color.code,
+              color: color.name,
+              is_primary: img.isPrimary,
+              product_id: product.id,
+              variant_id: firstVariantId, 
+            },
+          });
+        }
+      }
+
+      console.log(`[SERVER] Created ${variantCount} variants with total stock: ${totalStock}`);
+
+      // Actualizar el stock total del producto
+      await tx.products.update({
+        where: { id: product.id },
+        data: { stock: totalStock },
       });
 
-      // Crear la imagen asociada al producto y variante
-      if (imageUrl) {
-        await tx.images.create({
-          data: {
-            image_url: imageUrl,
-            color_code: productData.color_code,
-            color: productData.color,
-            is_primary: true,
-            product_id: product.id,
-            variant_id: variant.id,
-          },
-        });
-      }
+      console.log("[SERVER] Transaction completed successfully!");
 
       // Retornar el producto con sus relaciones
       return await tx.products.findUnique({
         where: { id: product.id },
         include: {
           images: true,
-          product_variants: true,
+          product_variants: {
+            where: { active: true },
+            include: {
+              images: true,
+            },
+          },
           categories: true,
           brands: true,
         },
       });
     });
 
-    revalidatePath("/products");
+    revalidatePath("/dashboard/products");
 
     return {
       success: true,
@@ -153,9 +308,8 @@ export async function addProduct(
         name: newProduct!.name,
         price: newProduct!.price,
         stock: newProduct!.stock,
-        color: newProduct!.product_variants[0]?.color || productData.color,
-        color_code:
-          newProduct!.product_variants[0]?.color_code || productData.color_code,
+        color: colors[0]?.name || "",
+        color_code: colors[0]?.code || "#000000",
         image_url: newProduct!.images[0]?.image_url,
       },
     };

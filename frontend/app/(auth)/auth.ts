@@ -25,16 +25,11 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
         where: { id: Number(user.id) },
         data: { role: "user" }
       });
-      console.log(`✅ User created: ${user.email} with role: user`);
     },
-    async linkAccount({ user, account, profile }) {
-      // Este evento se ejecuta cuando se vincula una cuenta exitosamente
-      console.log(`Account ${account.provider} linked to user ${user.email}`);
-    }
   },
   callbacks: {
     async signIn({ user, account, profile }) {
-      if (account?.provider === "google") {
+      if (account?.provider === "google" || account?.provider === "facebook") {
         try {
           const existingUser = await prisma.user.findUnique({
             where: { email: user.email! },
@@ -42,11 +37,11 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
           });
 
           if (existingUser) {
-            const hasGoogleAccount = existingUser.accounts.some(
-              (acc) => acc.provider === "google"
+            const hasProviderAccount = existingUser.accounts.some(
+              (acc) => acc.provider === account.provider
             );
 
-            if (!hasGoogleAccount) {
+            if (!hasProviderAccount) {
               // Email ya existe con credentials - vincular automáticamente
               await prisma.account.create({
                 data: {
@@ -68,7 +63,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
             }
           }
         } catch (error) {
-          console.error("Error en signIn callback:", error);
+          console.error(`Error en signIn callback (${account.provider}):`, error);
           return `/login?error=${encodeURIComponent('Error al vincular la cuenta')}`;
         }
       }

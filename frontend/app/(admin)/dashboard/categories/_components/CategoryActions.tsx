@@ -27,7 +27,7 @@ export default function CategoryActions({
 
   return (
     <Card className="mb-6 p-5 border border-slate-200/60 dark:border-slate-700/50 bg-white/95 dark:bg-slate-900/95 backdrop-blur-sm shadow-lg shadow-slate-200/50 dark:shadow-slate-950/50 rounded-xl">
-      <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
+      <div className="flex gap-4 flex-row lg:flex-wrap items-center justify-between">
         {/* Export Section */}
         <div className="flex flex-col sm:flex-row gap-2">
           <ExportDataButtons action={exportCategories} tableName="categories" />
@@ -93,9 +93,9 @@ export default function CategoryActions({
                   <SheetTrigger asChild>
                     <Button
                       size="default"
-                      className="h-10 px-4 rounded-lg bg-linear-to-r from-emerald-500 to-teal-600 hover:from-emerald-600 hover:to-teal-700 text-white font-medium shadow-sm hover:shadow-md transition-all text-sm"
+                      className="h-11 px-4 rounded-xl bg-gradient-to-r from-emerald-300 via-teal-400 to-cyan-400 text-slate-950 font-semibold shadow-[0_12px_30px_-12px_rgba(34,197,235,0.6)] transition-all hover:shadow-[0_18px_38px_-12px_rgba(34,197,235,0.75)]"
                     >
-                      <Plus className="mr-2 h-4 w-4" /> Agregar Categoría
+                      <Plus className="mr-2 h-4 w-4" />Agregar Categoría
                     </Button>
                   </SheetTrigger>
                 </CategoryFormSheet>

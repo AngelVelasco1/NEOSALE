@@ -186,19 +186,12 @@ export const getOrderById = async (
     const order = await getOrderByIdService(parseInt(orderId));
 
     // Si hay userId, verificar que la orden pertenece al usuario
-    // Si no hay userId, permitir acceso (asumiendo que es admin desde el dashboard)
     if (userId && order.user_id !== userId) {
       return res.status(403).json({
         success: false,
         message: "No tienes permisos para ver esta orden",
       });
     }
-
-    console.log("Orden obtenida:", {
-      orderId: order.id,
-      userId: userId || "admin",
-      status: order.status,
-    });
 
     res.json({
       success: true,

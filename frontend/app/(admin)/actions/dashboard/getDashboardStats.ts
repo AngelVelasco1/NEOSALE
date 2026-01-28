@@ -147,7 +147,7 @@ export async function getDashboardStats(
       // Current period new customers
       prisma.user.count({
         where: {
-          created_at: { gte: currentPeriodStart, lte: currentPeriodEnd },
+          createdAt: { gte: currentPeriodStart, lte: currentPeriodEnd },
           role: "user",
         },
       }),
@@ -155,7 +155,7 @@ export async function getDashboardStats(
       // Comparison period new customers
       prisma.user.count({
         where: {
-          created_at: { gte: comparisonPeriodStart, lte: comparisonPeriodEnd },
+          createdAt: { gte: comparisonPeriodStart, lte: comparisonPeriodEnd },
           role: "user",
         },
       }),

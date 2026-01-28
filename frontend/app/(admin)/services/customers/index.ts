@@ -1,5 +1,4 @@
 import {
-  Customer,
   FetchCustomersParams,
   FetchCustomersResponse,
   CustomerOrder,
@@ -84,7 +83,7 @@ export async function fetchCustomerOrders({ id }: { id: string }): Promise<{
         id: true,
         name: true,
         email: true,
-        phone_number: true,
+        phoneNumber: true,
       },
     });
 
@@ -221,7 +220,7 @@ export async function fetchCustomerOrders({ id }: { id: string }): Promise<{
         id: user.id,
         name: user.name,
         email: user.email,
-        phone_number: user.phone_number,
+        phoneNumber: user.phone_number,
       },
       orders: formattedOrders,
     };

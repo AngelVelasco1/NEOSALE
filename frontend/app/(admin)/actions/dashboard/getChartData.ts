@@ -3,6 +3,7 @@
 import { prisma } from "@/lib/prisma";
 import { startOfDay, format } from "date-fns";
 import { es } from "date-fns/locale";
+import { unstable_cache } from "next/cache";
 
 export interface DailyData {
   date: string;
@@ -27,10 +28,12 @@ export interface DateRangeParams {
   to?: Date | string;
 }
 
-/* Datos de las pedidos y ventas  */
-export async function getDailyChartData(
-  params?: DateRangeParams
-): Promise<DailyData[]> {
+type NormalizedRange = {
+  fromISO: string;
+  toISO: string;
+};
+
+const normalizeDateRange = (params?: DateRangeParams): NormalizedRange => {
   const now = new Date();
 
   let startDate: Date;
@@ -49,131 +52,173 @@ export async function getDailyChartData(
   endDate = new Date(endDate);
   endDate.setHours(23, 59, 59, 999);
 
-  try {
-    const dailyData = await prisma.$queryRaw<
-      Array<{
-        date: Date;
-        sales: number;
-        orders: bigint;
-      }>
-    >`
-      SELECT 
-        DATE(created_at) as date,
-        COALESCE(SUM(total), 0) as sales,
-        COUNT(*) as orders
-      FROM orders
-      WHERE 
-        created_at >= ${startDate}
-        AND created_at <= ${endDate}
-        AND status IN ('paid', 'processing', 'shipped', 'delivered')
-      GROUP BY DATE(created_at)
-      ORDER BY date ASC
-    `;
+  return {
+    fromISO: startDate.toISOString(),
+    toISO: endDate.toISOString(),
+  };
+};
 
-    const formattedData = dailyData.map((item) => ({
-      date: format(new Date(item.date), "dd MMM", { locale: es }),
-      sales: Number(item.sales),
-      orders: Number(item.orders),
-    }));
+/* Datos de las pedidos y ventas  */
+const dailyChartDataCache = unstable_cache(
+  async (fromISO: string, toISO: string) => {
+    const startDate = new Date(fromISO);
+    const endDate = new Date(toISO);
 
-    // Fill missing dates with zero values
-    const allDates: DailyData[] = [];
-    let currentDate = new Date(startDate);
+    try {
+      const dailyData = await prisma.$queryRaw<
+        Array<{
+          date: Date;
+          sales: number;
+          orders: bigint;
+        }>
+      >`
+        SELECT 
+          DATE(created_at) as date,
+          COALESCE(SUM(total), 0) as sales,
+          COUNT(*) as orders
+        FROM orders
+        WHERE 
+          created_at >= ${startDate}
+          AND created_at <= ${endDate}
+          AND status IN ('paid', 'processing', 'shipped', 'delivered')
+        GROUP BY DATE(created_at)
+        ORDER BY date ASC
+      `;
 
-    while (currentDate <= endDate) {
-      const dateStr = format(currentDate, "dd MMM", { locale: es });
-      const existingData = formattedData.find((d) => d.date === dateStr);
+      const formattedData = dailyData.map((item) => ({
+        date: format(new Date(item.date), "dd MMM", { locale: es }),
+        sales: Number(item.sales),
+        orders: Number(item.orders),
+      }));
 
-      allDates.push(
-        existingData || {
-          date: dateStr,
-          sales: 0,
-          orders: 0,
-        }
-      );
+      const allDates: DailyData[] = [];
+      let currentDate = new Date(startDate);
 
-      currentDate = new Date(currentDate);
-      currentDate.setDate(currentDate.getDate() + 1);
+      while (currentDate <= endDate) {
+        const dateStr = format(currentDate, "dd MMM", { locale: es });
+        const existingData = formattedData.find((d) => d.date === dateStr);
+
+        allDates.push(
+          existingData || {
+            date: dateStr,
+            sales: 0,
+            orders: 0,
+          }
+        );
+
+        currentDate = new Date(currentDate);
+        currentDate.setDate(currentDate.getDate() + 1);
+      }
+
+      return allDates;
+    } catch (error) {
+      console.error("Error fetching daily chart data:", error);
+      return [];
     }
+  },
+  ["daily-chart-data"],
+  { revalidate: 120, tags: ["dashboard-charts"] }
+);
 
-    return allDates;
-  } catch (error) {
-    console.error("Error fetching daily chart data:", error);
-    return [];
-  }
+export async function getDailyChartData(
+  params?: DateRangeParams
+): Promise<DailyData[]> {
+  const { fromISO, toISO } = normalizeDateRange(params);
+  return dailyChartDataCache(fromISO, toISO);
 }
 
 /**
  * Obtiene ventas por categoría para gráficas de barras/pastel
  * Usa el rango de fechas proporcionado, o mes actual por defecto
  */
-export async function getCategorySalesData(
-  params?: DateRangeParams
-): Promise<CategorySalesResponse> {
-  const now = new Date();
+const categorySalesCache = unstable_cache(
+  async (fromISO: string, toISO: string) => {
+    const startDate = new Date(fromISO);
+    const endDate = new Date(toISO);
 
-  let startDate: Date;
-  let endDate: Date;
+    try {
+      const dateFilters = {
+        gte: startDate,
+        lte: endDate,
+      } as const;
 
-  if (params?.from && params?.to) {
-    startDate =
-      typeof params.from === "string" ? new Date(params.from) : params.from;
-    endDate = typeof params.to === "string" ? new Date(params.to) : params.to;
-  } else {
-    // Default: current month
-    startDate = new Date(now.getFullYear(), now.getMonth(), 1);
-    endDate = now;
-  }
+      const totalOrdersResult = await prisma.orders.count({
+        where: {
+          status: { in: ["paid", "processing", "shipped", "delivered"] },
+          created_at: dateFilters,
+        },
+      });
 
-  // Ensure we're using start of day for consistent results
-  startDate = startOfDay(startDate);
-  endDate = new Date(endDate);
-  endDate.setHours(23, 59, 59, 999); // End of day
+      const totalSalesAggregate = await prisma.orders.aggregate({
+        _sum: { total: true },
+        where: {
+          status: { in: ["paid", "processing", "shipped", "delivered"] },
+          created_at: dateFilters,
+        },
+      });
 
-  try {
-    const totalOrdersResult = await prisma.orders.count({
-      where: {
-        status: { in: ["paid", "processing", "shipped", "delivered"] },
-        created_at: { gte: startDate, lte: endDate },
-      },
-    });
+      const categoryData = await prisma.$queryRaw<
+        Array<{
+          category: string;
+          sales: number;
+          orders: bigint;
+        }>
+      >`
+        SELECT 
+          COALESCE(c.name, 'Sin categoría') AS category,
+          SUM(oi.price * oi.quantity) AS sales,
+          COUNT(DISTINCT o.id) AS orders
+        FROM orders o
+        INNER JOIN order_items oi ON oi.order_id = o.id
+        INNER JOIN products p ON p.id = oi.product_id
+        LEFT JOIN categories c ON c.id = p.category_id
+        WHERE o.status IN ('paid', 'processing', 'shipped', 'delivered')
+          AND o.created_at >= ${startDate} 
+          AND o.created_at <= ${endDate}
+        GROUP BY category
+        ORDER BY sales DESC
+        LIMIT 10
+      `;
 
-    // Get category sales data
-    const categoryData = await prisma.$queryRaw<
-      Array<{
-        category: string;
-        sales: number;
-        orders: bigint;
-      }>
-    >`
-      SELECT 
-        c.name as category,
-        SUM(oi.price * oi.quantity) as sales,
-        COUNT(DISTINCT o.id) as orders
-      FROM orders o
-      INNER JOIN order_items oi ON oi.order_id = o.id
-      INNER JOIN products p ON p.id = oi.product_id
-      INNER JOIN categories c ON c.id = p.category_id
-      WHERE o.status IN ('paid', 'processing', 'shipped', 'delivered')
-        AND o.created_at >= ${startDate} 
-        AND o.created_at <= ${endDate}
-      GROUP BY c.id, c.name
-      ORDER BY sales DESC
-      LIMIT 10
-    `;
-
-    return {
-      data: categoryData.map((item) => ({
+      let normalizedCategoryData = categoryData.map((item) => ({
         category: item.category,
         sales: Number(item.sales),
         orders: Number(item.orders),
-      })),
-      totalOrders: totalOrdersResult,
-    };
-  } catch (error) {
-    console.error("Error fetching category sales data:", error);
-    return { data: [], totalOrders: 0 };
-  }
+      }));
+
+      const totalSalesAmount = Number(totalSalesAggregate._sum.total ?? 0);
+
+      if (!normalizedCategoryData.length && totalSalesAmount > 0) {
+        normalizedCategoryData = [
+          {
+            category: "Sin categoría",
+            sales: totalSalesAmount,
+            orders: totalOrdersResult,
+          },
+        ];
+      }
+
+      const response: CategorySalesResponse = {
+        data: normalizedCategoryData,
+        totalOrders: totalOrdersResult,
+      };
+
+      return response;
+    } catch (error) {
+      console.error("Error fetching category sales data:", error);
+      const fallback: CategorySalesResponse = { data: [], totalOrders: 0 };
+      return fallback;
+    }
+  },
+  ["category-sales-data"],
+  { revalidate: 120, tags: ["dashboard-charts"] }
+);
+
+export async function getCategorySalesData(
+  params?: DateRangeParams
+): Promise<CategorySalesResponse> {
+  const { fromISO, toISO } = normalizeDateRange(params);
+  return categorySalesCache(fromISO, toISO);
 }
 
 export async function getMonthlySalesData(): Promise<

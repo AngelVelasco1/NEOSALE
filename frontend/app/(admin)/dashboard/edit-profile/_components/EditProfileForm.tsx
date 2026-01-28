@@ -33,12 +33,12 @@ import { motion, AnimatePresence } from "framer-motion";
 
 import { profileFormSchema, ProfileFormData } from "./schema";
 import { objectToFormData } from "@/app/(admin)/helpers/objectToFormData";
-import { SBStaff } from "@/app/(admin)/services/staff/types";
+import { StaffProfile } from "@/app/(admin)/services/staff/types";
 import { editProfile } from "@/app/(admin)/actions/profile/editProfile";
 
 type Section = 'info' | 'edit' | 'security';
 
-export default function EditProfileForm({ profile }: { profile: SBStaff }) {
+export default function EditProfileForm({ profile }: { profile: StaffProfile }) {
   const queryClient = useQueryClient();
   const [isPending, startTransition] = useTransition();
   const imageDropzoneRef = useRef<HTMLDivElement>(null);

@@ -15,6 +15,8 @@ export default function CustomersTable({
     data,
     columns,
     getCoreRowModel: getCoreRowModel(),
+
+    meta: { sectionLabel: "Clientes" },
   });
 
   return <DataTable table={table} pagination={pagination} />;

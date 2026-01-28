@@ -23,6 +23,18 @@ export type GetProductsParams = {
 
 // Helper function to serialize Decimal fields to numbers
 function serializeProduct<T extends Record<string, unknown>>(product: T): T {
+  const images = product.images as Array<{ image_url: string }> | undefined;
+  const primaryImage = images && images.length > 0 ? images[0].image_url : undefined;
+  
+  // Calcular stock total desde las variantes activas
+  const variants = product.product_variants as Array<{ stock: number; size: string; active: boolean }> | undefined;
+  const totalStock = variants?.reduce((sum, v) => sum + (v.stock || 0), 0) || 0;
+  
+  // Extraer sizes únicos de las variantes si no existe el campo sizes
+  const sizesFromVariants = variants
+    ? [...new Set(variants.map(v => v.size))].sort().join(", ")
+    : "";
+  
   return {
     ...product,
     price: product.price ? Number(product.price) : null,
@@ -30,6 +42,9 @@ function serializeProduct<T extends Record<string, unknown>>(product: T): T {
     offer_discount: product.offer_discount
       ? Number(product.offer_discount)
       : null,
+    image_url: primaryImage, // Agregar imagen por defecto
+    stock: totalStock, // Stock real calculado desde variantes
+    sizes: product.sizes || sizesFromVariants, // Usar sizes del producto o extraerlos de variantes
   };
 }
 
@@ -148,12 +163,27 @@ export async function getProducts({
             },
           },
           images: {
-            where: {
-              is_primary: true,
-            },
-            take: 1,
+            orderBy: [
+              { is_primary: 'desc' },
+              { id: 'asc' }
+            ],
             select: {
               image_url: true,
+              color: true,
+              color_code: true,
+              is_primary: true,
+            },
+          },
+          product_variants: {
+            where: {
+              active: true,
+            },
+            select: {
+              id: true,
+              stock: true,
+              size: true,
+              color: true,
+              color_code: true,
             },
           },
         },
@@ -163,6 +193,7 @@ export async function getProducts({
 
     // Serialize products para convertir Decimal a number
     const serializedData = data.map(serializeProduct);
+
 
     return {
       data: serializedData,
@@ -188,13 +219,23 @@ export async function getProductById(productId: number) {
       include: {
         categories: true,
         brands: true,
-        images: true,
+        images: {
+          orderBy: [
+            { is_primary: 'desc' },
+            { id: 'asc' }
+          ],
+        },
         product_variants: {
           where: {
             active: true,
           },
           include: {
-            images: true,
+            images: {
+              orderBy: [
+                { is_primary: 'desc' },
+                { id: 'asc' }
+              ],
+            },
           },
         },
       },
@@ -203,11 +244,26 @@ export async function getProductById(productId: number) {
     // Serialize product to convert Decimal fields to numbers
     if (!product) return null;
 
+    // Calcular stock total desde variantes
+    const totalStock = product.product_variants.reduce((sum, v) => sum + v.stock, 0);
+
+    // Eliminar imágenes duplicadas - solo mantener una imagen por color_code
+    const uniqueImages = product.images.reduce((acc, img) => {
+      const existingImage = acc.find(i => i.color_code === img.color_code && i.image_url === img.image_url);
+      if (!existingImage) {
+        acc.push(img);
+      }
+      return acc;
+    }, [] as typeof product.images);
+
     const serializedProduct = {
       ...serializeProduct(product),
+      stock: totalStock,
+      images: uniqueImages, // Usar imágenes únicas
       product_variants: product.product_variants.map((variant) => ({
         ...variant,
         price: variant.price ? Number(variant.price) : null,
+        images: variant.images || [],
       })),
     };
 

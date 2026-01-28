@@ -12,6 +12,9 @@ import { getSearchParams } from "../../../../helpers/getSearchParams";
 import { fetchOrders } from "../../../../services/orders";
 import { useAuthorization } from "../../../../hooks/use-authorization";
 
+const STALE_TIME = 60 * 1000;
+const GC_TIME = 5 * 60 * 1000;
+
 export default function RecentOrders() {
   const { hasPermission } = useAuthorization();
   const columns = getColumns({ hasPermission });
@@ -67,6 +70,11 @@ export default function RecentOrders() {
         sortOrder,
       }),
     placeholderData: keepPreviousData,
+    staleTime: STALE_TIME,
+    gcTime: GC_TIME,
+    refetchOnWindowFocus: false,
+    refetchOnReconnect: false,
+    retry: 1,
   });
 
   if (isLoading)

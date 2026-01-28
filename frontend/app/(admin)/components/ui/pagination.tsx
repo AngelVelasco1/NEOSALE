@@ -20,9 +20,9 @@ const PaginationContent = React.forwardRef<
   <ul
     ref={ref}
     className={cn(
-      "flex flex-row items-center gap-1.5",
-      "p-1 rounded-xl bg-white/90 dark:bg-slate-900/90 backdrop-blur-sm",
-      "border-none dark:border-slate-700/60",
+      "flex flex-row items-center gap-2",
+      "p-2 rounded-xl bg-transparent backdrop-blur-sm",
+      "border-none dark:border-slate-900/80",
       "shadow-lg shadow-slate-900/5 dark:shadow-black/20",
       className
     )}
@@ -92,7 +92,7 @@ const PaginationPrevious = ({
     aria-label="Go to previous page"
     className={cn(
       "inline-flex items-center justify-center whitespace-nowrap rounded-lg text-sm font-semibold transition-all duration-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500/50 disabled:pointer-events-none disabled:opacity-50",
-      "gap-2 pl-3 pr-4 h-9 min-w-[100px] group relative overflow-hidden",
+      "gap-2 pl-3 pr-4 h-10 min-w-[100px] group relative overflow-hidden",
       // Estilos normales
       "bg-linear-to-r from-slate-600 via-slate-700 to-slate-800 dark:from-slate-700 dark:via-slate-800 dark:to-slate-900",
       "border border-slate-700/50 dark:border-slate-600/50",
@@ -126,7 +126,7 @@ const PaginationNext = ({
     aria-label="Go to next page"
     className={cn(
       "inline-flex items-center justify-center whitespace-nowrap rounded-lg text-sm font-semibold transition-all duration-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500/50 disabled:pointer-events-none disabled:opacity-50",
-      "gap-2 pl-4 pr-3 h-9 min-w-[100px] group relative overflow-hidden",
+      "gap-2 pl-4 pr-3 h-10 min-w-[100px] group relative overflow-hidden",
       // Estilos normales
       "bg-linear-to-r from-slate-600 via-slate-700 to-slate-800 dark:from-slate-700 dark:via-slate-800 dark:to-slate-900",
       "border border-slate-700/50 dark:border-slate-600/50",

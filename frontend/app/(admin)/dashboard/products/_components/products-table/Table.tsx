@@ -13,6 +13,8 @@ export default function ProductsTable({
   rowSelection,
   setRowSelection,
 }: DataTableWithRowSelectionProps<Product>) {
+
+  // useReactTable ya está optimizado internamente con memoization
   const table = useReactTable({
     data,
     columns,
@@ -27,6 +29,10 @@ export default function ProductsTable({
 
       setRowSelection(newSelectionState);
     },
+    meta: { sectionLabel: "Productos" },
+    // Optimizaciones adicionales
+    enableRowSelection: true,
+    enableMultiRowSelection: true,
   });
 
   return <DataTable table={table} pagination={pagination} />;

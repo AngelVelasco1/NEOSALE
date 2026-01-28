@@ -2,7 +2,7 @@
 
 import { SheetTrigger } from "@/components/ui/sheet";
 import { editProduct } from "@/actions/products/editProduct";
-import { ProductDetails } from "@/services/products/types";
+import { ProductDetails } from "@/app/(admin)/services/products/types";
 import ProductFormSheet from "../../_components/form/ProductFormSheet";
 
 import { useAuthorization } from "@/hooks/use-authorization";

@@ -27,6 +27,7 @@ export default function CategoryTable({
 
       setRowSelection(newSelectionState);
     },
+        meta: { sectionLabel: "Categorías" },
   });
 
   return <DataTable table={table} pagination={pagination} />;

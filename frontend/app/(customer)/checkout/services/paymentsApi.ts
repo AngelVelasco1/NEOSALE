@@ -382,7 +382,6 @@ export const convertFromCents = (amountInCents: number): number => {
   return amountInCents / 100;
 };
 
-// 🔍 FUNCIÓN DE DEBUGGING: Validar datos antes de crear transacción
 export const validateWompiDataApi = async (
   transactionData: WompiTransactionData
 ): Promise<

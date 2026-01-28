@@ -1,251 +1,238 @@
-import {
-  TrendingUp,
-  DollarSign,
-  ShoppingCart,
-  Package,
-  Users,
-  ArrowUpRight,
-  ArrowDownRight
-} from "lucide-react";
-import { ReactNode } from "react";
-
-import { cn } from "@/lib/utils";
-import Typography from "@/app/(admin)/components/ui/typography";
 import { getDashboardStats, DateRangeParams } from "@/app/(admin)/actions/dashboard/getDashboardStats";
+import SalesOverviewClient from "./SalesOverviewClient";
+import type {
+  MetricCardDescriptor,
+  QuickStatDescriptor,
+} from "./SalesOverview.types";
+import { DEFAULT_METRIC_GOALS, MetricGoalKey } from "./goalPresets";
 
-interface MetricCard {
-  icon: ReactNode;
-  title: string;
-  value: string;
-  change: string;
-  changeType: "increase" | "decrease" | "neutral";
-  subtitle: string;
-  gradient: string;
-  iconBg: string;
-}
+type GoalOverrides = Partial<Record<MetricGoalKey, number>>;
 
 interface SalesOverviewProps {
   dateRange?: DateRangeParams;
+  goalOverrides?: GoalOverrides;
 }
 
-export default async function SalesOverview({ dateRange }: SalesOverviewProps) {
+const currencyFormatter = new Intl.NumberFormat("es-CO", {
+  style: "currency",
+  currency: "COP",
+  minimumFractionDigits: 0,
+  maximumFractionDigits: 0,
+});
+
+const integerFormatter = new Intl.NumberFormat("es-CO", {
+  maximumFractionDigits: 0,
+});
+
+const dateFormatter = new Intl.DateTimeFormat("es-CO", {
+  day: "2-digit",
+  month: "short",
+});
+
+const formatCurrency = (value: number) => currencyFormatter.format(value);
+const formatInteger = (value: number) => integerFormatter.format(value);
+
+const metricGoalPresets: Record<MetricGoalKey, {
+  label: string;
+  formatter: (value: number) => string;
+}> = {
+  revenue: {
+    label: DEFAULT_METRIC_GOALS.revenue.label,
+    formatter: formatCurrency,
+  },
+  orders: {
+    label: DEFAULT_METRIC_GOALS.orders.label,
+    formatter: formatInteger,
+  },
+  products: {
+    label: DEFAULT_METRIC_GOALS.products.label,
+    formatter: formatInteger,
+  },
+  customers: {
+    label: DEFAULT_METRIC_GOALS.customers.label,
+    formatter: formatInteger,
+  },
+};
+
+const formatChange = (value: number): string => {
+  const sign = value >= 0 ? "+" : "";
+  return `${sign}${value.toFixed(1)}%`;
+};
+
+const getChangeType = (value: number): "increase" | "decrease" | "neutral" => {
+  if (value > 0) return "increase";
+  if (value < 0) return "decrease";
+  return "neutral";
+};
+
+const formatRangeLabel = (range?: DateRangeParams) => {
+  if (range?.from && range?.to) {
+    const start = dateFormatter.format(new Date(range.from));
+    const end = dateFormatter.format(new Date(range.to));
+    return `${start} – ${end}`;
+  }
+  return "Últimos 30 días";
+};
+
+export default async function SalesOverview({ dateRange, goalOverrides }: SalesOverviewProps) {
   const stats = await getDashboardStats(dateRange);
 
-  // Helper function to format currency
-  const formatCurrency = (value: number) => {
-    return new Intl.NumberFormat('es-CO', {
-      style: 'currency',
-      currency: 'COP',
-      minimumFractionDigits: 0,
-      maximumFractionDigits: 0,
-    }).format(value);
-  };
-
-  // Helper function to format change percentage
-  const formatChange = (value: number): string => {
-    const sign = value >= 0 ? "+" : "";
-    return `${sign}${value.toFixed(1)}%`;
-  };
-
-  // Helper function to determine change type
-  const getChangeType = (value: number): "increase" | "decrease" | "neutral" => {
-    if (value > 0) return "increase";
-    if (value < 0) return "decrease";
-    return "neutral";
-  };
-
-  const metrics: MetricCard[] = [
+  const metricConfigs = [
     {
-      icon: <DollarSign className="size-6" />,
+      icon: "revenue",
       title: "Ganancias",
-      value: formatCurrency(stats.totalRevenue),
-      change: formatChange(stats.revenueChange),
-      changeType: getChangeType(stats.revenueChange),
-      subtitle: "from last month",
-      gradient: "from-blue-500 to-blue-600",
-      iconBg: "bg-blue-50 dark:bg-blue-500/10",
+      subtitle: "Ingresos netos",
+      rawValue: stats.totalRevenue,
+      changeValue: stats.revenueChange,
+      gradient: "from-sky-500/40 via-blue-500/40 to-indigo-500/40",
+      border: "border-sky-500/25",
+      glow: "shadow-sky-500/30",
+      iconBg: "bg-white/20",
+      valueFormatter: formatCurrency,
+      goalKey: "revenue" as const,
+      fallbackProgressLabel: "Seguimiento relativo",
     },
     {
-      icon: <ShoppingCart className="size-6" />,
-      title: "Pedidos Totales",
-      value: stats.totalOrders.toLocaleString(),
-      change: formatChange(stats.ordersChange),
-      changeType: getChangeType(stats.ordersChange),
-      subtitle: "from last month",
-      gradient: "from-purple-500 to-purple-600",
-      iconBg: "bg-purple-50 dark:bg-purple-500/10",
+      icon: "orders",
+      title: "Pedidos totales",
+      subtitle: "Volumen confirmado",
+      rawValue: stats.totalOrders,
+      changeValue: stats.ordersChange,
+      gradient: "from-violet-500/35 via-fuchsia-500/40 to-purple-500/35",
+      border: "border-purple-500/25",
+      glow: "shadow-violet-500/30",
+      iconBg: "bg-white/15",
+      valueFormatter: formatInteger,
+      goalKey: "orders" as const,
+      fallbackProgressLabel: "Volumen respecto al período",
     },
     {
-      icon: <Package className="size-6" />,
-      title: "Productos Vendidos",
-      value: stats.productsSold.toLocaleString(),
-      change: formatChange(stats.productsSoldChange),
-      changeType: getChangeType(stats.productsSoldChange),
-      subtitle: "from last month",
-      gradient: "from-emerald-500 to-emerald-600",
-      iconBg: "bg-emerald-50 dark:bg-emerald-500/10",
+      icon: "products",
+      title: "Productos vendidos",
+      subtitle: "Unidades enviadas",
+      rawValue: stats.productsSold,
+      changeValue: stats.productsSoldChange,
+      gradient: "from-emerald-500/35 via-teal-500/35 to-green-500/35",
+      border: "border-emerald-500/25",
+      glow: "shadow-emerald-500/30",
+      iconBg: "bg-white/15",
+      valueFormatter: formatInteger,
+      goalKey: "products" as const,
+      fallbackProgressLabel: "Dinámica del catálogo",
     },
     {
-      icon: <Users className="size-6" />,
-      title: "Nuevos Clientes",
-      value: stats.newCustomers.toLocaleString(),
-      change: formatChange(stats.customersChange),
-      changeType: getChangeType(stats.customersChange),
-      subtitle: "from last month",
-      gradient: "from-orange-500 to-orange-600",
-      iconBg: "bg-orange-50 dark:bg-orange-500/10",
+      icon: "customers",
+      title: "Nuevos clientes",
+      subtitle: "Altas verificadas",
+      rawValue: stats.newCustomers,
+      changeValue: stats.customersChange,
+      gradient: "from-amber-500/35 via-orange-500/35 to-rose-500/35",
+      border: "border-amber-500/20",
+      glow: "shadow-amber-500/30",
+      iconBg: "bg-white/15",
+      valueFormatter: formatInteger,
+      goalKey: "customers" as const,
+      fallbackProgressLabel: "Crecimiento relativo",
+    },
+  ] as const;
+
+  const normalizedValues = metricConfigs.map((metric) =>
+    metric.rawValue > 0 ? Math.log10(metric.rawValue + 1) : 0
+  );
+  const maxNormalized = Math.max(...normalizedValues, 1);
+
+  const rangeLabel = formatRangeLabel(dateRange);
+
+  const metrics: MetricCardDescriptor[] = metricConfigs.map((metric, index) => {
+    const goalPreset = metricGoalPresets[metric.goalKey];
+    const overrideValue = goalOverrides?.[metric.goalKey];
+    const baseGoalValue = DEFAULT_METRIC_GOALS[metric.goalKey].value;
+    const hasCustomGoal = typeof overrideValue === "number" && overrideValue > 0;
+    const goalValue = hasCustomGoal ? overrideValue : baseGoalValue;
+    const hasGoal = goalValue > 0;
+    const goalProgress = hasGoal
+      ? (metric.rawValue / goalValue) * 100
+      : undefined;
+    const relativeProgress = maxNormalized > 0
+      ? (normalizedValues[index] / maxNormalized) * 100
+      : 0;
+    const computedProgress = goalProgress ?? relativeProgress;
+    const normalizedProgress = Math.max(
+      0,
+      Number.isFinite(computedProgress) ? computedProgress : 0
+    );
+    const visualProgress =
+      hasGoal && metric.rawValue > 0 && normalizedProgress > 0 && normalizedProgress < 1
+        ? 1
+        : normalizedProgress;
+
+    const goalFormatted = hasGoal
+      ? goalPreset.formatter(goalValue)
+      : undefined;
+
+    return {
+      icon: metric.icon,
+      title: metric.title,
+      subtitle: metric.subtitle,
+      value: metric.valueFormatter(metric.rawValue),
+      change: formatChange(metric.changeValue),
+      changeType: getChangeType(metric.changeValue),
+      gradient: metric.gradient,
+      border: metric.border,
+      glow: metric.glow,
+      iconBg: metric.iconBg,
+      progressValue: visualProgress,
+      progressLabel: hasGoal ? undefined : metric.fallbackProgressLabel,
+      badgeLabel: rangeLabel,
+      goalFormatted,
+    } satisfies MetricCardDescriptor;
+  });
+
+  const quickStats: QuickStatDescriptor[] = [
+    {
+      icon: "trend",
+      title: "Ticket promedio",
+      helper: "Ingreso medio por pedido",
+      value: formatCurrency(stats.avgOrderValue),
+      background: "from-sky-500/20 via-blue-500/5 to-transparent",
+      border: "border-sky-500/20",
+      accent: "text-sky-200",
+    },
+    {
+      icon: "conversion",
+      title: "Tasa de conversión",
+      helper: "Sesiones que compran",
+      value: `${stats.conversionRate.toFixed(2)}%`,
+      background: "from-fuchsia-500/15 via-purple-500/5 to-transparent",
+      border: "border-fuchsia-500/20",
+      accent: "text-fuchsia-200",
+    },
+    {
+      icon: "pending",
+      title: "Pedidos pendientes",
+      helper: "Incluye pagos en revisión",
+      value: stats.pendingOrders.toLocaleString("es-CO"),
+      background: "from-emerald-500/15 via-teal-500/5 to-transparent",
+      border: "border-emerald-500/20",
+      accent: "text-emerald-200",
+    },
+    {
+      icon: "activeUsers",
+      title: "Usuarios activos",
+      helper: "Clientes recurrentes",
+      value: stats.activeUsers.toLocaleString("es-CO"),
+      background: "from-orange-500/15 via-amber-500/5 to-transparent",
+      border: "border-orange-500/20",
+      accent: "text-orange-200",
     },
   ];
 
+
+
   return (
-    <div className="space-y-6">
-      {/* Header */}
-
-
-      {/* Metrics Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-6">
-        {metrics.map((metric, index) => (
-          <div
-            key={`metric-${index}`}
-            className="group relative bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-6 hover:shadow-xl hover:shadow-slate-200/50 dark:hover:shadow-slate-950/50 transition-all duration-300 hover:-translate-y-1"
-          >
-            {/* Background Gradient Overlay */}
-            <div className={cn(
-              "absolute inset-0 bg-linear-to-br opacity-0 group-hover:opacity-5 transition-opacity duration-300 rounded-2xl",
-              metric.gradient
-            )} />
-
-            <div className="relative">
-              {/* Icon */}
-              <div className={cn(
-                "inline-flex items-center justify-center rounded-xl p-3 mb-4",
-                metric.iconBg
-              )}>
-                <div className={cn(
-                  metric.gradient.includes("blue") && "text-blue-600 dark:text-blue-400",
-                  metric.gradient.includes("purple") && "text-purple-600 dark:text-purple-400",
-                  metric.gradient.includes("emerald") && "text-emerald-600 dark:text-emerald-400",
-                  metric.gradient.includes("orange") && "text-orange-600 dark:text-orange-400"
-                )}>
-                  {metric.icon}
-                </div>
-              </div>
-
-              {/* Title */}
-              <Typography className="text-sm font-medium ms-2 text-slate-600 dark:text-slate-400 mb-2">
-                {metric.title}
-              </Typography>
-
-              {/* Value */}
-              <div className="flex items-baseline gap-3 mb-3">
-                <Typography className="text-3xl font-bold text-slate-900 dark:text-white">
-                  {metric.value}
-                </Typography>
-
-                {/* Change Indicator */}
-                <div className={cn(
-                  "inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-semibold",
-                  metric.changeType === "increase" && "bg-emerald-100 dark:bg-emerald-500/10 text-emerald-700 dark:text-emerald-400",
-                  metric.changeType === "decrease" && "bg-red-100 dark:bg-red-500/10 text-red-700 dark:text-red-400",
-                  metric.changeType === "neutral" && "bg-slate-100 dark:bg-slate-500/10 text-slate-700 dark:text-slate-400"
-                )}>
-                  {metric.changeType === "increase" ? (
-                    <ArrowUpRight className="size-3" />
-                  ) : metric.changeType === "decrease" ? (
-                    <ArrowDownRight className="size-3" />
-                  ) : null}
-                  {metric.change}
-                </div>
-              </div>
-
-              {/* Subtitle */}
-              <Typography className="text-xs text-slate-500 dark:text-slate-400">
-                {metric.subtitle}
-              </Typography>
-
-              {/* Progress Bar */}
-              <div className="mt-4 h-1.5 bg-slate-100 dark:bg-slate-800 rounded-full overflow-hidden">
-                <div
-                  className={cn(
-                    "h-full bg-linear-to-r rounded-full transition-all duration-500",
-                    metric.gradient
-                  )}
-                  style={{
-                    width: metric.changeType === "increase" ? "75%" : "45%"
-                  }}
-                />
-              </div>
-            </div>
-          </div>
-        ))}
-      </div>
-
-      {/* Quick Stats Bar */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-        <div className="bg-linear-to-br from-blue-50 to-blue-100/50 dark:from-blue-950/30 dark:to-blue-900/20 border border-blue-200 dark:border-blue-900/50 rounded-xl p-4">
-          <div className="flex items-center gap-3">
-            <div className="p-2 bg-blue-100 dark:bg-blue-500/10 rounded-lg">
-              <TrendingUp className="size-5 text-blue-600 dark:text-blue-400" />
-            </div>
-            <div>
-              <Typography className="text-xs block text-blue-700 dark:text-blue-400 font-medium">
-                Promedio de Valor de Orden
-              </Typography>
-              <Typography className="text-lg font-bold text-blue-900 dark:text-blue-300">
-                {formatCurrency(stats.avgOrderValue)}
-              </Typography>
-            </div>
-          </div>
-        </div>
-
-        <div className="bg-linear-to-br from-purple-50 to-purple-100/50 dark:from-purple-950/30 dark:to-purple-900/20 border border-purple-200 dark:border-purple-900/50 rounded-xl p-4">
-          <div className="flex items-center gap-3">
-            <div className="p-2 bg-purple-100 dark:bg-purple-500/10 rounded-lg">
-              <ShoppingCart className="size-5 text-purple-600 dark:text-purple-400" />
-            </div>
-            <div>
-              <Typography className="text-xs block text-purple-700 dark:text-purple-400 font-medium">
-                Conversion Rate
-              </Typography>
-              <Typography className="text-lg font-bold text-purple-900 dark:text-purple-300">
-                {stats.conversionRate.toFixed(2)}%
-              </Typography>
-            </div>
-          </div>
-        </div>
-
-        <div className="bg-linear-to-br from-emerald-50 to-emerald-100/50 dark:from-emerald-950/30 dark:to-emerald-900/20 border border-emerald-200 dark:border-emerald-900/50 rounded-xl p-4">
-          <div className="flex items-center gap-3">
-            <div className="p-2 bg-emerald-100 dark:bg-emerald-500/10 rounded-lg">
-              <Package className="size-5 text-emerald-600 dark:text-emerald-400" />
-            </div>
-            <div>
-              <Typography className="text-xs block text-emerald-700 dark:text-emerald-400 font-medium">
-                Pending Orders
-              </Typography>
-              <Typography className="text-lg font-bold text-emerald-900 dark:text-emerald-300">
-                {stats.pendingOrders.toLocaleString()}
-              </Typography>
-            </div>
-          </div>
-        </div>
-
-        <div className="bg-linear-to-br from-orange-50 to-orange-100/50 dark:from-orange-950/30 dark:to-orange-900/20 border border-orange-200 dark:border-orange-900/50 rounded-xl p-4">
-          <div className="flex items-center gap-3">
-            <div className="p-2 bg-orange-100 dark:bg-orange-500/10 rounded-lg">
-              <Users className="size-5 text-orange-600 dark:text-orange-400" />
-            </div>
-            <div>
-              <Typography className="text-xs block text-orange-700 dark:text-orange-400 font-medium">
-                Active Users
-              </Typography>
-              <Typography className="text-lg font-bold text-orange-900 dark:text-orange-300">
-                {stats.activeUsers.toLocaleString()}
-              </Typography>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
+    <SalesOverviewClient
+      metrics={metrics}
+      quickStats={quickStats}
+    />
   );
 }

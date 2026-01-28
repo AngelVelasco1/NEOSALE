@@ -1,5 +1,4 @@
-import WeeklySales from "./WeeklySales";
-import BestSellers from "./BestSellers";
+import ChartsClient from "./ChartsClient";
 import { getDailyChartData, getCategorySalesData, DateRangeParams } from "../../../actions/dashboard/getChartData";
 
 interface DashboardChartsProps {
@@ -19,8 +18,12 @@ export default async function DashboardCharts({ dateRange }: DashboardChartsProp
 
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 gap-4" key={cacheKey}>
-      <WeeklySales data={dailyData} dateRange={dateRange} />
-      <BestSellers data={categoryResponse.data} totalOrders={categoryResponse.totalOrders} dateRange={dateRange} />
+      <ChartsClient
+        dailyData={dailyData}
+        categoryData={categoryResponse.data}
+        totalOrders={categoryResponse.totalOrders}
+        dateRange={dateRange}
+      />
     </div>
   );
 }

@@ -6,7 +6,7 @@ import {
 import {
   FetchStaffParams,
   FetchStaffResponse,
-  SBStaff,
+  StaffProfile,
 } from "./types";
 
 export async function fetchStaff(
@@ -38,7 +38,7 @@ export async function fetchStaffRolesDropdown() {
   return getStaffRolesDropdown();
 }
 
-export async function fetchStaffDetails(userId: number): Promise<SBStaff | null> {
+export async function fetchStaffDetails(userId: number): Promise<StaffProfile | null> {
   const staff = await getStaffDetailsAction(userId);
-  return staff as SBStaff | null;
+  return staff as StaffProfile | null;
 }

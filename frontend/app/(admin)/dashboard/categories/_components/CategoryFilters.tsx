@@ -1,162 +1,240 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
-import { Search, X, Tag, ToggleLeft } from "lucide-react";
+import { Search, Tag, ToggleLeft, X } from "lucide-react";
+import { cn } from "@/lib/utils";
 
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
-import { Separator } from "@/components/ui/separator";
+
+import {
+  FILTER_ACTIVE_BADGE_CLASS,
+  FILTER_CARD_CLASS,
+  FILTER_CHIP_ACTIVE_CLASS,
+  FILTER_CHIP_CLASS,
+  FILTER_INPUT_CLASS,
+  FILTER_LABEL_CLASS,
+  FILTER_RESET_BUTTON_CLASS,
+  FILTER_SELECT_TRIGGER_CLASS,
+} from "@/app/(admin)/components/shared/filters/styles";
+
+const STATUS_OPTIONS = [
+  { label: "Todas", value: "all" },
+  { label: "Activas", value: "active" },
+  { label: "Inactivas", value: "inactive" },
+];
 
 export default function CategoryFilters() {
-  const router = useRouter();
-  const searchParams = useSearchParams();
+    const router = useRouter();
+    const searchParams = useSearchParams();
 
-  // Estado local para inputs con debounce
-  const [searchValue, setSearchValue] = useState(searchParams.get("search") || "");
+    const [searchValue, setSearchValue] = useState(searchParams.get("search") || "");
 
-  // Estado sincronizado con URL
-  const currentFilters = {
-    search: searchParams.get("search") || "",
-    status: searchParams.get("status") || "all",
-  };
+    const currentFilters = {
+      search: searchParams.get("search") || "",
+      status: searchParams.get("status") || "all",
+    };
 
-  // Función para aplicar filtros automáticamente
-  const applyFilters = useCallback((newFilters: Record<string, string>) => {
-    const params = new URLSearchParams();
+    const applyFilters = useCallback(
+      (newFilters: Record<string, string>) => {
+        const params = new URLSearchParams();
 
-    // Búsqueda
-    if (newFilters.search) {
-      params.set("search", newFilters.search);
-    }
+        if (newFilters.search) {
+          params.set("search", newFilters.search);
+        }
 
-    // Estado
-    if (newFilters.status && newFilters.status !== "all") {
-      params.set("status", newFilters.status);
-    }
+        if (newFilters.status && newFilters.status !== "all") {
+          params.set("status", newFilters.status);
+        }
 
-    // Mantener sorting si existe
-    const sortBy = searchParams.get("sortBy");
-    const sortOrder = searchParams.get("sortOrder");
-    if (sortBy) params.set("sortBy", sortBy);
-    if (sortOrder) params.set("sortOrder", sortOrder);
+        const sortBy = searchParams.get("sortBy");
+        const sortOrder = searchParams.get("sortOrder");
+        if (sortBy) params.set("sortBy", sortBy);
+        if (sortOrder) params.set("sortOrder", sortOrder);
 
-    // Resetear a página 1
-    params.set("page", "1");
+        params.set("page", "1");
 
-    router.push(`?${params.toString()}`, { scroll: false });
-  }, [router, searchParams]);
+        router.push(`?${params.toString()}`, { scroll: false });
+      },
+      [router, searchParams]
+    );
 
-  // Handlers para cambios inmediatos (dropdowns)
-  const handleStatusChange = (value: string) => {
-    applyFilters({ ...currentFilters, status: value });
-  };
+    const handleStatusChange = (value: string) => {
+      applyFilters({ ...currentFilters, status: value });
+    };
 
-  // Handler para búsqueda con debounce
-  const handleSearchChange = (value: string) => {
-    setSearchValue(value);
-  };
+    const handleSearchChange = (value: string) => {
+      setSearchValue(value);
+    };
 
-  // Debounce para búsqueda
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      if (searchValue !== currentFilters.search) {
-        applyFilters({ ...currentFilters, search: searchValue });
-      }
-    }, 800);
+    const handleResetFilters = () => {
+      setSearchValue("");
 
-    return () => clearTimeout(timer);
-  }, [searchValue]);
+      applyFilters({
+        search: "",
+        status: "all",
+      });
+    };
 
-  const hasActiveFilters =
-    currentFilters.search ||
-    currentFilters.status !== "all";
+    const chipClass = (isActive: boolean) =>
+      isActive
+        ? cn(
+            FILTER_CHIP_CLASS,
+            FILTER_CHIP_ACTIVE_CLASS,
+            "border-transparent bg-[linear-gradient(120deg,rgba(168,85,247,0.9),rgba(139,92,246,0.95))] text-white shadow-[0_12px_30px_-12px_rgba(139,92,246,0.65)]"
+          )
+        : cn(
+            FILTER_CHIP_CLASS,
+            "border-white/15 bg-white/5 text-slate-100 backdrop-blur hover:border-purple-200/40 hover:text-white"
+          );
 
-  return (
-    <Card className="mb-8 overflow-hidden border-0 bg-linear-to-br from-white via-slate-50 to-blue-50/30 dark:from-slate-900 dark:via-slate-900 dark:to-slate-800 shadow-xl shadow-slate-200/50 dark:shadow-black/30 backdrop-blur-sm">
-      <div className="p-6 space-y-5">
-        {/* Header */}
-    
+    useEffect(() => {
+      const timer = setTimeout(() => {
+        if (searchValue !== currentFilters.search) {
+          applyFilters({ ...currentFilters, search: searchValue });
+        }
+      }, 800);
 
-        {/* Grid principal de filtros */}
-        <div className="grid grid-cols-1 lg:grid-cols-4 gap-5">
-          {/* Búsqueda */}
-          <div className="lg:col-span-3 space-y-2.5">
-            <Label className="text-sm font-semibold text-slate-900 dark:text-slate-100 flex items-center gap-2">
-              <div className="p-1.5 rounded-md bg-blue-100 dark:bg-blue-900/30">
-                <Search className="h-3.5 w-3.5 text-blue-600 dark:text-blue-400" />
+      return () => clearTimeout(timer);
+    }, [searchValue, currentFilters.search, currentFilters.status, applyFilters]);
+
+    const hasActiveFilters = currentFilters.search || currentFilters.status !== "all";
+
+    const heroHighlights = [
+      {
+        label: "Estado",
+        value:
+          currentFilters.status === "all"
+            ? "Estados mixtos"
+            : currentFilters.status === "active"
+              ? "Activas"
+              : "Inactivas",
+      },
+      {
+        label: "Búsqueda",
+        value: currentFilters.search ? currentFilters.search : "Libre",
+      },
+    ];
+
+    return (
+      <Card className={FILTER_CARD_CLASS}>
+        <div className="space-y-2">
+          <div className="relative overflow-hidden rounded-3xl border border-slate-800/50 bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950 p-6 text-white shadow-lg shadow-purple-900/25">
+            <div
+              className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_top,rgba(168,85,247,0.4),transparent_55%)]"
+              aria-hidden="true"
+            />
+            <div className="pointer-events-none absolute -right-6 top-1/2 h-32 w-32 -translate-y-1/2 rounded-full bg-purple-400/25 blur-3xl" aria-hidden="true" />
+            <div className="relative flex flex-col gap-6 lg:flex-row lg:items-center lg:justify-between">
+              <div className="space-y-3">
+                <div>
+                  <p className="text-[11px] font-semibold uppercase tracking-[0.3em] text-purple-200/70">Categorias de los productos</p>
+                  <p className="text-3xl font-semibold tracking-tight">Gestiona categorías</p>
+                </div>
+                <div className="flex flex-wrap gap-3">
+                  <div className="min-w-[130px] rounded-2xl border border-white/20 bg-white/10 px-3 py-1.5 text-left">
+                    <p className="text-[9px] font-semibold uppercase tracking-[0.35em] text-white/70">Estado</p>
+                    <p className="text-sm font-medium text-white">{currentFilters.status !== "all" ? "Filtrado" : "Todas"}</p>
+                  </div>
+                  <div className="min-w-[130px] rounded-2xl border border-white/20 bg-white/10 px-3 py-1.5 text-left">
+                    <p className="text-[9px] font-semibold uppercase tracking-[0.35em] text-white/70">Búsqueda</p>
+                    <p className="text-sm font-medium text-white">{currentFilters.search || "Libre"}</p>
+                  </div>
+                </div>
               </div>
-              Búsqueda
-            </Label>
-            <div className="relative group">
-              <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-slate-400 group-focus-within:text-blue-500 transition-colors" />
-              <Input
-                type="search"
-                placeholder="Buscar por nombre..."
-                className="h-12 pl-12 pr-12 text-base bg-white dark:bg-slate-800 border-2 border-slate-200 dark:border-slate-700 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all shadow-sm hover:shadow-md"
-                value={searchValue}
-                onChange={(e) => handleSearchChange(e.target.value)}
-              />
-              {searchValue && (
+              <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
                 <button
-                  onClick={() => handleSearchChange("")}
-                  className="absolute right-4 top-1/2 -translate-y-1/2 p-1 rounded-full bg-slate-100 dark:bg-slate-700 text-slate-500 dark:text-slate-400 hover:bg-slate-200 dark:hover:bg-slate-600 hover:text-slate-700 dark:hover:text-slate-200 transition-all"
+                  type="button"
+                  className={`${FILTER_RESET_BUTTON_CLASS} text-white/95 transition-all hover:text-white cursor-pointer`}
+                  onClick={handleResetFilters}
                 >
-                  <X className="h-4 w-4" />
+                  Reiniciar filtros
                 </button>
-              )}
+              </div>
             </div>
           </div>
 
-          {/* Estado */}
-          <div className="space-y-2.5">
-            <Label className="text-sm font-semibold text-slate-900 dark:text-slate-100 flex items-center gap-2">
-              <div className="p-1.5 rounded-md bg-purple-100 dark:bg-purple-900/30">
-                <ToggleLeft className="h-3.5 w-3.5 text-purple-600 dark:text-purple-400" />
+          <div className="rounded-3xl border border-slate-200/70 bg-gradient-to-br from-white via-slate-50 to-slate-100 p-4 shadow-sm dark:border-slate-900 dark:from-slate-950/50 dark:via-slate-900/40 dark:to-slate-950/30">
+            <div className="grid grid-cols-1 gap-6 md:grid-cols-[2fr_1fr]">
+              <div className="space-y-2">
+                <Label className="flex items-center gap-2 text-sm font-semibold text-slate-900 dark:text-slate-100">
+                  <div className="rounded-xl bg-blue-100/70 p-1.5 dark:bg-blue-900/30">
+                    <Search className="h-3.5 w-3.5 text-blue-600 dark:text-blue-400" />
+                  </div>
+                  Búsqueda avanzada
+                </Label>
+                <div className="relative group">
+                  <Search className="pointer-events-none absolute left-4 top-1/2 h-5 w-5 -translate-y-1/2 text-slate-400 transition-colors group-focus-within:text-blue-500" />
+                  <Input
+                    type="search"
+                    placeholder="Nombre o slug..."
+                    className={`${FILTER_INPUT_CLASS} h-11 pl-12 pr-12 text-base`}
+                    value={searchValue}
+                    onChange={(e) => handleSearchChange(e.target.value)}
+                  />
+                  {searchValue && (
+                    <button
+                      onClick={() => handleSearchChange("")}
+                      className="absolute right-4 top-1/2 -translate-y-1/2 rounded-full bg-slate-100 p-1 text-slate-500 transition-all hover:bg-slate-200 hover:text-slate-700 dark:bg-slate-700 dark:text-slate-400 dark:hover:bg-slate-600 dark:hover:text-slate-100"
+                    >
+                      <X className="h-4 w-4" />
+                    </button>
+                  )}
+                </div>
               </div>
-              Estado
-            </Label>
-            <Select value={currentFilters.status} onValueChange={handleStatusChange}>
-              <SelectTrigger className="h-12 bg-white dark:bg-slate-800 border-2 border-slate-200 dark:border-slate-700 rounded-xl hover:border-purple-300 dark:hover:border-purple-700 transition-colors shadow-sm">
-                <SelectValue placeholder="Todos" />
-              </SelectTrigger>
-              <SelectContent className="rounded-xl border-2 border-slate-200 dark:border-slate-700 shadow-xl">
-                <SelectItem value="all" className="rounded-lg">Todas</SelectItem>
-                <SelectItem value="active" className="rounded-lg">Activas</SelectItem>
-                <SelectItem value="inactive" className="rounded-lg">Inactivas</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
-        </div>
 
-        {/* Filtros activos */}
-        {hasActiveFilters && (
-          <>
-            <Separator className="dark:bg-slate-700/50" />
-            <div className="bg-slate-50 dark:bg-slate-800/50 rounded-xl p-4 border border-slate-200 dark:border-slate-700">
-              <div className="flex flex-wrap items-center gap-2.5">
-                <span className="text-sm font-semibold text-slate-700 dark:text-slate-300 flex items-center gap-2">
-                  <div className="w-2 h-2 rounded-full bg-blue-500 animate-pulse" />
-                  Filtros Activos:
+              <div className="space-y-2">
+                <Label className="flex items-center gap-2 text-sm font-semibold text-slate-900 dark:text-slate-100">
+                  <div className="rounded-xl bg-purple-100/70 p-1.5 dark:bg-purple-900/30">
+                    <ToggleLeft className="h-3.5 w-3.5 text-purple-600 dark:text-purple-400" />
+                  </div>
+                  Estado
+                </Label>
+                <div className="relative">
+                  <ToggleLeft className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-purple-400 dark:text-purple-500" />
+                  <select
+                    value={currentFilters.status}
+                    onChange={(e) => handleStatusChange(e.target.value)}
+                    className="h-11 w-full appearance-none rounded-xl border border-slate-200/60 bg-white/80 pl-10 pr-10 text-sm font-medium text-slate-700 shadow-sm backdrop-blur-sm transition-all hover:border-purple-400/80 hover:bg-white/90 hover:shadow-md focus:border-purple-400 focus:bg-white/95 focus:outline-none focus:ring-2 focus:ring-purple-400/30 disabled:cursor-not-allowed disabled:opacity-50 dark:border-slate-700/60 dark:bg-slate-900/60 dark:text-slate-200 dark:hover:border-purple-500/60 dark:hover:bg-slate-900/70 dark:focus:border-purple-500 dark:focus:bg-slate-900/80"
+                    style={{
+                      backgroundImage: `url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%239ca3af' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3e%3c/svg%3e")`,
+                      backgroundPosition: 'right 0.5rem center',
+                      backgroundRepeat: 'no-repeat',
+                      backgroundSize: '1.5em 1.5em',
+                    }}
+                  >
+                    {STATUS_OPTIONS.map((option) => (
+                      <option key={option.value} value={option.value}>
+                        {option.label}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+              </div>
+            </div>
+          </div>
+
+       
+
+          {hasActiveFilters && (
+            <div className="rounded-3xl border border-slate-200/80 bg-gradient-to-r from-slate-50 via-white to-slate-100 p-5 shadow-sm dark:border-slate-900 dark:from-slate-900/70 dark:via-slate-900/40 dark:to-slate-900/20">
+              <div className="flex flex-wrap items-center gap-3">
+                <span className="flex items-center gap-2 rounded-2xl bg-slate-900 px-4 py-2 text-[10px] font-semibold uppercase tracking-[0.35em] text-white dark:bg-white/10">
+                  <div className="h-2 w-2 animate-pulse rounded-full bg-purple-400" />
+                  Filtros activos
                 </span>
                 {currentFilters.search && (
                   <Badge
                     variant="secondary"
-                    className="gap-1.5 cursor-pointer hover:bg-blue-100 dark:hover:bg-blue-900/40 transition-colors pl-2 pr-1.5 py-1.5 border border-blue-200 dark:border-blue-800"
+                    className={`${FILTER_ACTIVE_BADGE_CLASS} border-blue-200/70 text-blue-700 dark:border-blue-900/50 dark:text-blue-200`}
                     onClick={() => handleSearchChange("")}
                   >
                     <Search className="h-3.5 w-3.5" />
                     <span className="font-medium">{currentFilters.search}</span>
-                    <div className="ml-1 p-0.5 rounded-sm hover:bg-blue-200 dark:hover:bg-blue-800">
+                    <div className="rounded-sm p-0.5 transition-colors group-hover:bg-blue-100/70 dark:group-hover:bg-blue-900/40">
                       <X className="h-3 w-3" />
                     </div>
                   </Badge>
@@ -164,23 +242,20 @@ export default function CategoryFilters() {
                 {currentFilters.status !== "all" && (
                   <Badge
                     variant="secondary"
-                    className="gap-1.5 cursor-pointer hover:bg-purple-100 dark:hover:bg-purple-900/40 transition-colors pl-2 pr-1.5 py-1.5 border border-purple-200 dark:border-purple-800 capitalize"
+                    className={`${FILTER_ACTIVE_BADGE_CLASS} border-purple-200/70 text-purple-700 dark:border-purple-900/50 dark:text-purple-200`}
                     onClick={() => handleStatusChange("all")}
                   >
                     <ToggleLeft className="h-3.5 w-3.5" />
-                    <span className="font-medium">
-                      {currentFilters.status === "active" ? "Activas" : "Inactivas"}
-                    </span>
-                    <div className="ml-1 p-0.5 rounded-sm hover:bg-purple-200 dark:hover:bg-purple-800">
+                    <span className="font-medium">{currentFilters.status === "active" ? "Activas" : "Inactivas"}</span>
+                    <div className="rounded-sm p-0.5 transition-colors group-hover:bg-purple-100/70 dark:group-hover:bg-purple-900/40">
                       <X className="h-3 w-3" />
                     </div>
                   </Badge>
                 )}
               </div>
             </div>
-          </>
-        )}
-      </div>
-    </Card>
-  );
-}
+          )}
+        </div>
+      </Card>
+    );
+  }

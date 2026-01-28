@@ -77,6 +77,7 @@ export async function fetchProducts(
     sortBy,
     sortOrder,
   });
+;
 
   const mappedResult: FetchProductsResponse = {
     data: result.data,

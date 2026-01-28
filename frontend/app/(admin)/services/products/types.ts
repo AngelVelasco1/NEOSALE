@@ -1,17 +1,54 @@
-import { Database } from "@/types/supabase";
-import { Pagination } from "@/types/pagination";
-
-import { SBCategory } from "../categories/types";
+import { Pagination } from "@/app/(admin)/types/pagination";
 
 export type ProductStatus = "selling" | "out-of-stock";
 
-export type SBProduct = Database["public"]["Tables"]["products"]["Row"];
-
-export type Product = SBProduct & {
+// Tipo basado en Prisma schema
+export type Product = {
+  id: number;
+  name: string;
+  description: string;
+  price: number;
+  stock: number;
+  weight_grams: number;
+  sizes: string;
+  base_discount: number;
+  category_id: number;
+  brand_id: number;
+  active: boolean;
+  in_offer: boolean;
+  offer_discount: number | null;
+  offer_start_date: string | null;
+  offer_end_date: string | null;
+  created_at: string;
+  created_by: number;
+  updated_at: string | null;
+  updated_by: number;
+  deleted_at: string | null;
+  deleted_by: number | null;
   categories: {
-    name: string | null;
-    slug: string | null;
-  } | null;
+    id: number;
+    name: string;
+  };
+  brands: {
+    id: number;
+    name: string;
+  };
+  images: Array<{
+    image_url: string;
+    color: string;
+    color_code: string;
+    is_primary?: boolean;
+  }>;
+  product_variants?: Array<{
+    id: number;
+    stock: number;
+    size: string;
+    color: string;
+    color_code: string;
+  }>;
+  // Propiedad computada para la imagen por defecto
+  image_url?: string;
+  sku?: string;
 };
 
 export interface FetchProductsParams {
@@ -37,19 +74,45 @@ export interface FetchProductsResponse {
   pagination: Pagination;
 }
 
-export type ProductDetails = Pick<
-  SBProduct,
-  | "id"
-  | "name"
-  | "description"
-  | "cost_price"
-  | "selling_price"
-  | "stock"
-  | "min_stock_threshold"
-  | "category_id"
-  | "image_url"
-  | "slug"
-  | "sku"
-> & {
-  categories: Pick<SBCategory, "name">;
+export type ProductDetails = {
+  id: number;
+  name: string;
+  description: string;
+  price: number;
+  stock: number;
+  weight_grams: number;
+  sizes: string;
+  base_discount: number;
+  category_id: number;
+  brand_id: number;
+  active: boolean;
+  in_offer: boolean;
+  offer_discount: number | null;
+  offer_start_date: string | null;
+  offer_end_date: string | null;
+  created_at: string;
+  created_by: number;
+  updated_at: string | null;
+  updated_by: number;
+  deleted_at: string | null;
+  deleted_by: number | null;
+  categories: {
+    name: string;
+  };
+  brands: {
+    name: string;
+  };
+  images: Array<{
+    image_url: string;
+    is_primary: boolean;
+    color: string | null;
+  }>;
+  product_variants: Array<{
+    id: number;
+    color: string;
+    color_code: string;
+    size: string;
+    stock: number;
+    price: number | null;
+  }>;
 };

@@ -29,7 +29,7 @@ export async function POST(request: Request) {
     }
 
     // Si ya está verificado, no hacer nada
-    if (user.email_verified) {
+    if (user.emailVerified) {
       return NextResponse.json(
         { message: 'El email ya está verificado' },
         { status: 200 }
@@ -87,7 +87,6 @@ export async function POST(request: Request) {
         name: user.name || 'Usuario',
       });
 
-      console.log('✅ Verification email sent to:', email);
 
       return NextResponse.json(
         { message: 'Email de verificación enviado' },

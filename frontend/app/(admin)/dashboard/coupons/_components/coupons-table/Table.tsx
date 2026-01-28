@@ -6,7 +6,7 @@ import DataTable from "@/app/(admin)/components/shared/table/DataTable";
 import { DataTableWithRowSelectionProps } from "@/app/(admin)/types/data-table";
 import { Coupon } from "@/app/(admin)/services/coupons/types";
 
-export default function CouponTable({
+export default function CouponsTable({
   data,
   columns,
   pagination,
@@ -27,6 +27,8 @@ export default function CouponTable({
 
       setRowSelection(newSelectionState);
     },
+        meta: { sectionLabel: "Cupones" },
+
   });
 
   return <DataTable table={table} pagination={pagination} />;

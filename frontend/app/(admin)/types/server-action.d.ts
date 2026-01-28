@@ -1,8 +1,8 @@
-import { SBProduct } from "@/services/products/types";
-import { SBCategory } from "@/services/categories/types";
-import { SBCoupon } from "@/services/coupons/types";
-import { SBCustomer } from "@/services/customers/types";
-import { SBStaff } from "@/services/staff/types";
+import { Product } from "@/app/(admin)/services/products/types";
+import { Category } from "@/app/(admin)/services/categories/types";
+import { Coupon } from "@/app/(admin)/services/coupons/types";
+import { Customer } from "@/app/(admin)/services/customers/types";
+import { Staff } from "@/app/(admin)/services/staff/types";
 
 type ValidationErrorsResponse = {
   validationErrors: Record<string, string>;
@@ -26,35 +26,35 @@ export type ProductServerActionResponse =
   | ValidationErrorsResponse
   | DbErrorResponse
   | (SuccessResponse & {
-      product: SBProduct;
+      product: Product;
     });
 
 export type CategoryServerActionResponse =
   | ValidationErrorsResponse
   | DbErrorResponse
   | (SuccessResponse & {
-      category: SBCategory;
+      category: Category;
     });
 
 export type CouponServerActionResponse =
   | ValidationErrorsResponse
   | DbErrorResponse
   | (SuccessResponse & {
-      coupon: SBCoupon;
+      coupon: Coupon;
     });
 
 export type CustomerServerActionResponse =
   | ValidationErrorsResponse
   | DbErrorResponse
   | (SuccessResponse & {
-      customer: SBCustomer;
+      customer: Customer;
     });
 
 export type StaffServerActionResponse =
   | ValidationErrorsResponse
   | DbErrorResponse
   | (SuccessResponse & {
-      staff: SBStaff;
+      staff: Staff;
     });
 
 export type ProfileServerActionResponse =

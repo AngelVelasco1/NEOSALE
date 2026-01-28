@@ -13,7 +13,7 @@ export async function POST(request: Request) {
       where: { email },
       select: {
         email: true,
-        email_verified: true,
+        emailVerified: true,
       },
     });
 
@@ -26,7 +26,7 @@ export async function POST(request: Request) {
 
     return NextResponse.json({ 
       exists: true,
-      verified: !!user.email_verified 
+      verified: !!user.emailVerified 
     });
   } catch (error) {
     console.error('Error checking email verification:', error);

@@ -4,6 +4,7 @@ import { prisma } from "@/lib/prisma";
 import { loginSchema } from "../../lib/zod";
 import bcrypt from "bcryptjs";
 import Google from "next-auth/providers/google";
+import Facebook from "next-auth/providers/facebook"
 import { nanoid } from "nanoid";
 import { sendVerificationEmail } from "@/lib/verifyEmail";
 
@@ -48,9 +49,7 @@ export default {
           }
 
           // Si email no verificado, permitir login pero enviar email de verificación
-          if (!user.emailVerified) {
-            console.log('⚠️ Login with unverified email:', user.email);
-            
+          if (!user.emailVerified) {            
             try {
               // Verificar si ya existe un token válido
               const existingToken = await prisma.verificationToken.findFirst({
@@ -82,19 +81,18 @@ export default {
                   },
                 });
 
-                console.log('✅ Token creado para:', user.email);
 
                 // Enviar email en background (no bloquear login si falla)
                 sendVerificationEmail({
                   email: user.email,
                   token: emailToken,
                   name: user.name || 'Usuario',
-                }).catch(err => console.error('⚠️ Email send error:', err));
+                }).catch(err => console.error('Email send error:', err));
               } else {
-                console.log('ℹToken válido ya existe para:', user.email);
+                console.log('Token válido ya existe para:', user.email);
               }
             } catch (tokenError: any) {
-              console.error('⚠️ Error manejando token de verificación:', tokenError);
+              console.error('Error manejando token de verificación:', tokenError);
               // NO lanzar error - permitir login incluso si falla la creación del token
             }
           }
@@ -125,7 +123,26 @@ export default {
           name: profile.name,
           email: profile.email,
           image: profile.picture,
-          emailVerified: profile.email_verified ? new Date() : null,
+          emailVerified: profile.emailVerified ? new Date() : null,
+          role: "user",
+        }
+      },
+    }),
+    Facebook({
+      clientId: process.env.AUTH_FACEBOOK_ID,
+      clientSecret: process.env.AUTH_FACEBOOK_SECRET,
+      authorization: {
+        params: {
+          scope: "public_profile"
+        }
+      },
+      profile(profile) {
+        return {
+          id: profile.id,
+          name: profile.name,
+          email: profile.email,
+          image: profile.picture?.data?.url,
+          emailVerified: new Date(),
           role: "user",
         }
       },

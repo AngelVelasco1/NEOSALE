@@ -360,11 +360,77 @@ export default function CartProducts() {
     await fetchVariantStock(product)
   }, [fetchVariantStock])
 
+  // Definir funciones de manejo de cupón ANTES de los useEffects que las usan
+  const handleCouponApplied = useCallback((coupon: AppliedCoupon) => {
+    setAppliedCoupon(coupon)
+    try {
+      localStorage.setItem(COUPON_STORAGE_KEY, JSON.stringify(coupon))
+    } catch (error) {
+      console.error("Error saving coupon to localStorage:", error)
+    }
+  }, [])
+
+  const handleCouponRemoved = useCallback(() => {
+    setAppliedCoupon(null)
+    try {
+      localStorage.removeItem(COUPON_STORAGE_KEY)
+    } catch (error) {
+      console.error("Error removing coupon from localStorage:", error)
+    }
+  }, [])
+
   useEffect(() => {
     if (!cartLoading && cartProducts.length > 0) {
       updateAllStocks()
     }
   }, [cartLoading, cartProducts, updateAllStocks])
+
+  // Validar cupón almacenado cuando cambie el subtotal
+  useEffect(() => {
+    const validateStoredCoupon = async () => {
+      if (!appliedCoupon || cartProducts.length === 0) return
+
+      const currentSubtotal = getSubTotal()
+      const minPurchase = appliedCoupon.coupon.min_purchase_amount || 0
+
+      // Si el subtotal no cumple el mínimo, remover el cupón automáticamente
+      if (currentSubtotal < minPurchase) {
+      
+        handleCouponRemoved()
+        return
+      }
+
+      // Recalcular el descuento basado en el subtotal actual
+      const couponType = appliedCoupon.coupon.discount_type
+      const discountValue = appliedCoupon.coupon.discount_value
+      let newDiscountAmount = 0
+
+      if (couponType === 'percentage') {
+        newDiscountAmount = Math.round((currentSubtotal * discountValue) / 100)
+      } else if (couponType === 'fixed') {
+        newDiscountAmount = discountValue
+      }
+
+      // Limitar el descuento al subtotal
+      newDiscountAmount = Math.min(newDiscountAmount, currentSubtotal)
+
+      // Si el descuento cambió, actualizar
+      if (newDiscountAmount !== appliedCoupon.discount_amount) {
+        const updatedCoupon = {
+          ...appliedCoupon,
+          discount_amount: newDiscountAmount
+        }
+        setAppliedCoupon(updatedCoupon)
+        try {
+          localStorage.setItem(COUPON_STORAGE_KEY, JSON.stringify(updatedCoupon))
+        } catch (error) {
+          console.error("Error updating coupon in localStorage:", error)
+        }
+      }
+    }
+
+    validateStoredCoupon()
+  }, [appliedCoupon, cartProducts, getSubTotal, handleCouponRemoved])
 
   useEffect(() => {
     const interval = setInterval(() => {
@@ -431,24 +497,6 @@ export default function CartProducts() {
       }
     }
   }, [clearCart])
-
-  const handleCouponApplied = useCallback((coupon: AppliedCoupon) => {
-    setAppliedCoupon(coupon)
-    try {
-      localStorage.setItem(COUPON_STORAGE_KEY, JSON.stringify(coupon))
-    } catch (error) {
-      console.error("Error saving coupon to localStorage:", error)
-    }
-  }, [])
-
-  const handleCouponRemoved = useCallback(() => {
-    setAppliedCoupon(null)
-    try {
-      localStorage.removeItem(COUPON_STORAGE_KEY)
-    } catch (error) {
-      console.error("Error removing coupon from localStorage:", error)
-    }
-  }, [])
 
   const handleRefreshCart = useCallback(async () => {
     await getCart()

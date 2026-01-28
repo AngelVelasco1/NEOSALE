@@ -47,7 +47,8 @@ export function getCSPDirectives(nonce?: string) {
     "https://api.cloudinary.com",
     "https://accounts.google.com", // Google OAuth
     "https://www.google.com",
-    "https://checkout.wompi.co", // Wompi payments
+    "https://checkout.wompi.co", // Wompi payments (producción)
+    "https://sandbox.wompi.co", // Wompi payments (sandbox/pruebas)
   ];
 
   const allowedFontDomains = [
@@ -69,11 +70,13 @@ export function getCSPDirectives(nonce?: string) {
           "'unsafe-inline'", // Scripts inline de Next.js
           "https://accounts.google.com",
           "https://checkout.wompi.co",
+          "https://sandbox.wompi.co",
         ]
       : [
           "'self'",
           "https://accounts.google.com",
           "https://checkout.wompi.co",
+          "https://sandbox.wompi.co",
         ],
 
     // Estilos: unsafe-inline necesario para Tailwind en ambos entornos

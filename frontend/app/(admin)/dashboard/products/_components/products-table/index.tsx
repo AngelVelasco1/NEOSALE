@@ -1,5 +1,6 @@
 "use client";
 
+import { useMemo } from "react";
 import { useSearchParams } from "next/navigation";
 import { useQuery, keepPreviousData } from "@tanstack/react-query";
 
@@ -13,12 +14,22 @@ import { fetchProducts } from "@/app/(admin)/services/products";
 import { RowSelectionProps } from "@/app/(admin)/types/data-table";
 import { useAuthorization } from "@/app/(admin)/hooks/use-authorization";
 
+// Configuración optimizada para cache
+const STALE_TIME = 3 * 60 * 1000; // 3 minutos - datos frescos por más tiempo
+const GC_TIME = 10 * 60 * 1000; // 10 minutos - mantener en cache más tiempo
+
 export default function AllProducts({
   rowSelection,
   setRowSelection,
 }: RowSelectionProps) {
   const { hasPermission } = useAuthorization();
-  const columns = getColumns({ hasPermission });
+  
+  // Memoizar columnas para evitar recalculos en cada render
+  const columns = useMemo(
+    () => getColumns({ hasPermission }),
+    [hasPermission]
+  );
+  
   const searchParams = useSearchParams();
 
   const {
@@ -41,13 +52,9 @@ export default function AllProducts({
   const minStock = searchParams.get("minStock") || undefined;
   const maxStock = searchParams.get("maxStock") || undefined;
 
-  const {
-    data: products,
-    isLoading,
-    isError,
-    refetch,
-  } = useQuery({
-    queryKey: [
+  // Memoizar parámetros de query para evitar re-renders
+  const queryKey = useMemo(
+    () => [
       "products",
       page,
       limit,
@@ -65,7 +72,11 @@ export default function AllProducts({
       sortBy,
       sortOrder,
     ],
-    queryFn: () =>
+    [page, limit, search, category, brand, price, minPrice, maxPrice, published, status, minStock, maxStock, date, sortBy, sortOrder]
+  );
+
+  const queryFn = useMemo(
+    () => () =>
       fetchProducts({
         page,
         limit,
@@ -83,7 +94,22 @@ export default function AllProducts({
         sortBy,
         sortOrder,
       }),
+    [page, limit, search, category, brand, price, minPrice, maxPrice, status, minStock, maxStock, published, date, sortBy, sortOrder]
+  );
+
+  const {
+    data: products,
+    isLoading,
+    isError,
+    refetch,
+  } = useQuery({
+    queryKey,
+    queryFn,
     placeholderData: keepPreviousData,
+    staleTime: STALE_TIME,
+    gcTime: GC_TIME,
+    // Las siguientes opciones ya están en el QueryClient global
+    // pero se pueden sobreescribir aquí si es necesario
   });
 
   if (isLoading)
@@ -97,13 +123,7 @@ export default function AllProducts({
       />
     );
 
-  // Debug para verificar la estructura de datos
-  console.log("🔍 Products response:", {
-    hasData: !!products.data,
-    dataLength: products.data?.length,
-    pagination: products.pagination,
-    paginationKeys: products.pagination ? Object.keys(products.pagination) : []
-  });
+
 
   return (
     <ProductsTable

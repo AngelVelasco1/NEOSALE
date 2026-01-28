@@ -1,20 +1,20 @@
-import { Pagination } from "@/types/pagination";
+import { Pagination } from "@/app/(admin)/types/pagination";
 
 export type StaffStatus = "active" | "inactive";
 
-export type SBStaff = {
+export type StaffProfile = {
   id: number;
   name: string;
   email: string;
-  phone_number: string | null;
+  phoneNumber: string | null;
   phone?: string | null;
   identification: string | null;
-  identification_type: string | null;
+  identificationType: string | null;
   role: string;
   active: boolean;
-  email_notifications: boolean | null;
-  created_at: Date;
-  updated_at: Date;
+  emailNotifications: boolean | null;
+  createdAt: Date;
+  updatedAt: Date;
   image?: string | null;
 };
 
@@ -22,11 +22,11 @@ export type Staff = {
   id: number;
   name: string;
   email: string;
-  phone_number: string | null;
+  phoneNumber: string | null;
   role: string;
   active: boolean;
-  created_at: Date;
-  updated_at: Date;
+  createdAt: Date;
+  updatedAt: Date;
 };
 
 export interface FetchStaffParams {

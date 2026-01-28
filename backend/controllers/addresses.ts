@@ -83,7 +83,8 @@ export const getAddressById = async (req: Request, res: Response) => {
 
 export const createAddress = async (req: Request, res: Response) => {
   try {
-    const user_id = parseInt(req.query.user_id as string);
+    // Obtener user_id del body (donde el frontend lo envía)
+    const user_id = parseInt(req.body.user_id);
 
     if (!user_id || isNaN(user_id)) {
       res.status(401).json({
@@ -123,7 +124,8 @@ export const createAddress = async (req: Request, res: Response) => {
 
 export const updateAddress = async (req: Request, res: Response) => {
   try {
-    const user_id = parseInt(req.query.user_id as string);
+    // Obtener user_id del body o query
+    const user_id = parseInt(req.body.user_id || req.query.user_id as string);
     const address_id = parseInt(req.params.address_id);
 
     if (!user_id || isNaN(user_id)) {
@@ -282,8 +284,9 @@ export const getDefaultAddress = async (req: Request, res: Response) => {
     const defaultAddress = await getDefaultAddressService(user_id);
 
     if (!defaultAddress) {
-      res.status(404).json({
-        success: false,
+      res.status(200).json({
+        success: true,
+        data: null,
         message: "No tienes una dirección predeterminada configurada",
       });
       return;

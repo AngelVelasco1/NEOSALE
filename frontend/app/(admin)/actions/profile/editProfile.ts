@@ -89,14 +89,14 @@ export async function editProfile(
     // Preparar datos para actualizar
     const updateData: Prisma.UserUpdateInput = {
       name: profileData.name,
-      updated_at: new Date(),
+      updatedAt: new Date(),
     };
 
-    // Agregar phone_number solo si se proporciona
+    // Agregar phoneNumber solo si se proporciona
     if (profileData.phone && profileData.phone.trim() !== "") {
-      updateData.phone_number = profileData.phone;
+      updateData.phoneNumber = profileData.phone;
     } else {
-      updateData.phone_number = null;
+      updateData.phoneNumber = null;
     }
 
     // Agregar imagen solo si cambió

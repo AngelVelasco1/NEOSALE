@@ -1,15 +1,15 @@
-import { Pagination } from "@/types/pagination";
+import { Pagination } from "@/app/(admin)/types/pagination";
 
 export interface Customer {
   id: number;
   name: string;
   email: string;
-  phone_number: string | null;
+  phoneNumber: string | null;
   identification: string | null;
-  identification_type: string | null;
+  identificationType: string | null;
   role: string;
   active: boolean;
-  created_at: Date;
+  createdAt: Date;
   total_orders: number;
   total_spent: number;
   average_spent: number;
@@ -67,7 +67,7 @@ export interface CustomerOrder {
     id: number;
     name: string;
     email: string;
-    phone_number: string | null;
+    phoneNumber: string | null;
   };
   items: Array<{
     id: number;

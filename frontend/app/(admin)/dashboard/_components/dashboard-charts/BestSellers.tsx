@@ -1,6 +1,6 @@
 "use client";
 
-import { Package } from "lucide-react";
+import { DollarSign, Package } from "lucide-react";
 import { Label, Pie, PieChart } from "recharts";
 import { differenceInDays } from "date-fns";
 
@@ -79,45 +79,46 @@ export default function BestSellers({ data, totalOrders, dateRange }: BestSeller
   });
 
   return (
-    <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl shadow-sm overflow-hidden">
+    <div className="relative overflow-hidden rounded-3xl border border-slate-200/70 dark:border-slate-800 bg-white/95 dark:bg-slate-950/90 shadow-[0_25px_80px_-60px_rgba(15,23,42,1)]">
+      <div className="pointer-events-none absolute inset-0">
+        <div className="absolute -left-12 top-0 h-48 w-48 rounded-full bg-indigo-500/15 blur-[120px]" />
+        <div className="absolute -right-16 bottom-0 h-56 w-56 rounded-full bg-emerald-500/15 blur-[120px]" />
+        <div className="absolute left-1/2 top-1/2 h-44 w-44 -translate-x-1/2 -translate-y-1/2 rounded-full bg-rose-500/10 blur-3xl" />
+        <div className="absolute right-1/4 top-1/4 h-36 w-36 rounded-full bg-cyan-400/10 blur-3xl" />
+      </div>
+
       {/* Header */}
-      <div className="px-6 py-4 border-b border-slate-200 dark:border-slate-800 bg-linear-to-r from-slate-50 to-white dark:from-slate-800 dark:to-slate-900">
-        <div className="flex items-center justify-between">
-          <div>
-            <Typography className="text-lg block font-bold text-slate-900 dark:text-white">
+      <div className="relative border-b border-white/10 px-6 py-6 backdrop-blur-sm">
+        <div className="flex flex-col gap-2 md:flex-row md:items-center md:justify-between">
+          <div className="max-w-2xl">
+            <Typography className="block text-2xl font-semibold text-slate-900 dark:text-white">
               Ventas por Categoría
             </Typography>
-            <Typography className="text-sm text-slate-500 dark:text-slate-400 mt-0.5">
-              Distribución de ventas • {periodDescription}
+            <Typography className="text-sm text-slate-500 dark:text-slate-400">
+              Distribución de ventas • {periodDescription || "período seleccionado"}
             </Typography>
           </div>
-          <div className="flex items-center gap-2">
-            <div className="px-3 py-1.5 bg-linear-to-r from-blue-100 to-purple-100 dark:from-blue-950/50 dark:to-purple-950/50 rounded-lg border border-blue-200/50 dark:border-blue-900/50">
-              <Typography className="text-sm font-bold bg-linear-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
-                {totalOrders} órdenes
-              </Typography>
-            </div>
-            <div className="p-2 bg-linear-to-br from-blue-100 to-purple-100 dark:from-blue-950/50 dark:to-purple-950/50 rounded-lg">
-              <Package className="size-5 text-blue-600 dark:text-blue-400" />
-            </div>
-          </div>
+
         </div>
       </div>
 
       {/* Content */}
-      <div className="p-6">
+      <div className="relative p-6">
         {data.length === 0 ? (
-          <div className="flex items-center justify-center h-[400px] text-slate-500 dark:text-slate-400">
+          <div className="flex h-[400px] items-center justify-center text-slate-500 dark:text-slate-400">
             <div className="text-center">
               <Package className="size-12 mx-auto mb-2 opacity-50" />
               <Typography className="text-sm">No hay datos disponibles</Typography>
             </div>
           </div>
         ) : (
-          <div className="flex flex-col lg:flex-row items-center gap-6">
+          <div className="flex flex-col items-center gap-6 lg:flex-row">
             {/* Pie Chart */}
             <div className="flex-1 w-full">
-              <ChartContainer config={chartConfig} className="h-[350px] w-full">
+              <ChartContainer
+                config={chartConfig}
+                className="h-[360px] w-full rounded-3xl border border-white/10 bg-white/3 p-4 backdrop-blur"
+              >
                 <PieChart>
                   <ChartTooltip
                     cursor={false}
@@ -217,15 +218,15 @@ export default function BestSellers({ data, totalOrders, dateRange }: BestSeller
             </div>
 
             {/* Legend with Category Names */}
-            <div className="w-full lg:w-64 flex flex-col gap-2">
-              <Typography className="text-sm font-bold text-slate-700 dark:text-slate-300 mb-2">
+            <div className="flex w-full flex-col gap-3 lg:w-64">
+              <Typography className="mb-2 text-sm font-bold uppercase tracking-[0.3em] text-slate-600 dark:text-slate-400">
                 Categorías
               </Typography>
-              <div className="grid grid-cols-2 lg:grid-cols-1 gap-3">
+              <div className="grid grid-cols-2 gap-3 lg:grid-cols-1">
                 {chartData.map((item) => (
                   <div
                     key={item.category}
-                    className="flex items-center gap-3 p-3 rounded-lg bg-slate-50 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
+                    className="flex items-center gap-3 rounded-2xl border border-white/10 bg-white/4 p-3 backdrop-blur transition-colors hover:bg-white/8"
                   >
                     <div
                       className="w-4 h-4 rounded-full shrink-0 ring-2 ring-white dark:ring-slate-900"

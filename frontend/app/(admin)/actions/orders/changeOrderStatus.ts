@@ -7,21 +7,43 @@ import { ServerActionResponse } from "@/app/(admin)/types/server-action";
 import { OrderStatus } from "@/app/(admin)/services/orders/types";
 
 export async function changeOrderStatus(
-  orderId: string,
+  orderId: number,
   newOrderStatus: OrderStatus
 ): Promise<ServerActionResponse> {
   try {
+    // Validar que el orderId sea válido
+    if (!orderId || orderId <= 0) {
+      return { 
+        validationError: "ID de orden inválido" 
+      };
+    }
+
+    // Validar que el estado sea válido
+    const validStatuses: OrderStatus[] = ['pending', 'paid', 'processing', 'shipped', 'delivered', 'cancelled'];
+    if (!validStatuses.includes(newOrderStatus)) {
+      return { 
+        validationError: "Estado de orden inválido" 
+      };
+    }
+
+    // Actualizar el estado de la orden
     await prisma.orders.update({
-      where: { id: parseInt(orderId) },
-      data: { status: newOrderStatus as any }, // TODO: Ajustar tipo según tu enum
+      where: { id: orderId },
+      data: { 
+        status: newOrderStatus,
+        updated_at: new Date(),
+      },
     });
 
-    revalidatePath("/orders");
-    revalidatePath(`/orders/${orderId}`);
+    // Revalidar las rutas relacionadas
+    revalidatePath("/dashboard/orders");
+    revalidatePath(`/dashboard/orders/${orderId}`);
 
     return { success: true };
   } catch (error) {
-    console.error("Database update failed:", error);
-    return { dbError: "Failed to update order status." };
+    console.error("Error al actualizar estado de orden:", error);
+    return { 
+      dbError: "No se pudo actualizar el estado de la orden. Por favor, inténtalo de nuevo." 
+    };
   }
 }

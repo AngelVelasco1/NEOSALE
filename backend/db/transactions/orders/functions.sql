@@ -213,22 +213,30 @@ BEGIN
             COALESCE(item->>'size', '') as size
         FROM jsonb_array_elements(v_payment.cart_data) as item
     LOOP
-        -- Intentar actualizar product_variants primero
+        -- Intentar actualizar product_variants primero (solo el stock)
         IF v_cart_item.color_code != '' AND v_cart_item.size != '' THEN
             UPDATE product_variants 
-            SET stock = stock - v_cart_item.quantity
+            SET 
+                stock = stock - v_cart_item.quantity,
+                updated_at = NOW()
             WHERE product_id = v_cart_item.product_id 
             AND color_code = v_cart_item.color_code 
             AND size = v_cart_item.size;
             
+            -- Si no se encontró en variants, actualizar products
             IF NOT FOUND THEN
                 UPDATE products 
-                SET stock = stock - v_cart_item.quantity
+                SET 
+                    stock = stock - v_cart_item.quantity,
+                    updated_at = NOW()
                 WHERE id = v_cart_item.product_id;
             END IF;
         ELSE
+            -- Solo actualizar stock en products
             UPDATE products 
-            SET stock = stock - v_cart_item.quantity
+            SET 
+                stock = stock - v_cart_item.quantity,
+                updated_at = NOW()
             WHERE id = v_cart_item.product_id;
         END IF;
     END LOOP;

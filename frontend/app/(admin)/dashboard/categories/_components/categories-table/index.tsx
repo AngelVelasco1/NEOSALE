@@ -13,6 +13,9 @@ import { fetchCategories } from "@/app/(admin)/services/categories";
 import { RowSelectionProps } from "@/app/(admin)/types/data-table";
 import { useAuthorization } from "@/app/(admin)/hooks/use-authorization";
 
+const STALE_TIME = 60 * 1000;
+const GC_TIME = 5 * 60 * 1000;
+
 export default function AllCategories({
   rowSelection,
   setRowSelection,
@@ -37,6 +40,11 @@ export default function AllCategories({
     queryKey: ["categories", page, limit, search, sortBy, sortOrder, status],
     queryFn: () => fetchCategories({ page, limit, search, sortBy, sortOrder, status }),
     placeholderData: keepPreviousData,
+    staleTime: STALE_TIME,
+    gcTime: GC_TIME,
+    refetchOnWindowFocus: false,
+    refetchOnReconnect: false,
+    retry: 1,
   });
 
   if (isLoading)
@@ -50,13 +58,6 @@ export default function AllCategories({
       />
     );
 
-  // Debug para verificar la estructura de datos de categorías
-  console.log("🔍 Categories response:", {
-    hasData: !!categories.data,
-    dataLength: categories.data?.length,
-    pagination: categories.pagination,
-    paginationKeys: categories.pagination ? Object.keys(categories.pagination) : []
-  });
 
   return (
     <CategoriesTable

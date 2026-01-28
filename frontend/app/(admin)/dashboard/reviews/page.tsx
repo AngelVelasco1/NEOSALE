@@ -20,34 +20,20 @@ export default async function ReviewsPage({
   return (
     <div className="min-h-screen p-3">
       <div className="mx-auto max-w-7xl space-y-8">
-        {/* Header */}
-        <div className="space-y-2">
-          <div className="flex items-center gap-3">
-            <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-gradient-to-br from-blue-500 to-indigo-600 shadow-lg shadow-blue-500/20">
-              <MessageSquare className="h-6 w-6 text-white" />
-            </div>
-            <div>
-              <h1 className="bg-gradient-to-r from-blue-400 via-indigo-400 to-purple-400 bg-clip-text text-4xl font-bold text-transparent">
-                Gestión de Reseñas
-              </h1>
-              <p className="mt-1 text-slate-400">
-                Administra y modera las reseñas de tus productos
-              </p>
-            </div>
-          </div>
-        </div>
+  
 
         {/* Estadísticas */}
-        <Suspense fallback={<StatsLoading />}>
-          <StatsSection />
-        </Suspense>
+    
 
         {/* Filtros y Tabla */}
-        <Card className="border-slate-700/50 bg-slate-900/90 backdrop-blur-xl shadow-2xl">
-          <CardHeader className="border-b border-slate-700/50 pb-6">
+        <Card className=" backdrop-blur-xl">
+          <CardHeader >
             <ReviewsFilters />
           </CardHeader>
           <CardContent>
+                <Suspense fallback={<StatsLoading />}>
+          <StatsSection />
+        </Suspense>
             <Suspense fallback={<TableLoading />}>
               <ReviewsTableSection searchParams={searchParams} />
             </Suspense>
@@ -96,7 +82,7 @@ async function ReviewsTableSection({
 
 function StatsLoading() {
   return (
-    <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
+    <div className="grid gap-6  md:grid-cols-2 lg:grid-cols-4">
       {[...Array(4)].map((_, i) => (
         <Card key={i} className="border-slate-700/50 bg-slate-900/80">
           <CardHeader>

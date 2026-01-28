@@ -19,17 +19,16 @@ import { OrderBadgeVariants } from "../../../../constants/badge";
 import { Order, OrderStatus } from "../../../../services/orders/types";
 import { SkeletonColumn } from "../../../../types/skeleton";
 import { SortableHeader } from "./SortableHeader";
-
-
-/* import { changeOrderStatus } from "../../../../actions/orders/changeOrderStatus";
- */import { PrintInvoiceButton } from "./PrintInvoiceButton";
+import { changeOrderStatus } from "../../../../actions/orders/changeOrderStatus";
+import { PrintInvoiceButton } from "./PrintInvoiceButton";
 import { HasPermission } from "../../../../hooks/use-authorization";
 import { TooltipProvider } from "@radix-ui/react-tooltip";
 import { translateOrderStatus } from "@/app/(admin)/lib/translations";
+import { getOrderStatuses } from "../../../../services/orders/getOrderStatuses";
 
-const removeLetters = (word) => {
-  return word.replace(/[^\d]/g, '')
-}
+const removeLetters = (word: string): string => {
+  return word.replace(/[^\d]/g, '');
+};
 
 export const getColumns = ({
   hasPermission,
@@ -40,7 +39,7 @@ export const getColumns = ({
     {
       accessorKey: "id",
       header: () => <SortableHeader label="N.º Orden" sortKey="id" />,
-      cell: ({ row }) => { return removeLetters(row.original.payments.transaction_id) },
+      cell: ({ row }) => { return removeLetters(row.original.payment_id.toString()) },
     },
     {
       accessorKey: "created_at",
@@ -53,7 +52,7 @@ export const getColumns = ({
       header: "Cliente",
       cell: ({ row }) => (
         <span className="block max-w-52 truncate">
-          {row.original.users?.name}
+          {row.original.users?.name || "Cliente sin nombre"}
         </span>
       ),
     },
@@ -92,7 +91,7 @@ export const getColumns = ({
         return (
           <div className="flex items-center gap-1">
             {hasPermission("orders", "canPrint") && (
-              <PrintInvoiceButton orderId={row.original.id} />
+              <PrintInvoiceButton orderId={row.original.id.toString()} />
             )}
             <TooltipProvider>  <Tooltip>
               <TooltipTrigger asChild>
@@ -109,7 +108,7 @@ export const getColumns = ({
               </TooltipTrigger>
 
               <TooltipContent>
-                <p>View Invoice</p>
+                <p>Ver Factura</p>
               </TooltipContent>
             </Tooltip></TooltipProvider>
 
@@ -119,6 +118,9 @@ export const getColumns = ({
     },
   ];
 
+  // Obtener los estados disponibles del servicio
+  const orderStatuses = getOrderStatuses();
+
   if (hasPermission("orders", "canChangeStatus")) {
     columns.splice(6, 0, {
       header: "Acción",
@@ -126,17 +128,17 @@ export const getColumns = ({
         return (
           <TableSelect
             value={row.original.status}
-            toastSuccessMessage="Order status updated successfully."
+            toastSuccessMessage="Estado de la orden actualizado exitosamente."
             queryKey="orders"
             onValueChange={(value) =>
-              console.log(value)
-/*               changeOrderStatus(row.original.id, value as OrderStatus)
- */            }
+              changeOrderStatus(row.original.id, value as OrderStatus)
+            }
           >
-            <SelectItem value="pending">Pending</SelectItem>
-            <SelectItem value="processing">Processing</SelectItem>
-            <SelectItem value="delivered">Delivered</SelectItem>
-            <SelectItem value="cancelled">Cancelled</SelectItem>
+            {orderStatuses.map((status) => (
+              <SelectItem key={status.value} value={status.value}>
+                {status.label}
+              </SelectItem>
+            ))}
           </TableSelect>
         );
       },

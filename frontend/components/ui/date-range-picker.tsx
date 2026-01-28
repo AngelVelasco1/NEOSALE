@@ -21,7 +21,7 @@ interface DatePickerWithRangeProps {
     className?: string;
 }
 
-export function DatePickerWithRange({
+export function   DatePickerWithRange({
     date,
     onDateChange,
     className,
@@ -80,7 +80,7 @@ export function DatePickerWithRange({
                     <Button
                         variant={"outline"}
                         className={cn(
-                            "w-full h-full justify-start text-left font-medium bg-white/80 dark:bg-slate-800/80 backdrop-blur-sm border-2 border-slate-200 dark:border-slate-700 hover:border-blue-300 dark:hover:border-blue-600 hover:bg-blue-50/50 dark:hover:bg-blue-950/50 rounded-xl shadow-sm hover:shadow-md transition-all duration-300",
+                            "w-full h-full justify-start text-left font-medium bg-white/80 dark:bg-slate-800/80 backdrop-blur-sm border-none hover:border-blue-300 dark:hover:border-blue-600 hover:bg-blue-50/50 dark:hover:bg-blue-950/50 rounded-xl shadow-sm hover:shadow-md transition-all duration-300",
                             !date?.from && "text-slate-400 dark:text-slate-500"
                         )}
                     >

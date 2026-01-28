@@ -23,6 +23,7 @@ import { Address } from "../(addresses)/services/addressesApi";
 import { createOrderApi } from "../orders/services/ordersApi";
 import { useAddresses } from "./hooks/useAddresses";
 import { useUser } from "@/app/(auth)/context/UserContext";
+import { useSendOrderEmail } from "../hooks/useSendOrderEmail";
 import { motion, AnimatePresence } from "framer-motion";
 import { toast } from "sonner";
 import {
@@ -35,6 +36,7 @@ import {
   Package,
   Sparkles
 } from "lucide-react";
+import { useUserSafe } from "@/app/(auth)/hooks/useUserSafe";
 
 export default function CheckoutPage() {
   const router = useRouter();
@@ -51,6 +53,7 @@ export default function CheckoutPage() {
     getSubTotal,
     clearCart,
   } = useCart();
+  const { sendOrderEmailSilently } = useSendOrderEmail();
 
   const [userAddresses, setUserAddresses] = useState<Address[]>([]);
   const [selectedAddress, setSelectedAddress] = useState<Address | null>(null);
@@ -58,21 +61,26 @@ export default function CheckoutPage() {
   const [error, setError] = useState<string | null>(null);
   const [isInitializing, setIsInitializing] = useState(true);
   const [isProcessingOrder, setIsProcessingOrder] = useState(false);
-  const { userProfile } = useUser();
+  const { userProfile } = useUserSafe();
 
   // Step management
   const [currentStep, setCurrentStep] = useState(1);
 
-  // Verificar email verificado
+  // Verificar email verificado - solo cuando userProfile esté cargado
   useEffect(() => {
-    if (session?.user && !session.user.emailVerified) {
+    // Esperar a que userProfile esté cargado y sea definitivo
+    if (!userProfile) return;
+    
+    // Si el usuario tiene sesión pero su email NO está verificado (es null)
+    if (session?.user && userProfile.emailVerified === null) {
       toast.error('Debes verificar tu email antes de realizar compras', {
         description: 'Revisa tu bandeja de entrada y verifica tu email.',
         duration: 5000,
       });
       router.push('/');
     }
-  }, [session, router]);
+      
+  }, [session, userProfile, router]);
 
   useEffect(() => {
     const timer = setTimeout(() => {
@@ -90,13 +98,18 @@ export default function CheckoutPage() {
   }, [isInitializing, isAuthenticated, router]);
 
   useEffect(() => {
-    if (!isInitializing && (!cartProducts || cartProducts.length === 0)) {
+    // Solo mostrar error de carrito vacío cuando:
+    // 1. La inicialización haya terminado
+    // 2. El carrito haya terminado de cargar
+    // 3. Y esté realmente vacío
+    if (!isInitializing && !cartLoading && (!cartProducts || cartProducts.length === 0)) {
       ErrorsHandler.showError(
         "Carrito vacío",
         "No hay productos en tu carrito"
       );
+      router.push("/productsCart");
     }
-  }, [cartProducts, isInitializing, router]);
+  }, [cartProducts, isInitializing, cartLoading, router]);
 
 
   const subtotal = cartProducts && cartProducts.length > 0 ? getSubTotal() : 0;
@@ -152,7 +165,7 @@ export default function CheckoutPage() {
   }, [cartLoading, isAuthenticated, cartProducts, fetchData]);
 
   const handlePaymentSuccess = useCallback(
-    async (paymentId: string, paymentMethod?: string) => {
+    async (paymentId: string) => {
       setIsProcessingOrder(true);
 
       try {
@@ -173,6 +186,30 @@ export default function CheckoutPage() {
         const order = await createOrderApi(orderData);
 
         await clearCart();
+
+        // Enviar email de confirmación de orden
+        sendOrderEmailSilently({
+          orderId: (order.order_id || order.id || '').toString(),
+          items: cartProducts?.map((item) => ({
+            productName: item.name || 'Producto',
+            quantity: item.quantity || 1,
+            price: item.price || 0,
+          })) || [],
+          subtotal: subtotal || 0,
+          shipping: shipping || 0,
+          taxes: taxes || 0,
+          discount: 0,
+          total: total || 0,
+          shippingAddress: {
+            street: selectedAddress.address || '',
+            city: selectedAddress.city || '',
+            state: selectedAddress.department || '',
+            zipCode: '000000',
+            country: selectedAddress.country || 'Colombia',
+          },
+        }).catch((err) => {
+          console.warn('Email de confirmación no enviado:', err);
+        });
 
         setCurrentStep(3);
 
@@ -203,6 +240,7 @@ export default function CheckoutPage() {
       shipping,
       total,
       clearCart,
+      sendOrderEmailSilently,
       router,
     ]
   );

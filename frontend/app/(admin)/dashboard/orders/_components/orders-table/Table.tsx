@@ -15,6 +15,7 @@ export default function OrdersTable({
     data,
     columns,
     getCoreRowModel: getCoreRowModel(),
+    meta: { sectionLabel: "Pedidos" },
   });
 
   return <DataTable table={table} pagination={pagination} />;

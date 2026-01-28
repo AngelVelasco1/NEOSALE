@@ -1,5 +1,8 @@
 import { z } from "zod";
 
+const strongPasswordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]+$/;
+const strongPasswordMessage = "La contraseña debe contener al menos: 1 mayúscula, 1 minúscula, 1 número y 1 carácter especial (@$!%*?&)";
+
 export const loginSchema = z.object({
   email: z.string().min(1, 'Email es requerido').email('Email formato invalido'),
   password: z.string()
@@ -10,19 +13,20 @@ export const loginSchema = z.object({
 
 
 export const registerSchema = z.object({
-  name: z.string().min(1, 'El nombre es requerido'),
-  email: z.string().min(1, 'El Email es requerido').email('Email con un formato invalido'),
+  name: z.string().trim().min(1, 'El nombre es requerido'),
+  email: z.string().trim().min(1, 'El Email es requerido').email('Email con un formato invalido'),
   emailVerified: z.date().optional(),
   password: z.string()
     .min(1, 'Contraseña es requerida')
     .min(8, 'La Contraseña debe ser minimo de 8 caracteres')
-    .max(32, 'La contraseña no debe tener mas de 32 caracteres'),
+    .max(32, 'La contraseña no debe tener mas de 32 caracteres')
+    .regex(strongPasswordRegex, strongPasswordMessage),
   phone_number: z.string()
-    .min(10, 'El número de teléfono debe tener al menos 10 dígitos')
-    .max(10, 'El número de teléfono no debe pasar de 10 dígitos')
-    .or(z.literal(''))
-    .optional(),
-  confirmPassword: z.string()
+    .trim()
+    .optional()
+    .refine((val) => val === undefined || val === '' || /^[0-9]{10}$/.test(val),
+      'Ingresa un número válido de 10 dígitos'),
+  confirmPassword: z.string().min(1, 'Debes confirmar tu contraseña')
 }).refine((data) => data.password === data.confirmPassword, {
   message: "Las contraseñas no coinciden",
   path: ["confirmPassword"],
@@ -66,17 +70,11 @@ export const updateUserPasswordSchema = z.object({
     .min(1, 'Contraseña actual es requerida')
     .min(8, 'La contraseña debe tener al menos 8 caracteres')
     .max(32, 'La contraseña no debe tener más de 32 caracteres')
-    .regex(
-      /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]+$/,
-      'La contraseña debe contener al menos: 1 mayúscula, 1 minúscula, 1 número y 1 carácter especial (@$!%*?&)'
-    ),
+    .regex(strongPasswordRegex, strongPasswordMessage),
   newPassword: z.string()
     .min(8, 'La contraseña debe tener al menos 8 caracteres')
     .max(32, 'La contraseña no debe tener más de 32 caracteres')
-    .regex(
-      /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]+$/,
-      'La contraseña debe contener al menos: 1 mayúscula, 1 minúscula, 1 número y 1 carácter especial (@$!%*?&)'
-    ),
+    .regex(strongPasswordRegex, strongPasswordMessage),
   confirmPassword: z.string()
     .min(1, 'Confirmación de contraseña es requerida')
 }).refine((data) => data.newPassword === data.confirmPassword, {

@@ -332,7 +332,7 @@ export default function OrderDetailPage() {
     const subtotal = convertFromCents(order.order_items?.reduce((sum, item) => sum + item.subtotal, 0) || 0);
     const shipping = subtotal >= 100000 ? 0 : 15000;
     const taxes = Math.round(subtotal * 0.19);
-    const total = convertFromCents(order.total || 0);
+    const total = order.total || order.total_amount || 0;
 
     return (
         <div className="min-h-screen bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950 py-8 relative overflow-hidden">

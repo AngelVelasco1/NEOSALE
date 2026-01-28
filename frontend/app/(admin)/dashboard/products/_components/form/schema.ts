@@ -29,16 +29,19 @@ export const productFormSchema = z.object({
     .string()
     .min(1, { message: "Product description is required" })
     .max(500, "Product description must be 500 characters or less"),
-  image: z.union([fileSchema, z.string().url()]),
+  image: z
+    .union([fileSchema, z.string().url(), z.string().length(0), z.undefined()])
+    .optional()
+    .nullable(),
   sku: z
     .string()
     .min(1, { message: "SKU is required" })
     .max(100, "SKU must be 100 characters or less")
-    .regex(/^[A-Z0-9-]+$/, {
-      message: "SKU must be alphanumeric (uppercase) and can contain hyphens",
+    .regex(/^[A-Za-z0-9-]+$/, {
+      message: "SKU must be alphanumeric and can contain hyphens",
     }),
   category: z.string().min(1, { message: "Category is required" }),
-  subcategory: z.string().min(1, { message: "Subcategory is required" }),
+  subcategory: z.string().optional(),
   brand: z.string().min(1, { message: "Brand is required" }),
   price: z.coerce
     .number({
@@ -65,14 +68,14 @@ export const productFormSchema = z.object({
     .max(255, "Sizes must be 255 characters or less"),
   color: z
     .string()
-    .min(1, { message: "Color name is required" })
-    .max(255, "Color name must be 255 characters or less"),
+    .max(255, "Color name must be 255 characters or less")
+    .optional(),
   color_code: z
     .string()
-    .min(1, { message: "Color code is required" })
     .regex(/^#[0-9A-Fa-f]{6}$/, {
       message: "Color code must be a valid hex color (e.g., #FF5733)",
-    }),
+    })
+    .optional(),
 });
 
 export const productBulkFormSchema = z

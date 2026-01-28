@@ -215,35 +215,6 @@ export const Footer = () => {
           </div>
         </div>
 
-        {/* Newsletter Section */}
-        <div className="border-t border-white/15">
-          <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-6">
-            <div className="max-w-xl mx-auto text-center">
-              <h3 className="text-lg font-bold mb-2 bg-linear-to-r from-blue-300 via-indigo-300 to-purple-300 bg-clip-text text-transparent">
-                Suscríbete a nuestro Newsletter
-              </h3>
-              <p className="text-gray-200 mb-4 text-sm">
-                Recibe las últimas novedades, ofertas exclusivas y tendencias directamente en tu correo
-              </p>
-              <form className="flex flex-col sm:flex-row gap-2 max-w-sm mx-auto">
-                <input
-                  type="email"
-                  placeholder="tu@email.com"
-                  className="flex-1 px-3 py-2.5 rounded-lg bg-white/15 backdrop-blur-sm border border-white/25 text-white placeholder-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-transparent transition-all text-sm"
-                />
-                <button
-                  type="submit"
-                  className="px-4 py-2.5 rounded-lg bg-linear-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 font-semibold text-white shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-300 flex items-center justify-center gap-1.5"
-                >
-                  <span className="text-sm">Suscribirse</span>
-                  <ArrowRight className="w-3.5 h-3.5" />
-                </button>
-              </form>
-            </div>
-          </div>
-        </div>
-
-        {/* Bottom Bar */}
         <div className="border-t border-white/20 bg-black/30 backdrop-blur-sm">
           <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-4">
             <div className="flex flex-col md:flex-row items-center justify-between gap-3 text-xs text-gray-300">

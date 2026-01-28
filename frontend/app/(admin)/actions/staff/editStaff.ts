@@ -42,7 +42,7 @@ export async function editStaff(
       where: { id: parseInt(staffId) },
       data: {
         name: staffData.name,
-        phone_number: staffData.phone,
+        phoneNumber: staffData.phone,
         // ...(imageUrl && { image: imageUrl }), // TODO: Descomentar cuando necesites actualizar la imagen
       },
     });

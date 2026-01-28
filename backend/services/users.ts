@@ -101,11 +101,11 @@ export const getUsersService = async (
           select: {
             id: true,
             total: true,
-            createdAt: true,
+            created_at: true,
             status: true,
           },
           orderBy: {
-            createdAt: "desc",
+            created_at: "desc",
           },
         },
       },
@@ -138,7 +138,7 @@ export const getUsersService = async (
       total_orders: user.orders.length,
       total_spent: totalSpent,
       average_spent: avgSpent,
-      last_order_date: lastOrder?.createdAt || null,
+      last_order_date: lastOrder?.created_at || null,
     };
   });
 

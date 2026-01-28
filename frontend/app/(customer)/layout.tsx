@@ -1,11 +1,12 @@
 "use client";
 
-import { Footer } from "../components/Footer";
+import { Footer } from "../components/FooterDynamic";
 import { UserProviders } from "@/app/providers/UserProviders";
 import { Navbar } from "../components/Navbar";
 import { useMounted } from "@/app/(auth)/hooks/useMounted";
 import CouponBanner from "./components/CouponBanner";
 import { EmailVerificationBanner } from "../components/EmailVerificationBanner";
+import { CookieConsent } from "../components/CookieConsent";
 import { useSession } from "next-auth/react";
 import React from "react";
 
@@ -50,6 +51,7 @@ export default function UserLayout({
         <Navbar />
         <main className="grow">{children}</main>
         <Footer />
+        <CookieConsent />
       </div>
     </UserProviders>
   );

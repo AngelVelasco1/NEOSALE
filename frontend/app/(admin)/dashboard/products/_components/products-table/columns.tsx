@@ -34,7 +34,7 @@ export const getColumns = ({
       cell: ({ row }) => (
         <div className="flex gap-2 items-center">
           <ImagePlaceholder
-            src={row.original.images[0].image_url}
+            src={row.original.image_url || row.original.images?.[0]?.image_url || ''}
             alt={row.original.name}
             width={32}
             height={32}
@@ -70,25 +70,50 @@ export const getColumns = ({
     {
       header: "Descripción",
       cell: ({ row }) => {
+        const description = row.original.description?.trim();
 
-        return <p className="text-truncate text-wrap">{row.original.description}</p>
+        return (
+          <span
+            className="block max-w-32 text-wrap  text-sm text-slate-600 dark:text-slate-300"
+            title={description || "Sin descripción"}
+          >
+            {description || "—"}
+          </span>
+        );
       }
       ,
     },
     {
       accessorKey: "stock",
       header: () => <SortableHeader label="Stock" sortKey="stock" />,
-      cell: ({ row }) => row.original.stock,
+      cell: ({ row }) => {
+        // Calcular stock real desde las variantes
+        const variants = row.original.product_variants || [];
+        const totalStock = variants.reduce((sum, v) => sum + (v.stock || 0), 0);
+        
+        return (
+          <div className="flex flex-col gap-1">
+            <span className="font-medium">{totalStock}</span>
+            {variants.length > 0 && (
+              <span className="text-xs text-muted-foreground">
+                {variants.length} variante{variants.length !== 1 ? 's' : ''}
+              </span>
+            )}
+          </div>
+        );
+      },
     },
     {
       header: "Estado",
       cell: ({ row }) => {
-        const stock = row.original.stock;
-        const status = stock > 0 ? "Disponible" : "agotado";
+        // Calcular stock real desde las variantes
+        const variants = row.original.product_variants || [];
+        const totalStock = variants.reduce((sum, v) => sum + (v.stock || 0), 0);
+        const status = totalStock > 0 ? "Disponible" : "agotado";
 
         return (
           <Badge
-            variant={stock > 0 ? "success" : "destructive"}
+            variant={totalStock > 0 ? "success" : "destructive"}
             className="shrink-0 text-xs"
           >
             {status === "Disponible" ? "Disponible" : "Agotado"}
@@ -152,12 +177,17 @@ export const getColumns = ({
                   description: row.original.description ?? "",
                   image: row.original.image_url,
                   sku: row.original.sku || "",
-                  category: row.original.category_id,
-                  price: row.original.price,
-                  stock: row.original.stock,
+                  category: row.original.category_id?.toString() || "",
+                  brand: row.original.brand_id?.toString() || "",
+                  price: row.original.price || 0,
+                  stock: row.original.stock || 0,
+                  weight_grams: row.original.weight_grams || 0,
+                  sizes: row.original.sizes || "",
+                  color: row.original.images?.[0]?.color || "",
+                  color_code: row.original.images?.[0]?.color_code || "#000000",
                 }}
                 action={(formData) => editProduct(row.original.id, formData)}
-                previewImage={row.original.image_url}
+                previewImage={row.original.image_url || '/placeholder.svg'}
               >
                 <SheetTooltip content="Edit Product">
                   <PenSquare className="size-5" />

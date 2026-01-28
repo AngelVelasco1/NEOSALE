@@ -20,22 +20,30 @@ const nextConfig = {
     },
   },
 
-  webpack: (config, { dev }) => {
-    if (dev) {
-      config.cache = false;
-    }
+  // Optimizaciones de compilador
+  compiler: {
+    removeConsole: process.env.NODE_ENV === "production" ? {
+      exclude: ["error", "warn"],
+    } : false,
+  },
 
+  // Habilitar compresión
+  compress: true,
+
+  webpack: (config, { dev, isServer }) => {
     // Suprimir warnings específicos de webpack
     config.infrastructureLogging = {
       level: "error",
       debug: false,
     };
 
-    // Optimización adicional para módulos grandes
-    config.optimization = {
-      ...config.optimization,
-      moduleIds: "deterministic",
-    };
+    // Solo aplicar optimizaciones en el cliente, no en el servidor
+    if (!isServer) {
+      config.optimization = {
+        ...config.optimization,
+        moduleIds: "deterministic",
+      };
+    }
 
     return config;
   },

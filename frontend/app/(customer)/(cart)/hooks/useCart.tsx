@@ -20,6 +20,7 @@ import {
 } from "../services/cartApi";
 import { ErrorsHandler } from "@/app/errors/errorsHandler";
 
+
 const CartContext = createContext<CartProductsContext | undefined>(undefined);
 
 export const CartProvider = ({ children }: { children: ReactNode }) => {
@@ -114,6 +115,7 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
       setIsLoading(true);
 
       const serverCart = await getCartApi(userProfile.id);
+      
       setCartProducts(Array.isArray(serverCart) ? serverCart : []);
     } catch (error) {
       console.error("Error loading cart:", error);
@@ -299,9 +301,6 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
       }
     }, [userProfile, cartProducts]); // ✅ Dependencias necesarias
 
-  // ===================================
-  // FUNCIONES DE MÉTRICAS Y CONTADORES
-  // ===================================
 
   const getCartProductCount = useCallback(() => {
     return cartMetrics.uniqueProducts;
@@ -311,9 +310,7 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
     return cartMetrics.subTotal;
   }, [cartMetrics.subTotal]);
 
-  // ===================================
-  // LIMPIAR CARRITO
-  // ===================================
+
 
   const clearCart = useCallback(async () => {
     try {

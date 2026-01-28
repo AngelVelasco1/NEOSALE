@@ -12,6 +12,9 @@ import { getSearchParams } from "@/app/(admin)/helpers/getSearchParams";
 import { fetchCustomers } from "@/app/(admin)/services/customers";
 import { useAuthorization } from "@/app/(admin)/hooks/use-authorization";
 
+const STALE_TIME = 60 * 1000; // 1 minute
+const GC_TIME = 5 * 60 * 1000; // 5 minutes
+
 export default function AllCustomers() {
   const { hasPermission } = useAuthorization();
   const columns = getColumns({ hasPermission });
@@ -51,6 +54,11 @@ export default function AllCustomers() {
       sortOrder
     }),
     placeholderData: keepPreviousData,
+    staleTime: STALE_TIME,
+    gcTime: GC_TIME,
+    refetchOnWindowFocus: false,
+    refetchOnReconnect: false,
+    retry: 1,
   });
 
   if (isLoading)

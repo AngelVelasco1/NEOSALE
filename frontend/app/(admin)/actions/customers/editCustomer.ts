@@ -34,7 +34,7 @@ export async function editCustomer(
       data: {
         name: customerData.name,
         email: customerData.email,
-        phone_number: customerData.phone,
+        phoneNumber: customerData.phone,
       },
     });
 

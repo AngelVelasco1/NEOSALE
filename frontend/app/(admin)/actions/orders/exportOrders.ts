@@ -2,7 +2,6 @@
 
 import { prisma } from "@/lib/prisma";
 import { OrdersExport } from "@/app/(admin)/services/orders/types";
-import { getDiscount } from "@/app/(admin)/helpers/getDiscount";
 
 export async function exportOrders() {
   try {
@@ -10,6 +9,7 @@ export async function exportOrders() {
       include: {
         coupons: {
           select: {
+            code: true,
             discount_type: true,
             discount_value: true,
           },
@@ -20,31 +20,50 @@ export async function exportOrders() {
             email: true,
           },
         },
+        payments: {
+          select: {
+            transaction_id: true,
+            payment_method: true,
+          },
+        },
+      },
+      orderBy: {
+        id: 'desc',
       },
     });
 
-    return {
-      data: data.map(
-        (order): OrdersExport => ({
-          id: order.id,
-          invoice_no: order.id.toString(), // TODO: Ajustar según tu lógica de invoice_no
-          customer_name: order.User?.name ?? "",
-          customer_email: order.User?.email ?? "",
-          total_amount: Number(order.total),
-          discount: getDiscount({
-            coupon: order.coupons,
-            totalAmount: Number(order.total),
-            shippingCost: Number(order.shipping_cost),
-          }),
-          shipping_cost: Number(order.shipping_cost),
-          payment_method: "N/A", // TODO: Obtener del payment relacionado
-          order_time: order.created_at,
-          status: order.status,
-          created_at: order.created_at,
-          updated_at: order.updated_at,
-        })
-      ),
-    };
+    // Serializar Decimals y aplanar estructura para CSV
+    const serializedData: OrdersExport[] = data.map((order) => ({
+      id: order.id,
+      payment_id: order.payment_id,
+      status: order.status,
+      subtotal: order.subtotal,
+      discount: order.discount ?? 0,
+      shipping_cost: order.shipping_cost,
+      taxes: order.taxes,
+      total: order.total,
+      shipping_address_id: order.shipping_address_id,
+      user_note: order.user_note,
+      admin_notes: order.admin_notes,
+      coupon_id: order.coupon_id,
+      coupon_discount: order.coupon_discount ?? 0,
+      tracking_number: order.tracking_number,
+      carrier: order.carrier,
+      estimated_delivery_date: order.estimated_delivery_date?.toISOString() ?? null,
+      created_at: order.created_at.toISOString(),
+      updated_at: order.updated_at?.toISOString() ?? null,
+      shipped_at: order.shipped_at?.toISOString() ?? null,
+      delivered_at: order.delivered_at?.toISOString() ?? null,
+      cancelled_at: order.cancelled_at?.toISOString() ?? null,
+      user_id: order.user_id,
+      updated_by: order.updated_by,
+      customer_name: order.User?.name ?? "N/A",
+      customer_email: order.User?.email ?? "N/A",
+      payment_method: order.payments.payment_method,
+      transaction_id: order.payments.transaction_id,
+    }));
+
+    return { data: serializedData };
   } catch (error) {
     console.error(`Error fetching orders:`, error);
     return { error: `Failed to fetch data for orders.` };

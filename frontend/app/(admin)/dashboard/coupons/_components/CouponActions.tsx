@@ -94,7 +94,7 @@ export default function CouponActions({
                   <SheetTrigger asChild>
                     <Button
                       size="default"
-                      className="h-10 px-4 rounded-lg bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-600 hover:to-teal-700 text-white font-medium shadow-sm hover:shadow-md transition-all text-sm"
+                      className="h-11 px-4 rounded-xl bg-gradient-to-r from-emerald-300 via-teal-400 to-cyan-400 text-slate-950 font-semibold shadow-[0_12px_30px_-12px_rgba(34,197,235,0.6)] transition-all hover:shadow-[0_18px_38px_-12px_rgba(34,197,235,0.75)]"
                     >
                       <Plus className="mr-2 h-4 w-4" /> Agregar Cupón
                     </Button>
