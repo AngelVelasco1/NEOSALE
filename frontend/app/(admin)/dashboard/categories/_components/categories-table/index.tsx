@@ -1,6 +1,6 @@
 "use client";
 
-import { useSearchParams } from "next/navigation";
+import { useMemo, useCallback } from "react";
 import { useQuery, keepPreviousData } from "@tanstack/react-query";
 
 import CategoriesTable from "./Table";
@@ -12,6 +12,7 @@ import { getSearchParams } from "@/app/(admin)/helpers/getSearchParams";
 import { fetchCategories } from "@/app/(admin)/services/categories";
 import { RowSelectionProps } from "@/app/(admin)/types/data-table";
 import { useAuthorization } from "@/app/(admin)/hooks/use-authorization";
+import { useStableSearchParams } from "@/app/(admin)/hooks/use-stable-search-params";
 
 const STALE_TIME = 60 * 1000;
 const GC_TIME = 5 * 60 * 1000;
@@ -21,15 +22,35 @@ export default function AllCategories({
   setRowSelection,
 }: RowSelectionProps) {
   const { hasPermission } = useAuthorization();
-  const columns = getColumns({ hasPermission });
-  const searchParams = useSearchParams();
+  const columns = useMemo(() => getColumns({ hasPermission }), [hasPermission]);
+  const { searchParams, searchParamsString } = useStableSearchParams();
+  const {
+    page,
+    limit,
+    search,
+    sortBy,
+    sortOrder,
+    status,
+  } = getSearchParams(searchParams);
+  const perPage = limit || 10;
 
-  const page = parseInt(searchParams.get("page") || "1");
-  const limit = parseInt(searchParams.get("limit") || "10");
-  const search = searchParams.get("search") || "";
-  const sortBy = searchParams.get("sortBy") || "";
-  const sortOrder = searchParams.get("sortOrder") || "";
-  const status = searchParams.get("status") || "";
+  const queryKey = useMemo(
+    () => ["categories", searchParamsString],
+    [searchParamsString]
+  );
+
+  const queryFn = useCallback(
+    () =>
+      fetchCategories({
+        page: page || 1,
+        limit: limit || 10,
+        search,
+        sortBy,
+        sortOrder,
+        status,
+      }),
+    [page, limit, search, sortBy, sortOrder, status]
+  );
 
   const {
     data: categories,
@@ -37,8 +58,8 @@ export default function AllCategories({
     isError,
     refetch,
   } = useQuery({
-    queryKey: ["categories", page, limit, search, sortBy, sortOrder, status],
-    queryFn: () => fetchCategories({ page, limit, search, sortBy, sortOrder, status }),
+    queryKey,
+    queryFn,
     placeholderData: keepPreviousData,
     staleTime: STALE_TIME,
     gcTime: GC_TIME,
@@ -48,7 +69,7 @@ export default function AllCategories({
   });
 
   if (isLoading)
-    return <TableSkeleton perPage={limit} columns={skeletonColumns} />;
+    return <TableSkeleton perPage={perPage} columns={skeletonColumns} />;
 
   if (isError || !categories)
     return (

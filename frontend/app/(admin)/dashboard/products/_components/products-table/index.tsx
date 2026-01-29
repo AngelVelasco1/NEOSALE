@@ -1,7 +1,6 @@
 "use client";
 
-import { useMemo } from "react";
-import { useSearchParams } from "next/navigation";
+import { useMemo, useCallback } from "react";
 import { useQuery, keepPreviousData } from "@tanstack/react-query";
 
 import ProductsTable from "./Table";
@@ -13,6 +12,7 @@ import { getSearchParams } from "@/app/(admin)/helpers/getSearchParams";
 import { fetchProducts } from "@/app/(admin)/services/products";
 import { RowSelectionProps } from "@/app/(admin)/types/data-table";
 import { useAuthorization } from "@/app/(admin)/hooks/use-authorization";
+import { useStableSearchParams } from "@/app/(admin)/hooks/use-stable-search-params";
 
 // Configuración optimizada para cache
 const STALE_TIME = 3 * 60 * 1000; // 3 minutos - datos frescos por más tiempo
@@ -30,7 +30,7 @@ export default function AllProducts({
     [hasPermission]
   );
   
-  const searchParams = useSearchParams();
+  const { searchParams, searchParamsString } = useStableSearchParams();
 
   const {
     page,
@@ -52,34 +52,20 @@ export default function AllProducts({
   const minStock = searchParams.get("minStock") || undefined;
   const maxStock = searchParams.get("maxStock") || undefined;
 
-  // Memoizar parámetros de query para evitar re-renders
+  // Usar string de parámetros como dependencia para evitar refetches innecesarios
   const queryKey = useMemo(
     () => [
       "products",
-      page,
-      limit,
-      search,
-      category,
-      brand,
-      price,
-      minPrice,
-      maxPrice,
-      published,
-      status,
-      minStock,
-      maxStock,
-      date,
-      sortBy,
-      sortOrder,
+      searchParamsString,
     ],
-    [page, limit, search, category, brand, price, minPrice, maxPrice, published, status, minStock, maxStock, date, sortBy, sortOrder]
+    [searchParamsString]
   );
 
-  const queryFn = useMemo(
-    () => () =>
+  const queryFn = useCallback(
+    () =>
       fetchProducts({
-        page,
-        limit,
+        page: page || 1,
+        limit: limit || 10,
         search,
         category,
         brand,

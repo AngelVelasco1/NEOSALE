@@ -480,40 +480,40 @@ CREATE TABLE "verificationToken" (
     PRIMARY KEY (identifier, token)
 );
 
-CREATE TABLE StoreSettings {
-  id                  Int       @id @default(autoincrement())
-  store_name          String    @default("NeoSale") @db.VarChar(255)
-  store_description   String?   @db.Text
-  contact_email       String    @default("info@neosale.com") @db.VarChar(255)
-  contact_phone       String    @default("+57 300 123 4567") @db.VarChar(50)
-  whatsapp_number     String?   @db.VarChar(50)
-  address             String?   @db.VarChar(500)
-  city                String    @default("Bogotá") @db.VarChar(100)
-  country             String    @default("Colombia") @db.VarChar(100)
-  facebook_url        String?   @db.VarChar(255)
-  instagram_url       String?   @db.VarChar(255)
-  twitter_url         String?   @db.VarChar(255)
-  youtube_url         String?   @db.VarChar(255)
-  tiktok_url          String?   @db.VarChar(255)
-  logo_url            String?   @db.VarChar(255)
-  favicon_url         String?   @db.VarChar(255)
-  primary_color       String    @default("#3B82F6") @db.VarChar(20)
-  secondary_color     String    @default("#6366F1") @db.VarChar(20)
-  footer_text         String?   @db.Text
-  newsletter_enabled  Boolean   @default(true)
-  show_whatsapp_chat  Boolean   @default(true)
-  business_hours      Json?     @default("{\"monday\":\"8:00 AM - 6:00 PM\",\"tuesday\":\"8:00 AM - 6:00 PM\",\"wednesday\":\"8:00 AM - 6:00 PM\",\"thursday\":\"8:00 AM - 6:00 PM\",\"friday\":\"8:00 AM - 6:00 PM\",\"saturday\":\"9:00 AM - 2:00 PM\",\"sunday\":\"Closed\"}")
-  shipping_info       Json?     @default("{\"free_shipping_minimum\":150000,\"standard_shipping_cost\":10000}")
-  seo_title           String?   @db.VarChar(255)
-  seo_description     String?   @db.VarChar(500)
-  seo_keywords        String?   @db.Text
-  google_analytics_id String?   @db.VarChar(50)
-  facebook_pixel_id   String?   @db.VarChar(50)
-  active              Boolean   @default(true)
-  created_at          DateTime  @default(now()) @db.Timestamp(6)
-  updated_at          DateTime? @db.Timestamp(6)
-  updated_by          Int?
-}
+CREATE TABLE store_settings (
+    id SERIAL PRIMARY KEY,
+    store_name VARCHAR(255) DEFAULT 'NeoSale' NOT NULL,
+    store_description TEXT,
+    contact_email VARCHAR(255) DEFAULT 'info@neosale.com' NOT NULL,
+    contact_phone VARCHAR(50) DEFAULT '+57 300 123 4567' NOT NULL,
+    whatsapp_number VARCHAR(50),
+    address VARCHAR(500),
+    city VARCHAR(100) DEFAULT 'Bogotá' NOT NULL,
+    country VARCHAR(100) DEFAULT 'Colombia' NOT NULL,
+    facebook_url VARCHAR(255),
+    instagram_url VARCHAR(255),
+    twitter_url VARCHAR(255),
+    youtube_url VARCHAR(255),
+    tiktok_url VARCHAR(255),
+    logo_url VARCHAR(255),
+    favicon_url VARCHAR(255),
+    primary_color VARCHAR(20) DEFAULT '#3B82F6' NOT NULL,
+    secondary_color VARCHAR(20) DEFAULT '#6366F1' NOT NULL,
+    footer_text TEXT,
+    newsletter_enabled BOOLEAN DEFAULT TRUE NOT NULL,
+    show_whatsapp_chat BOOLEAN DEFAULT TRUE NOT NULL,
+    business_hours JSONB DEFAULT '{"monday":"8:00 AM - 6:00 PM","tuesday":"8:00 AM - 6:00 PM","wednesday":"8:00 AM - 6:00 PM","thursday":"8:00 AM - 6:00 PM","friday":"8:00 AM - 6:00 PM","saturday":"9:00 AM - 2:00 PM","sunday":"Closed"}',
+    shipping_info JSONB DEFAULT '{"free_shipping_minimum":150000,"standard_shipping_cost":10000}',
+    seo_title VARCHAR(255),
+    seo_description VARCHAR(500),
+    seo_keywords TEXT,
+    google_analytics_id VARCHAR(50),
+    facebook_pixel_id VARCHAR(50),
+    active BOOLEAN DEFAULT TRUE NOT NULL,
+    created_at TIMESTAMP(6) DEFAULT CURRENT_TIMESTAMP NOT NULL,
+    updated_at TIMESTAMP(6),
+    updated_by INTEGER REFERENCES "User"(id)
+);
 
 -- Para otra version
 /* CREATE TABLE returns (

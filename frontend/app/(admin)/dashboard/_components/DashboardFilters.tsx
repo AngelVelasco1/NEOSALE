@@ -25,40 +25,40 @@ type PresetOption = {
 const presetAccentMap: Record<DateRangePreset, string> = {
     today: "from-slate-950/90 via-sky-500/25 to-slate-900/80",
     yesterday: "from-slate-950/90 via-blue-500/22 to-slate-900/80",
-    last7days: "from-slate-950/90 via-indigo-500/22 to-slate-900/80",
-    last30days: "from-slate-950/90 via-violet-500/22 to-slate-900/80",
+    last7days: "from-slate-950/90 via-blue-500/22 to-slate-900/80",
+    last30days: "from-slate-950/90 via-sky-500/22 to-slate-900/80",
     thisMonth: "from-slate-950/90 via-cyan-500/22 to-slate-900/80",
     lastMonth: "from-slate-950/90 via-rose-500/22 to-slate-900/80",
     last3months: "from-slate-950/90 via-amber-500/24 to-slate-900/80",
     last6months: "from-slate-950/90 via-emerald-500/22 to-slate-900/80",
-    thisYear: "from-slate-950/90 via-purple-500/22 to-slate-900/80",
-    custom: "from-slate-950/90 via-fuchsia-500/24 to-slate-900/80",
+    thisYear: "from-slate-950/90 via-blue-500/22 to-slate-900/80",
+    custom: "from-slate-950/90 via-cyan-500/24 to-slate-900/80",
 };
 
 const presetBorderMap: Record<DateRangePreset, string> = {
     today: "from-slate-800 via-sky-600 to-slate-900",
     yesterday: "from-slate-800 via-blue-600 to-slate-900",
-    last7days: "from-slate-800 via-indigo-600 to-slate-900",
-    last30days: "from-slate-800 via-violet-600 to-slate-900",
+    last7days: "from-slate-800 via-blue-600 to-slate-900",
+    last30days: "from-slate-800 via-sky-600 to-slate-900",
     thisMonth: "from-slate-800 via-cyan-600 to-slate-900",
     lastMonth: "from-slate-800 via-rose-600 to-slate-900",
     last3months: "from-slate-800 via-amber-600 to-slate-900",
     last6months: "from-slate-800 via-emerald-600 to-slate-900",
-    thisYear: "from-slate-800 via-purple-600 to-slate-900",
-    custom: "from-slate-800 via-fuchsia-600 to-slate-900",
+    thisYear: "from-slate-800 via-blue-600 to-slate-900",
+    custom: "from-slate-800 via-cyan-600 to-slate-900",
 };
 
 const presetBeamMap: Record<DateRangePreset, string> = {
     today: "bg-sky-400/25",
     yesterday: "bg-blue-500/20",
-    last7days: "bg-indigo-500/20",
-    last30days: "bg-violet-500/20",
+    last7days: "bg-blue-500/20",
+    last30days: "bg-sky-500/20",
     thisMonth: "bg-cyan-500/20",
     lastMonth: "bg-rose-500/20",
     last3months: "bg-amber-500/22",
     last6months: "bg-emerald-500/20",
-    thisYear: "bg-purple-500/20",
-    custom: "bg-fuchsia-500/22",
+    thisYear: "bg-blue-500/20",
+    custom: "bg-cyan-500/22",
 };
 
 const presetOptions: PresetOption[] = [
@@ -110,14 +110,14 @@ const formatGoalValue = (key: MetricGoalKey, value: number) =>
 
 const goalVisuals: Record<MetricGoalKey, { gradient: string; beam: string; accent: string }> = {
     revenue: {
-        gradient: "from-blue-500/20 via-indigo-500/10 to-transparent",
+        gradient: "from-blue-500/20 via-sky-500/10 to-transparent",
         beam: "bg-sky-500/25",
         accent: "text-sky-200",
     },
     orders: {
-        gradient: "from-purple-500/20 via-fuchsia-500/10 to-transparent",
-        beam: "bg-fuchsia-500/25",
-        accent: "text-purple-200",
+        gradient: "from-blue-500/20 via-sky-500/10 to-transparent",
+        beam: "bg-sky-500/25",
+        accent: "text-blue-200",
     },
     products: {
         gradient: "from-emerald-500/20 via-teal-500/10 to-transparent",
@@ -471,16 +471,16 @@ export default function DashboardFilters() {
         dateRange?.from && dateRange?.to
             ? Math.max(1, Math.round((dateRange.to.getTime() - dateRange.from.getTime()) / (1000 * 60 * 60 * 24)) + 1)
             : undefined;
-    const activeAccent = presetAccentMap[preset] ?? "from-blue-500/60 via-cyan-500/30 to-purple-500/20";
+    const activeAccent = presetAccentMap[preset] ?? "from-blue-500/60 via-cyan-500/30 to-sky-500/20";
     const accentBorder = presetBorderMap[preset] ?? "from-slate-800 via-blue-600 to-slate-900";
     const accentBeam = presetBeamMap[preset] ?? "bg-blue-500/35";
 
     return (
-        <Card className="relative z-10 mb-6 overflow-hidden rounded-4xl border border-slate-500/20 bg-gradient-to-br from-slate-950/95 via-slate-900/90 to-slate-950/95  shadow-[0_10px_60px_rgba(168,85,247,0.15)]">
-            <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_top,rgba(168,85,247,0.18),transparent_60%)]" />
-            <div className="pointer-events-none absolute inset-0 bg-[linear-gradient(120deg,rgba(139,92,246,0.06)_1px,transparent_1px)] bg-size-[160px_160px] opacity-30" />
-            <div className="pointer-events-none absolute -top-32 left-6 h-64 w-64 rounded-full bg-fuchsia-500/20 blur-[140px]" />
-            <div className="pointer-events-none absolute -bottom-32 right-0 h-72 w-72 rounded-full bg-purple-500/18 blur-[160px]" />
+        <Card className="relative z-10 mb-6 overflow-hidden rounded-4xl border border-slate-500/20 bg-gradient-to-br from-slate-950/95 via-slate-900/90 to-slate-950/95  shadow-[0_10px_60px_rgba(59,130,246,0.18)]">
+            <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_top,rgba(59,130,246,0.18),transparent_60%)]" />
+            <div className="pointer-events-none absolute inset-0 bg-[linear-gradient(120deg,rgba(56,189,248,0.06)_1px,transparent_1px)] bg-size-[160px_160px] opacity-30" />
+            <div className="pointer-events-none absolute -top-32 left-6 h-64 w-64 rounded-full bg-cyan-500/20 blur-[140px]" />
+            <div className="pointer-events-none absolute -bottom-32 right-0 h-72 w-72 rounded-full bg-blue-500/18 blur-[160px]" />
 
             <div className="relative z-10 space-y-4 p-5 md:p-8">
                 <motion.div
@@ -498,7 +498,7 @@ export default function DashboardFilters() {
                     </div>
 
                    <div className="flex flex-wrap items-center gap-2 text-[10px] font-semibold uppercase tracking-[0.35em] text-white/70">
-                            <span className="rounded-full border border-fuchsia-400/30 bg-gradient-to-r from-fuchsia-500/20 to-purple-500/20 px-3 py-1 text-fuchsia-100 shadow-[0_0_15px_rgba(217,70,239,0.35)] animate-pulse">
+                            <span className="rounded-full border border-cyan-400/30 bg-gradient-to-r from-cyan-500/20 to-blue-500/20 px-3 py-1 text-cyan-100 shadow-[0_0_15px_rgba(34,211,238,0.35)] animate-pulse">
                                 Panel activo
                             </span>
                           
@@ -532,12 +532,12 @@ export default function DashboardFilters() {
                     <Button
                         onClick={handleReset}
                         variant="outline"
-                        className="group relative h-12 min-w-[170px] overflow-hidden rounded-2xl border border-purple-400/25 bg-gradient-to-r from-slate-900/60 to-slate-800/60 px-6 text-sm font-semibold text-white backdrop-blur-xl shadow-md shadow-purple-500/10 transition-all duration-500 hover:-translate-y-0.5 hover:border-fuchsia-400/40 hover:shadow-xl hover:shadow-purple-500/15"
+                        className="group relative h-12 min-w-[170px] overflow-hidden rounded-2xl border border-blue-400/25 bg-gradient-to-r from-slate-900/60 to-slate-800/60 px-6 text-sm font-semibold text-white backdrop-blur-xl shadow-md shadow-blue-500/10 transition-all duration-500 hover:-translate-y-0.5 hover:border-cyan-400/40 hover:shadow-xl hover:shadow-blue-500/15"
                     >
-                        <span className="absolute inset-0 bg-gradient-to-r from-purple-500/10 via-transparent to-fuchsia-500/10 opacity-60 transition-opacity duration-500 group-hover:opacity-100" />
-                        <span className="absolute inset-0 translate-y-full bg-gradient-to-r from-fuchsia-500/25 via-purple-500/20 to-fuchsia-500/25 opacity-0 transition-all duration-500 group-hover:translate-y-0 group-hover:opacity-100" />
+                        <span className="absolute inset-0 bg-gradient-to-r from-blue-500/10 via-transparent to-cyan-500/10 opacity-60 transition-opacity duration-500 group-hover:opacity-100" />
+                        <span className="absolute inset-0 translate-y-full bg-gradient-to-r from-cyan-500/25 via-blue-500/20 to-cyan-500/25 opacity-0 transition-all duration-500 group-hover:translate-y-0 group-hover:opacity-100" />
                         <span className="relative z-10 flex items-center justify-center gap-2 text-white">
-                            <RotateCcw className="h-4 w-4 text-fuchsia-300 transition-transform duration-500 group-hover:-rotate-180" />
+                            <RotateCcw className="h-4 w-4 text-cyan-300 transition-transform duration-500 group-hover:-rotate-180" />
                             Restablecer
                         </span>
                     </Button>
@@ -552,14 +552,14 @@ export default function DashboardFilters() {
                         className="grid gap-4 lg:grid-cols-[2fr,1fr]"
                     >
                         <div className="relative overflow-hidden rounded-3xl border border-slate-700/80 bg-gradient-to-br from-slate-900/90 via-slate-800/85 to-slate-900/90 p-5 shadow-md shadow-slate-900/30">
-                            <div className="absolute inset-0 bg-[radial-gradient(circle_at_top,rgba(168,85,247,0.15),transparent_65%)] opacity-60" />
+                            <div className="absolute inset-0 bg-[radial-gradient(circle_at_top,rgba(59,130,246,0.15),transparent_65%)] opacity-60" />
                             <div className="relative space-y-4">
-                                <div className="inline-flex items-center gap-2 rounded-full border border-purple-400/25 bg-gradient-to-r from-purple-500/15 to-fuchsia-500/15 px-3 py-1.5 text-[11px] font-bold uppercase tracking-[0.35em] text-purple-200">
+                                <div className="inline-flex items-center gap-2 rounded-full border border-blue-400/25 bg-gradient-to-r from-blue-500/15 to-cyan-500/15 px-3 py-1.5 text-[11px] font-bold uppercase tracking-[0.35em] text-blue-200">
                                     <Calendar className="h-3.5 w-3.5" />
                                     <span>Período</span>
                                 </div>
                                 <div className="flex flex-wrap items-center gap-3 text-sm">
-                                    <span className="rounded-2xl bg-slate-950/80 border border-purple-500/15 px-3 py-2 text-sm font-semibold text-white shadow-sm shadow-purple-900/20">
+                                    <span className="rounded-2xl bg-slate-950/80 border border-blue-500/15 px-3 py-2 text-sm font-semibold text-white shadow-sm shadow-blue-900/20">
                                         {dateRange.from.toLocaleDateString("es-ES", {
                                             day: "2-digit",
                                             month: "long",
@@ -568,12 +568,12 @@ export default function DashboardFilters() {
                                     </span>
                                     {dateRange.to && dateRange.to.getTime() !== dateRange.from.getTime() && (
                                         <>
-                                            <div className="flex items-center gap-1 text-fuchsia-400">
-                                                <div className="h-0.5 w-4 rounded bg-purple-600" />
-                                                <div className="h-1.5 w-1.5 rounded-full bg-fuchsia-400" />
-                                                <div className="h-0.5 w-4 rounded bg-purple-600" />
+                                            <div className="flex items-center gap-1 text-cyan-400">
+                                                <div className="h-0.5 w-4 rounded bg-blue-600" />
+                                                <div className="h-1.5 w-1.5 rounded-full bg-cyan-400" />
+                                                <div className="h-0.5 w-4 rounded bg-blue-600" />
                                             </div>
-                                            <span className="rounded-2xl bg-slate-950/80 border border-purple-500/15 px-3 py-2 text-sm font-semibold text-white shadow-sm shadow-purple-900/20">
+                                            <span className="rounded-2xl bg-slate-950/80 border border-blue-500/15 px-3 py-2 text-sm font-semibold text-white shadow-sm shadow-blue-900/20">
                                                 {dateRange.to.toLocaleDateString("es-ES", {
                                                     day: "2-digit",
                                                     month: "long",
@@ -594,8 +594,8 @@ export default function DashboardFilters() {
                                 <div className="absolute inset-x-0 bottom-0 h-1/2 bg-gradient-to-t from-black/30 via-transparent" />
                                 <div className="relative z-10 flex h-full flex-col gap-3">
                                     <div className="flex items-center justify-between">
-                                        <div className="inline-flex items-center gap-2 rounded-full border border-purple-400/25 bg-gradient-to-r from-purple-500/15 to-fuchsia-500/15 px-3 py-1 text-[10px] font-semibold uppercase tracking-[0.4em] text-purple-200">
-                                            <span className="h-1.5 w-1.5 rounded-full bg-fuchsia-400" />
+                                        <div className="inline-flex items-center gap-2 rounded-full border border-blue-400/25 bg-gradient-to-r from-blue-500/15 to-cyan-500/15 px-3 py-1 text-[10px] font-semibold uppercase tracking-[0.4em] text-blue-200">
+                                            <span className="h-1.5 w-1.5 rounded-full bg-cyan-400" />
                                             Preset activo
                                         </div>
                                         <Clock className="h-4 w-4 text-slate-300" />
@@ -620,7 +620,7 @@ export default function DashboardFilters() {
                     initial="hidden"
                     whileInView="visible"
                     viewport={{ once: true, amount: 0.4 }}
-                    className="rounded-[30px] border border-purple-500/20 bg-gradient-to-br from-slate-900/90 via-slate-800/85 to-slate-900/90 p-5 shadow-md shadow-purple-500/10"
+                    className="rounded-[30px] border border-blue-500/20 bg-gradient-to-br from-slate-900/90 via-slate-800/85 to-slate-900/90 p-5 shadow-md shadow-blue-500/10"
                 >
                     <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
                         <div className="space-y-1">
@@ -634,7 +634,7 @@ export default function DashboardFilters() {
                                 type="button"
                                 variant="ghost"
                                 onClick={handleGoalReset}
-                                className="h-10 rounded-2xl border border-purple-400/25 bg-gradient-to-r from-purple-500/15 to-fuchsia-500/15 px-4 text-xs font-semibold uppercase tracking-[0.3em] text-purple-200 transition hover:from-purple-500/25 hover:to-fuchsia-500/25 hover:shadow-md hover:shadow-purple-500/20"
+                                className="h-10 rounded-2xl border border-blue-400/25 bg-gradient-to-r from-blue-500/15 to-cyan-500/15 px-4 text-xs font-semibold uppercase tracking-[0.3em] text-blue-200 transition hover:from-blue-500/25 hover:to-cyan-500/25 hover:shadow-md hover:shadow-blue-500/20"
                             >
                                 <Sparkles className="mr-2 h-4 w-4" />
                                 Restablecer metas
@@ -708,7 +708,7 @@ export default function DashboardFilters() {
                                                     }
                                                 }}
                                                 className={cn(
-                                                    "h-14 w-full rounded-2xl border border-purple-500/25 bg-slate-950/60 px-4 text-base font-semibold tracking-wide text-white placeholder:text-slate-500 focus:border-fuchsia-400/70 focus:outline-none focus:ring-2 focus:ring-fuchsia-500/25",
+                                                    "h-14 w-full rounded-2xl border border-blue-500/25 bg-slate-950/60 px-4 text-base font-semibold tracking-wide text-white placeholder:text-slate-500 focus:border-cyan-400/70 focus:outline-none focus:ring-2 focus:ring-cyan-500/25",
                                                     meta.prefix ? "pl-11" : ""
                                                 )}
                                                 placeholder={base.value.toString()}
@@ -721,7 +721,7 @@ export default function DashboardFilters() {
                                         </div>
 
                                         <div className="flex flex-wrap items-center gap-2 text-[11px] text-slate-300">
-                                            <span className="rounded-full border border-purple-500/25 bg-purple-500/15 px-2 py-1 font-semibold text-purple-200">
+                                            <span className="rounded-full border border-blue-500/25 bg-blue-500/15 px-2 py-1 font-semibold text-blue-200">
                                                 Base: {friendlyBase}
                                             </span>
                                         
@@ -735,7 +735,7 @@ export default function DashboardFilters() {
                                                     whileHover={{ y: -2 }}
                                                     whileTap={{ scale: 0.97 }}
                                                     onClick={() => handleQuickGoal(key, preset.factor)}
-                                                    className="rounded-2xl border border-purple-500/25 bg-gradient-to-br from-purple-500/15 via-fuchsia-500/12 to-purple-500/15 px-2 py-2 text-white transition hover:from-purple-500/25 hover:via-fuchsia-500/20 hover:to-purple-500/25 hover:border-fuchsia-400/35 hover:shadow-md hover:shadow-purple-500/20"
+                                                    className="rounded-2xl border border-blue-500/25 bg-gradient-to-br from-blue-500/15 via-cyan-500/12 to-blue-500/15 px-2 py-2 text-white transition hover:from-blue-500/25 hover:via-cyan-500/20 hover:to-blue-500/25 hover:border-cyan-400/35 hover:shadow-md hover:shadow-blue-500/20"
                                                 >
                                                     {preset.label}
                                                 </motion.button>
@@ -823,10 +823,10 @@ function PresetDropdown({ value, onChange }: PresetDropdownProps) {
                 aria-haspopup="listbox"
                 aria-expanded={open}
                 onClick={() => setOpen((previous) => !previous)}
-                    className="flex w-full items-center justify-between gap-3 rounded-2xl border border-purple-500/20 bg-gradient-to-r from-slate-900/70 to-slate-800/70 p-4 text-left text-white shadow-md shadow-purple-500/10 transition-all duration-300 hover:-translate-y-0.5 hover:border-fuchsia-400/30 hover:shadow-xl hover:shadow-purple-500/15 focus:outline-none focus-visible:ring-2 focus-visible:ring-fuchsia-500/40"
+                    className="flex w-full items-center justify-between gap-3 rounded-2xl border border-blue-500/20 bg-gradient-to-r from-slate-900/70 to-slate-800/70 p-4 text-left text-white shadow-md shadow-blue-500/10 transition-all duration-300 hover:-translate-y-0.5 hover:border-cyan-400/30 hover:shadow-xl hover:shadow-blue-500/15 focus:outline-none focus-visible:ring-2 focus-visible:ring-cyan-500/40"
             >
                 <div className="flex items-center gap-3">
-                    <div className="flex h-10 w-10 items-center justify-center rounded-2xl bg-gradient-to-br from-purple-500 to-fuchsia-600 text-white shadow-md shadow-purple-500/25">
+                    <div className="flex h-10 w-10 items-center justify-center rounded-2xl bg-gradient-to-br from-blue-500 to-cyan-600 text-white shadow-md shadow-blue-500/25">
                         <Calendar className="h-4 w-4" />
                     </div>
                     <div>
@@ -849,7 +849,7 @@ function PresetDropdown({ value, onChange }: PresetDropdownProps) {
                         }}
                         className="z-200"
                     >
-                        <div className="rounded-2xl border border-purple-500/20 bg-slate-950/98 p-2 shadow-[0_20px_60px_rgba(168,85,247,0.25)] backdrop-blur-xl">
+                        <div className="rounded-2xl border border-blue-500/20 bg-slate-950/98 p-2 shadow-[0_20px_60px_rgba(59,130,246,0.25)] backdrop-blur-xl">
                             <div className="max-h-72 space-y-1 overflow-y-auto pr-1">
                                 {presetOptions.map((option) => {
                                     const isActive = option.value === value;
@@ -863,8 +863,8 @@ function PresetDropdown({ value, onChange }: PresetDropdownProps) {
                                             className={cn(
                                                 "w-full rounded-xl px-3 py-2.5 text-left text-sm transition-all duration-200",
                                                 isActive
-                                                    ? "bg-gradient-to-r from-purple-600 to-fuchsia-600 text-white shadow-md shadow-purple-500/20"
-                                                    : "text-slate-300 hover:bg-purple-500/15 hover:text-white"
+                                                    ? "bg-gradient-to-r from-blue-600 to-cyan-600 text-white shadow-md shadow-blue-500/20"
+                                                    : "text-slate-300 hover:bg-blue-500/15 hover:text-white"
                                             )}
                                         >
                                             <p className="font-semibold">{option.label}</p>

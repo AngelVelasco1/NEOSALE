@@ -3,17 +3,7 @@
 import { useState, useEffect, useCallback, useTransition } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 
-  const handleStatusChange = (value: string) => {
-    applyFilters({ ...currentFilters, status: value });
-  };
 
-  const handleMethodChange = (value: string) => {
-    applyFilters({ ...currentFilters, method: value });
-  };
-
-  const handleSetStartDate = (date: string) => {
-    applyFilters({ ...currentFilters, startDate: date });
-  };
 import { DownloadCloud, Loader2, Search, X, Tag, TrendingUp, Calendar, DollarSign } from "lucide-react";
 
 import { cn } from "@/lib/utils";
@@ -25,6 +15,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+
 import { toast } from "sonner";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -108,6 +99,17 @@ export default function OrderFilters() {
   const [searchValue, setSearchValue] = useState(searchParams.get("search") || "");
   const [minAmountValue, setMinAmountValue] = useState(searchParams.get("minAmount") || "");
   const [maxAmountValue, setMaxAmountValue] = useState(searchParams.get("maxAmount") || "");
+    const handleStatusChange = (value: string) => {
+    applyFilters({ ...currentFilters, status: value });
+  };
+
+  const handleMethodChange = (value: string) => {
+    applyFilters({ ...currentFilters, method: value });
+  };
+
+  const handleSetStartDate = (date: string) => {
+    applyFilters({ ...currentFilters, startDate: date });
+  };
 
   // Estado sincronizado con URL
   const currentFilters = {

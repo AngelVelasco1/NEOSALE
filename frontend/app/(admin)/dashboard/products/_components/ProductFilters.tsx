@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useQuery } from "@tanstack/react-query";
 import { Search, X, DollarSign, Tag, ShieldCheck, Package, Layers } from "lucide-react";
@@ -53,6 +53,13 @@ const STOCK_RANGE_PRESETS = [
 export default function ProductFilters() {
   const router = useRouter();
   const searchParams = useSearchParams();
+  const searchParamsRaw = useMemo(() => searchParams.toString(), [searchParams]);
+  const filtersSignature = useMemo(() => {
+    const params = new URLSearchParams(searchParamsRaw);
+    params.delete("page");
+    params.delete("limit");
+    return params.toString();
+  }, [searchParamsRaw]);
 
   const [searchValue, setSearchValue] = useState(searchParams.get("search") || "");
   const [minPriceValue, setMinPriceValue] = useState(searchParams.get("minPrice") || "");
@@ -60,17 +67,40 @@ export default function ProductFilters() {
   const [minStockValue, setMinStockValue] = useState(searchParams.get("minStock") || "");
   const [maxStockValue, setMaxStockValue] = useState(searchParams.get("maxStock") || "");
 
-  const currentFilters = {
-    search: searchParams.get("search") || "",
-    category: searchParams.get("category") || "all",
-    brand: searchParams.get("brand") || "all",
-    minPrice: searchParams.get("minPrice") || "",
-    maxPrice: searchParams.get("maxPrice") || "",
-    publishedFilter: searchParams.get("published") || "all",
-    stockFilter: searchParams.get("status") || "all",
-    minStock: searchParams.get("minStock") || "",
-    maxStock: searchParams.get("maxStock") || "",
-  };
+  const filterSearch = searchParams.get("search") || "";
+  const filterCategory = searchParams.get("category") || "all";
+  const filterBrand = searchParams.get("brand") || "all";
+  const filterMinPrice = searchParams.get("minPrice") || "";
+  const filterMaxPrice = searchParams.get("maxPrice") || "";
+  const filterPublished = searchParams.get("published") || "all";
+  const filterStatus = searchParams.get("status") || "all";
+  const filterMinStock = searchParams.get("minStock") || "";
+  const filterMaxStock = searchParams.get("maxStock") || "";
+
+  const currentFilters = useMemo(
+    () => ({
+      search: filterSearch,
+      category: filterCategory,
+      brand: filterBrand,
+      minPrice: filterMinPrice,
+      maxPrice: filterMaxPrice,
+      publishedFilter: filterPublished,
+      stockFilter: filterStatus,
+      minStock: filterMinStock,
+      maxStock: filterMaxStock,
+    }),
+    [
+      filterSearch,
+      filterCategory,
+      filterBrand,
+      filterMinPrice,
+      filterMaxPrice,
+      filterPublished,
+      filterStatus,
+      filterMinStock,
+      filterMaxStock,
+    ]
+  );
 
   const {
     data: categories,
@@ -94,6 +124,8 @@ export default function ProductFilters() {
     gcTime: 15 * 60 * 1000, // 15 minutos en cache
   });
 
+  const limitParam = searchParams.get("limit") || "10";
+
   const applyFilters = useCallback(
     (newFilters: Record<string, string>) => {
       const params = new URLSearchParams();
@@ -108,12 +140,17 @@ export default function ProductFilters() {
       if (newFilters.minStock) params.set("minStock", newFilters.minStock);
       if (newFilters.maxStock) params.set("maxStock", newFilters.maxStock);
 
+      const nextFiltersSignature = params.toString();
+      if (nextFiltersSignature === filtersSignature) {
+        return;
+      }
+
       params.set("page", "1");
-      params.set("limit", searchParams.get("limit") || "10");
+      params.set("limit", limitParam);
 
       router.push(`/dashboard/products?${params.toString()}`, { scroll: false });
     },
-    [router, searchParams]
+    [router, filtersSignature, limitParam]
   );
 
   useEffect(() => {

@@ -1,5 +1,6 @@
 {
   "lockfileVersion": 1,
+  "configVersion": 0,
   "workspaces": {
     "": {
       "name": "neosale-backend",
@@ -23,9 +24,9 @@
         "@types/redis": "^4.0.10",
         "prisma": "^6.10.1",
         "tsx": "^4.20.3",
-        "typescript": "^5.8.3"
-      }
-    }
+        "typescript": "^5.8.3",
+      },
+    },
   },
   "packages": {
     "@esbuild/aix-ppc64": ["@esbuild/aix-ppc64@0.25.12", "", { "os": "aix", "cpu": "ppc64" }, "sha512-Hhmwd6CInZ3dwpuGTF8fJG6yoWmsToE+vYgD4nytZVxcu1ulHpUQRAB1UJ8+N1Am3Mz4+xOByoQoSZf4D+CpkA=="],

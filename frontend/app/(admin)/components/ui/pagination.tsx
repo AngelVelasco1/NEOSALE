@@ -20,10 +20,7 @@ const PaginationContent = React.forwardRef<
   <ul
     ref={ref}
     className={cn(
-      "flex flex-row items-center gap-2",
-      "p-2 rounded-xl bg-transparent backdrop-blur-sm",
-      "border-none dark:border-slate-900/80",
-      "shadow-lg shadow-slate-900/5 dark:shadow-black/20",
+      "flex flex-row items-center gap-2 rounded-full border border-slate-700/80 bg-slate-950 px-3 py-2 text-slate-200 shadow-[0_8px_20px_-12px_rgba(0,0,0,0.7)]",
       className
     )}
     {...props}
@@ -52,30 +49,12 @@ const PaginationLink = ({
   <button
     aria-current={isActive ? "page" : undefined}
     className={cn(
-      "inline-flex items-center justify-center whitespace-nowrap rounded-lg text-sm font-semibold transition-all duration-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500/50 disabled:pointer-events-none disabled:opacity-50",
-      "h-9 w-9 relative overflow-hidden group",
-      // Estados normales
-      !isActive && [
-        "bg-linear-to-br from-white via-slate-50/80 to-white dark:from-slate-800 dark:via-slate-700/80 dark:to-slate-800",
-        "border border-slate-300/60 dark:border-slate-600/50",
-        "text-slate-700 dark:text-slate-300",
-        "shadow-sm hover:shadow-md",
-        "hover:from-slate-50 hover:to-slate-100 dark:hover:from-slate-700 dark:hover:to-slate-600",
-        "hover:border-slate-400/70 dark:hover:border-slate-500/70",
-        "hover:text-slate-900 dark:hover:text-slate-100",
-        "hover:scale-105 active:scale-95"
-      ],
-      // Estado activo
-      isActive && [
-        "bg-linear-to-br from-indigo-600 via-indigo-700 to-indigo-800",
-        "border border-indigo-600 dark:border-indigo-500",
-        "text-white shadow-lg shadow-indigo-500/25",
-        "hover:from-indigo-700 hover:to-indigo-900",
-        "hover:shadow-indigo-500/30",
-        "scale-110"
-      ],
+      "inline-flex h-9 w-9 items-center justify-center rounded-full border text-sm font-medium transition-colors duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-400 disabled:pointer-events-none disabled:opacity-40",
+      "border-slate-700/60 bg-slate-900 text-slate-300 hover:border-cyan-500 hover:text-white",
+      isActive && "border-cyan-400 bg-cyan-500/20 text-cyan-200",
       className
     )}
+    type="button"
     {...props}
   />
 );
@@ -91,26 +70,15 @@ const PaginationPrevious = ({
   <button
     aria-label="Go to previous page"
     className={cn(
-      "inline-flex items-center justify-center whitespace-nowrap rounded-lg text-sm font-semibold transition-all duration-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500/50 disabled:pointer-events-none disabled:opacity-50",
-      "gap-2 pl-3 pr-4 h-10 min-w-[100px] group relative overflow-hidden",
-      // Estilos normales
-      "bg-linear-to-r from-slate-600 via-slate-700 to-slate-800 dark:from-slate-700 dark:via-slate-800 dark:to-slate-900",
-      "border border-slate-700/50 dark:border-slate-600/50",
-      "text-white shadow-md hover:shadow-lg",
-      "hover:from-slate-700 hover:to-slate-900 dark:hover:from-slate-600 dark:hover:to-slate-800",
-      "hover:border-slate-600 dark:hover:border-slate-500",
-      "hover:scale-105 active:scale-95",
-      // Estado deshabilitado
-      "disabled:from-slate-300 disabled:to-slate-400 dark:disabled:from-slate-700 dark:disabled:to-slate-800",
-      "disabled:text-slate-500 dark:disabled:text-slate-400",
-      "disabled:border-slate-400 dark:disabled:border-slate-600",
-      "disabled:shadow-none disabled:scale-100",
+      "inline-flex h-10 min-w-[110px] items-center justify-center gap-2 rounded-full border border-slate-700 bg-slate-900 px-4 text-sm font-medium text-slate-200 transition-colors duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-400 disabled:pointer-events-none disabled:opacity-40",
+      "hover:border-cyan-500 hover:text-white",
       className
     )}
+    type="button"
     {...props}
   >
-    <ChevronLeft className="h-4 w-4 transition-transform duration-300 group-hover:-translate-x-0.5" />
-    <span className="font-medium">{children || "Anterior"}</span>
+    <ChevronLeft className="h-4 w-4" />
+    <span>{children || "Anterior"}</span>
   </button>
 );
 PaginationPrevious.displayName = "PaginationPrevious";
@@ -125,26 +93,15 @@ const PaginationNext = ({
   <button
     aria-label="Go to next page"
     className={cn(
-      "inline-flex items-center justify-center whitespace-nowrap rounded-lg text-sm font-semibold transition-all duration-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500/50 disabled:pointer-events-none disabled:opacity-50",
-      "gap-2 pl-4 pr-3 h-10 min-w-[100px] group relative overflow-hidden",
-      // Estilos normales
-      "bg-linear-to-r from-slate-600 via-slate-700 to-slate-800 dark:from-slate-700 dark:via-slate-800 dark:to-slate-900",
-      "border border-slate-700/50 dark:border-slate-600/50",
-      "text-white shadow-md hover:shadow-lg",
-      "hover:from-slate-700 hover:to-slate-900 dark:hover:from-slate-600 dark:hover:to-slate-800",
-      "hover:border-slate-600 dark:hover:border-slate-500",
-      "hover:scale-105 active:scale-95",
-      // Estado deshabilitado
-      "disabled:from-slate-300 disabled:to-slate-400 dark:disabled:from-slate-700 dark:disabled:to-slate-800",
-      "disabled:text-slate-500 dark:disabled:text-slate-400",
-      "disabled:border-slate-400 dark:disabled:border-slate-600",
-      "disabled:shadow-none disabled:scale-100",
+      "inline-flex h-10 min-w-[110px] items-center justify-center gap-2 rounded-full border border-slate-700 bg-slate-900 px-4 text-sm font-medium text-slate-200 transition-colors duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-400 disabled:pointer-events-none disabled:opacity-40",
+      "hover:border-cyan-500 hover:text-white",
       className
     )}
+    type="button"
     {...props}
   >
-    <span className="font-medium">{children || "Siguiente"}</span>
-    <ChevronRight className="h-4 w-4 transition-transform duration-300 group-hover:translate-x-0.5" />
+    <span>{children || "Siguiente"}</span>
+    <ChevronRight className="h-4 w-4" />
   </button>
 );
 PaginationNext.displayName = "PaginationNext";
@@ -156,11 +113,7 @@ const PaginationEllipsis = ({
   <span
     aria-hidden
     className={cn(
-      "flex min-w-9 h-9 items-center justify-center",
-      "text-slate-500 dark:text-slate-400 text-lg font-bold",
-      "rounded-lg transition-all duration-300",
-      "hover:bg-slate-100 dark:hover:bg-slate-800",
-      "hover:text-slate-700 dark:hover:text-slate-300",
+      "flex h-9 min-w-9 items-center justify-center rounded-full text-sm font-semibold text-slate-500",
       className
     )}
     {...props}

@@ -37,11 +37,29 @@ export default function DataTable<TData>({
   table,
   pagination,
 }: DataTableProps<TData>) {
-  const updateQueryString = useUpdateQueryString({ scroll: false });
-  const paginationButtons = getPaginationButtons({
-    totalPages: pagination.pages,
-    currentPage: pagination.current,
-  });
+  const { updateQueryString, isPending: isUpdatingPage } = useUpdateQueryString({ scroll: false });
+  const totalPages = pagination.pages || 1;
+  const isFirstPage = pagination.current <= 1;
+  const isLastPage = pagination.current >= totalPages;
+
+  const handlePageChange = React.useCallback(
+    (nextPage: number) => {
+      if (Number.isNaN(nextPage)) return;
+      if (nextPage < 1 || nextPage > totalPages) return;
+      if (nextPage === pagination.current) return;
+
+      updateQueryString("page", nextPage.toString());
+    },
+    [pagination.current, totalPages, updateQueryString]
+  );
+  
+  const paginationButtons = React.useMemo(
+    () => getPaginationButtons({
+      totalPages,
+      currentPage: pagination.current,
+    }),
+    [totalPages, pagination.current]
+  );
 
   const totalRows = table.getRowModel().rows.length;
   const selectedRows = table.getSelectedRowModel().rows.length;
@@ -211,13 +229,8 @@ export default function DataTable<TData>({
               <PaginationContent>
                 <PaginationItem>
                   <PaginationPrevious
-                    onClick={() => {
-                      const prevPage = pagination.current - 1;
-                      if (prevPage >= 1) {
-                        updateQueryString("page", prevPage.toString());
-                      }
-                    }}
-                    disabled={pagination.current <= 1}
+                    onClick={() => handlePageChange(pagination.current - 1)}
+                    disabled={isFirstPage || isUpdatingPage}
                   />
                 </PaginationItem>
 
@@ -227,10 +240,9 @@ export default function DataTable<TData>({
                       <PaginationEllipsis />
                     ) : (
                       <PaginationLink
-                        onClick={() => {
-                          updateQueryString("page", page.toString());
-                        }}
+                        onClick={() => handlePageChange(page)}
                         isActive={page === pagination.current}
+                        disabled={isUpdatingPage}
                       >
                         {page}
                       </PaginationLink>
@@ -240,19 +252,18 @@ export default function DataTable<TData>({
 
                 <PaginationItem>
                   <PaginationNext
-                    onClick={() => {
-                      const nextPage = pagination.current + 1;
-                      if (nextPage <= pagination.pages) {
-                        updateQueryString("page", nextPage.toString());
-                      }
-                    }}
-                    disabled={pagination.current >= pagination.pages}
+                    onClick={() => handlePageChange(pagination.current + 1)}
+                    disabled={isLastPage || isUpdatingPage}
                   />
                 </PaginationItem>
               </PaginationContent>
             </Pagination>
           </div>
-
+          {isUpdatingPage && (
+            <span className="text-xs font-medium text-slate-500" aria-live="polite">
+              Cargando página...
+            </span>
+          )}
 
         </div>
       )}
