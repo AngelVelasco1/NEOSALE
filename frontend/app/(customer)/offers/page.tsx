@@ -95,21 +95,21 @@ const CountdownTimer = ({ endDate }: { endDate: Date }) => {
       <div className="flex items-center gap-1 text-sm font-semibold tabular-nums">
         {timeRemaining.days > 0 && (
           <div className="flex items-center gap-0.5">
-            <div className="bg-gradient-to-br from-orange-500 to-red-500 text-white px-1.5 py-0.5 rounded-md shadow-lg shadow-orange-500/30 flex items-center justify-center min-w-[20px]">
+            <div className="bg-linear-to-br from-orange-500 to-red-500 text-white px-1.5 py-0.5 rounded-md shadow-lg shadow-orange-500/30 flex items-center justify-center min-w-[20px]">
               <AnimatedNumber value={timeRemaining.days} />
             </div>
             <span className="text-slate-400 text-[10px]">d</span>
           </div>
         )}
-        <div className="bg-gradient-to-br from-orange-500 to-red-500 text-white px-1.5 py-0.5 rounded-md shadow-lg shadow-orange-500/30 flex items-center justify-center min-w-[20px]">
+        <div className="bg-linear-to-br from-orange-500 to-red-500 text-white px-1.5 py-0.5 rounded-md shadow-lg shadow-orange-500/30 flex items-center justify-center min-w-[20px]">
           <AnimatedNumber value={timeRemaining.hours} />
         </div>
         <span className="text-slate-400 text-[10px]">:</span>
-        <div className="bg-gradient-to-br from-orange-500 to-red-500 text-white px-1.5 py-0.5 rounded-md shadow-lg shadow-orange-500/30 flex items-center justify-center min-w-[20px]">
+        <div className="bg-linear-to-br from-orange-500 to-red-500 text-white px-1.5 py-0.5 rounded-md shadow-lg shadow-orange-500/30 flex items-center justify-center min-w-[20px]">
           <AnimatedNumber value={timeRemaining.minutes} />
         </div>
         <span className="text-slate-400 text-[10px]">:</span>
-        <div className="bg-gradient-to-br from-orange-500 to-red-500 text-white px-1.5 py-0.5 rounded-md shadow-lg shadow-orange-500/30 flex items-center justify-center min-w-[20px]">
+        <div className="bg-linear-to-br from-orange-500 to-red-500 text-white px-1.5 py-0.5 rounded-md shadow-lg shadow-orange-500/30 flex items-center justify-center min-w-[20px]">
           <AnimatedNumber value={timeRemaining.seconds} />
         </div>
       </div>
@@ -148,11 +148,11 @@ const OffersPage = () => {
   const maxDiscount = Math.max(...offers.map((o) => o.offer_discount || 0));
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950 relative overflow-hidden">
+    <div className="min-h-screen bg-linear-to-br from-slate-950 via-slate-900 to-slate-950 relative overflow-hidden">
       {/* Animated Background */}
       <div className="absolute inset-0 overflow-hidden">
         <motion.div
-          className="absolute -top-1/2 -left-1/2 w-full h-full bg-gradient-to-br from-orange-500/10 via-red-500/10 to-pink-500/10 rounded-full blur-3xl"
+          className="absolute -top-1/2 -left-1/2 w-full h-full bg-linear-to-br from-orange-500/10 via-red-500/10 to-pink-500/10 rounded-full blur-3xl"
           animate={{
             scale: [1, 1.2, 1],
             rotate: [0, 90, 0],
@@ -164,7 +164,7 @@ const OffersPage = () => {
           }}
         />
         <motion.div
-          className="absolute -bottom-1/2 -right-1/2 w-full h-full bg-gradient-to-br from-purple-500/10 via-blue-500/10 to-cyan-500/10 rounded-full blur-3xl"
+          className="absolute -bottom-1/2 -right-1/2 w-full h-full bg-linear-to-br from-purple-500/10 via-blue-500/10 to-cyan-500/10 rounded-full blur-3xl"
           animate={{
             scale: [1.2, 1, 1.2],
             rotate: [0, -90, 0],
@@ -188,7 +188,7 @@ const OffersPage = () => {
           className="text-center mb-12"
         >
          
-          <h1 className="text-6xl md:text-7xl font-black mb-4 bg-gradient-to-r from-orange-400 via-red-400 to-pink-400 bg-clip-text text-transparent">
+          <h1 className="text-6xl md:text-7xl font-black mb-4 bg-linear-to-r from-orange-400 via-red-400 to-pink-400 bg-clip-text text-transparent">
             MEGA OFERTAS
           </h1>
 
@@ -217,7 +217,7 @@ const OffersPage = () => {
             onClick={() => setFilter("all")}
             className={`px-6 py-3 rounded-xl font-medium transition-all duration-300 ${
               filter === "all"
-                ? "bg-gradient-to-r from-orange-500 to-red-500 text-white shadow-lg shadow-orange-500/50"
+                ? "bg-linear-to-r from-orange-500 to-red-500 text-white shadow-lg shadow-orange-500/50"
                 : "bg-slate-800/50 text-slate-300 hover:bg-slate-700/50 border border-slate-700"
             }`}
           >
@@ -228,7 +228,7 @@ const OffersPage = () => {
             onClick={() => setFilter("high")}
             className={`px-6 py-3 rounded-xl font-medium transition-all duration-300 ${
               filter === "high"
-                ? "bg-gradient-to-r from-orange-500 to-red-500 text-white shadow-lg shadow-orange-500/50"
+                ? "bg-linear-to-r from-orange-500 to-red-500 text-white shadow-lg shadow-orange-500/50"
                 : "bg-slate-800/50 text-slate-300 hover:bg-slate-700/50 border border-slate-700"
             }`}
           >
@@ -239,7 +239,7 @@ const OffersPage = () => {
             onClick={() => setFilter("medium")}
             className={`px-6 py-3 rounded-xl font-medium transition-all duration-300 ${
               filter === "medium"
-                ? "bg-gradient-to-r from-orange-500 to-red-500 text-white shadow-lg shadow-orange-500/50"
+                ? "bg-linear-to-r from-orange-500 to-red-500 text-white shadow-lg shadow-orange-500/50"
                 : "bg-slate-800/50 text-slate-300 hover:bg-slate-700/50 border border-slate-700"
             }`}
           >
@@ -295,7 +295,7 @@ const OffersPage = () => {
                     className="relative group"
                   >
                     {/* Glow effect on hover */}
-                    <div className="absolute -inset-1 bg-gradient-to-r from-orange-600/0 via-red-600/0 to-orange-600/0 group-hover:from-orange-600/20 group-hover:via-red-600/20 group-hover:to-orange-600/20 rounded-2xl blur-xl transition-all duration-500 opacity-0 group-hover:opacity-100" />
+                    <div className="absolute -inset-1 bg-linear-to-r from-orange-600/0 via-red-600/0 to-orange-600/0 group-hover:from-orange-600/20 group-hover:via-red-600/20 group-hover:to-orange-600/20 rounded-2xl blur-xl transition-all duration-500 opacity-0 group-hover:opacity-100" />
                     
                     {/* Discount Badge - Top Left */}
                     <div className="absolute -top-2 -left-2 z-20">
@@ -314,8 +314,8 @@ const OffersPage = () => {
                         {/* Badge container with glassmorphism */}
                         <div className="relative overflow-hidden rounded-xl">
                           {/* Animated gradient background */}
-                          <div className="absolute inset-0 bg-gradient-to-br from-orange-900 via-red-900 to-orange-950 opacity-95" />
-                          <div className="absolute inset-0 bg-gradient-to-br from-orange-500/20 via-transparent to-red-500/20" />
+                          <div className="absolute inset-0 bg-linear-to-br from-orange-900 via-red-900 to-orange-950 opacity-95" />
+                          <div className="absolute inset-0 bg-linear-to-br from-orange-500/20 via-transparent to-red-500/20" />
                           
                           {/* Content */}
                           <div className="relative px-2 py-1.5 flex items-center gap-1.5">
@@ -332,7 +332,7 @@ const OffersPage = () => {
                           
                           {/* Shine effect */}
                           <motion.div
-                            className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent"
+                            className="absolute inset-0 bg-linear-to-r from-transparent via-white/10 to-transparent"
                             animate={{
                               x: ['-100%', '200%'],
                             }}

@@ -69,7 +69,7 @@ export default function ProductActions({
                 <SheetTrigger asChild>
                   <Button
                     size="default"
-                    className="h-11 px-4 rounded-xl bg-gradient-to-r from-emerald-300 via-teal-400 to-cyan-400 text-slate-950 font-semibold shadow-[0_12px_30px_-12px_rgba(34,197,235,0.6)] transition-all hover:shadow-[0_18px_38px_-12px_rgba(34,197,235,0.75)]"
+                    className="h-11 px-4 rounded-xl bg-linear-to-r from-emerald-300 via-teal-400 to-cyan-400 text-slate-950 font-semibold shadow-[0_12px_30px_-12px_rgba(34,197,235,0.6)] transition-all hover:shadow-[0_18px_38px_-12px_rgba(34,197,235,0.75)]"
                   >
                     <Plus className="mr-2 h-4 w-4" />Agregar producto
                   </Button>

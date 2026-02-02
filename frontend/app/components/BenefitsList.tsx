@@ -93,14 +93,14 @@ export const BenefitsList = () => {
         {/* Header */}
         <div className="text-center mb-16">
           <div className="inline-flex items-center gap-3 bg-white/10 backdrop-blur-md border border-white/20 rounded-full px-6 py-3 mb-6">
-            <div className="w-2 h-2 bg-gradient-to-r from-blue-400 to-purple-400 rounded-full animate-pulse"></div>
+            <div className="w-2 h-2 bg-linear-to-r from-blue-400 to-purple-400 rounded-full animate-pulse"></div>
             <span className="text-white text-sm font-medium tracking-wider uppercase">
               ¿Por qué elegirnos?
             </span>
-            <div className="w-2 h-2 bg-gradient-to-r from-purple-400 to-cyan-400 rounded-full animate-pulse"></div>
+            <div className="w-2 h-2 bg-linear-to-r from-purple-400 to-cyan-400 rounded-full animate-pulse"></div>
           </div>
           <h2 className="text-4xl md:text-5xl font-bold mb-6">
-            <span className="bg-gradient-to-r from-white via-blue-100 to-purple-100 bg-clip-text text-transparent">
+            <span className="bg-linear-to-r from-white via-blue-100 to-purple-100 bg-clip-text text-transparent">
               Beneficios Exclusivos
             </span>
           </h2>
@@ -123,7 +123,7 @@ export const BenefitsList = () => {
                 {/* Card Background with Gradient Border */}
                 <div className="relative bg-white/5 backdrop-blur-sm border border-white/10 rounded-3xl p-8 h-full hover:bg-white/10 hover:border-white/20 transition-all duration-500 group-hover:scale-105 group-hover:shadow-2xl group-hover:shadow-blue-500/10">
                   {/* Gradient Border Effect */}
-                  <div className={`absolute inset-0 rounded-3xl bg-gradient-to-r ${feature.gradient} opacity-0 group-hover:opacity-20 transition-opacity duration-500 blur-xl`}></div>
+                  <div className={`absolute inset-0 rounded-3xl bg-linear-to-r ${feature.gradient} opacity-0 group-hover:opacity-20 transition-opacity duration-500 blur-xl`}></div>
 
                   {/* Icon Section */}
                   <div className="relative mb-6">
@@ -134,14 +134,14 @@ export const BenefitsList = () => {
                         <IconComponent className={`w-full h-full ${feature.color} group-hover:scale-110 transition-transform duration-300`} />
                       </div>
                       {/* Floating particles effect */}
-                      <div className="absolute -top-2 -right-2 w-3 h-3 bg-gradient-to-r from-blue-400 to-purple-400 rounded-full opacity-0 group-hover:opacity-100 animate-ping"></div>
-                      <div className="absolute -bottom-1 -left-1 w-2 h-2 bg-gradient-to-r from-purple-400 to-cyan-400 rounded-full opacity-0 group-hover:opacity-100 animate-ping" style={{ animationDelay: '0.2s' }}></div>
+                      <div className="absolute -top-2 -right-2 w-3 h-3 bg-linear-to-r from-blue-400 to-purple-400 rounded-full opacity-0 group-hover:opacity-100 animate-ping"></div>
+                      <div className="absolute -bottom-1 -left-1 w-2 h-2 bg-linear-to-r from-purple-400 to-cyan-400 rounded-full opacity-0 group-hover:opacity-100 animate-ping" style={{ animationDelay: '0.2s' }}></div>
                     </div>
                   </div>
 
                   {/* Content Section */}
                   <div className="space-y-4">
-                    <h3 className="text-2xl font-bold text-white group-hover:text-transparent group-hover:bg-gradient-to-r group-hover:bg-clip-text group-hover:from-white group-hover:to-blue-200 transition-all duration-300">
+                    <h3 className="text-2xl font-bold text-white group-hover:text-transparent group-hover:bg-linear-to-r group-hover:bg-clip-text group-hover:from-white group-hover:to-blue-200 transition-all duration-300">
                       {feature.title}
                     </h3>
                     <p className="text-gray-300 leading-relaxed group-hover:text-gray-200 transition-colors duration-300">
@@ -156,7 +156,7 @@ export const BenefitsList = () => {
                           className="flex items-center gap-3 text-sm text-gray-400 group-hover:text-gray-300 transition-colors duration-300"
                           style={{ transitionDelay: `${benefitIndex * 50}ms` }}
                         >
-                          <div className={`w-1.5 h-1.5 rounded-full bg-gradient-to-r ${feature.gradient} flex-shrink-0`}></div>
+                          <div className={`w-1.5 h-1.5 rounded-full bg-linear-to-r ${feature.gradient} flex-shrink-0`}></div>
                           <span>{benefit}</span>
                         </div>
                       ))}
@@ -164,7 +164,7 @@ export const BenefitsList = () => {
                   </div>
 
                   {/* Hover Effect Overlay */}
-                  <div className="absolute inset-0 rounded-3xl bg-gradient-to-r from-transparent via-white/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none"></div>
+                  <div className="absolute inset-0 rounded-3xl bg-linear-to-r from-transparent via-white/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none"></div>
                 </div>
               </div>
             )

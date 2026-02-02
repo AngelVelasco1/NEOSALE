@@ -35,7 +35,7 @@ export const SearchFilter = ({ searchTerm, onSearchChange }: FilterSearchProps) 
           </Button>
         )}
         {/* Subtle glow effect */}
-        <div className="absolute inset-0 bg-gradient-to-r from-slate-400/10 to-slate-500/10 rounded-xl opacity-0 group-focus-within:opacity-100 transition-opacity duration-300 pointer-events-none"></div>
+        <div className="absolute inset-0 bg-linear-to-r from-slate-400/10 to-slate-500/10 rounded-xl opacity-0 group-focus-within:opacity-100 transition-opacity duration-300 pointer-events-none"></div>
       </div>
     </div>
   )

@@ -47,9 +47,9 @@ export default function StoryPage() {
   ];
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-blue-50">
+    <div className="min-h-screen bg-linear-to-br from-slate-50 via-white to-blue-50">
       {/* Hero Section */}
-      <div className="relative bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600 text-white overflow-hidden">
+      <div className="relative bg-linear-to-r from-blue-600 via-indigo-600 to-purple-600 text-white overflow-hidden">
         <div className="absolute inset-0 bg-black/10"></div>
         <div className="container mx-auto px-4 py-20 md:py-28 relative z-10">
           <div className="max-w-4xl mx-auto text-center">
@@ -71,7 +71,7 @@ export default function StoryPage() {
         <div className="max-w-4xl mx-auto">
           <div className="relative">
             {/* Timeline Line */}
-            <div className="absolute left-8 md:left-1/2 top-0 bottom-0 w-1 bg-gradient-to-b from-blue-200 via-indigo-200 to-purple-200 md:ml-[-2px]"></div>
+            <div className="absolute left-8 md:left-1/2 top-0 bottom-0 w-1 bg-linear-to-b from-blue-200 via-indigo-200 to-purple-200 md:ml-[-2px]"></div>
 
             {/* Timeline Items */}
             <div className="space-y-12">
@@ -83,7 +83,7 @@ export default function StoryPage() {
                   }`}
                 >
                   {/* Year Indicator */}
-                  <div className="absolute left-8 md:left-1/2 -ml-6 md:-ml-12 w-12 h-12 md:w-24 md:h-24 bg-gradient-to-br from-blue-600 to-indigo-600 rounded-full flex items-center justify-center shadow-xl z-10">
+                  <div className="absolute left-8 md:left-1/2 -ml-6 md:-ml-12 w-12 h-12 md:w-24 md:h-24 bg-linear-to-br from-blue-600 to-indigo-600 rounded-full flex items-center justify-center shadow-xl z-10">
                     <span className="text-white font-bold text-sm md:text-xl">
                       {item.year}
                     </span>
@@ -97,7 +97,7 @@ export default function StoryPage() {
                   >
                     <div className="bg-white rounded-2xl shadow-lg p-6 md:p-8 hover:shadow-xl transition-shadow">
                       <div className="flex items-start gap-3 mb-4">
-                        <div className="w-10 h-10 bg-gradient-to-br from-blue-500 to-indigo-500 rounded-lg flex items-center justify-center shrink-0">
+                        <div className="w-10 h-10 bg-linear-to-br from-blue-500 to-indigo-500 rounded-lg flex items-center justify-center shrink-0">
                           <Calendar className="w-5 h-5 text-white" />
                         </div>
                         <div>
@@ -138,7 +138,7 @@ export default function StoryPage() {
 
       {/* CTA Section */}
       <div className="container mx-auto px-4 pb-20">
-        <div className="max-w-4xl mx-auto bg-gradient-to-br from-blue-600 to-indigo-600 rounded-3xl p-8 md:p-12 text-white text-center">
+        <div className="max-w-4xl mx-auto bg-linear-to-br from-blue-600 to-indigo-600 rounded-3xl p-8 md:p-12 text-white text-center">
           <MapPin className="w-16 h-16 mx-auto mb-6 opacity-80" />
           <h2 className="text-3xl md:text-4xl font-bold mb-4">
             Sé Parte de Nuestra Historia

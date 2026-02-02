@@ -114,14 +114,14 @@ export const Testimonials = () => {
         {/* Header */}
         <div className="text-center mb-16">
           <div className="inline-flex items-center gap-3 bg-white/10 backdrop-blur-md border border-white/20 rounded-full px-6 py-3 mb-6">
-            <div className="w-2 h-2 bg-gradient-to-r from-blue-400 to-purple-400 rounded-full animate-pulse"></div>
+            <div className="w-2 h-2 bg-linear-to-r from-blue-400 to-purple-400 rounded-full animate-pulse"></div>
             <span className="text-white text-sm font-medium tracking-wider uppercase">
               Testimonios
             </span>
-            <div className="w-2 h-2 bg-gradient-to-r from-purple-400 to-cyan-400 rounded-full animate-pulse"></div>
+            <div className="w-2 h-2 bg-linear-to-r from-purple-400 to-cyan-400 rounded-full animate-pulse"></div>
           </div>
           <h2 className="text-5xl md:text-6xl font-bold mb-6">
-            <span className="bg-gradient-to-r from-white via-blue-100 to-purple-100 bg-clip-text text-transparent">
+            <span className="bg-linear-to-r from-white via-blue-100 to-purple-100 bg-clip-text text-transparent">
               Historias de Éxito
             </span>
           </h2>
@@ -137,7 +137,7 @@ export const Testimonials = () => {
             {/* Main Testimonial Card */}
             <div className="relative bg-white/5 backdrop-blur-lg border border-white/10 rounded-3xl p-8 md:p-12 shadow-2xl overflow-hidden">
               {/* Gradient Border Effect */}
-              <div className="absolute inset-0 bg-gradient-to-r from-blue-500/20 via-purple-500/20 to-cyan-500/20 rounded-3xl opacity-0 hover:opacity-100 transition-opacity duration-500 blur-xl"></div>
+              <div className="absolute inset-0 bg-linear-to-r from-blue-500/20 via-purple-500/20 to-cyan-500/20 rounded-3xl opacity-0 hover:opacity-100 transition-opacity duration-500 blur-xl"></div>
 
               {/* Navigation Buttons */}
               <Button
@@ -161,7 +161,7 @@ export const Testimonials = () => {
                 {/* Quote Icon with Animation */}
                 <div className="relative mb-4">
                   <Quote className="w-16 h-16 text-blue-400/40 mx-auto" />
-                  <div className="absolute inset-0 w-16 h-16 bg-gradient-to-r from-blue-400/20 to-purple-400/20 rounded-full blur-xl animate-pulse"></div>
+                  <div className="absolute inset-0 w-16 h-16 bg-linear-to-r from-blue-400/20 to-purple-400/20 rounded-full blur-xl animate-pulse"></div>
                 </div>
 
                 {/* Testimonial Text */}
@@ -179,7 +179,7 @@ export const Testimonials = () => {
                       height={70}
                       className="rounded-full shadow-2xl ring-4 ring-white/20"
                     />
-                    <div className="absolute -bottom-2 -right-2 w-8 h-8 bg-gradient-to-r from-blue-500 to-purple-500 rounded-full flex items-center justify-center shadow-lg">
+                    <div className="absolute -bottom-2 -right-2 w-8 h-8 bg-linear-to-r from-blue-500 to-purple-500 rounded-full flex items-center justify-center shadow-lg">
                       <Star className="w-4 h-4 text-white fill-current" />
                     </div>
                   </div>
@@ -202,10 +202,10 @@ export const Testimonials = () => {
                 </div>
 
                 {/* Highlight Badge */}
-                <div className="inline-flex items-center gap-2 bg-gradient-to-r from-blue-500/20 to-purple-500/20 backdrop-blur-sm border border-white/20 rounded-full px-6 py-3">
-                  <div className="w-2 h-2 bg-gradient-to-r from-blue-400 to-purple-400 rounded-full animate-pulse"></div>
+                <div className="inline-flex items-center gap-2 bg-linear-to-r from-blue-500/20 to-purple-500/20 backdrop-blur-sm border border-white/20 rounded-full px-6 py-3">
+                  <div className="w-2 h-2 bg-linear-to-r from-blue-400 to-purple-400 rounded-full animate-pulse"></div>
                   <span className="text-white font-medium">{testimonials[currentIndex].highlight}</span>
-                  <div className="w-2 h-2 bg-gradient-to-r from-purple-400 to-cyan-400 rounded-full animate-pulse"></div>
+                  <div className="w-2 h-2 bg-linear-to-r from-purple-400 to-cyan-400 rounded-full animate-pulse"></div>
                 </div>
               </div>
             </div>
@@ -217,7 +217,7 @@ export const Testimonials = () => {
                   key={index}
                   onClick={() => setCurrentIndex(index)}
                   className={`transition-all duration-500 rounded-full ${index === currentIndex
-                    ? "w-12 h-4 bg-gradient-to-r from-blue-500 to-purple-500 shadow-lg shadow-blue-500/30"
+                    ? "w-12 h-4 bg-linear-to-r from-blue-500 to-purple-500 shadow-lg shadow-blue-500/30"
                     : "w-4 h-4 bg-white/30 hover:bg-white/50 hover:scale-110"
                     }`}
                 />
@@ -238,7 +238,7 @@ export const Testimonials = () => {
               {/* Card */}
               <div className="relative bg-white/5 backdrop-blur-sm border border-white/10 rounded-2xl p-6 h-full hover:bg-white/10 hover:border-white/20 transition-all duration-500 group-hover:scale-105 group-hover:shadow-2xl group-hover:shadow-blue-500/10">
                 {/* Gradient Border */}
-                <div className={`absolute inset-0 rounded-2xl bg-gradient-to-r ${index % 2 === 0 ? 'from-blue-500/10' : 'from-purple-500/10'} opacity-0 group-hover:opacity-100 transition-opacity duration-500 blur-xl`}></div>
+                <div className={`absolute inset-0 rounded-2xl bg-linear-to-r ${index % 2 === 0 ? 'from-blue-500/10' : 'from-purple-500/10'} opacity-0 group-hover:opacity-100 transition-opacity duration-500 blur-xl`}></div>
 
                 {/* Rating */}
                 <div className="flex justify-center mb-4">
@@ -273,7 +273,7 @@ export const Testimonials = () => {
                 </div>
 
                 {/* Hover Effect */}
-                <div className="absolute inset-0 rounded-2xl bg-gradient-to-r from-transparent via-white/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none"></div>
+                <div className="absolute inset-0 rounded-2xl bg-linear-to-r from-transparent via-white/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none"></div>
               </div>
             </div>
           ))}
@@ -283,25 +283,25 @@ export const Testimonials = () => {
         <div className="text-center mt-16">
           <div className="grid grid-cols-2 md:grid-cols-4 gap-8 max-w-4xl mx-auto">
             <div className="text-center">
-              <div className="text-4xl font-bold bg-gradient-to-r from-blue-400 to-cyan-400 bg-clip-text text-transparent mb-2">
+              <div className="text-4xl font-bold bg-linear-to-r from-blue-400 to-cyan-400 bg-clip-text text-transparent mb-2">
                 10K+
               </div>
               <div className="text-gray-300 text-sm">Clientes Satisfechos</div>
             </div>
             <div className="text-center">
-              <div className="text-4xl font-bold bg-gradient-to-r from-purple-400 to-pink-400 bg-clip-text text-transparent mb-2">
+              <div className="text-4xl font-bold bg-linear-to-r from-purple-400 to-pink-400 bg-clip-text text-transparent mb-2">
                 99.9%
               </div>
               <div className="text-gray-300 text-sm">Índice de Satisfacción</div>
             </div>
             <div className="text-center">
-              <div className="text-4xl font-bold bg-gradient-to-r from-emerald-400 to-teal-400 bg-clip-text text-transparent mb-2">
+              <div className="text-4xl font-bold bg-linear-to-r from-emerald-400 to-teal-400 bg-clip-text text-transparent mb-2">
                 50K+
               </div>
               <div className="text-gray-300 text-sm">Productos Vendidos</div>
             </div>
             <div className="text-center">
-              <div className="text-4xl font-bold bg-gradient-to-r from-orange-400 to-red-400 bg-clip-text text-transparent mb-2">
+              <div className="text-4xl font-bold bg-linear-to-r from-orange-400 to-red-400 bg-clip-text text-transparent mb-2">
                 24/7
               </div>
               <div className="text-gray-300 text-sm">Soporte Disponible</div>

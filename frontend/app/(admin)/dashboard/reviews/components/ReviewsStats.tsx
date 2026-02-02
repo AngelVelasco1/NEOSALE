@@ -19,9 +19,9 @@ export default function ReviewsStats({ stats }: ReviewsStatsProps) {
       value: stats.total,
       icon: MessageSquare,
       gradient: "from-blue-500/30 via-indigo-500/30 to-blue-500/30",
-      cardBg: "bg-gradient-to-br from-blue-50 via-indigo-50 to-blue-50 dark:from-blue-950/40 dark:via-indigo-950/40 dark:to-blue-950/40",
+      cardBg: "bg-linear-to-br from-blue-50 via-indigo-50 to-blue-50 dark:from-blue-950/40 dark:via-indigo-950/40 dark:to-blue-950/40",
       borderColor: "border-blue-200/60 dark:border-blue-800/60",
-      iconBg: "bg-gradient-to-br from-blue-500 to-indigo-600",
+      iconBg: "bg-linear-to-br from-blue-500 to-indigo-600",
       iconColor: "text-white",
       glowColor: "bg-blue-400/40",
       shadowColor: "shadow-blue-500/25",
@@ -32,9 +32,9 @@ export default function ReviewsStats({ stats }: ReviewsStatsProps) {
       value: stats.pending,
       icon: Clock,
       gradient: "from-amber-500/30 via-orange-500/30 to-amber-500/30",
-      cardBg: "bg-gradient-to-br from-amber-50 via-orange-50 to-amber-50 dark:from-amber-950/40 dark:via-orange-950/40 dark:to-amber-950/40",
+      cardBg: "bg-linear-to-br from-amber-50 via-orange-50 to-amber-50 dark:from-amber-950/40 dark:via-orange-950/40 dark:to-amber-950/40",
       borderColor: "border-amber-200/60 dark:border-amber-800/60",
-      iconBg: "bg-gradient-to-br from-amber-500 to-orange-600",
+      iconBg: "bg-linear-to-br from-amber-500 to-orange-600",
       iconColor: "text-white",
       glowColor: "bg-amber-400/40",
       shadowColor: "shadow-amber-500/25",
@@ -45,9 +45,9 @@ export default function ReviewsStats({ stats }: ReviewsStatsProps) {
       value: stats.approved,
       icon: CheckCircle,
       gradient: "from-emerald-500/30 via-teal-500/30 to-emerald-500/30",
-      cardBg: "bg-gradient-to-br from-emerald-50 via-teal-50 to-emerald-50 dark:from-emerald-950/40 dark:via-teal-950/40 dark:to-emerald-950/40",
+      cardBg: "bg-linear-to-br from-emerald-50 via-teal-50 to-emerald-50 dark:from-emerald-950/40 dark:via-teal-950/40 dark:to-emerald-950/40",
       borderColor: "border-emerald-200/60 dark:border-emerald-800/60",
-      iconBg: "bg-gradient-to-br from-emerald-500 to-teal-600",
+      iconBg: "bg-linear-to-br from-emerald-500 to-teal-600",
       iconColor: "text-white",
       glowColor: "bg-emerald-400/40",
       shadowColor: "shadow-emerald-500/25",
@@ -58,9 +58,9 @@ export default function ReviewsStats({ stats }: ReviewsStatsProps) {
       value: stats.averageRating.toFixed(1),
       icon: Star,
       gradient: "from-purple-500/30 via-violet-500/30 to-purple-500/30",
-      cardBg: "bg-gradient-to-br from-purple-50 via-violet-50 to-purple-50 dark:from-purple-950/40 dark:via-violet-950/40 dark:to-purple-950/40",
+      cardBg: "bg-linear-to-br from-purple-50 via-violet-50 to-purple-50 dark:from-purple-950/40 dark:via-violet-950/40 dark:to-purple-950/40",
       borderColor: "border-purple-200/60 dark:border-purple-800/60",
-      iconBg: "bg-gradient-to-br from-purple-500 to-violet-600",
+      iconBg: "bg-linear-to-br from-purple-500 to-violet-600",
       iconColor: "text-white",
       glowColor: "bg-purple-400/40",
       shadowColor: "shadow-purple-500/25",
@@ -85,7 +85,7 @@ export default function ReviewsStats({ stats }: ReviewsStatsProps) {
             
             {/* Background gradient */}
             <div 
-              className={`pointer-events-none absolute inset-0 bg-gradient-to-br ${stat.gradient} opacity-0 transition-opacity duration-300 group-hover:opacity-100`}
+              className={`pointer-events-none absolute inset-0 bg-linear-to-br ${stat.gradient} opacity-0 transition-opacity duration-300 group-hover:opacity-100`}
               aria-hidden="true"
             />
 
@@ -142,7 +142,7 @@ export default function ReviewsStats({ stats }: ReviewsStatsProps) {
                   <div className="space-y-1.5">
                     <div className="h-1.5 w-full overflow-hidden rounded-full bg-slate-200 dark:bg-slate-800">
                       <div
-                        className={`h-full rounded-full bg-gradient-to-r ${stat.gradient.replace('/20', '')} transition-all duration-500`}
+                        className={`h-full rounded-full bg-linear-to-r ${stat.gradient.replace('/20', '')} transition-all duration-500`}
                         style={{
                           width: `${((stat.value as number) / stats.total) * 100}%`,
                         }}

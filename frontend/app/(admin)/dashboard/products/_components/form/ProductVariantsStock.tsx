@@ -43,7 +43,7 @@ export function ProductVariantsStock({
   return (
     <div className="space-y-4">
       {/* Total stock badge */}
-      <div className="flex items-center justify-between p-4 rounded-xl bg-gradient-to-br from-orange-500/20 to-amber-500/10 border border-orange-500/30">
+      <div className="flex items-center justify-between p-4 rounded-xl bg-linear-to-br from-orange-500/20 to-amber-500/10 border border-orange-500/30">
         <Label className="text-sm font-medium text-orange-200">Stock Total</Label>
         <Badge className="bg-orange-500 text-white text-lg font-bold px-4 py-1.5">
           {totalStock} unidades

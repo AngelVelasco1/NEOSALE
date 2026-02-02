@@ -111,7 +111,7 @@ export default function AppSidebar({ isOpen, isMobile = false, onClose }: AppSid
                     className={cn(
                       "group relative flex items-center gap-3 rounded-2xl border border-transparent px-4 py-3 text-sm font-medium text-slate-300 transition-colors duration-200",
                       "hover:border-white/5 hover:bg-white/5",
-                      isActive && cn("text-white", "bg-gradient-to-r", toneClass)
+                      isActive && cn("text-white", "bg-linear-to-r", toneClass)
                     )}
                   >
                     <span

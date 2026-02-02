@@ -1,7 +1,7 @@
 import { FRONT_CONFIG } from "./config/credentials.js";
 import path from "path";
 import { fileURLToPath } from "url";
-import { getSecurityHeaders } from "./lib/security.js";
+import { getSecurityHeaders } from "./lib/security.ts";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -13,35 +13,86 @@ const nextConfig = {
     `${FRONT_CONFIG.api_origin}`,
   ],
 
-  // Configuración experimental para Server Actions
+  // 🚀 OPTIMIZACIONES DE COMPILACIÓN
+  productionBrowserSourceMaps: false,
+  reactStrictMode: false,
+  
+  // Experimental features optimizadas
   experimental: {
     serverActions: {
-      bodySizeLimit: "4mb", // Permitir hasta 4MB para subida de imágenes
+      bodySizeLimit: "4mb",
     },
+    optimizePackageImports: [
+      "@chakra-ui/react",
+      "lucide-react",
+      "@radix-ui/*",
+      "framer-motion",
+      "recharts",
+    ],
   },
 
-  // Optimizaciones de compilador
+  // Compilador optimizado
   compiler: {
     removeConsole: process.env.NODE_ENV === "production" ? {
       exclude: ["error", "warn"],
     } : false,
+    // Eliminar propiedades React no utilizadas
+    reactRemoveProperties: process.env.NODE_ENV === "production",
   },
 
-  // Habilitar compresión
+  // Compresión agresiva
   compress: true,
+  generateEtags: true,
 
+  // Webpack optimización
   webpack: (config, { dev, isServer }) => {
-    // Suprimir warnings específicos de webpack
     config.infrastructureLogging = {
       level: "error",
       debug: false,
     };
 
-    // Solo aplicar optimizaciones en el cliente, no en el servidor
-    if (!isServer) {
+    // Caché de compilación mejorada
+    config.cache = {
+      type: "filesystem",
+      allowCollectingMemory: true,
+      buildDependencies: {
+        config: [__filename],
+      },
+    };
+
+    // Optimizaciones de cliente (solo en producción)
+    if (!isServer && !dev) {
       config.optimization = {
         ...config.optimization,
         moduleIds: "deterministic",
+        runtimeChunk: "single",
+        splitChunks: {
+          chunks: "all",
+          cacheGroups: {
+            default: false,
+            vendors: {
+              test: /[\\/]node_modules[\\/]/,
+              name: "vendors",
+              priority: 10,
+              reuseExistingChunk: true,
+              enforce: true,
+            },
+            react: {
+              test: /[\\/]node_modules[\\/](react|react-dom)[\\/]/,
+              name: "react-vendors",
+              priority: 20,
+              reuseExistingChunk: true,
+              enforce: true,
+            },
+            animation: {
+              test: /[\\/]node_modules[\\/](framer-motion)[\\/]/,
+              name: "animation",
+              priority: 15,
+              reuseExistingChunk: true,
+              enforce: true,
+            },
+          },
+        },
       };
     }
 

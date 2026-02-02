@@ -21,12 +21,13 @@ export async function GET(request: Request) {
       results: {
         products: [],
         categories: [],
+        customers: [],
       },
     });
   }
 
   try {
-    const [products, categories] = await Promise.all([
+    const [products, categories, customers] = await Promise.all([
       prisma.products.findMany({
         where: {
           name: {
@@ -38,6 +39,7 @@ export async function GET(request: Request) {
           id: true,
           name: true,
           price: true,
+          description: true,
           categories: {
             select: {
               name: true,
@@ -76,6 +78,23 @@ export async function GET(request: Request) {
         },
         take: limit,
       }),
+      prisma.user.findMany({
+        where: {
+          name: {
+            contains: normalizedQuery,
+            mode: "insensitive",
+          },
+        },
+        select: {
+          id: true,
+          name: true,
+          email: true,
+        },
+        orderBy: {
+          name: "asc",
+        },
+        take: limit,
+      }),
     ]);
 
     return NextResponse.json({
@@ -84,13 +103,19 @@ export async function GET(request: Request) {
         products: products.map((product) => ({
           id: product.id,
           name: product.name,
+          price: product.price,
+          description: product.description,
           categoryName: product.categories?.name ?? null,
-          price: product.price === null ? null : Number(product.price),
         })),
         categories: categories.map((category) => ({
           id: category.id,
           name: category.name,
           description: category.description,
+        })),
+        customers: customers.map((customer) => ({
+          id: customer.id,
+          name: customer.name,
+          email: customer.email,
         })),
       },
     });

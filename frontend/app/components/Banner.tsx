@@ -1,10 +1,14 @@
 "use client";
 
+
 import { Button } from "@/components/ui/button";
 import { useEffect, useState } from "react";
+import { useStoreSettings } from "@/app/hooks/useStoreSettings";
+
 
 export const Banner = () => {
   const [isLoaded, setIsLoaded] = useState(false);
+  const storeSettings = useStoreSettings();
 
   useEffect(() => {
     setIsLoaded(true);
@@ -46,18 +50,29 @@ export const Banner = () => {
               }`}
           >
             <h1 className="text-7xl sm:text-8xl md:text-8xl lg:text-9xl xl:text-[9rem] font-black tracking-tight leading-none">
-              <span className="relative inline-block">
-                <span className="bg-linear-to-r from-blue-500 via-purple-500 to-indigo-600 bg-clip-text text-transparent bg-size-[200%_auto] animate-linear-flow">
-                  NEO
+              {storeSettings?.store_name ? (
+                <span className="relative inline-block">
+                  <span className="bg-linear-to-r from-blue-500 via-purple-500 to-indigo-600 bg-clip-text text-transparent bg-size-[200%_auto] animate-linear-flow">
+                    {storeSettings.store_name}
+                  </span>
+                  <div className="absolute -inset-4 bg-linear-to-r from-blue-600/50 via-purple-600/50 to-indigo-600/50 blur-2xl -z-10 animate-glow-smooth" />
                 </span>
-                <div className="absolute -inset-4 bg-linear-to-r from-blue-600/50 via-purple-600/50 to-indigo-600/50 blur-2xl -z-10 animate-glow-smooth" />
-              </span>
-              <span className="relative inline-block ml-4">
-                <span className="bg-linear-to-r from-purple-500  via-indigo-500 to-blue-500 bg-clip-text text-transparent bg-size-[200%_auto] animate-linear-flow-reverse">
-                  $ALE
-                </span>
-                <div className="absolute -inset-4 bg-linear-to-r from-purple-600/50  to-blue-600/50 blur-2xl -z-10 animate-glow-smooth-delayed" />
-              </span>
+              ) : (
+                <>
+                  <span className="relative inline-block">
+                    <span className="bg-linear-to-r from-blue-500 via-purple-500 to-indigo-600 bg-clip-text text-transparent bg-size-[200%_auto] animate-linear-flow">
+                      NEO
+                    </span>
+                    <div className="absolute -inset-4 bg-linear-to-r from-blue-600/50 via-purple-600/50 to-indigo-600/50 blur-2xl -z-10 animate-glow-smooth" />
+                  </span>
+                  <span className="relative inline-block ml-4">
+                    <span className="bg-linear-to-r from-purple-500  via-indigo-500 to-blue-500 bg-clip-text text-transparent bg-size-[200%_auto] animate-linear-flow-reverse">
+                      $ALE
+                    </span>
+                    <div className="absolute -inset-4 bg-linear-to-r from-purple-600/50  to-blue-600/50 blur-2xl -z-10 animate-glow-smooth-delayed" />
+                  </span>
+                </>
+              )}
             </h1>
 
             {/* Decoración elegante */}

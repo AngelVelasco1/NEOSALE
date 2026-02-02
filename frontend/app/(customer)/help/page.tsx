@@ -163,9 +163,9 @@ export default function HelpPage() {
   ];
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950">
+    <div className="min-h-screen bg-linear-to-br from-slate-950 via-slate-900 to-slate-950">
       {/* Hero Section */}
-      <div className="bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600 text-white relative overflow-hidden">
+      <div className="bg-linear-to-r from-blue-600 via-indigo-600 to-purple-600 text-white relative overflow-hidden">
         <div className="absolute inset-0 bg-black/20"></div>
         <div className="container mx-auto px-4 py-16 md:py-24 relative z-10">
           <div className="max-w-4xl mx-auto text-center">
@@ -345,7 +345,7 @@ export default function HelpPage() {
 
                 <button
                   type="submit"
-                  className="w-full bg-gradient-to-r from-blue-600 to-indigo-600 text-white py-4 rounded-lg font-semibold hover:from-blue-700 hover:to-indigo-700 transition-all duration-300 flex items-center justify-center gap-2 shadow-lg shadow-blue-500/20 hover:shadow-blue-500/40"
+                  className="w-full bg-linear-to-r from-blue-600 to-indigo-600 text-white py-4 rounded-lg font-semibold hover:from-blue-700 hover:to-indigo-700 transition-all duration-300 flex items-center justify-center gap-2 shadow-lg shadow-blue-500/20 hover:shadow-blue-500/40"
                 >
                   <Send className="w-5 h-5" />
                   Enviar Solicitud
@@ -372,7 +372,7 @@ export default function HelpPage() {
                   className="bg-slate-900/50 backdrop-blur-xl border border-slate-800 rounded-2xl shadow-2xl p-8 hover:shadow-blue-500/5 transition-shadow"
                 >
                   <div className="flex items-center gap-3 mb-6">
-                    <div className="w-12 h-12 bg-gradient-to-br from-blue-500 to-indigo-500 rounded-lg flex items-center justify-center shadow-lg">
+                    <div className="w-12 h-12 bg-linear-to-br from-blue-500 to-indigo-500 rounded-lg flex items-center justify-center shadow-lg">
                       <category.icon className="w-6 h-6 text-white" />
                     </div>
                     <h3 className="text-xl font-bold text-white">
@@ -402,7 +402,7 @@ export default function HelpPage() {
           </div>
 
           {/* Contact Methods */}
-          <div className="bg-gradient-to-br from-blue-600 to-indigo-600 rounded-3xl p-8 md:p-12 text-white shadow-2xl shadow-blue-500/20 relative overflow-hidden">
+          <div className="bg-linear-to-br from-blue-600 to-indigo-600 rounded-3xl p-8 md:p-12 text-white shadow-2xl shadow-blue-500/20 relative overflow-hidden">
             <div className="absolute inset-0 bg-black/10"></div>
             <div className="relative z-10">
               <div className="text-center mb-12">

@@ -149,7 +149,7 @@ export function NotificationBell({ staffId }: NotificationBellProps) {
               className="absolute right-0 mt-2 w-96 bg-white dark:bg-gray-900 rounded-xl shadow-2xl border border-gray-200 dark:border-gray-800 z-50 overflow-hidden"
             >
               {/* Header */}
-              <div className="px-4 py-3 border-b border-gray-200 dark:border-gray-800 flex items-center justify-between bg-gradient-to-r from-blue-50 to-purple-50 dark:from-gray-800 dark:to-gray-900">
+              <div className="px-4 py-3 border-b border-gray-200 dark:border-gray-800 flex items-center justify-between bg-linear-to-r from-blue-50 to-purple-50 dark:from-gray-800 dark:to-gray-900">
                 <h3 className="font-semibold text-gray-900 dark:text-white">
                   Notificaciones
                 </h3>

@@ -2,8 +2,6 @@
 
 import React from "react";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { SidebarProvider } from "./dashboard/components/sidebar/sidebar-context";
-import { ThemeProvider } from "next-themes";
 
 // Crear QueryClient con configuración optimizada
 const queryClient = new QueryClient({
@@ -25,12 +23,7 @@ const queryClient = new QueryClient({
 export function Providers({ children }: { children: React.ReactNode }) {
   return (
     <QueryClientProvider client={queryClient}>
-      <ThemeProvider attribute="class"
-        defaultTheme="system"
-        enableSystem
-        disableTransitionOnChange>
-        <SidebarProvider>{children}</SidebarProvider>
-      </ThemeProvider>
+      {children}
     </QueryClientProvider>
   );
 }

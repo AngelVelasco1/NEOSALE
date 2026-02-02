@@ -59,7 +59,7 @@ export function DatePicker({ className, date, setDate, container }: Props) {
         align="start"
         sideOffset={10}
       >
-        <div className="px-5 py-3 border-b border-slate-200/80 bg-gradient-to-r from-emerald-50 via-sky-50 to-amber-50 dark:border-slate-700/70 dark:from-emerald-950/30 dark:via-sky-950/25 dark:to-amber-950/25">
+        <div className="px-5 py-3 border-b border-slate-200/80 bg-linear-to-r from-emerald-50 via-sky-50 to-amber-50 dark:border-slate-700/70 dark:from-emerald-950/30 dark:via-sky-950/25 dark:to-amber-950/25">
           <h3 className="mb-1 text-sm font-semibold text-slate-900 dark:text-white">Selecciona la fecha</h3>
         </div>
         <div className="p-3">

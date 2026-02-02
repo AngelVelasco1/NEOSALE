@@ -41,7 +41,7 @@ export const Footer = () => {
   ];
 
   return (
-    <footer className="relative bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 text-white overflow-hidden">
+    <footer className="relative bg-linear-to-br from-slate-900 via-slate-800 to-slate-900 text-white overflow-hidden">
       {/* Elegant Background Pattern */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none opacity-30">
         <div className="absolute top-0 left-0 w-full h-full">
@@ -64,7 +64,7 @@ export const Footer = () => {
         <div className="border-b border-white/10">
           <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-12 lg:py-16">
             <div className="max-w-4xl mx-auto text-center">
-              <h3 className="text-2xl md:text-3xl font-bold mb-3 bg-gradient-to-r from-blue-400 via-indigo-400 to-purple-400 bg-clip-text text-transparent">
+              <h3 className="text-2xl md:text-3xl font-bold mb-3 bg-linear-to-r from-blue-400 via-indigo-400 to-purple-400 bg-clip-text text-transparent">
                 Suscríbete a Nuestro Newsletter
               </h3>
               <p className="text-gray-400 mb-6 text-sm md:text-base">
@@ -78,7 +78,7 @@ export const Footer = () => {
                 />
                 <button
                   type="submit"
-                  className="px-8 py-3.5 bg-gradient-to-r from-blue-600 to-indigo-600 rounded-lg font-semibold hover:from-blue-700 hover:to-indigo-700 transition-all shadow-lg hover:shadow-xl hover:scale-105 whitespace-nowrap"
+                  className="px-8 py-3.5 bg-linear-to-r from-blue-600 to-indigo-600 rounded-lg font-semibold hover:from-blue-700 hover:to-indigo-700 transition-all shadow-lg hover:shadow-xl hover:scale-105 whitespace-nowrap"
                 >
                   Suscribirse
                 </button>
@@ -95,7 +95,7 @@ export const Footer = () => {
               <div className="flex items-center justify-center lg:justify-start">
                 <Link href="/" className="group">
                   <div className="relative">
-                    <div className="absolute -inset-2 bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600 rounded-2xl blur-xl opacity-40 group-hover:opacity-60 transition-opacity"></div>
+                    <div className="absolute -inset-2 bg-linear-to-r from-blue-600 via-indigo-600 to-purple-600 rounded-2xl blur-xl opacity-40 group-hover:opacity-60 transition-opacity"></div>
                     <div className="relative bg-white/5 backdrop-blur-sm rounded-2xl p-4 border border-white/10 group-hover:border-white/20 transition-all">
                       <Image
                         src={"/imgs/NomLogo2.png"}

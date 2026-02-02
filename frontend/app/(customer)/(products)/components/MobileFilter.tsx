@@ -72,7 +72,7 @@ export const MobileFilter = ({
           <FilterIcon className="h-4 w-4 mr-2" />
           Filtros
           {activeFiltersCount > 0 && (
-            <Badge className="ml-2 bg-gradient-to-r from-blue-500 to-indigo-600 text-white">{activeFiltersCount}</Badge>
+            <Badge className="ml-2 bg-linear-to-r from-blue-500 to-indigo-600 text-white">{activeFiltersCount}</Badge>
           )}
         </Button>
       </div>
@@ -84,11 +84,11 @@ export const MobileFilter = ({
           <div className="fixed inset-0 bg-black/50 backdrop-blur-sm" onClick={() => setIsOpen(false)} />
 
           {/* Filter Panel */}
-          <div className="fixed inset-y-0 left-0 w-full max-w-sm bg-gradient-to-b from-blue-50 to-indigo-50 shadow-xl overflow-y-auto">
+          <div className="fixed inset-y-0 left-0 w-full max-w-sm bg-linear-to-b from-blue-50 to-indigo-50 shadow-xl overflow-y-auto">
             <div className="p-4 sm:p-6">
               {/* Header */}
               <div className="flex items-center justify-between mb-6">
-                <h2 className="text-lg font-semibold bg-gradient-to-r from-blue-600 to-indigo-700 bg-clip-text text-transparent">
+                <h2 className="text-lg font-semibold bg-linear-to-r from-blue-600 to-indigo-700 bg-clip-text text-transparent">
                   Filtros
                 </h2>
                 <Button
@@ -109,7 +109,7 @@ export const MobileFilter = ({
                   onSearchChange={(value) => updateFilter("searchTerm", value)}
                 />
 
-                <Separator className="bg-gradient-to-r from-blue-100 to-indigo-100" />
+                <Separator className="bg-linear-to-r from-blue-100 to-indigo-100" />
 
                 {/* Price Filter */}
                 <PriceFilter
@@ -120,7 +120,7 @@ export const MobileFilter = ({
                   getProductCountInRange={getProductCountInRange}
                 />
 
-                <Separator className="bg-gradient-to-r from-blue-100 to-indigo-100" />
+                <Separator className="bg-linear-to-r from-blue-100 to-indigo-100" />
 
                 {/* Colors Filter */}
                 <ColorFilter
@@ -130,7 +130,7 @@ export const MobileFilter = ({
                   getColorCount={getColorCount}
                 />
 
-                <Separator className="bg-gradient-to-r from-blue-100 to-indigo-100" />
+                <Separator className="bg-linear-to-r from-blue-100 to-indigo-100" />
 
                 {/* Categories Filter */}
                 <CategoryFilter
@@ -143,7 +143,7 @@ export const MobileFilter = ({
                   getSubcategoryCount={getSubcategoryCount}
                 />
 
-                <Separator className="bg-gradient-to-r from-blue-100 to-indigo-100" />
+                <Separator className="bg-linear-to-r from-blue-100 to-indigo-100" />
 
                 {/* Stock Filter */}
                 <div className="space-y-3">
@@ -156,7 +156,7 @@ export const MobileFilter = ({
                       id="in-stock-mobile"
                       checked={filters.inStockOnly}
                       onCheckedChange={(checked) => updateFilter("inStockOnly", checked)}
-                      className="data-[state=checked]:bg-gradient-to-r data-[state=checked]:from-blue-500 data-[state=checked]:to-indigo-600 border-blue-300"
+                      className="data-[state=checked]:bg-linear-to-r data-[state=checked]:from-blue-500 data-[state=checked]:to-indigo-600 border-blue-300"
                     />
                     <label htmlFor="in-stock-mobile" className="text-sm text-gray-700 cursor-pointer">
                       Solo productos en stock
@@ -167,7 +167,7 @@ export const MobileFilter = ({
                   </div>
                 </div>
 
-                <Separator className="bg-gradient-to-r from-blue-100 to-indigo-100" />
+                <Separator className="bg-linear-to-r from-blue-100 to-indigo-100" />
 
                 {/* Sort Options */}
                 <SortFilter sortBy={filters.sortBy} onSortChange={(sortBy) => updateFilter("sortBy", sortBy)} />
@@ -175,7 +175,7 @@ export const MobileFilter = ({
                 {/* Active Filters */}
                 {activeFiltersCount > 0 && (
                   <>
-                    <Separator className="bg-gradient-to-r from-blue-100 to-indigo-100" />
+                    <Separator className="bg-linear-to-r from-blue-100 to-indigo-100" />
                     <ActiveFilters
                       filters={filters}
                       colors={uniqueData.colors}
@@ -200,7 +200,7 @@ export const MobileFilter = ({
                 )}
                 <Button
                   onClick={() => setIsOpen(false)}
-                  className="w-full bg-gradient-to-r from-blue-600 to-indigo-700 hover:from-blue-700 hover:to-indigo-800 text-white"
+                  className="w-full bg-linear-to-r from-blue-600 to-indigo-700 hover:from-blue-700 hover:to-indigo-800 text-white"
                 >
                   Aplicar Filtros
                 </Button>

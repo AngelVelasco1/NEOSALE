@@ -68,19 +68,46 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
     const localCart = getLocalCart();
     if (localCart.length === 0) return;
 
+    const failedProducts: number[] = [];
+    const successfulProducts: number[] = [];
+
     try {
       for (const product of localCart) {
-        await addProductToCartApi({
-          user_id: userProfile.id,
-          product_id: product.id,
-          quantity: product.quantity,
-          color_code: product.color_code,
-          size: product.size
-        });
+        try {
+          await addProductToCartApi({
+            user_id: userProfile.id,
+            product_id: product.id,
+            quantity: product.quantity,
+            color_code: product.color_code,
+            size: product.size,
+          });
+          successfulProducts.push(product.id);
+        } catch (productError) {
+          console.error(
+            `Error sincronizando producto ${product.id}:`,
+            productError
+          );
+          failedProducts.push(product.id);
+        }
       }
-      clearLocalCart();
+
+      if (failedProducts.length === 0) {
+        clearLocalCart();
+        console.log("Carrito sincronizado exitosamente desde localStorage");
+      } else if (successfulProducts.length > 0) {
+
+        ErrorsHandler.showInfo(
+          `${failedProducts.length} producto(s) no se pudo(ieron) sincronizar. Se intentará de nuevo.`
+        );
+      } else {
+        console.error("Sincronización completa fallida, manteniendo datos locales");
+        ErrorsHandler.showError(
+          "Error de sincronización",
+          "No pudimos sincronizar el carrito. Los datos se mantendrán y se intentará de nuevo."
+        );
+      }
     } catch (error) {
-      console.error("Error syncing local cart to server:", error);
+      console.error("Error general en sincronización:", error);
     }
   };
 
@@ -99,7 +126,7 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
       subTotal,
       uniqueProducts: safeCartProducts.length
     };
-  }, [cartProducts]); // ✅ SOLO cartProducts como dependencia
+  }, [cartProducts]); 
 
 
 
@@ -118,17 +145,28 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
       
       setCartProducts(Array.isArray(serverCart) ? serverCart : []);
     } catch (error) {
-      console.error("Error loading cart:", error);
-      showError("Error", "No pudimos cargar los productos del carrito");
-      setCartProducts([]);
+      console.error("[CART] Error loading cart:", error);
+      
+      // ✅ NUEVO: Fallback a localStorage en lugar de mostrar error
+      const localCart = getLocalCart();
+      if (localCart.length > 0) {
+        console.warn("[CART] Usando carrito local como fallback");
+        setCartProducts(Array.isArray(localCart) ? localCart : []);
+        ErrorsHandler.showInfo(
+          "Usando carrito guardado localmente. Se sincronizará cuando se restablezca la conexión."
+        );
+      } else {
+        showError(
+          "Error al cargar carrito",
+          "No pudimos acceder al carrito. Por favor, intenta refrescar la página."
+        );
+        setCartProducts([]);
+      }
     } finally {
       setIsLoading(false);
     }
-  }, [userProfile]); // ✅ SOLO userProfile como dependencia
+  }, [userProfile]); 
 
-  // ===================================
-  // INICIALIZACIÓN DEL CARRITO
-  // ===================================
 
   useEffect(() => {
     const initializeCart = async () => {
@@ -139,11 +177,9 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
     };
 
     initializeCart();
-  }, [userProfile, getCart]); // ✅ Dependencias necesarias
+  }, [userProfile, getCart]); 
 
-  // ===================================
-  // FUNCIONES DE GESTIÓN DE PRODUCTOS
-  // ===================================
+
 
   const getProductQuantity = useCallback((
     id: number,
@@ -154,7 +190,7 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
       p => p.id === id && p.color_code === colorCode && p.size === size
     );
     return product?.quantity || 0;
-  }, [cartProducts]); // ✅ SOLO cartProducts como dependencia
+  }, [cartProducts]); 
 
   const addProductToCart = useCallback(
     async (product: CartProductsInfo) => {
@@ -168,7 +204,6 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
             size: product.size,
           });
 
-          // ✅ ACTUALIZACIÓN INMEDIATA: Sin recargar página
           if (response.success && response.items) {
             setCartProducts(Array.isArray(response.items) ? response.items : []);
           } else {
@@ -205,7 +240,7 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
         console.error("Error adding product to cart:", error);
         showError("Error", "No pudimos agregar el producto al carrito");
       }
-    }, [userProfile]); // ✅ SOLO userProfile como dependencia
+    }, [userProfile]); 
 
   const updateQuantity = useCallback(
     async (id: number, color_code: string, quantity: number, size: string) => {

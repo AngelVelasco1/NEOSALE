@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState, useTransition } from "react";
 import { createPortal } from "react-dom";
 import { useRouter, useSearchParams } from "next/navigation";
 import { motion, type Variants } from "framer-motion";
@@ -14,7 +14,17 @@ import { DateRange } from "react-day-picker";
 import { cn } from "@/lib/utils";
 import { DEFAULT_METRIC_GOALS, GOAL_PARAM_MAP, MetricGoalKey } from "./goalPresets";
 
-export type DateRangePreset = "today" | "yesterday" | "last7days" | "last30days" | "thisMonth" | "lastMonth" | "last3months" | "last6months" | "thisYear" | "custom";
+export type DateRangePreset = 
+    | "today" 
+    | "yesterday" 
+    | "last7days" 
+    | "last30days" 
+    | "thisMonth" 
+    | "lastMonth" 
+    | "last3months" 
+    | "last6months" 
+    | "thisYear" 
+    | "custom";
 
 type PresetOption = {
     value: DateRangePreset;
@@ -22,46 +32,52 @@ type PresetOption = {
     description: string;
 };
 
-const presetAccentMap: Record<DateRangePreset, string> = {
-    today: "from-slate-950/90 via-sky-500/25 to-slate-900/80",
-    yesterday: "from-slate-950/90 via-blue-500/22 to-slate-900/80",
-    last7days: "from-slate-950/90 via-blue-500/22 to-slate-900/80",
-    last30days: "from-slate-950/90 via-sky-500/22 to-slate-900/80",
-    thisMonth: "from-slate-950/90 via-cyan-500/22 to-slate-900/80",
-    lastMonth: "from-slate-950/90 via-rose-500/22 to-slate-900/80",
-    last3months: "from-slate-950/90 via-amber-500/24 to-slate-900/80",
-    last6months: "from-slate-950/90 via-emerald-500/22 to-slate-900/80",
-    thisYear: "from-slate-950/90 via-blue-500/22 to-slate-900/80",
-    custom: "from-slate-950/90 via-cyan-500/24 to-slate-900/80",
-};
+type GoalInputState = Record<MetricGoalKey, string>;
+type StoredGoals = Partial<Record<MetricGoalKey, number>>;
 
-const presetBorderMap: Record<DateRangePreset, string> = {
-    today: "from-slate-800 via-sky-600 to-slate-900",
-    yesterday: "from-slate-800 via-blue-600 to-slate-900",
-    last7days: "from-slate-800 via-blue-600 to-slate-900",
-    last30days: "from-slate-800 via-sky-600 to-slate-900",
-    thisMonth: "from-slate-800 via-cyan-600 to-slate-900",
-    lastMonth: "from-slate-800 via-rose-600 to-slate-900",
-    last3months: "from-slate-800 via-amber-600 to-slate-900",
-    last6months: "from-slate-800 via-emerald-600 to-slate-900",
-    thisYear: "from-slate-800 via-blue-600 to-slate-900",
-    custom: "from-slate-800 via-cyan-600 to-slate-900",
-};
+const GOAL_STORAGE_KEY = "neosale.dashboard.goals.v1";
+const DEFAULT_PRESET: DateRangePreset = "thisMonth";
 
-const presetBeamMap: Record<DateRangePreset, string> = {
-    today: "bg-sky-400/25",
-    yesterday: "bg-blue-500/20",
-    last7days: "bg-blue-500/20",
-    last30days: "bg-sky-500/20",
-    thisMonth: "bg-cyan-500/20",
-    lastMonth: "bg-rose-500/20",
-    last3months: "bg-amber-500/22",
-    last6months: "bg-emerald-500/20",
-    thisYear: "bg-blue-500/20",
-    custom: "bg-cyan-500/22",
-};
+const PRESET_STYLES = {
+    accent: {
+        today: "from-slate-950/90 via-sky-500/25 to-slate-900/80",
+        yesterday: "from-slate-950/90 via-blue-500/22 to-slate-900/80",
+        last7days: "from-slate-950/90 via-blue-500/22 to-slate-900/80",
+        last30days: "from-slate-950/90 via-sky-500/22 to-slate-900/80",
+        thisMonth: "from-slate-950/90 via-cyan-500/22 to-slate-900/80",
+        lastMonth: "from-slate-950/90 via-rose-500/22 to-slate-900/80",
+        last3months: "from-slate-950/90 via-amber-500/24 to-slate-900/80",
+        last6months: "from-slate-950/90 via-emerald-500/22 to-slate-900/80",
+        thisYear: "from-slate-950/90 via-blue-500/22 to-slate-900/80",
+        custom: "from-slate-950/90 via-cyan-500/24 to-slate-900/80",
+    },
+    border: {
+        today: "from-slate-800 via-sky-600 to-slate-900",
+        yesterday: "from-slate-800 via-blue-600 to-slate-900",
+        last7days: "from-slate-800 via-blue-600 to-slate-900",
+        last30days: "from-slate-800 via-sky-600 to-slate-900",
+        thisMonth: "from-slate-800 via-cyan-600 to-slate-900",
+        lastMonth: "from-slate-800 via-rose-600 to-slate-900",
+        last3months: "from-slate-800 via-amber-600 to-slate-900",
+        last6months: "from-slate-800 via-emerald-600 to-slate-900",
+        thisYear: "from-slate-800 via-blue-600 to-slate-900",
+        custom: "from-slate-800 via-cyan-600 to-slate-900",
+    },
+    beam: {
+        today: "bg-sky-400/25",
+        yesterday: "bg-blue-500/20",
+        last7days: "bg-blue-500/20",
+        last30days: "bg-sky-500/20",
+        thisMonth: "bg-cyan-500/20",
+        lastMonth: "bg-rose-500/20",
+        last3months: "bg-amber-500/22",
+        last6months: "bg-emerald-500/20",
+        thisYear: "bg-blue-500/20",
+        custom: "bg-cyan-500/22",
+    },
+} as const;
 
-const presetOptions: PresetOption[] = [
+const PRESET_OPTIONS: PresetOption[] = [
     { value: "today", label: "Hoy", description: "Datos en tiempo real" },
     { value: "yesterday", label: "Ayer", description: "Cierre del día anterior" },
     { value: "last7days", label: "Últimos 7 días", description: "Comparativa semanal" },
@@ -74,451 +90,444 @@ const presetOptions: PresetOption[] = [
     { value: "custom", label: "Personalizado", description: "Define tu propio rango" },
 ];
 
-const goalInputMeta: Record<MetricGoalKey, { prefix?: string; suffix?: string; helper: string }> = {
+const GOAL_INPUT_META: Record<MetricGoalKey, { prefix?: string; suffix?: string; helper: string }> = {
     revenue: { prefix: "$", helper: "Ingresos esperados" },
     orders: { suffix: "pedidos", helper: "Volumen objetivo" },
     products: { suffix: "unds", helper: "Unidades del catálogo" },
     customers: { suffix: " clientes", helper: "Clientes nuevos" },
 };
 
-const metricGoalKeys = Object.keys(GOAL_PARAM_MAP) as MetricGoalKey[];
-
-const getDefaultGoalState = (): Record<MetricGoalKey, string> => {
-    return metricGoalKeys.reduce((acc, key) => {
-        acc[key] = DEFAULT_METRIC_GOALS[key].value.toString();
-        return acc;
-    }, {} as Record<MetricGoalKey, string>);
-};
-
-type StoredGoals = Partial<Record<MetricGoalKey, number>>;
-
-const GOAL_STORAGE_KEY = "neosale.dashboard.goals.v1";
-
-const currencyFormatter = new Intl.NumberFormat("es-CO", {
-    style: "currency",
-    currency: "COP",
-    minimumFractionDigits: 0,
-    maximumFractionDigits: 0,
-});
-
-const integerFormatter = new Intl.NumberFormat("es-CO", {
-    maximumFractionDigits: 0,
-});
-
-const formatGoalValue = (key: MetricGoalKey, value: number) =>
-    key === "revenue" ? currencyFormatter.format(value) : integerFormatter.format(value);
-
-const goalVisuals: Record<MetricGoalKey, { gradient: string; beam: string; accent: string }> = {
+const GOAL_VISUALS: Record<MetricGoalKey, { gradient: string; beam: string; accent: string }> = {
     revenue: {
-        gradient: "from-blue-500/20 via-sky-500/10 to-transparent",
-        beam: "bg-sky-500/25",
-        accent: "text-sky-200",
+        gradient: "from-violet-500/18 via-fuchsia-500/10 to-transparent",
+        beam: "bg-violet-500/20",
+        accent: "text-violet-200",
     },
     orders: {
-        gradient: "from-blue-500/20 via-sky-500/10 to-transparent",
-        beam: "bg-sky-500/25",
-        accent: "text-blue-200",
+        gradient: "from-blue-500/18 via-cyan-500/10 to-transparent",
+        beam: "bg-cyan-500/20",
+        accent: "text-cyan-200",
     },
     products: {
-        gradient: "from-emerald-500/20 via-teal-500/10 to-transparent",
-        beam: "bg-emerald-500/25",
+        gradient: "from-emerald-500/18 via-teal-500/10 to-transparent",
+        beam: "bg-emerald-500/20",
         accent: "text-emerald-200",
     },
     customers: {
-        gradient: "from-amber-500/20 via-orange-500/10 to-transparent",
-        beam: "bg-amber-500/25",
-        accent: "text-amber-200",
+        gradient: "from-rose-500/18 via-pink-500/10 to-transparent",
+        beam: "bg-rose-500/20",
+        accent: "text-rose-200",
     },
 };
 
-const quickGoalPresets = [
+const QUICK_GOAL_PRESETS = [
     { label: "+5%", factor: 1.05 },
     { label: "+15%", factor: 1.15 },
     { label: "x2", factor: 2 },
-];
+] as const;
 
-const heroVariants: Variants = {
-    hidden: { opacity: 0, y: 16 },
-    visible: { opacity: 1, y: 0, transition: { duration: 0.45, ease: "easeOut" } },
-};
+// Variantes de animación
+const ANIMATION_VARIANTS = {
+    hero: {
+        hidden: { opacity: 0, y: 16 },
+        visible: { opacity: 1, y: 0, transition: { duration: 0.45, ease: "easeOut" } },
+    },
+    stacked: {
+        hidden: { opacity: 0, y: 24 },
+        visible: { opacity: 1, y: 0, transition: { duration: 0.5, ease: [0.32, 0.72, 0, 1] } },
+    },
+    goalCard: {
+        hidden: { opacity: 0, y: 25, scale: 0.95 },
+        visible: (index: number) => ({
+            opacity: 1,
+            y: 0,
+            scale: 1,
+            transition: { delay: index * 0.06, duration: 0.5, ease: [0.34, 0.8, 0.22, 1] },
+        }),
+    },
+} as const satisfies Record<string, Variants>;
 
-const stackedVariants: Variants = {
-    hidden: { opacity: 0, y: 24 },
-    visible: { opacity: 1, y: 0, transition: { duration: 0.5, ease: [0.32, 0.72, 0, 1] as const } },
-};
-
-const goalCardVariants: Variants = {
-    hidden: { opacity: 0, y: 25, scale: 0.95 },
-    visible: (index: number) => ({
-        opacity: 1,
-        y: 0,
-        scale: 1,
-        transition: { delay: index * 0.06, duration: 0.5, ease: [0.34, 0.8, 0.22, 1] as const },
+// Formateadores (singleton)
+const FORMATTERS = {
+    currency: new Intl.NumberFormat("es-CO", {
+        style: "currency",
+        currency: "COP",
+        minimumFractionDigits: 0,
+        maximumFractionDigits: 0,
     }),
-};
+    integer: new Intl.NumberFormat("es-CO", {
+        maximumFractionDigits: 0,
+    }),
+} as const;
 
-export default function DashboardFilters() {
+/** Calcula el rango de fechas basado en el preset */
+function getPresetDateRange(presetValue: DateRangePreset): DateRange | undefined {
+    if (presetValue === "custom") return undefined;
+
+    const now = new Date();
+    const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+
+    const ranges: Record<Exclude<DateRangePreset, "custom">, DateRange> = {
+        today: { from: today, to: today },
+        yesterday: (() => {
+            const yesterday = new Date(today);
+            yesterday.setDate(yesterday.getDate() - 1);
+            return { from: yesterday, to: yesterday };
+        })(),
+        last7days: (() => {
+            const start = new Date(today);
+            start.setDate(start.getDate() - 6);
+            return { from: start, to: today };
+        })(),
+        last30days: (() => {
+            const start = new Date(today);
+            start.setDate(start.getDate() - 29);
+            return { from: start, to: today };
+        })(),
+        thisMonth: {
+            from: new Date(now.getFullYear(), now.getMonth(), 1),
+            to: today,
+        },
+        lastMonth: {
+            from: new Date(now.getFullYear(), now.getMonth() - 1, 1),
+            to: new Date(now.getFullYear(), now.getMonth(), 0),
+        },
+        last3months: {
+            from: new Date(now.getFullYear(), now.getMonth() - 2, 1),
+            to: today,
+        },
+        last6months: {
+            from: new Date(now.getFullYear(), now.getMonth() - 5, 1),
+            to: today,
+        },
+        thisYear: {
+            from: new Date(now.getFullYear(), 0, 1),
+            to: today,
+        },
+    };
+
+    return ranges[presetValue];
+}
+
+/** Formatea valores de metas según el tipo */
+const formatGoalValue = (key: MetricGoalKey, value: number) =>
+    key === "revenue" ? FORMATTERS.currency.format(value) : FORMATTERS.integer.format(value);
+
+/** Valida si un número es válido para metas */
+const isValidGoalNumber = (value: number): boolean =>
+    Number.isFinite(value) && value > 0;
+
+/** Calcula días entre dos fechas */
+const calculateDaysDifference = (from: Date, to: Date): number =>
+    Math.max(1, Math.round((to.getTime() - from.getTime()) / (1000 * 60 * 60 * 24)) + 1);
+
+/** Hook para manejar localStorage de forma segura */
+function useLocalStorage<T>(key: string) {
+    const getItem = useCallback((): T | null => {
+        if (typeof window === "undefined") return null;
+        try {
+            const item = window.localStorage.getItem(key);
+            return item ? JSON.parse(item) : null;
+        } catch {
+            return null;
+        }
+    }, [key]);
+
+    const setItem = useCallback((value: T) => {
+        if (typeof window === "undefined") return;
+        try {
+            window.localStorage.setItem(key, JSON.stringify(value));
+        } catch {
+            // Silently fail
+        }
+    }, [key]);
+
+    const removeItem = useCallback(() => {
+        if (typeof window === "undefined") return;
+        try {
+            window.localStorage.removeItem(key);
+        } catch {
+            // Fallo silencioso
+        }
+    }, [key]);
+
+    return { getItem, setItem, removeItem };
+}
+
+/** Hook para manejar URL params */
+function useURLParams() {
     const router = useRouter();
     const searchParams = useSearchParams();
+    const [isPending, startTransition] = useTransition();
 
+    const updateParams = useCallback((updates: Record<string, string | null>, replace = true) => {
+        const params = new URLSearchParams(searchParams.toString());
+        let hasChanges = false;
+
+        Object.entries(updates).forEach(([key, value]) => {
+            if (value === null) {
+                if (params.has(key)) {
+                    params.delete(key);
+                    hasChanges = true;
+                }
+            } else if (params.get(key) !== value) {
+                params.set(key, value);
+                hasChanges = true;
+            }
+        });
+
+        if (hasChanges) {
+            const url = `/dashboard?${params.toString()}`;
+            startTransition(() => {
+                replace ? router.replace(url, { scroll: false }) : router.push(url, { scroll: false });
+            });
+        }
+    }, [router, searchParams]);
+
+    return { searchParams, updateParams, isPending };
+}
+
+export default function DashboardFilters() {
+    const { searchParams, updateParams } = useURLParams();
+    const { getItem, setItem, removeItem } = useLocalStorage<StoredGoals>(GOAL_STORAGE_KEY);
+
+    // Estado de UI
     const [preset, setPreset] = useState<DateRangePreset>(
-        (searchParams.get("preset") as DateRangePreset) || "thisMonth"
+        () => (searchParams.get("preset") as DateRangePreset) || DEFAULT_PRESET
     );
     const [dateRange, setDateRange] = useState<DateRange | undefined>(() => {
         const from = searchParams.get("from");
         const to = searchParams.get("to");
-        if (from && to) {
-            return {
-                from: new Date(from),
-                to: new Date(to),
-            };
-        }
-        return getPresetDateRange("thisMonth");
+        return from && to 
+            ? { from: new Date(from), to: new Date(to) }
+            : getPresetDateRange(DEFAULT_PRESET);
     });
 
-    type GoalInputState = Record<MetricGoalKey, string>;
-
-    const buildGoalState = useCallback((stored?: StoredGoals): GoalInputState => {
-        return metricGoalKeys.reduce((acc, key) => {
-            const paramName = GOAL_PARAM_MAP[key];
-            const raw = searchParams.get(paramName);
-            const parsed = raw ? Number(raw) : NaN;
+    // Estado de metas
+    const [goalInputs, setGoalInputs] = useState<GoalInputState>(() => {
+        const stored = getItem();
+        const metricKeys = Object.keys(GOAL_PARAM_MAP) as MetricGoalKey[];
+        
+        return metricKeys.reduce((acc, key) => {
+            const urlValue = searchParams.get(GOAL_PARAM_MAP[key]);
+            const parsedUrl = urlValue ? Number(urlValue) : NaN;
             const storedValue = stored?.[key];
 
-            if (Number.isFinite(parsed) && parsed > 0) {
-                acc[key] = parsed.toString();
-            } else if (typeof storedValue === "number" && storedValue > 0) {
+            if (isValidGoalNumber(parsedUrl)) {
+                acc[key] = parsedUrl.toString();
+            } else if (typeof storedValue === "number" && isValidGoalNumber(storedValue)) {
                 acc[key] = storedValue.toString();
             } else {
                 acc[key] = DEFAULT_METRIC_GOALS[key].value.toString();
             }
-
             return acc;
         }, {} as GoalInputState);
-    }, [searchParams]);
+    });
 
-    const [goalInputs, setGoalInputs] = useState<GoalInputState>(() => buildGoalState());
-    const [storedGoals, setStoredGoals] = useState<StoredGoals>({});
+    // Sincronizar localStorage con state
+    const syncGoalToStorage = useCallback((key: MetricGoalKey, value?: number) => {
+        const current = getItem() || {};
+        const updated = { ...current };
 
-    const persistGoalMap = useCallback((next: StoredGoals) => {
-        if (typeof window === "undefined") return;
-        if (Object.keys(next).length) {
-            window.localStorage.setItem(GOAL_STORAGE_KEY, JSON.stringify(next));
+        if (value !== undefined && isValidGoalNumber(value)) {
+            updated[key] = value;
         } else {
-            window.localStorage.removeItem(GOAL_STORAGE_KEY);
+            delete updated[key];
         }
-    }, []);
 
-    const syncStoredGoal = useCallback((key: MetricGoalKey, numericValue?: number) => {
-        setStoredGoals((previous) => {
-            const next = { ...previous } as StoredGoals;
-            if (typeof numericValue === "number" && Number.isFinite(numericValue) && numericValue > 0) {
-                next[key] = numericValue;
-            } else {
-                delete next[key];
-            }
-            persistGoalMap(next);
-            return next;
-        });
-    }, [persistGoalMap]);
-
-    const clearStoredGoals = useCallback(() => {
-        setStoredGoals({});
-        persistGoalMap({});
-    }, [persistGoalMap]);
-
-    // Get date range based on preset
-    function getPresetDateRange(presetValue: DateRangePreset): DateRange | undefined {
-        const now = new Date();
-        const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
-
-        switch (presetValue) {
-            case "today":
-                return { from: today, to: today };
-
-            case "yesterday": {
-                const yesterday = new Date(today);
-                yesterday.setDate(yesterday.getDate() - 1);
-                return { from: yesterday, to: yesterday };
-            }
-
-            case "last7days": {
-                const last7days = new Date(today);
-                last7days.setDate(last7days.getDate() - 6);
-                return { from: last7days, to: today };
-            }
-
-            case "last30days": {
-                const last30days = new Date(today);
-                last30days.setDate(last30days.getDate() - 29);
-                return { from: last30days, to: today };
-            }
-
-            case "thisMonth": {
-                const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
-                return { from: startOfMonth, to: today };
-            }
-
-            case "lastMonth": {
-                const startOfLastMonth = new Date(now.getFullYear(), now.getMonth() - 1, 1);
-                const endOfLastMonth = new Date(now.getFullYear(), now.getMonth(), 0);
-                return { from: startOfLastMonth, to: endOfLastMonth };
-            }
-
-            case "last3months": {
-                const last3months = new Date(now.getFullYear(), now.getMonth() - 2, 1);
-                return { from: last3months, to: today };
-            }
-
-            case "last6months": {
-                const last6months = new Date(now.getFullYear(), now.getMonth() - 5, 1);
-                return { from: last6months, to: today };
-            }
-
-            case "thisYear": {
-                const startOfYear = new Date(now.getFullYear(), 0, 1);
-                return { from: startOfYear, to: today };
-            }
-
-            default:
-                return undefined;
+        if (Object.keys(updated).length > 0) {
+            setItem(updated);
+        } else {
+            removeItem();
         }
-    }
+    }, [getItem, setItem, removeItem]);
 
+    // Sincronizar metas desde localStorage al montar
     useEffect(() => {
-        if (typeof window === "undefined") return;
-        try {
-            const raw = window.localStorage.getItem(GOAL_STORAGE_KEY);
-            if (!raw) return;
-            const parsed = JSON.parse(raw) as Record<string, number> | null;
-            if (!parsed) return;
-            const sanitized = Object.entries(parsed).reduce((acc, [rawKey, rawValue]) => {
-                if (!metricGoalKeys.includes(rawKey as MetricGoalKey)) {
-                    return acc;
-                }
-                const numericValue = typeof rawValue === "number" ? rawValue : Number(rawValue);
-                if (Number.isFinite(numericValue) && numericValue > 0) {
-                    acc[rawKey as MetricGoalKey] = numericValue;
-                }
-                return acc;
-            }, {} as StoredGoals);
-            if (Object.keys(sanitized).length) {
-                setStoredGoals(sanitized);
-            }
-        } catch (error) {
-            // Ignore storage hydration errors silently
-        }
-    }, []);
+        const stored = getItem();
+        if (!stored || Object.keys(stored).length === 0) return;
 
-    useEffect(() => {
-        setGoalInputs(buildGoalState(storedGoals));
-    }, [buildGoalState, storedGoals]);
+        const metricKeys = Object.keys(GOAL_PARAM_MAP) as MetricGoalKey[];
+        const updates: Record<string, string> = {};
+        let hasUpdates = false;
 
-    useEffect(() => {
-        if (!Object.keys(storedGoals).length) return;
-        const params = new URLSearchParams(searchParams.toString());
-        let mutated = false;
-        metricGoalKeys.forEach((key) => {
+        metricKeys.forEach((key) => {
             const paramName = GOAL_PARAM_MAP[key];
-            if (!params.get(paramName)) {
-                const storedValue = storedGoals[key];
-                if (typeof storedValue === "number" && storedValue > 0) {
-                    params.set(paramName, storedValue.toString());
-                    mutated = true;
+            if (!searchParams.get(paramName)) {
+                const storedValue = stored[key];
+                if (typeof storedValue === "number" && isValidGoalNumber(storedValue)) {
+                    updates[paramName] = storedValue.toString();
+                    hasUpdates = true;
                 }
             }
         });
-        if (mutated) {
-            router.replace(`/dashboard?${params.toString()}`, { scroll: false });
+
+        if (hasUpdates) {
+            updateParams(updates);
         }
-    }, [storedGoals, router, searchParams]);
+    }, []); // Solo al montar
 
-    const persistGoalValue = useCallback((key: MetricGoalKey, rawValue: string) => {
-        const params = new URLSearchParams(searchParams.toString());
-        const paramName = GOAL_PARAM_MAP[key];
-        const numericValue = Number(rawValue);
-        const isValid = Number.isFinite(numericValue) && numericValue > 0;
-
-        if (isValid) {
-            params.set(paramName, numericValue.toString());
-        } else {
-            params.delete(paramName);
+    // Handlers de metas
+    const handleGoalInputChange = useCallback((key: MetricGoalKey, value: string) => {
+        if (value === "" || /^[0-9]+$/.test(value)) {
+            setGoalInputs(prev => ({ ...prev, [key]: value }));
         }
+    }, []);
 
-        const previousQuery = searchParams.toString();
-        const nextQuery = params.toString();
-        if (nextQuery !== previousQuery) {
-            router.replace(`/dashboard?${nextQuery}`, { scroll: false });
-        }
-
-        syncStoredGoal(key, isValid ? numericValue : undefined);
-    }, [router, searchParams, syncStoredGoal]);
-
-    const handleGoalInputChange = (key: MetricGoalKey, value: string) => {
-        if (value === "" || /^[0-9]*$/.test(value)) {
-            setGoalInputs((prev) => ({ ...prev, [key]: value }));
-        }
-    };
-
-    const handleGoalCommit = (key: MetricGoalKey, value?: string) => {
+    const handleGoalCommit = useCallback((key: MetricGoalKey, value?: string) => {
         const candidate = (value ?? goalInputs[key]).trim();
-        persistGoalValue(key, candidate);
-    };
+        const numericValue = Number(candidate);
+        const isValid = isValidGoalNumber(numericValue);
 
-    const handleQuickGoal = (key: MetricGoalKey, factor: number) => {
+        updateParams({
+            [GOAL_PARAM_MAP[key]]: isValid ? numericValue.toString() : null,
+        });
+
+        syncGoalToStorage(key, isValid ? numericValue : undefined);
+    }, [goalInputs, updateParams, syncGoalToStorage]);
+
+    const handleQuickGoal = useCallback((key: MetricGoalKey, factor: number) => {
         const currentValue = Number(goalInputs[key]);
-        const sourceValue = Number.isFinite(currentValue) && currentValue > 0
+        const sourceValue = isValidGoalNumber(currentValue)
             ? currentValue
             : DEFAULT_METRIC_GOALS[key].value;
         const nextValue = Math.max(1, Math.round(sourceValue * factor));
         const nextValueString = nextValue.toString();
-        setGoalInputs((prev) => ({ ...prev, [key]: nextValueString }));
-        persistGoalValue(key, nextValueString);
-    };
 
-    const handleGoalReset = () => {
-        const params = new URLSearchParams(searchParams.toString());
-        let mutated = false;
-        metricGoalKeys.forEach((key) => {
-            const paramName = GOAL_PARAM_MAP[key];
-            if (params.has(paramName)) {
-                params.delete(paramName);
-                mutated = true;
-            }
-        });
-        if (mutated) {
-            router.replace(`/dashboard?${params.toString()}`, { scroll: false });
-        }
+        setGoalInputs(prev => ({ ...prev, [key]: nextValueString }));
+        updateParams({ [GOAL_PARAM_MAP[key]]: nextValueString });
+        syncGoalToStorage(key, nextValue);
+    }, [goalInputs, updateParams, syncGoalToStorage]);
 
-        clearStoredGoals();
-        setGoalInputs(getDefaultGoalState());
-    };
+    const handleGoalReset = useCallback(() => {
+        const metricKeys = Object.keys(GOAL_PARAM_MAP) as MetricGoalKey[];
+        const updates = metricKeys.reduce((acc, key) => {
+            acc[GOAL_PARAM_MAP[key]] = null;
+            return acc;
+        }, {} as Record<string, null>);
 
-    // Apply filters to URL - Fixed to avoid circular dependencies
-    const applyFilters = useCallback((currentPreset: DateRangePreset, currentRange: DateRange | undefined) => {
-        const params = new URLSearchParams(searchParams.toString());
+        updateParams(updates);
+        removeItem();
+        setGoalInputs(
+            metricKeys.reduce((acc, key) => {
+                acc[key] = DEFAULT_METRIC_GOALS[key].value.toString();
+                return acc;
+            }, {} as GoalInputState)
+        );
+    }, [updateParams, removeItem]);
 
-        if (currentPreset !== "custom") {
-            params.set("preset", currentPreset);
-            const range = getPresetDateRange(currentPreset);
-            if (range?.from) params.set("from", range.from.toISOString());
-            if (range?.to) params.set("to", range.to.toISOString());
-        } else if (currentRange?.from && currentRange?.to) {
-            params.set("preset", "custom");
-            params.set("from", currentRange.from.toISOString());
-            params.set("to", currentRange.to.toISOString());
-        } else {
-            // If custom but incomplete, don't update
-            return;
-        }
-
-        router.push(`/dashboard?${params.toString()}`, { scroll: false });
-    }, [router, searchParams]);
-
-    // Handle preset change
-    const handlePresetChange = (value: DateRangePreset) => {
+    // Handlers de fechas
+    const handlePresetChange = useCallback((value: DateRangePreset) => {
         setPreset(value);
         if (value !== "custom") {
             const range = getPresetDateRange(value);
             setDateRange(range);
-            // Apply immediately for presets
-            applyFilters(value, range);
+            if (range?.from && range?.to) {
+                updateParams({
+                    preset: value,
+                    from: range.from.toISOString(),
+                    to: range.to.toISOString(),
+                }, false);
+            }
         }
-    };
+    }, [updateParams]);
 
-    // Handle custom date range change
-    const handleDateRangeChange = (range: DateRange | undefined) => {
+    const handleDateRangeChange = useCallback((range: DateRange | undefined) => {
         setDateRange(range);
         if (range?.from && range?.to) {
             setPreset("custom");
-            // Apply immediately when both dates are selected
-            applyFilters("custom", range);
+            updateParams({
+                preset: "custom",
+                from: range.from.toISOString(),
+                to: range.to.toISOString(),
+            }, false);
         }
-    };
+    }, [updateParams]);
 
-    // Reset filters
-    const handleReset = () => {
-        const defaultPreset: DateRangePreset = "thisMonth";
-        const defaultRange = getPresetDateRange(defaultPreset);
-        setPreset(defaultPreset);
-        setDateRange(defaultRange);
-        applyFilters(defaultPreset, defaultRange);
-    };
-
-    // Sync with URL params on mount
-    useEffect(() => {
-        const urlPreset = searchParams.get("preset") as DateRangePreset;
-        const urlFrom = searchParams.get("from");
-        const urlTo = searchParams.get("to");
-
-        if (urlPreset && urlFrom && urlTo) {
-            setPreset(urlPreset);
-            setDateRange({
-                from: new Date(urlFrom),
-                to: new Date(urlTo)
-            });
-        } else if (!urlPreset && !urlFrom && !urlTo) {
-            // No params in URL, apply default
-            const defaultPreset: DateRangePreset = "thisMonth";
-            const defaultRange = getPresetDateRange(defaultPreset);
-            applyFilters(defaultPreset, defaultRange);
+    const handleReset = useCallback(() => {
+        const range = getPresetDateRange(DEFAULT_PRESET);
+        setPreset(DEFAULT_PRESET);
+        setDateRange(range);
+        if (range?.from && range?.to) {
+            updateParams({
+                preset: DEFAULT_PRESET,
+                from: range.from.toISOString(),
+                to: range.to.toISOString(),
+            }, false);
         }
-    }, []); // Only run on mount
+    }, [updateParams]);
 
-    const selectedPresetMeta = presetOptions.find((option) => option.value === preset);
-    const presetLabel = selectedPresetMeta?.label ?? "Personalizado";
-    const totalDaysSelected =
-        dateRange?.from && dateRange?.to
-            ? Math.max(1, Math.round((dateRange.to.getTime() - dateRange.from.getTime()) / (1000 * 60 * 60 * 24)) + 1)
-            : undefined;
-    const activeAccent = presetAccentMap[preset] ?? "from-blue-500/60 via-cyan-500/30 to-sky-500/20";
-    const accentBorder = presetBorderMap[preset] ?? "from-slate-800 via-blue-600 to-slate-900";
-    const accentBeam = presetBeamMap[preset] ?? "bg-blue-500/35";
+    // Valores derivados memoizados
+    const presetMeta = useMemo(
+        () => PRESET_OPTIONS.find(opt => opt.value === preset),
+        [preset]
+    );
+
+    const totalDays = useMemo(
+        () => dateRange?.from && dateRange?.to 
+            ? calculateDaysDifference(dateRange.from, dateRange.to)
+            : undefined,
+        [dateRange]
+    );
+
+    const presetStyles = useMemo(() => ({
+        accent: PRESET_STYLES.accent[preset] ?? PRESET_STYLES.accent.thisMonth,
+        border: PRESET_STYLES.border[preset] ?? PRESET_STYLES.border.thisMonth,
+        beam: PRESET_STYLES.beam[preset] ?? PRESET_STYLES.beam.thisMonth,
+    }), [preset]);
 
     return (
-        <Card className="relative z-10 mb-6 overflow-hidden rounded-4xl border border-slate-500/20 bg-gradient-to-br from-slate-950/95 via-slate-900/90 to-slate-950/95  shadow-[0_10px_60px_rgba(59,130,246,0.18)]">
-            <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_top,rgba(59,130,246,0.18),transparent_60%)]" />
-            <div className="pointer-events-none absolute inset-0 bg-[linear-gradient(120deg,rgba(56,189,248,0.06)_1px,transparent_1px)] bg-size-[160px_160px] opacity-30" />
-            <div className="pointer-events-none absolute -top-32 left-6 h-64 w-64 rounded-full bg-cyan-500/20 blur-[140px]" />
-            <div className="pointer-events-none absolute -bottom-32 right-0 h-72 w-72 rounded-full bg-blue-500/18 blur-[160px]" />
+        <Card className="relative z-10 mb-6 overflow-hidden rounded-4xl border border-violet-500/25 bg-linear-to-br from-slate-950 via-indigo-950/40 to-slate-950 shadow-[0_10px_36px_rgba(139,92,246,0.25)]">
+            {/* Background effects */}
+            <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_top,rgba(139,92,246,0.25),transparent_60%)]" />
+            <div className="pointer-events-none absolute inset-0 bg-[linear-gradient(120deg,rgba(139,92,246,0.08)_1px,transparent_1px)] bg-size-[160px_160px] opacity-40" />
+            <div className="pointer-events-none absolute -top-32 left-6 h-64 w-64 rounded-full bg-violet-400/20 blur-[120px]" />
+            <div className="pointer-events-none absolute -bottom-32 right-0 h-72 w-72 rounded-full bg-fuchsia-500/18 blur-[120px]" />
 
-            <div className="relative z-10 space-y-4 p-5 md:p-8">
+            <div className="relative z-10 space-y-3 p-5 py-2 md:p-8 md:py-4">
+                {/* Header */}
                 <motion.div
-                    variants={heroVariants}
+                    variants={ANIMATION_VARIANTS.hero}
                     initial="hidden"
                     animate="visible"
                     className="flex flex-col gap-5 md:flex-row md:items-center md:justify-between"
                 >
-                    <div className="max-w-2xl space-y-1">
-                        <p className="text-2xl font-semibold text-white">Configura tu panel de métricas</p>
-                        <p className="text-sm text-slate-300">
-                            Ajusta el rango temporal y define metas potentes.
+                    <div className="max-w-2xl space-y-2">
+                        <div className="relative inline-block">
+                            <h2 className="text-3xl font-black tracking-tight bg-linear-to-r from-white via-violet-200 to-fuchsia-200 bg-clip-text text-transparent drop-shadow-[0_0_30px_rgba(167,139,250,0.5)]">
+                                Configura tu panel de métricas
+                            </h2>
+                            <div className="absolute -inset-1 -z-10 bg-linear-to-r from-violet-600/20 via-fuchsia-600/20 to-purple-600/20 blur-2xl" />
+                        </div>
+                        <p className="text-sm font-medium text-slate-300/90 leading-relaxed">
+                            <span className="inline-flex items-center gap-1.5">
+                                Ajusta el rango temporal y define metas potentes
+                            </span>
                         </p>
-                        
                     </div>
 
-                   <div className="flex flex-wrap items-center gap-2 text-[10px] font-semibold uppercase tracking-[0.35em] text-white/70">
-                            <span className="rounded-full border border-cyan-400/30 bg-gradient-to-r from-cyan-500/20 to-blue-500/20 px-3 py-1 text-cyan-100 shadow-[0_0_15px_rgba(34,211,238,0.35)] animate-pulse">
-                                Panel activo
-                            </span>
-                          
-                        </div>
+                    <div className="flex flex-wrap items-center gap-2 text-[10px] font-semibold uppercase tracking-[0.35em] text-white/80">
+                        <span className="animate-pulse rounded-full border border-violet-400/40 bg-linear-to-r from-violet-500/25 via-fuchsia-500/25 to-purple-500/25 px-3 py-1 text-violet-50 shadow-[0_0_12px_rgba(167,139,250,0.4)]">
+                            Panel activo
+                        </span>
+                    </div>
                 </motion.div>
 
+                {/* Date range controls */}
                 <motion.div
-                    variants={stackedVariants}
+                    variants={ANIMATION_VARIANTS.stacked}
                     initial="hidden"
                     whileInView="visible"
                     viewport={{ once: true, amount: 0.4 }}
                     className="flex flex-col gap-10 lg:flex-row lg:items-center"
                 >
-                    <div className="flex-1 rounded-[28px] border-none shadow-none ">
+                    <div className="flex-1">
                         <div className="flex flex-col gap-3 sm:flex-row">
-                            <div className="flex-1 min-w-60">
+                            <div className="min-w-60 flex-1">
                                 <PresetDropdown value={preset} onChange={handlePresetChange} />
                             </div>
                             {preset === "custom" && (
-                                <div className="flex-1 min-w-[280px] rounded-2xl border border-dashed border-white/15 bg-slate-950/40 px-2 py-1 shadow-inner shadow-black/30">
+                                <div className="min-w-[280px] flex-1 rounded-2xl border border-dashed border-white/15 bg-slate-950/40 px-2 py-1 shadow-inner shadow-black/30">
                                     <DatePickerWithRange
                                         date={dateRange}
                                         onDateChange={handleDateRangeChange}
@@ -532,225 +541,318 @@ export default function DashboardFilters() {
                     <Button
                         onClick={handleReset}
                         variant="outline"
-                        className="group relative h-12 min-w-[170px] overflow-hidden rounded-2xl border border-blue-400/25 bg-gradient-to-r from-slate-900/60 to-slate-800/60 px-6 text-sm font-semibold text-white backdrop-blur-xl shadow-md shadow-blue-500/10 transition-all duration-500 hover:-translate-y-0.5 hover:border-cyan-400/40 hover:shadow-xl hover:shadow-blue-500/15"
+                        className="group relative h-12 min-w-[170px] overflow-hidden rounded-2xl border border-violet-400/35 bg-linear-to-r from-slate-900 via-indigo-950/50 to-slate-900 px-6 text-sm font-semibold text-white shadow-md shadow-violet-500/15 backdrop-blur-xl transition-all duration-500 hover:-translate-y-0.5 hover:border-fuchsia-400/50 hover:shadow-lg hover:shadow-violet-500/25"
                     >
-                        <span className="absolute inset-0 bg-gradient-to-r from-blue-500/10 via-transparent to-cyan-500/10 opacity-60 transition-opacity duration-500 group-hover:opacity-100" />
-                        <span className="absolute inset-0 translate-y-full bg-gradient-to-r from-cyan-500/25 via-blue-500/20 to-cyan-500/25 opacity-0 transition-all duration-500 group-hover:translate-y-0 group-hover:opacity-100" />
+                        <span className="absolute inset-0 bg-linear-to-r from-violet-500/15 via-fuchsia-500/10 to-purple-500/15 opacity-70 transition-opacity duration-500 group-hover:opacity-100" />
+                        <span className="absolute inset-0 translate-y-full bg-linear-to-r from-fuchsia-500/25 via-violet-500/20 to-purple-500/25 opacity-0 transition-all duration-500 group-hover:translate-y-0 group-hover:opacity-100" />
                         <span className="relative z-10 flex items-center justify-center gap-2 text-white">
-                            <RotateCcw className="h-4 w-4 text-cyan-300 transition-transform duration-500 group-hover:-rotate-180" />
+                            <RotateCcw className="h-4 w-4 text-violet-200 transition-transform duration-500 group-hover:-rotate-180" />
                             Restablecer
                         </span>
                     </Button>
                 </motion.div>
 
+                {/* Date range display */}
                 {dateRange?.from && (
-                    <motion.div
-                        variants={stackedVariants}
-                        initial="hidden"
-                        whileInView="visible"
-                        viewport={{ once: true, amount: 0.4 }}
-                        className="grid gap-4 lg:grid-cols-[2fr,1fr]"
-                    >
-                        <div className="relative overflow-hidden rounded-3xl border border-slate-700/80 bg-gradient-to-br from-slate-900/90 via-slate-800/85 to-slate-900/90 p-5 shadow-md shadow-slate-900/30">
-                            <div className="absolute inset-0 bg-[radial-gradient(circle_at_top,rgba(59,130,246,0.15),transparent_65%)] opacity-60" />
-                            <div className="relative space-y-4">
-                                <div className="inline-flex items-center gap-2 rounded-full border border-blue-400/25 bg-gradient-to-r from-blue-500/15 to-cyan-500/15 px-3 py-1.5 text-[11px] font-bold uppercase tracking-[0.35em] text-blue-200">
-                                    <Calendar className="h-3.5 w-3.5" />
-                                    <span>Período</span>
-                                </div>
-                                <div className="flex flex-wrap items-center gap-3 text-sm">
-                                    <span className="rounded-2xl bg-slate-950/80 border border-blue-500/15 px-3 py-2 text-sm font-semibold text-white shadow-sm shadow-blue-900/20">
-                                        {dateRange.from.toLocaleDateString("es-ES", {
-                                            day: "2-digit",
-                                            month: "long",
-                                            year: "numeric",
-                                        })}
-                                    </span>
-                                    {dateRange.to && dateRange.to.getTime() !== dateRange.from.getTime() && (
-                                        <>
-                                            <div className="flex items-center gap-1 text-cyan-400">
-                                                <div className="h-0.5 w-4 rounded bg-blue-600" />
-                                                <div className="h-1.5 w-1.5 rounded-full bg-cyan-400" />
-                                                <div className="h-0.5 w-4 rounded bg-blue-600" />
-                                            </div>
-                                            <span className="rounded-2xl bg-slate-950/80 border border-blue-500/15 px-3 py-2 text-sm font-semibold text-white shadow-sm shadow-blue-900/20">
-                                                {dateRange.to.toLocaleDateString("es-ES", {
-                                                    day: "2-digit",
-                                                    month: "long",
-                                                    year: "numeric",
-                                                })}
-                                            </span>
-                                        </>
-                                    )}
-                                </div>
-                               
-                            </div>
-                        </div>
-
-                        <div className={cn("relative rounded-[28px] bg-gradient-to-r p-px", accentBorder)}>
-                            <div className="relative overflow-hidden rounded-[26px] bg-gradient-to-br from-slate-900/95 via-slate-800/90 to-slate-950/95 p-5 text-white">
-                                <div className={`absolute inset-0 bg-gradient-to-br ${activeAccent} opacity-60`} />
-                                <div className={`absolute -top-16 right-6 h-32 w-32 rounded-full blur-3xl ${accentBeam} opacity-60`} />
-                                <div className="absolute inset-x-0 bottom-0 h-1/2 bg-gradient-to-t from-black/30 via-transparent" />
-                                <div className="relative z-10 flex h-full flex-col gap-3">
-                                    <div className="flex items-center justify-between">
-                                        <div className="inline-flex items-center gap-2 rounded-full border border-blue-400/25 bg-gradient-to-r from-blue-500/15 to-cyan-500/15 px-3 py-1 text-[10px] font-semibold uppercase tracking-[0.4em] text-blue-200">
-                                            <span className="h-1.5 w-1.5 rounded-full bg-cyan-400" />
-                                            Preset activo
-                                        </div>
-                                        <Clock className="h-4 w-4 text-slate-300" />
-                                    </div>
-                                    <div className="space-y-2">
-                                        <p className="text-2xl font-semibold leading-tight tracking-tight text-white">{presetLabel}</p>
-                                        {totalDaysSelected && (
-                                            <p className="text-sm text-slate-300">{totalDaysSelected} días seleccionados</p>
-                                        )}
-                                        {selectedPresetMeta?.description && (
-                                            <p className="text-xs text-slate-400">{selectedPresetMeta.description}</p>
-                                        )}
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </motion.div>
+                    <DateRangeDisplay
+                        dateRange={dateRange}
+                        presetMeta={presetMeta}
+                        presetStyles={presetStyles}
+                        totalDays={totalDays}
+                    />
                 )}
 
-                <motion.div
-                    variants={stackedVariants}
-                    initial="hidden"
-                    whileInView="visible"
-                    viewport={{ once: true, amount: 0.4 }}
-                    className="rounded-[30px] border border-blue-500/20 bg-gradient-to-br from-slate-900/90 via-slate-800/85 to-slate-900/90 p-5 shadow-md shadow-blue-500/10"
-                >
-                    <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
-                        <div className="space-y-1">
-                            <p className="text-lg font-semibold text-white">Metas personalizadas</p>
-                            <p className="text-xs text-slate-300">
-                                Guardamos tus objetivos para un mejor seguimiento del rendimiento.
-                            </p>
-                        </div>
-                        <div className="flex flex-wrap items-center gap-3">
-                            <Button
-                                type="button"
-                                variant="ghost"
-                                onClick={handleGoalReset}
-                                className="h-10 rounded-2xl border border-blue-400/25 bg-gradient-to-r from-blue-500/15 to-cyan-500/15 px-4 text-xs font-semibold uppercase tracking-[0.3em] text-blue-200 transition hover:from-blue-500/25 hover:to-cyan-500/25 hover:shadow-md hover:shadow-blue-500/20"
-                            >
-                                <Sparkles className="mr-2 h-4 w-4" />
-                                Restablecer metas
-                            </Button>
-                        </div>
-                    </div>
-
-                    <div className="mt-6 grid gap-4 md:grid-cols-2 xl:grid-cols-4">
-                        {metricGoalKeys.map((key, index) => {
-                            const meta = goalInputMeta[key];
-                            const base = DEFAULT_METRIC_GOALS[key];
-                            const visuals = goalVisuals[key];
-                            const inputValue = goalInputs[key] ?? "";
-                            const numericValue = Number(inputValue);
-                            const isValidValue = Number.isFinite(numericValue) && numericValue > 0;
-                            const effectiveValue = isValidValue ? numericValue : base.value;
-                            const isCustom = isValidValue && numericValue !== base.value;
-                            const friendlyEffective = formatGoalValue(key, effectiveValue);
-                            const friendlyBase = formatGoalValue(key, base.value);
-
-                            return (
-                                <motion.div
-                                    key={key}
-                                    variants={goalCardVariants}
-                                    initial="hidden"
-                                    whileInView="visible"
-                                    viewport={{ once: true, amount: 0.3 }}
-                                    custom={index}
-                                    whileHover={{ y: -6, scale: 1.01 }}
-                                    className="relative overflow-hidden rounded-3xl shadow-md bg-gradient-to-br from-slate-900/90 via-slate-800/85 to-slate-900/90 p-5 text-white"
-                                >
-                                    <div className={cn("pointer-events-none absolute inset-0 bg-gradient-to-br", visuals.gradient, "opacity-70")} />
-                                    <div className={cn("pointer-events-none absolute -top-12 right-6 h-28 w-28 rounded-full blur-3xl", visuals.beam, "opacity-50")} />
-                                    <div className="absolute inset-0 bg-slate-950/20" />
-                                    <div className="relative z-10 flex h-full flex-col gap-4">
-                                        <div className="flex flex-col gap-2">
-                                            <div className="flex items-center justify-between gap-3">
-                                                <span className="text-[10px] font-semibold uppercase tracking-[0.25em] text-slate-400">
-                                                    {base.label}
-                                                </span>
-                                                <Badge
-                                                    variant={isCustom ? "success" : "secondary"}
-                                                    className="text-[10px] uppercase tracking-[0.2em] text-white"
-                                                >
-                                                    {isCustom ? "Personalizada" : "Sugerida"}
-                                                </Badge>
-                                            </div>
-                                            <p className="text-xs text-slate-300">
-                                                Objetivo:
-                                                <span className="ml-1 font-semibold text-white">{friendlyEffective}</span>
-                                            </p>
-                                            <p className="text-[11px] text-slate-400">{meta.helper}</p>
-                                        </div>
-
-                                        <div className="relative">
-                                            {meta.prefix && (
-                                                <span className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-xs font-semibold text-slate-400">
-                                                    {meta.prefix}
-                                                </span>
-                                            )}
-                                            <input
-                                                type="text"
-                                                inputMode="numeric"
-                                                pattern="[0-9]*"
-                                                value={inputValue}
-                                                onChange={(event) => handleGoalInputChange(key, event.target.value)}
-                                                onBlur={(event) => handleGoalCommit(key, event.target.value)}
-                                                onKeyDown={(event) => {
-                                                    if (event.key === "Enter") {
-                                                        (event.target as HTMLInputElement).blur();
-                                                    }
-                                                }}
-                                                className={cn(
-                                                    "h-14 w-full rounded-2xl border border-blue-500/25 bg-slate-950/60 px-4 text-base font-semibold tracking-wide text-white placeholder:text-slate-500 focus:border-cyan-400/70 focus:outline-none focus:ring-2 focus:ring-cyan-500/25",
-                                                    meta.prefix ? "pl-11" : ""
-                                                )}
-                                                placeholder={base.value.toString()}
-                                            />
-                                            {meta.suffix && (
-                                                <span className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-[11px] font-semibold uppercase tracking-[0.3em] text-slate-400">
-                                                    {meta.suffix}
-                                                </span>
-                                            )}
-                                        </div>
-
-                                        <div className="flex flex-wrap items-center gap-2 text-[11px] text-slate-300">
-                                            <span className="rounded-full border border-blue-500/25 bg-blue-500/15 px-2 py-1 font-semibold text-blue-200">
-                                                Base: {friendlyBase}
-                                            </span>
-                                        
-                                        </div>
-
-                                        <div className="grid grid-cols-3 gap-2 text-xs font-semibold">
-                                            {quickGoalPresets.map((preset) => (
-                                                <motion.button
-                                                    key={preset.label}
-                                                    type="button"
-                                                    whileHover={{ y: -2 }}
-                                                    whileTap={{ scale: 0.97 }}
-                                                    onClick={() => handleQuickGoal(key, preset.factor)}
-                                                    className="rounded-2xl border border-blue-500/25 bg-gradient-to-br from-blue-500/15 via-cyan-500/12 to-blue-500/15 px-2 py-2 text-white transition hover:from-blue-500/25 hover:via-cyan-500/20 hover:to-blue-500/25 hover:border-cyan-400/35 hover:shadow-md hover:shadow-blue-500/20"
-                                                >
-                                                    {preset.label}
-                                                </motion.button>
-                                            ))}
-                                        </div>
-                                    </div>
-                                </motion.div>
-                            );
-                        })}
-                    </div>
-                </motion.div>
+                {/* Goals section */}
+                <GoalsSection
+                    goalInputs={goalInputs}
+                    onInputChange={handleGoalInputChange}
+                    onCommit={handleGoalCommit}
+                    onQuickGoal={handleQuickGoal}
+                    onReset={handleGoalReset}
+                />
             </div>
         </Card>
     );
 }
+
+// ============================================================================
+// SUB-COMPONENTES
+// ============================================================================
+
+type DateRangeDisplayProps = {
+    dateRange: DateRange;
+    presetMeta?: PresetOption;
+    presetStyles: { accent: string; border: string; beam: string };
+    totalDays?: number;
+};
+
+function DateRangeDisplay({ dateRange, presetMeta, presetStyles, totalDays }: DateRangeDisplayProps) {
+    const formatDate = (date: Date) =>
+        date.toLocaleDateString("es-ES", {
+            day: "2-digit",
+            month: "long",
+            year: "numeric",
+        });
+
+    return (
+        <motion.div
+            variants={ANIMATION_VARIANTS.stacked}
+            initial="hidden"
+            whileInView="visible"
+            viewport={{ once: true, amount: 0.4 }}
+            className="grid gap-4 lg:grid-cols-[2fr,1fr]"
+        >
+            {/* Period card */}
+            <div className="relative overflow-hidden rounded-3xl border border-indigo-500/25 bg-linear-to-br from-slate-900 via-indigo-950/30 to-slate-900 p-5 shadow-md shadow-indigo-900/30">
+                <div className="absolute inset-0 bg-[radial-gradient(circle_at_top,rgba(99,102,241,0.2),transparent_65%)] opacity-70" />
+                <div className="relative space-y-4">
+                    <div className="group relative inline-flex items-center gap-2 overflow-hidden rounded-full border border-indigo-400/40 bg-linear-to-r from-indigo-500/25 via-violet-500/25 to-purple-500/25 px-4 py-2 text-[11px] font-extrabold uppercase tracking-[0.35em] text-indigo-100 shadow-lg shadow-indigo-500/20">
+                        <div className="absolute inset-0 bg-linear-to-r from-indigo-500/10 via-violet-500/10 to-purple-500/10 opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
+                        <Calendar className="h-3.5 w-3.5 relative z-10" />
+                        <span className="relative z-10">Período</span>
+                    </div>
+                    <div className="flex flex-wrap items-center gap-3 text-sm">
+                        <span className="rounded-2xl border border-indigo-500/15 bg-slate-950/80 px-3 py-2 text-sm font-semibold text-white shadow-sm">
+                            {formatDate(dateRange.from!)}
+                        </span>
+                        {dateRange.to && dateRange.to.getTime() !== dateRange.from!.getTime() && (
+                            <>
+                                <div className="flex items-center gap-1 text-violet-500">
+                                    <div className="h-0.5 w-4 rounded bg-violet-600" />
+                                    <div className="h-1.5 w-1.5 rounded-full bg-violet-500" />
+                                    <div className="h-0.5 w-4 rounded bg-violet-600" />
+                                </div>
+                                <span className="rounded-2xl border border-indigo-500/15 bg-slate-950/80 px-3 py-2 text-sm font-semibold text-white shadow-sm">
+                                    {formatDate(dateRange.to)}
+                                </span>
+                            </>
+                        )}
+                    </div>
+                </div>
+            </div>
+
+            {/* Active preset card */}
+            <div className={cn("relative rounded-[28px] bg-linear-to-r p-[1.5px]", presetStyles.border)}>
+                <div className="relative overflow-hidden rounded-[26px] bg-linear-to-br from-slate-900 via-slate-800 to-slate-950 p-5 text-white">
+                    <div className={cn("absolute inset-0 bg-linear-to-br opacity-75", presetStyles.accent)} />
+                    <div className={cn("absolute -top-16 right-6 h-32 w-32 rounded-full opacity-70 blur-3xl", presetStyles.beam)} />
+                    <div className="absolute inset-x-0 bottom-0 h-1/2 bg-gradient-to-t from-black/30 via-transparent" />
+                    <div className="relative z-10 flex h-full flex-col gap-3">
+                        <div className="flex items-center justify-between">
+                            <div className="inline-flex items-center gap-2 rounded-full border border-violet-400/35 bg-linear-to-r from-violet-500/20 via-purple-500/20 to-fuchsia-500/20 px-3 py-1 text-[10px] font-semibold uppercase tracking-[0.4em] text-violet-100">
+                                <span className="h-1.5 w-1.5 rounded-full bg-violet-400" />
+                                Preset activo
+                            </div>
+                            <Clock className="h-4 w-4 text-slate-300" />
+                        </div>
+                        <div className="space-y-2.5">
+                            <h4 className="text-2xl font-black leading-tight tracking-tight bg-linear-to-br from-white via-slate-100 to-slate-200 bg-clip-text text-transparent drop-shadow-[0_2px_8px_rgba(255,255,255,0.3)]">
+                                {presetMeta?.label ?? "Personalizado"}
+                            </h4>
+                            {totalDays && (
+                                <p className="text-sm font-semibold text-slate-300/90 flex items-center gap-1.5">
+                                    <span className="h-1 w-1 rounded-full bg-violet-400" />
+                                    {totalDays} días seleccionados
+                                </p>
+                            )}
+                            {presetMeta?.description && (
+                                <p className="text-xs font-medium text-slate-400/80">{presetMeta.description}</p>
+                            )}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </motion.div>
+    );
+}
+
+type GoalsSectionProps = {
+    goalInputs: GoalInputState;
+    onInputChange: (key: MetricGoalKey, value: string) => void;
+    onCommit: (key: MetricGoalKey, value?: string) => void;
+    onQuickGoal: (key: MetricGoalKey, factor: number) => void;
+    onReset: () => void;
+};
+
+function GoalsSection({ goalInputs, onInputChange, onCommit, onQuickGoal, onReset }: GoalsSectionProps) {
+    const metricKeys = useMemo(() => Object.keys(GOAL_PARAM_MAP) as MetricGoalKey[], []);
+
+    return (
+        <motion.div
+            variants={ANIMATION_VARIANTS.stacked}
+            initial="hidden"
+            whileInView="visible"
+            viewport={{ once: true, amount: 0.4 }}
+            className="p-3"
+        >
+            <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+                <div className="space-y-2">
+                    <div className="relative inline-block">
+                        <h3 className="text-xl font-extrabold tracking-tight bg-linear-to-r from-violet-200 via-fuchsia-200 to-purple-200 bg-clip-text text-transparent">
+                            Metas personalizadas
+                        </h3>
+                        <div className="absolute -bottom-1 left-0 h-0.5 w-16 bg-linear-to-r from-violet-500 via-fuchsia-500 to-transparent rounded-full" />
+                    </div>
+                    <p className="text-xs font-medium text-slate-400/90 leading-relaxed">
+                        <span className="inline-flex items-center gap-1.5">
+                            Guardamos tus objetivos para un mejor seguimiento del rendimiento
+                        </span>
+                    </p>
+                </div>
+                <Button
+                    type="button"
+                    variant="ghost"
+                    onClick={onReset}
+                    className="h-10 rounded-2xl border border-violet-400/35 bg-linear-to-r from-violet-500/20 via-fuchsia-500/20 to-purple-500/20 px-4 text-xs font-semibold uppercase tracking-[0.3em] text-violet-100 transition hover:from-violet-500/30 hover:via-fuchsia-500/30 hover:to-purple-500/30 hover:shadow-md hover:shadow-violet-500/25"
+                >
+                    <Sparkles className="mr-2 h-4 w-4" />
+                    Restablecer metas
+                </Button>
+            </div>
+
+            <div className="mt-6 grid gap-4 md:grid-cols-2 xl:grid-cols-4">
+                {metricKeys.map((key, index) => (
+                    <GoalCard
+                        key={key}
+                        metricKey={key}
+                        index={index}
+                        inputValue={goalInputs[key] ?? ""}
+                        onInputChange={onInputChange}
+                        onCommit={onCommit}
+                        onQuickGoal={onQuickGoal}
+                    />
+                ))}
+            </div>
+        </motion.div>
+    );
+}
+
+type GoalCardProps = {
+    metricKey: MetricGoalKey;
+    index: number;
+    inputValue: string;
+    onInputChange: (key: MetricGoalKey, value: string) => void;
+    onCommit: (key: MetricGoalKey, value?: string) => void;
+    onQuickGoal: (key: MetricGoalKey, factor: number) => void;
+};
+
+const GoalCard = memo(function GoalCard({
+    metricKey,
+    index,
+    inputValue,
+    onInputChange,
+    onCommit,
+    onQuickGoal,
+}: GoalCardProps) {
+    const meta = GOAL_INPUT_META[metricKey];
+    const base = DEFAULT_METRIC_GOALS[metricKey];
+    const visuals = GOAL_VISUALS[metricKey];
+
+    const numericValue = Number(inputValue);
+    const isValidValue = isValidGoalNumber(numericValue);
+    const effectiveValue = isValidValue ? numericValue : base.value;
+    const isCustom = isValidValue && numericValue !== base.value;
+
+    const friendlyEffective = formatGoalValue(metricKey, effectiveValue);
+    const friendlyBase = formatGoalValue(metricKey, base.value);
+
+    return (
+        <motion.div
+            variants={ANIMATION_VARIANTS.goalCard}
+            initial="hidden"
+            whileInView="visible"
+            viewport={{ once: true, amount: 0.3 }}
+            custom={index}
+            whileHover={{ y: -7, scale: 1.02 }}
+            className="group relative overflow-hidden rounded-3xl border border-white/10 bg-linear-to-br from-slate-900/95 via-slate-800/90 to-slate-900/95 p-5 text-white shadow-[0_8px_32px_rgba(0,0,0,0.4)] backdrop-blur-sm transition-all duration-500 hover:border-white/20 hover:shadow-[0_16px_48px_rgba(0,0,0,0.5)]"
+        >
+            <div className={cn("pointer-events-none absolute inset-0 bg-linear-to-br opacity-60 transition-opacity duration-500 group-hover:opacity-90", visuals.gradient)} />
+            <div className={cn("pointer-events-none absolute -top-12 right-6 h-28 w-28 rounded-full opacity-40 blur-[80px] transition-all duration-500 group-hover:scale-110 group-hover:opacity-70", visuals.beam)} />
+            <div className="absolute inset-0 bg-gradient-to-t from-slate-950/60 via-transparent to-transparent" />
+            <div className={cn("absolute inset-0 bg-linear-to-br opacity-0 transition-opacity duration-500 group-hover:opacity-100", visuals.gradient.replace("/18", "/8").replace("/10", "/5"))} />
+            
+            <div className="relative z-10 flex h-full flex-col gap-3">
+                <div className="flex flex-col gap-2">
+                    <div className="flex items-center justify-between gap-3">
+                        <span className="text-[11px] font-bold uppercase tracking-[0.2em] text-slate-300 transition-colors duration-300 group-hover:text-white">
+                            {base.label}
+                        </span>
+                        <Badge
+                            variant={isCustom ? "success" : "secondary"}
+                            className={cn(
+                                "rounded-full border px-2.5 py-1 text-[9px] font-bold uppercase tracking-[0.2em] transition-all duration-300",
+                                isCustom
+                                    ? "border-emerald-400/40 bg-linear-to-r from-emerald-500/20 to-teal-500/20 text-emerald-100 shadow-sm shadow-emerald-500/20"
+                                    : "border-slate-400/30 bg-linear-to-r from-slate-500/20 to-slate-600/20 text-slate-200"
+                            )}
+                        >
+                            {isCustom ? "Personalizada" : "Sugerida"}
+                        </Badge>
+                    </div>
+                    <div className="space-y-1.5">
+                        <p className="text-[10px] font-medium uppercase tracking-wider text-slate-400">Objetivo</p>
+                        <p className="text-xl font-bold text-white transition-transform duration-300 group-hover:scale-105">
+                            {friendlyEffective}
+                        </p>
+                    </div>
+                    <p className="text-[11px] leading-relaxed text-slate-400 transition-colors duration-300 group-hover:text-slate-300">
+                        {meta.helper}
+                    </p>
+                </div>
+
+                <div className="group/input relative">
+                    {meta.prefix && (
+                        <span className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-sm font-bold text-slate-400 transition-colors duration-300 group-hover/input:text-slate-300">
+                            {meta.prefix}
+                        </span>
+                    )}
+                    <input
+                        type="text"
+                        inputMode="numeric"
+                        pattern="[0-9]*"
+                        value={inputValue}
+                        onChange={(e) => onInputChange(metricKey, e.target.value)}
+                        onBlur={(e) => onCommit(metricKey, e.target.value)}
+                        onKeyDown={(e) => e.key === "Enter" && e.currentTarget.blur()}
+                        className={cn(
+                            "h-14 w-full rounded-2xl border border-white/10 bg-slate-950/60 px-4 text-base font-bold tracking-wide text-white backdrop-blur-sm placeholder:text-slate-500 transition-all duration-300 hover:border-white/20 hover:bg-slate-950/80 focus:border-white/30 focus:bg-slate-950/90 focus:outline-none focus:ring-2 focus:ring-white/10",
+                            meta.prefix && "pl-11"
+                        )}
+                        placeholder={base.value.toString()}
+                    />
+                    {meta.suffix && (
+                        <span className="pointer-events-none absolute right-4 top-1/2 -translate-y-1/2 text-[10px] font-bold uppercase tracking-[0.3em] text-slate-400 transition-colors duration-300 group-hover/input:text-slate-300">
+                            {meta.suffix}
+                        </span>
+                    )}
+                </div>
+
+                <div className="flex flex-wrap items-center gap-2">
+                    <span className="inline-flex items-center gap-1.5 rounded-full border border-white/15 bg-white/5 px-3 py-1.5 text-[10px] font-bold uppercase tracking-wider text-slate-300 backdrop-blur-sm transition-all duration-300 group-hover:border-white/25 group-hover:bg-white/10">
+                        <span className="text-slate-400">Base:</span>
+                        <span className="text-white">{friendlyBase}</span>
+                    </span>
+                </div>
+
+                <div className="grid grid-cols-3 gap-2.5">
+                    {QUICK_GOAL_PRESETS.map((preset) => (
+                        <motion.button
+                            key={preset.label}
+                            type="button"
+                            whileHover={{ y: -3, scale: 1.05 }}
+                            whileTap={{ scale: 0.95 }}
+                            onClick={() => onQuickGoal(metricKey, preset.factor)}
+                            className="relative overflow-hidden rounded-xl border border-white/15 bg-linear-to-br from-white/10 to-white/5 px-3 py-2.5 text-xs font-bold text-white backdrop-blur-sm transition-all duration-300 hover:border-white/30 hover:from-white/20 hover:to-white/10 hover:shadow-lg hover:shadow-black/30 active:scale-95"
+                        >
+                            <span className="relative z-10">{preset.label}</span>
+                            <div className="absolute inset-0 bg-linear-to-br from-white/0 to-white/5 opacity-0 transition-opacity duration-300 hover:opacity-100" />
+                        </motion.button>
+                    ))}
+                </div>
+            </div>
+        </motion.div>
+    );
+});
 
 type PresetDropdownProps = {
     value: DateRangePreset;
@@ -759,10 +861,14 @@ type PresetDropdownProps = {
 
 function PresetDropdown({ value, onChange }: PresetDropdownProps) {
     const [open, setOpen] = useState(false);
-    const containerRef = useRef<HTMLDivElement | null>(null);
-    const menuRef = useRef<HTMLDivElement | null>(null);
+    const containerRef = useRef<HTMLDivElement>(null);
+    const menuRef = useRef<HTMLDivElement>(null);
     const [menuPosition, setMenuPosition] = useState<{ top: number; left: number; width: number } | null>(null);
-    const selected = presetOptions.find((option) => option.value === value) ?? presetOptions[0];
+    
+    const selected = useMemo(
+        () => PRESET_OPTIONS.find((opt) => opt.value === value) ?? PRESET_OPTIONS[0],
+        [value]
+    );
 
     const updatePosition = useCallback(() => {
         if (!containerRef.current) return;
@@ -775,7 +881,7 @@ function PresetDropdown({ value, onChange }: PresetDropdownProps) {
     }, []);
 
     useEffect(() => {
-        const handleClick = (event: MouseEvent) => {
+        const handleClickOutside = (event: MouseEvent) => {
             const target = event.target as Node;
             if (
                 containerRef.current &&
@@ -786,17 +892,15 @@ function PresetDropdown({ value, onChange }: PresetDropdownProps) {
             }
         };
 
-        const handleKey = (event: KeyboardEvent) => {
-            if (event.key === "Escape") {
-                setOpen(false);
-            }
+        const handleEscape = (event: KeyboardEvent) => {
+            if (event.key === "Escape") setOpen(false);
         };
 
-        document.addEventListener("mousedown", handleClick);
-        document.addEventListener("keydown", handleKey);
+        document.addEventListener("mousedown", handleClickOutside);
+        document.addEventListener("keydown", handleEscape);
         return () => {
-            document.removeEventListener("mousedown", handleClick);
-            document.removeEventListener("keydown", handleKey);
+            document.removeEventListener("mousedown", handleClickOutside);
+            document.removeEventListener("keydown", handleEscape);
         };
     }, []);
 
@@ -811,10 +915,10 @@ function PresetDropdown({ value, onChange }: PresetDropdownProps) {
         };
     }, [open, updatePosition]);
 
-    const handleSelect = (nextValue: DateRangePreset) => {
+    const handleSelect = useCallback((nextValue: DateRangePreset) => {
         onChange(nextValue);
         setOpen(false);
-    };
+    }, [onChange]);
 
     return (
         <div ref={containerRef} className="relative">
@@ -822,23 +926,28 @@ function PresetDropdown({ value, onChange }: PresetDropdownProps) {
                 type="button"
                 aria-haspopup="listbox"
                 aria-expanded={open}
-                onClick={() => setOpen((previous) => !previous)}
-                    className="flex w-full items-center justify-between gap-3 rounded-2xl border border-blue-500/20 bg-gradient-to-r from-slate-900/70 to-slate-800/70 p-4 text-left text-white shadow-md shadow-blue-500/10 transition-all duration-300 hover:-translate-y-0.5 hover:border-cyan-400/30 hover:shadow-xl hover:shadow-blue-500/15 focus:outline-none focus-visible:ring-2 focus-visible:ring-cyan-500/40"
+                onClick={() => setOpen((prev) => !prev)}
+                className="flex w-full items-center justify-between gap-3 rounded-2xl border border-violet-500/25 bg-linear-to-r from-slate-900 via-indigo-950/40 to-slate-900 p-4 text-left text-white shadow-md shadow-violet-500/15 transition-all duration-300 hover:-translate-y-0.5 hover:border-fuchsia-400/40 hover:shadow-lg hover:shadow-violet-500/20 focus:outline-none focus-visible:ring-2 focus-visible:ring-violet-500/40"
             >
                 <div className="flex items-center gap-3">
-                    <div className="flex h-10 w-10 items-center justify-center rounded-2xl bg-gradient-to-br from-blue-500 to-cyan-600 text-white shadow-md shadow-blue-500/25">
+                    <div className="flex h-10 w-10 items-center justify-center rounded-2xl bg-linear-to-br from-blue-500 via-violet-500 to-blue-500 text-white shadow-md shadow-violet-500/30">
                         <Calendar className="h-4 w-4" />
                     </div>
                     <div>
-                            <p className="text-sm font-semibold text-white">{selected.label}</p>
-                            <p className="text-xs text-slate-400">{selected.description}</p>
+                        <p className="text-sm font-semibold text-white">{selected.label}</p>
+                        <p className="text-xs text-slate-400">{selected.description}</p>
                     </div>
                 </div>
-                <ChevronDown className={cn("h-4 w-4 text-slate-500 transition-transform duration-200", open ? "rotate-180" : "rotate-0")} />
+                <ChevronDown
+                    className={cn(
+                        "h-4 w-4 text-slate-500 transition-transform duration-200",
+                        open && "rotate-180"
+                    )}
+                />
             </button>
 
-            {open && menuPosition && typeof document !== "undefined"
-                ? createPortal(
+            {open && menuPosition && typeof document !== "undefined" &&
+                createPortal(
                     <div
                         ref={menuRef}
                         style={{
@@ -849,9 +958,9 @@ function PresetDropdown({ value, onChange }: PresetDropdownProps) {
                         }}
                         className="z-200"
                     >
-                        <div className="rounded-2xl border border-blue-500/20 bg-slate-950/98 p-2 shadow-[0_20px_60px_rgba(59,130,246,0.25)] backdrop-blur-xl">
+                        <div className="rounded-2xl border border-violet-500/25 bg-slate-950/98 p-2 shadow-[0_12px_48px_rgba(139,92,246,0.3)] backdrop-blur-xl">
                             <div className="max-h-72 space-y-1 overflow-y-auto pr-1">
-                                {presetOptions.map((option) => {
+                                {PRESET_OPTIONS.map((option) => {
                                     const isActive = option.value === value;
                                     return (
                                         <button
@@ -863,8 +972,8 @@ function PresetDropdown({ value, onChange }: PresetDropdownProps) {
                                             className={cn(
                                                 "w-full rounded-xl px-3 py-2.5 text-left text-sm transition-all duration-200",
                                                 isActive
-                                                    ? "bg-gradient-to-r from-blue-600 to-cyan-600 text-white shadow-md shadow-blue-500/20"
-                                                    : "text-slate-300 hover:bg-blue-500/15 hover:text-white"
+                                                    ? "bg-linear-to-r from-violet-600 via-fuchsia-600 to-purple-600 text-white shadow-md shadow-violet-500/25"
+                                                    : "text-slate-300 hover:bg-violet-500/15 hover:text-white"
                                             )}
                                         >
                                             <p className="font-semibold">{option.label}</p>
@@ -876,8 +985,10 @@ function PresetDropdown({ value, onChange }: PresetDropdownProps) {
                         </div>
                     </div>,
                     document.body
-                )
-                : null}
+                )}
         </div>
     );
 }
+
+// Importar memo para GoalCard
+import { memo } from "react";

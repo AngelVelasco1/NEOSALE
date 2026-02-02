@@ -16,7 +16,7 @@ const Card = React.forwardRef<
       "hover:shadow-2xl hover:shadow-slate-500/20 dark:hover:shadow-slate-900/40",
       "hover:bg-white/15 dark:hover:bg-slate-900/30",
       "before:absolute before:inset-0 before:rounded-2xl",
-      "before:bg-gradient-to-br before:from-white/5 before:to-transparent",
+      "before:bg-linear-to-br before:from-white/5 before:to-transparent",
       "before:pointer-events-none overflow-hidden",
       className
     )}
@@ -49,7 +49,7 @@ const CardTitle = React.forwardRef<
     ref={ref}
     className={cn(
       "text-2xl font-bold leading-none tracking-tight",
-      "bg-gradient-to-r from-slate-700 to-slate-900",
+      "bg-linear-to-r from-slate-700 to-slate-900",
       "dark:from-slate-200 dark:to-slate-400",
       "bg-clip-text text-transparent",
       className

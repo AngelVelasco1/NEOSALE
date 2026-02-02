@@ -129,7 +129,7 @@ export const PriceFilter = ({
 
                     {/* Active Range */}
                     <motion.div
-                        className="absolute h-2 bg-gradient-to-r from-slate-600 to-slate-500 rounded-full"
+                        className="absolute h-2 bg-linear-to-r from-slate-600 to-slate-500 rounded-full"
                         style={{
                             left: `${minPercent}%`,
                             right: `${100 - maxPercent}%`,

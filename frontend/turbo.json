@@ -1,0 +1,21 @@
+{
+  "$schema": "https://turbo.build/schema.json",
+  "globalDependencies": ["**/.env.local", "**/package.json"],
+  "tasks": {
+    "build": {
+      "dependsOn": ["^build"],
+      "inputs": ["src/**", "app/**", "components/**", "lib/**", "public/**"],
+      "outputs": [".next/**"],
+      "cache": true,
+      "outputMode": "hash-only"
+    },
+    "dev": {
+      "cache": false,
+      "persistent": true
+    },
+    "lint": {
+      "outputs": [".eslintcache"],
+      "cache": true
+    }
+  }
+}

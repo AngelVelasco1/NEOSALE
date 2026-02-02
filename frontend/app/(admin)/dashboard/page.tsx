@@ -94,31 +94,45 @@ export default async function DashboardPage({ searchParams }: DashboardPageProps
       </section>
 
       <section className="space-y-6">
-        <div className="relative overflow-hidden rounded-3xl border border-white/10 bg-linear-to-r from-slate-950 via-slate-900 to-slate-950 text-white shadow-2xl shadow-blue-900/30">
-          <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_top,rgba(59,130,246,0.25),transparent_55%)]" />
-          <div className="pointer-events-none absolute inset-0 bg-[linear-gradient(120deg,rgba(255,255,255,0.06)_1px,transparent_1px)] bg-size-[140px_140px] opacity-30" />
-          <div className="relative flex flex-col gap-8 px-3 py-7 md:px-12">
+        <div className="relative overflow-hidden rounded-3xl border border-blue-500/20 bg-linear-to-br from-slate-950 via-slate-900/30 to-slate-950 text-white shadow-[0_25px_80px_rgba(59,130,246,0.25)]">
+          {/* Background effects */}
+          <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_top_left,rgba(59,130,246,0.15),transparent_50%)]" />
+          <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_bottom_right,rgba(37,99,235,0.1),transparent_50%)]" />
+          <div className="pointer-events-none absolute inset-0 bg-[linear-gradient(135deg,rgba(59,130,246,0.05)_1px,transparent_1px)] bg-size-[40px_40px] opacity-30" />
+          <div className="pointer-events-none absolute -top-40 left-10 h-80 w-80 rounded-full bg-blue-500/10 blur-[100px]" />
+          <div className="pointer-events-none absolute -bottom-40 right-10 h-80 w-80 rounded-full bg-cyan-500/8 blur-[100px]" />
+
+          <div className="relative flex flex-col gap-4 px-4 py-6 md:px-8">
             <div className="flex flex-col gap-6 lg:flex-row lg:items-center lg:justify-between">
-              <div className="flex items-start gap-5">
-                <div className="flex h-14 w-15 items-center justify-center rounded-2xl bg-white/10 backdrop-blur">
-                  <PackageSearch className="h-7 w-7 text-white" />
+              <div className="flex items-start gap-6">
+                <div className="group relative flex h-16 w-16 items-center justify-center overflow-hidden rounded-3xl bg-linear-to-br from-blue-500/20 via-cyan-500/20 to-sky-500/20 backdrop-blur-sm border border-blue-400/30 shadow-lg shadow-blue-500/20">
+                  <div className="absolute inset-0 bg-linear-to-br from-blue-500/30 via-cyan-500/30 to-sky-500/30 opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
+                  <PackageSearch className="relative z-10 h-8 w-8 text-blue-200 transition-colors duration-300 group-hover:text-white" />
+                  <div className="absolute -inset-1 -z-10 bg-linear-to-r from-blue-600/20 via-cyan-600/20 to-sky-600/20 blur-xl opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
                 </div>
-                <div className="space-y-3">
-                  <PageTitle component="h2" className="mb-0 text-white">
-                    Pedidos Recientes
-                  </PageTitle>
-                  <p className="max-w-2xl text-sm leading-relaxed text-slate-300">
-                    Revisa los últimos pedidos realizados en tu tienda y mantente al tanto de su estado y progreso.
+                <div className="space-y-1">
+                  <div className="relative">
+                    <h2 className="mb-0 font-semibold text-xl bg-linear-to-r from-white via-blue-200 to-cyan-200 bg-clip-text text-transparent drop-shadow-[0_0_30px_rgba(59,130,246,0.5)]">
+                      Pedidos Recientes
+                    </h2>
+                    <div className="absolute -inset-2 -z-10 bg-linear-to-r from-blue-600/20 via-cyan-600/20 to-sky-600/20 blur-2xl" />
+                  </div>
+                  <p className="max-w-2xl text-sm leading-relaxed text-slate-300/90">
+                    <span className="inline-flex items-center">
+                      Revisa los últimos pedidos realizados en tu tienda y mantente al tanto de su estado y progreso.
+                    </span>
                   </p>
-                 
                 </div>
               </div>
               <div className="flex flex-wrap items-center gap-3 text-sm">
-                <div className="flex items-center gap-2 rounded-2xl border border-white/20 bg-white/5 px-4 py-2">
-                  <Clock className="h-4 w-4 text-blue-200" />
-                  <span className="font-medium tracking-wide text-slate-100">
-                    {dateRangeLabel}
-                  </span>
+                <div className="group relative overflow-hidden rounded-2xl border border-blue-400/30 bg-linear-to-r from-blue-500/10 via-cyan-500/10 to-sky-500/10 px-5 py-3 backdrop-blur-sm shadow-lg shadow-blue-500/20 transition-all duration-300 hover:border-blue-400/50 hover:shadow-xl hover:shadow-blue-500/30">
+                  <span className="absolute inset-0 bg-linear-to-r from-blue-500/20 via-cyan-500/20 to-sky-500/20 opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
+                  <div className="relative z-10 flex items-center gap-3">
+                    <Clock className="h-4 w-4 text-blue-300 transition-colors duration-300 group-hover:text-blue-100" />
+                    <span className="font-bold tracking-wide text-slate-100 transition-colors duration-300 group-hover:text-white">
+                      {dateRangeLabel}
+                    </span>
+                  </div>
                 </div>
               </div>
             </div>

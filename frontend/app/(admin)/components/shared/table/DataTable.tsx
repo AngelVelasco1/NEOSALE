@@ -195,7 +195,7 @@ export default function DataTable<TData>({
                       <Inbox className="h-7 w-7" />
                     </div>
                     <div className="space-y-1">
-                      <Typography className="text-slate-600 dark:text-slate-400 font-semibold text-base">
+                      <Typography className="text-slate-600 dark:text-slate-400 font-semibold text-base block">
                         No se encontraron resultados
                       </Typography>
                       <Typography className="text-xs text-slate-500 dark:text-slate-500">

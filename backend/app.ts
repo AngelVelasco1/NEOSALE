@@ -4,6 +4,7 @@ import { BACK_CONFIG } from "./config/credentials.js";
 import cors from "cors";
 import cookieParser from "cookie-parser";
 import { prisma } from "./lib/prisma";
+import compression from "compression";
 import { errorsHandler } from "./middlewares/errorsHandler";
 
 
@@ -15,8 +16,9 @@ app.disable("x-powered-by");
 app.set("trust proxy", 1);
 
 // Desactivar el error handler HTML de Express y mostrar solo JSON
-app.set("env", "production");
 app.set("json spaces", 0);
+
+app.use(compression());
 
 app.use(
   cors({
@@ -36,17 +38,12 @@ app.use((req, res, next) => {
   // Headers de seguridad
   res.setHeader("X-Content-Type-Options", "nosniff");
   res.setHeader("X-Frame-Options", "DENY");
-  res.setHeader("X-Permitted-Cross-Domain-Policies", "none");
-  res.setHeader("Content-Security-Policy", "default-src 'none'");
   
   // Ocultar información de timing
   res.removeHeader("Date");
   res.removeHeader("Last-Modified");
   res.removeHeader("ETag");
   res.removeHeader("Server");
-  
-  // Forzar respuestas JSON, nunca HTML
-  res.setHeader("Content-Type", "application/json; charset=utf-8");
   
   next();
 });
@@ -74,10 +71,7 @@ app.use((req, res, next) => {
   });
 });
 
-// Error handler debe ser el último middleware
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-app.use((err: Error, req: express.Request, res: express.Response, next: express.NextFunction) => {
-  // Prevenir que Express devuelva HTML con stack traces
+app.use((err: Error, req: express.Request, res: express.Response) => {
   if (!res.headersSent) {
     errorsHandler(err, req, res);
   }

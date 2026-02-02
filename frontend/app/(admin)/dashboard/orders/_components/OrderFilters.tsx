@@ -244,7 +244,7 @@ export default function OrderFilters() {
       ? cn(
           FILTER_CHIP_CLASS,
           FILTER_CHIP_ACTIVE_CLASS,
-          "bg-gradient-to-r from-emerald-500 via-teal-500 to-cyan-400 text-white border-transparent shadow-lg shadow-emerald-900/35"
+          "bg-linear-to-r from-emerald-500 via-teal-500 to-cyan-400 text-white border-transparent shadow-lg shadow-emerald-900/35"
         )
       : cn(
           FILTER_CHIP_CLASS,

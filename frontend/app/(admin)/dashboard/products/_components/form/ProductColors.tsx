@@ -112,7 +112,7 @@ export function ProductColors({
   return (
     <div className="space-y-5">
       {/* Agregar nuevo color */}
-      <div className="relative overflow-hidden rounded-2xl border border-slate-800/60 bg-gradient-to-br from-slate-950/85 via-slate-900/70 to-slate-950/85 p-6 shadow-[0_25px_60px_rgba(2,6,23,0.7)]">
+      <div className="relative overflow-hidden rounded-2xl border border-slate-800/60 bg-linear-to-br from-slate-950/85 via-slate-900/70 to-slate-950/85 p-6 shadow-[0_25px_60px_rgba(2,6,23,0.7)]">
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_top,_rgba(59,130,246,0.12),transparent_55%)]" />
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_bottom,_rgba(147,51,234,0.15),transparent_60%)]" />
         <div className="relative flex flex-col gap-5">
@@ -169,7 +169,7 @@ export function ProductColors({
               <Button
                 type="button"
                 onClick={addColor}
-                className="w-full h-12 rounded-xl bg-gradient-to-r from-blue-600 via-indigo-500 to-purple-600 text-white font-semibold tracking-wide shadow-[0_20px_35px_rgba(37,99,235,0.35)] hover:opacity-90 transition"
+                className="w-full h-12 rounded-xl bg-linear-to-r from-blue-600 via-indigo-500 to-purple-600 text-white font-semibold tracking-wide shadow-[0_20px_35px_rgba(37,99,235,0.35)] hover:opacity-90 transition"
               >
                 <Plus className="h-4 w-4 mr-2" />
                 Añadir
@@ -209,14 +209,14 @@ export function ProductColors({
                       {color.code}
                     </span>
                   </div>
-                  <div className="absolute inset-0 rounded-xl border border-transparent group-data-[state=active]:border-blue-500/40 group-data-[state=active]:bg-gradient-to-r group-data-[state=active]:from-blue-500/20 group-data-[state=active]:to-purple-600/20 -z-10" />
+                  <div className="absolute inset-0 rounded-xl border border-transparent group-data-[state=active]:border-blue-500/40 group-data-[state=active]:bg-linear-to-r group-data-[state=active]:from-blue-500/20 group-data-[state=active]:to-purple-600/20 -z-10" />
                 </TabsTrigger>
               ))}
             </TabsList>
 
             {colors.map((color) => (
               <TabsContent key={color.code} value={color.code} className="pt-6">
-                <div className="relative overflow-hidden rounded-2xl border border-slate-800/70 bg-gradient-to-br from-slate-950/90 via-slate-900/75 to-slate-950/90 p-6 shadow-[0_25px_60px_rgba(2,6,23,0.6)] space-y-6">
+                <div className="relative overflow-hidden rounded-2xl border border-slate-800/70 bg-linear-to-br from-slate-950/90 via-slate-900/75 to-slate-950/90 p-6 shadow-[0_25px_60px_rgba(2,6,23,0.6)] space-y-6">
                   <div className="absolute inset-0 bg-[radial-gradient(circle_at_top,_rgba(79,70,229,0.12),transparent_60%)]" />
                   <div className="absolute inset-0 bg-[radial-gradient(circle_at_bottom,_rgba(14,165,233,0.12),transparent_65%)]" />
 
@@ -284,7 +284,7 @@ export function ProductColors({
                               className="w-full h-full object-cover"
                             />
                             {img.isPrimary && (
-                              <div className="absolute top-3 left-3 px-3 py-1 rounded-full bg-gradient-to-r from-emerald-500 to-teal-400 text-white text-[11px] font-semibold">
+                              <div className="absolute top-3 left-3 px-3 py-1 rounded-full bg-linear-to-r from-emerald-500 to-teal-400 text-white text-[11px] font-semibold">
                                 Principal
                               </div>
                             )}
@@ -294,7 +294,7 @@ export function ProductColors({
                                   type="button"
                                   size="sm"
                                   onClick={() => setPrimaryImage(color.code, index)}
-                                  className="h-8 px-4 rounded-full bg-gradient-to-r from-blue-600 to-purple-600 text-white text-xs"
+                                  className="h-8 px-4 rounded-full bg-linear-to-r from-blue-600 to-purple-600 text-white text-xs"
                                 >
                                   Marcar principal
                                 </Button>

@@ -23,7 +23,7 @@ export const metadata: Metadata = {
 export default function Page() {
   return (
     <div className="relative min-h-screen overflow-hidden bg-slate-950 text-white">
-      <div className="absolute inset-x-0 top-[-40%] h-[480px] bg-gradient-to-br from-sky-500/40 via-indigo-700/30 to-fuchsia-600/30 blur-3xl" />
+      <div className="absolute inset-x-0 top-[-40%] h-[480px] bg-linear-to-br from-sky-500/40 via-indigo-700/30 to-fuchsia-600/30 blur-3xl" />
       <div className="absolute inset-x-0 bottom-[-35%] h-[420px] bg-gradient-to-tr from-slate-900 via-blue-900/40 to-transparent blur-3xl" />
       <div
         className="absolute inset-0 opacity-[0.08]"

@@ -3,47 +3,14 @@
 import { RiFacebookCircleFill, RiInstagramFill, RiYoutubeFill, RiTwitterXFill, RiWhatsappFill, RiTiktokFill } from "react-icons/ri";
 import { Mail, MapPin, Phone, ArrowRight } from "lucide-react";
 import Image from "next/image";
-import React, { useEffect, useState } from 'react';
+
+import { useStoreSettings } from "@/app/hooks/useStoreSettings";
 import Link from 'next/link';
 
-interface StoreSettings {
-  store_name: string;
-  store_description?: string;
-  contact_email: string;
-  contact_phone: string;
-  city: string;
-  country: string;
-  facebook_url?: string;
-  instagram_url?: string;
-  twitter_url?: string;
-  youtube_url?: string;
-  tiktok_url?: string;
-  whatsapp_number?: string;
-  footer_text?: string;
-}
 
 export const Footer = () => {
   const currentYear = new Date().getFullYear();
-  const [storeSettings, setStoreSettings] = useState<StoreSettings | null>(null);
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    fetchStoreSettings();
-  }, []);
-
-  const fetchStoreSettings = async () => {
-    try {
-      const response = await fetch('/api/store-settings');
-      if (response.ok) {
-        const data = await response.json();
-        setStoreSettings(data);
-      }
-    } catch (error) {
-      console.error('Error fetching store settings:', error);
-    } finally {
-      setLoading(false);
-    }
-  };
+  const storeSettings = useStoreSettings();
 
   const footerLinks = {
     company: [
@@ -53,7 +20,6 @@ export const Footer = () => {
     ],
     shop: [
       { name: 'Productos', href: '/products' },
-      { name: 'Nuevos Lanzamientos', href: '/new' },
       { name: 'Ofertas', href: '/deals' },
       { name: 'Marcas', href: '/brands' },
     ],
@@ -70,75 +36,59 @@ export const Footer = () => {
     ],
   };
 
+  // Social links dinámicos según configuración
   const getSocialLinks = () => {
+    if (!storeSettings) return [];
     const links = [];
-    
-    if (storeSettings?.facebook_url) {
-      links.push({ 
-        icon: RiFacebookCircleFill, 
-        href: storeSettings.facebook_url, 
-        label: 'Facebook', 
-        color: 'hover:text-blue-500' 
+    if (storeSettings.facebook_url) {
+      links.push({
+        icon: RiFacebookCircleFill,
+        href: storeSettings.facebook_url,
+        label: 'Facebook',
+        color: 'hover:text-blue-500',
       });
     }
-    
-    if (storeSettings?.whatsapp_number) {
+    if (storeSettings.whatsapp_number) {
       const whatsappUrl = `https://wa.me/${storeSettings.whatsapp_number.replace(/\D/g, '')}`;
-      links.push({ 
-        icon: RiWhatsappFill, 
-        href: whatsappUrl, 
-        label: 'WhatsApp', 
-        color: 'hover:text-green-500' 
+      links.push({
+        icon: RiWhatsappFill,
+        href: whatsappUrl,
+        label: 'WhatsApp',
+        color: 'hover:text-green-500',
       });
     }
-    
-    if (storeSettings?.instagram_url) {
-      links.push({ 
-        icon: RiInstagramFill, 
-        href: storeSettings.instagram_url, 
-        label: 'Instagram', 
-        color: 'hover:text-pink-500' 
+    if (storeSettings.instagram_url) {
+      links.push({
+        icon: RiInstagramFill,
+        href: storeSettings.instagram_url,
+        label: 'Instagram',
+        color: 'hover:text-pink-500',
       });
     }
-    
-    if (storeSettings?.youtube_url) {
-      links.push({ 
-        icon: RiYoutubeFill, 
-        href: storeSettings.youtube_url, 
-        label: 'YouTube', 
-        color: 'hover:text-red-500' 
+    if (storeSettings.youtube_url) {
+      links.push({
+        icon: RiYoutubeFill,
+        href: storeSettings.youtube_url,
+        label: 'YouTube',
+        color: 'hover:text-red-500',
       });
     }
-    
-    if (storeSettings?.twitter_url) {
-      links.push({ 
-        icon: RiTwitterXFill, 
-        href: storeSettings.twitter_url, 
-        label: 'Twitter/X', 
-        color: 'hover:text-slate-900' 
+    if (storeSettings.twitter_url) {
+      links.push({
+        icon: RiTwitterXFill,
+        href: storeSettings.twitter_url,
+        label: 'Twitter/X',
+        color: 'hover:text-slate-900',
       });
     }
-
-    if (storeSettings?.tiktok_url) {
-      links.push({ 
-        icon: RiTiktokFill, 
-        href: storeSettings.tiktok_url, 
-        label: 'TikTok', 
-        color: 'hover:text-slate-900' 
+    if (storeSettings.tiktok_url) {
+      links.push({
+        icon: RiTiktokFill,
+        href: storeSettings.tiktok_url,
+        label: 'TikTok',
+        color: 'hover:text-black',
       });
     }
-
-    // Si no hay redes sociales configuradas, mostrar valores por defecto
-    if (links.length === 0) {
-      return [
-        { icon: RiFacebookCircleFill, href: '#', label: 'Facebook', color: 'hover:text-blue-500' },
-        { icon: RiWhatsappFill, href: '#', label: 'WhatsApp', color: 'hover:text-green-500' },
-        { icon: RiInstagramFill, href: '#', label: 'Instagram', color: 'hover:text-pink-500' },
-        { icon: RiYoutubeFill, href: '#', label: 'YouTube', color: 'hover:text-red-500' },
-        { icon: RiTwitterXFill, href: '#', label: 'Twitter/X', color: 'hover:text-slate-900' },
-      ];
-    }
-
     return links;
   };
 
@@ -326,7 +276,7 @@ export const Footer = () => {
           <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-4">
             <div className="flex flex-col md:flex-row items-center justify-between gap-3 text-xs text-gray-300">
               <p className="text-center md:text-left">
-                © {currentYear} <span className="font-semibold text-white">{storeName}</span>. Todos los derechos reservados.
+                © {currentYear} <span className="font-semibold text-white">{storeSettings?.store_name || "NeoSale"}</span>. Todos los derechos reservados.
               </p>
               <div className="flex items-center gap-4">
                 <Link href="/terms" className=" transition-colors text-gray-300 hover:text-white">

@@ -1,4 +1,4 @@
-import { prisma } from "../lib/prisma";
+import { prisma } from "../lib/prisma.js";
 import { notifyNewOrder, notifyOrderStatusChange, notifyLowStock } from "./notifications.js";
 
 interface CreateOrderFromPaymentRequest {
@@ -200,9 +200,8 @@ export const getOrderWithPaymentService = async (orderId: number) => {
     }
 
     // Obtener la dirección completa usando shipping_address_id
-    let address = null;
     if (order.shipping_address_id) {
-      address = await prisma.addresses.findUnique({
+      await prisma.addresses.findUnique({
         where: { id: order.shipping_address_id },
         select: {
           id: true,
@@ -253,6 +252,11 @@ export const getUserOrdersWithPaymentsService = async (userId: number) => {
               include: {
                 brands: true,
                 categories: true,
+                images: {
+                  where: {
+                    is_primary: true,
+                  },
+                },
               },
             },
           },
@@ -266,7 +270,7 @@ export const getUserOrdersWithPaymentsService = async (userId: number) => {
     });
 
     const ordersWithPayments = await Promise.all(
-      orders.map(async (order) => {
+      orders.map(async (order: any) => {
         let payment: PaymentInfo | null = null;
         const paymentResult = await prisma.$queryRaw<PaymentInfo[]>`
           SELECT
@@ -358,11 +362,11 @@ export const getProductWithVariantsService = async (productId: number) => {
         product.offer_end_date &&
         new Date() < product.offer_end_date,
       availableColors: [
-        ...new Set(product.product_variants.map((v) => v.color_code)),
+        ...new Set(product.product_variants.map((v: any) => v.color_code)),
       ],
-      availableSizes: [...new Set(product.product_variants.map((v) => v.size))],
+      availableSizes: [...new Set(product.product_variants.map((v: any) => v.size))],
       totalStock: product.product_variants.reduce(
-        (sum, variant) => sum + variant.stock,
+        (sum: any, variant: any) => sum + variant.stock,
         0
       ),
     };
@@ -506,7 +510,7 @@ export const updateOrderStatusService = async (
     const order = await prisma.orders.update({
       where: { id: orderId },
       data: {
-        status: status as any, // Type assertion para evitar errores de TypeScript
+        status: status as any, // Cast to the correct enum type for Prisma
         updated_at: new Date(),
       },
       include: {
@@ -588,7 +592,7 @@ export const getOrdersService = async ({
       : null;
 
     // Construir filtro base
-    const where: any = {};
+    const where: Record<string, any> = {};
 
     // Filtro por búsqueda (nombre de usuario o email)
     if (search) {
@@ -628,7 +632,7 @@ export const getOrdersService = async ({
     }
 
     // Construir orderBy dinámico
-    let orderBy: any = { created_at: "desc" }; // default
+    let orderBy: Record<string, any> = { created_at: "desc" }; // default
     if (sortBy && sortOrder) {
       if (sortBy === "customer") {
         // Ordenar por nombre de usuario
@@ -687,7 +691,7 @@ export const getOrdersService = async ({
 
     // Obtener información de payment para cada orden con filtro de método si aplica
     const ordersWithPayments = await Promise.all(
-      orders.map(async (order) => {
+      orders.map(async (order: any) => {
         let paymentResult: PaymentInfo[];
 
         if (methodFilter) {
@@ -731,7 +735,7 @@ export const getOrdersService = async ({
 
     // Filtrar órdenes que no cumplen con el filtro de método de pago
     const filteredOrders = ordersWithPayments.filter(
-      (order): order is NonNullable<typeof order> => order !== null
+      (order: any): order is NonNullable<typeof order> => order !== null
     );
 
     return {

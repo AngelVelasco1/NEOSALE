@@ -69,9 +69,9 @@ export default function CareersPage() {
   ];
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-blue-50">
+    <div className="min-h-screen bg-linear-to-br from-slate-50 via-white to-blue-50">
       {/* Hero Section */}
-      <div className="relative bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600 text-white overflow-hidden">
+      <div className="relative bg-linear-to-r from-blue-600 via-indigo-600 to-purple-600 text-white overflow-hidden">
         <div className="absolute inset-0 bg-black/10"></div>
         <div className="container mx-auto px-4 py-20 md:py-28 relative z-10">
           <div className="max-w-4xl mx-auto text-center">
@@ -106,7 +106,7 @@ export default function CareersPage() {
                 key={index}
                 className="bg-white rounded-2xl p-6 shadow-lg hover:shadow-xl transition-all duration-300 hover:-translate-y-1"
               >
-                <div className="w-14 h-14 bg-gradient-to-br from-blue-500 to-indigo-500 rounded-xl flex items-center justify-center mb-4">
+                <div className="w-14 h-14 bg-linear-to-br from-blue-500 to-indigo-500 rounded-xl flex items-center justify-center mb-4">
                   <benefit.icon className="w-7 h-7 text-white" />
                 </div>
                 <h3 className="text-xl font-bold text-gray-900 mb-2">
@@ -120,7 +120,7 @@ export default function CareersPage() {
           </div>
 
           {/* Culture Section */}
-          <div className="bg-gradient-to-br from-blue-50 to-indigo-50 rounded-3xl p-8 md:p-12 mb-20">
+          <div className="bg-linear-to-br from-blue-50 to-indigo-50 rounded-3xl p-8 md:p-12 mb-20">
             <div className="max-w-3xl mx-auto text-center">
               <Users className="w-16 h-16 mx-auto mb-6 text-blue-600" />
               <h2 className="text-3xl font-bold text-gray-900 mb-4">
@@ -180,7 +180,7 @@ export default function CareersPage() {
                         </span>
                       </div>
                     </div>
-                    <button className="bg-gradient-to-r from-blue-600 to-indigo-600 text-white px-6 py-3 rounded-lg font-semibold hover:from-blue-700 hover:to-indigo-700 transition-all whitespace-nowrap">
+                    <button className="bg-linear-to-r from-blue-600 to-indigo-600 text-white px-6 py-3 rounded-lg font-semibold hover:from-blue-700 hover:to-indigo-700 transition-all whitespace-nowrap">
                       Aplicar Ahora
                     </button>
                   </div>
@@ -193,7 +193,7 @@ export default function CareersPage() {
           </div>
 
           {/* Spontaneous Application */}
-          <div className="bg-gradient-to-br from-blue-600 to-indigo-600 rounded-3xl p-8 md:p-12 text-white">
+          <div className="bg-linear-to-br from-blue-600 to-indigo-600 rounded-3xl p-8 md:p-12 text-white">
             <div className="max-w-3xl mx-auto text-center">
               <Send className="w-16 h-16 mx-auto mb-6 opacity-80" />
               <h2 className="text-3xl md:text-4xl font-bold mb-4">
@@ -292,7 +292,7 @@ export default function CareersPage() {
 
                   <button
                     type="submit"
-                    className="w-full bg-gradient-to-r from-blue-600 to-indigo-600 text-white py-4 rounded-lg font-semibold hover:from-blue-700 hover:to-indigo-700 transition-all shadow-lg"
+                    className="w-full bg-linear-to-r from-blue-600 to-indigo-600 text-white py-4 rounded-lg font-semibold hover:from-blue-700 hover:to-indigo-700 transition-all shadow-lg"
                   >
                     Enviar Aplicación
                   </button>

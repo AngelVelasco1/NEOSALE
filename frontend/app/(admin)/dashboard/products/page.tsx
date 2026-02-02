@@ -1,7 +1,6 @@
 import { Metadata } from "next";
 
 import Products from "./_components";
-import { AiFillProduct } from "react-icons/ai";
 export const metadata: Metadata = {
   title: "Products",
 };

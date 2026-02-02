@@ -115,7 +115,7 @@ export default function PasswordResetForm() {
   }, [isSuccess, router]);
 
   return (
-    <div className="relative overflow-hidden rounded-[32px] border border-slate-900/40 bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950 px-6 py-8 text-white shadow-2xl shadow-slate-900/60">
+    <div className="relative overflow-hidden rounded-[32px] border border-slate-900/40 bg-linear-to-br from-slate-950 via-slate-900 to-slate-950 px-6 py-8 text-white shadow-2xl shadow-slate-900/60">
       <div className="pointer-events-none absolute -right-10 -top-10 h-48 w-48 rounded-full bg-sky-500/25 blur-3xl" />
       <div className="pointer-events-none absolute -left-6 -bottom-16 h-48 w-48 rounded-full bg-indigo-600/25 blur-3xl" />
 
@@ -160,7 +160,7 @@ export default function PasswordResetForm() {
 
             <FormSubmitButton
               isPending={isPending}
-              className="w-full rounded-2xl bg-gradient-to-r from-sky-500 via-indigo-500 to-fuchsia-500 text-base font-semibold text-white shadow-lg shadow-slate-900/40 hover:shadow-xl"
+              className="w-full rounded-2xl bg-linear-to-r from-sky-500 via-indigo-500 to-fuchsia-500 text-base font-semibold text-white shadow-lg shadow-slate-900/40 hover:shadow-xl"
             >
               {isPending ? "Enviando enlace..." : "Enviar enlace seguro"}
             </FormSubmitButton>
