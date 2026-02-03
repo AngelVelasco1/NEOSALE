@@ -98,11 +98,11 @@ export default function ReviewsTable({ reviews }: ReviewsTableProps) {
 
   if (reviews.length === 0) {
     return (
-      <div className="flex flex-col items-center justify-center py-16 rounded-3xl border border-slate-200/70 dark:border-slate-800/60 bg-white/95 dark:bg-slate-950/85 backdrop-blur-xl">
-        <div className="flex h-20 w-20 items-center justify-center rounded-2xl bg-linear-to-br from-orange-100 to-amber-100/80 text-orange-400 shadow-sm dark:from-slate-800 dark:to-slate-700/80 dark:text-orange-200 mb-4">
+      <div className="flex flex-col items-center justify-center py-16 rounded-3xl border border-slate-800/60 bg-slate-950/85 backdrop-blur-xl">
+        <div className="flex h-20 w-20 items-center justify-center rounded-2xl bg-linear-to-br from-slate-800 to-slate-700/80 text-orange-200 shadow-sm mb-4">
           <MessageSquare className="h-10 w-10" />
         </div>
-        <p className="text-slate-600 dark:text-slate-400 font-semibold text-base">No se encontraron reseñas</p>
+        <p className="text-slate-400 font-semibold text-base">No se encontraron reseñas</p>
         <p className="text-xs text-slate-500 dark:text-slate-500 mt-1">Intenta ajustar tus filtros o criterios de búsqueda</p>
       </div>
     );

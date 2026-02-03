@@ -180,7 +180,17 @@ export default function CareersPage() {
                         </span>
                       </div>
                     </div>
-                    <button className="bg-linear-to-r from-blue-600 to-indigo-600 text-white px-6 py-3 rounded-lg font-semibold hover:from-blue-700 hover:to-indigo-700 transition-all whitespace-nowrap">
+                    <button className="text-white px-6 py-3 rounded-lg font-semibold transition-all whitespace-nowrap"
+                      style={{
+                        backgroundImage: `linear-gradient(to right, var(--color-primary), var(--color-secondary))`,
+                      }}
+                      onMouseEnter={(e) => {
+                        e.currentTarget.style.opacity = '0.9';
+                      }}
+                      onMouseLeave={(e) => {
+                        e.currentTarget.style.opacity = '1';
+                      }}
+                    >
                       Aplicar Ahora
                     </button>
                   </div>

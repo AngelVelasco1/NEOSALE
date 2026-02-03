@@ -21,7 +21,7 @@ const NotificationsBadge = ({ staffId }: { staffId: string }) => {
   return (
     <div
       className={cn(
-        "absolute rounded-full flex justify-center items-center text-white bg-red-500 dark:bg-destructive pointer-events-none",
+        "absolute rounded-full flex justify-center items-center text-white bg-destructive pointer-events-none",
         notificationCount < 100
           ? "left-[15%] top-[10%] size-4"
           : "left-[8%] top-[4%] size-5"

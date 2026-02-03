@@ -15,7 +15,6 @@ export const Footer = () => {
   const footerLinks = {
     company: [
       { name: 'Sobre Nosotros', href: '/about' },
-      { name: 'Nuestra Historia', href: '/story' },
       { name: 'Trabaja con Nosotros', href: '/careers' },
     ],
     shop: [

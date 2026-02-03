@@ -39,14 +39,14 @@ export function DatePicker({ className, date, setDate, container }: Props) {
         <Button
           variant="outline"
           className={cn(
-            "h-11 w-full justify-start text-left font-medium rounded-xl border border-slate-200/70 bg-white/85 dark:border-slate-700/80 dark:bg-slate-900/70 backdrop-blur-sm transition-all duration-200 hover:border-emerald-300 hover:bg-emerald-50/60 dark:hover:border-emerald-400/70 dark:hover:bg-emerald-900/40 shadow-none hover:shadow-sm",
-            !date && "text-slate-400 dark:text-slate-500",
+            "h-11 w-full justify-start text-left font-medium rounded-xl border border-slate-700/80 bg-slate-900/70 backdrop-blur-sm transition-all duration-200 hover:border-emerald-400/70 hover:bg-emerald-900/40 shadow-none hover:shadow-sm",
+            !date && "text-slate-500",
             className
           )}
         >
-          <CalendarIcon className="mr-3 h-4 w-4 shrink-0 text-blue-600 dark:text-blue-400" />
+          <CalendarIcon className="mr-3 h-4 w-4 shrink-0 text-blue-400" />
           <span className="flex min-w-0 items-center gap-2 text-sm">
-            <span className="truncate font-semibold text-slate-900 dark:text-white">
+            <span className="truncate font-semibold text-white">
               {date ? formatDate(date) : "Seleccionar fecha"}
             </span>
           </span>
@@ -55,12 +55,12 @@ export function DatePicker({ className, date, setDate, container }: Props) {
       </PopoverTrigger>
       <PopoverContent
         portalContainer={container}
-        className="w-auto p-0 overflow-hidden rounded-2xl border border-slate-200/80 bg-white/98 shadow-lg dark:border-slate-700/80 dark:bg-slate-900"
+        className="w-auto p-0 overflow-hidden rounded-2xl border border-slate-700/80 bg-slate-900 shadow-lg"
         align="start"
         sideOffset={10}
       >
-        <div className="px-5 py-3 border-b border-slate-200/80 bg-linear-to-r from-emerald-50 via-sky-50 to-amber-50 dark:border-slate-700/70 dark:from-emerald-950/30 dark:via-sky-950/25 dark:to-amber-950/25">
-          <h3 className="mb-1 text-sm font-semibold text-slate-900 dark:text-white">Selecciona la fecha</h3>
+        <div className="px-5 py-3 border-b border-slate-700/70 bg-linear-to-r from-emerald-950/30 via-sky-950/25 to-amber-950/25">
+          <h3 className="mb-1 text-sm font-semibold text-white">Selecciona la fecha</h3>
         </div>
         <div className="p-3">
           <Calendar
@@ -73,7 +73,7 @@ export function DatePicker({ className, date, setDate, container }: Props) {
               after: new Date(),
             }}
             initialFocus
-            className="rounded-2xl border border-slate-200/70 bg-white p-3 shadow-none dark:border-slate-800 dark:bg-slate-900"
+            className="rounded-2xl border border-slate-800 bg-slate-900 p-3 shadow-none"
           />
         </div>
       </PopoverContent>

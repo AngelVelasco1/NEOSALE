@@ -484,14 +484,26 @@ export default function OrderDetailPage() {
                         {/* Actions */}
                         <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.6 }} className="space-y-4">
                             <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
-                                <Button className="w-full h-14 bg-linear-to-r from-indigo-600 to-violet-600 text-white shadow-lg shadow-indigo-500/30 font-bold rounded-2xl" onClick={() => router.push('/')}> 
+                                <Button className="w-full h-14 text-white font-bold rounded-2xl" 
+                                  style={{
+                                    backgroundImage: `linear-gradient(to right, var(--color-primary), var(--color-secondary))`,
+                                    boxShadow: `0 10px 25px -5px rgba(var(--color-primary-rgb), 0.3)`
+                                  }}
+                                  onClick={() => router.push('/')}
+                                > 
                                     <ShoppingBag className="w-5 h-5 mr-2" />
                                     Seguir comprando
                                 </Button>
                             </motion.div>
                             {order.status === 'delivered' && (
                                 <motion.div whileHover={{ scale: 1.05 }}>
-                                    <Button variant="outline" className="w-full h-14 border-2 border-indigo-500/40 bg-indigo-500/10 text-indigo-300 font-bold rounded-2xl">
+                                    <Button variant="outline" className="w-full h-14 border-2 font-bold rounded-2xl"
+                                      style={{
+                                        borderColor: `rgba(var(--color-accent-rgb), 0.4)`,
+                                        backgroundColor: `rgba(var(--color-accent-rgb), 0.1)`,
+                                        color: `var(--color-accent)`
+                                      }}
+                                    >
                                         <Star className="w-5 h-5 mr-2" />
                                         Comprar de nuevo
                                     </Button>

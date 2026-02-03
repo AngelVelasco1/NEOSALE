@@ -152,7 +152,7 @@ export default async function BrandDetailPage({ params }: BrandPageProps) {
                 return (
                   <Link
                     key={product.id}
-                    href={`/${product.id}`}
+                    href={`/product/${product.id}`}
                     className="group relative overflow-hidden rounded-xl bg-gradient-to-br from-slate-900/80 to-slate-800/60 border border-slate-700/50 hover:border-purple-500/30 transition-all duration-300 hover:scale-[1.02]"
                   >
                     {/* Hover Glow */}
@@ -180,7 +180,19 @@ export default async function BrandDetailPage({ params }: BrandPageProps) {
                           <button className="w-10 h-10 rounded-lg bg-white/20 backdrop-blur-sm border border-white/30 flex items-center justify-center hover:bg-white/30 transition-colors">
                             <Eye className="w-5 h-5 text-white" />
                           </button>
-                          <button className="w-10 h-10 rounded-lg bg-purple-600/90 backdrop-blur-sm border border-purple-500/30 flex items-center justify-center hover:bg-purple-500 transition-colors">
+                          <button className="w-10 h-10 rounded-lg backdrop-blur-sm border flex items-center justify-center transition-colors"
+                            style={{
+                              backgroundColor: `rgba(var(--color-accent-rgb), 0.9)`,
+                              borderColor: `rgba(var(--color-accent-rgb), 0.5)`,
+                              color: 'white'
+                            }}
+                            onMouseEnter={(e) => {
+                              e.currentTarget.style.backgroundColor = `rgba(var(--color-accent-rgb), 1)`;
+                            }}
+                            onMouseLeave={(e) => {
+                              e.currentTarget.style.backgroundColor = `rgba(var(--color-accent-rgb), 0.9)`;
+                            }}
+                          >
                             <ShoppingCart className="w-5 h-5 text-white" />
                           </button>
                         </div>

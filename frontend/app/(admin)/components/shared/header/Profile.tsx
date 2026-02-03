@@ -12,7 +12,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Settings, LayoutGrid, ChevronDown } from "lucide-react";
+import { Settings, LayoutGrid, ChevronDown, Store } from "lucide-react";
 import { useUserSafe } from "@/app/(auth)/hooks/useUserSafe";
 import { SignOut } from "@/app/(auth)/components/SingOut";
 
@@ -32,7 +32,7 @@ export default function Profile() {
   if (isLoading) {
     return (
       <div className="flex items-center gap-2">
-        <div className="w-10 h-10 rounded-full bg-linear-to-br from-slate-200 to-slate-300 dark:from-slate-700 dark:to-slate-800 animate-pulse" />
+        <div className="w-10 h-10 rounded-full bg-linear-to-br from-slate-700 to-slate-800 animate-pulse" />
       </div>
     );
   }
@@ -117,15 +117,15 @@ export default function Profile() {
         <div className="p-2">
           <DropdownMenuItem asChild>
             <Link
-              href="/"
+              href="/store-settings"
               className="group flex items-center gap-3 py-3  mb-1 rounded-xl cursor-pointer transition-all duration-300 hover:bg-indigo-600/10 border border-transparent hover:border-indigo-500/30 focus:bg-indigo-600/10 focus:border-indigo-500/30"
             >
               <div className="flex items-center justify-center w-9 h-9 rounded-lg bg-slate-800/50 group-hover:bg-indigo-600/20 transition-all duration-300 group-hover:shadow-lg group-hover:shadow-indigo-500/20 shrink-0">
-                <LayoutGrid className="h-4 w-4 text-slate-400 group-hover:text-indigo-400 transition-colors" />
+                <Store className="h-4 w-4 text-slate-400 group-hover:text-indigo-400 transition-colors" />
               </div>
               <div className="flex-1 min-w-0">
-                <p className="text-sm font-semibold text-slate-100">Dashboard</p>
-                <p className="text-xs text-slate-400 group-hover:text-slate-300">Panel principal</p>
+                <p className="text-sm font-semibold text-slate-100">Personalizar Tienda</p>
+                <p className="text-xs text-slate-400 group-hover:text-slate-300">Configura tu tienda</p>
               </div>
             </Link>
           </DropdownMenuItem>

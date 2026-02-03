@@ -80,24 +80,24 @@ export function   DatePickerWithRange({
                     <Button
                         variant={"outline"}
                         className={cn(
-                            "w-full h-full justify-start text-left font-medium bg-white/80 dark:bg-slate-800/80 backdrop-blur-sm border-none hover:border-blue-300 dark:hover:border-blue-600 hover:bg-blue-50/50 dark:hover:bg-blue-950/50 rounded-xl shadow-sm hover:shadow-md transition-all duration-300",
-                            !date?.from && "text-slate-400 dark:text-slate-500"
+                            "w-full h-full justify-start text-left font-medium bg-slate-800/80 backdrop-blur-sm border-none hover:border-blue-600 hover:bg-blue-950/50 rounded-xl shadow-sm hover:shadow-md transition-all duration-300",
+                            !date?.from && "text-slate-500"
                         )}
                     >
-                        <CalendarIcon className="mr-3 h-4 w-4 shrink-0 text-blue-600 dark:text-blue-400" />
+                        <CalendarIcon className="mr-3 h-4 w-4 shrink-0 text-blue-400" />
                         {date?.from ? (
                             date.to ? (
                                 <div className="flex items-center gap-2 text-sm">
-                                    <span className="font-semibold text-slate-900 dark:text-white">
+                                    <span className="font-semibold text-white">
                                         {format(date.from, "d MMM yyyy", { locale: es })}
                                     </span>
                                     <ArrowRight className="h-3.5 w-3.5 text-slate-400" />
-                                    <span className="font-semibold text-slate-900 dark:text-white">
+                                    <span className="font-semibold text-white">
                                         {format(date.to, "d MMM yyyy", { locale: es })}
                                     </span>
                                 </div>
                             ) : (
-                                <span className="font-semibold text-slate-900 dark:text-white">
+                                <span className="font-semibold text-white">
                                     {format(date.from, "d MMM yyyy", { locale: es })}
                                 </span>
                             )
@@ -107,13 +107,13 @@ export function   DatePickerWithRange({
                     </Button>
                 </PopoverTrigger>
                 <PopoverContent
-                    className="w-auto p-0 bg-white dark:bg-slate-900 border-2 border-slate-200 dark:border-slate-700 rounded-2xl shadow-2xl overflow-hidden"
+                    className="w-auto p-0 bg-slate-900 border-2 border-slate-700 rounded-2xl shadow-2xl overflow-hidden"
                     align="start"
                     sideOffset={10}
                 >
                     {/* Header */}
-                    <div className="px-6 py-4 bg-linear-to-r from-blue-50 via-indigo-50 to-purple-50 dark:from-blue-950/30 dark:via-indigo-950/30 dark:to-purple-950/30 border-b-2 border-slate-200 dark:border-slate-700">
-                        <h3 className="text-sm font-bold text-slate-900 dark:text-white mb-3">
+                    <div className="px-6 py-4 bg-linear-to-r from-blue-950/30 via-indigo-950/30 to-purple-950/30 border-b-2 border-slate-700">
+                        <h3 className="text-sm font-bold text-white mb-3">
                             Selecciona el Rango
                         </h3>
 
@@ -128,13 +128,13 @@ export function   DatePickerWithRange({
                                         <Button
                                             variant={"outline"}
                                             className={cn(
-                                                "w-full justify-start text-left font-normal bg-white dark:bg-slate-800 border-2 hover:border-blue-400 dark:hover:border-blue-500",
-                                                !date?.from && "text-slate-400 dark:text-slate-500"
+                                                "w-full justify-start text-left font-normal bg-slate-800 border-2 hover:border-blue-500",
+                                                !date?.from && "text-slate-500"
                                             )}
                                         >
-                                            <CalendarIcon className="mr-2 h-4 w-4 text-blue-600 dark:text-blue-400" />
+                                            <CalendarIcon className="mr-2 h-4 w-4 text-blue-400" />
                                             {date?.from ? (
-                                                <span className="font-semibold text-blue-700 dark:text-blue-300">
+                                                <span className="font-semibold text-blue-300">
                                                     {format(date.from, "d MMM yyyy", { locale: es })}
                                                 </span>
                                             ) : (
@@ -164,13 +164,13 @@ export function   DatePickerWithRange({
                                         <Button
                                             variant={"outline"}
                                             className={cn(
-                                                "w-full justify-start text-left font-normal bg-white dark:bg-slate-800 border-2 hover:border-purple-400 dark:hover:border-purple-500",
-                                                !date?.to && "text-slate-400 dark:text-slate-500"
+                                                "w-full justify-start text-left font-normal bg-slate-800 border-2 hover:border-purple-500",
+                                                !date?.to && "text-slate-500"
                                             )}
                                         >
-                                            <CalendarIcon className="mr-2 h-4 w-4 text-purple-600 dark:text-purple-400" />
+                                            <CalendarIcon className="mr-2 h-4 w-4 text-purple-400" />
                                             {date?.to ? (
-                                                <span className="font-semibold text-purple-700 dark:text-purple-300">
+                                                <span className="font-semibold text-purple-300">
                                                     {format(date.to, "d MMM yyyy", { locale: es })}
                                                 </span>
                                             ) : (
@@ -194,9 +194,9 @@ export function   DatePickerWithRange({
 
                         {/* Duration Display */}
                         {isValidRange && (
-                            <div className="mt-4 p-3 bg-white/60 dark:bg-slate-800/60 backdrop-blur-sm rounded-xl border border-slate-200 dark:border-slate-700">
+                            <div className="mt-4 p-3 bg-slate-800/60 backdrop-blur-sm rounded-xl border border-slate-700">
                                 <div className="flex items-center justify-between">
-                                    <span className="text-xs font-medium text-slate-600 dark:text-slate-400">
+                                    <span className="text-xs font-medium text-slate-400">
                                         Duración del período:
                                     </span>
                                     <span className="text-lg font-bold bg-linear-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
@@ -204,7 +204,7 @@ export function   DatePickerWithRange({
                                     </span>
                                 </div>
                                 {daysDiff > maxRangeDays && (
-                                    <p className="text-xs text-amber-600 dark:text-amber-400 font-medium mt-2">
+                                    <p className="text-xs text-amber-400 font-medium mt-2">
                                         ⚠️ El rango se limitará a {maxRangeDays} días
                                     </p>
                                 )}

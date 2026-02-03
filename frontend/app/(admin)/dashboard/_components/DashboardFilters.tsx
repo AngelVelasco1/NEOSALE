@@ -747,11 +747,16 @@ const GoalCard = memo(function GoalCard({
     const meta = GOAL_INPUT_META[metricKey];
     const base = DEFAULT_METRIC_GOALS[metricKey];
     const visuals = GOAL_VISUALS[metricKey];
+    const [isMounted, setIsMounted] = useState(false);
+
+    useEffect(() => {
+        setIsMounted(true);
+    }, []);
 
     const numericValue = Number(inputValue);
     const isValidValue = isValidGoalNumber(numericValue);
     const effectiveValue = isValidValue ? numericValue : base.value;
-    const isCustom = isValidValue && numericValue !== base.value;
+    const isCustom = isMounted && isValidValue && numericValue !== base.value;
 
     const friendlyEffective = formatGoalValue(metricKey, effectiveValue);
     const friendlyBase = formatGoalValue(metricKey, base.value);

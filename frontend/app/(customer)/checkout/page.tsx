@@ -377,7 +377,16 @@ export default function CheckoutPage() {
             </Button>
             <Button
               onClick={() => router.push("/productsCart")}
-              className="bg-linear-to-r from-indigo-600 to-purple-600 hover:from-indigo-500 hover:to-purple-500 text-white"
+              className="text-white"
+              style={{
+                backgroundImage: `linear-gradient(to right, var(--color-primary), var(--color-secondary))`,
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.opacity = '0.9';
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.opacity = '1';
+              }}
             >
               Volver al carrito
             </Button>

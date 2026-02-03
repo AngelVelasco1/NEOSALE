@@ -64,8 +64,19 @@ const UserMenu = () => {
       >
         <div className="relative">
           {/* Avatar with gradient and glow effect */}
-          <div className="relative w-8 h-8 rounded-full bg-gradient-to-br from-indigo-500 via-blue-500 to-blue-600 flex items-center justify-center text-white text-sm font-bold shadow-lg shadow-indigo-500/30 group-hover:shadow-indigo-500/50 transition-all duration-300">
-            <div className="absolute inset-0 rounded-full bg-gradient-to-br from-slate-900/90 to-blue-800 blur-md opacity-50 group-hover:opacity-70 transition-opacity"></div>
+          <div 
+            className="relative w-8 h-8 rounded-full flex items-center justify-center text-white text-sm font-bold shadow-lg transition-all duration-300 group-hover:shadow-lg"
+            style={{
+              backgroundImage: `linear-gradient(to bottom right, var(--color-primary), var(--color-secondary))`,
+              boxShadow: `0 0 16px rgba(var(--color-primary-rgb), 0.3)`,
+            }}
+          >
+            <div 
+              className="absolute inset-0 rounded-full blur-md opacity-50 group-hover:opacity-70 transition-opacity"
+              style={{
+                backgroundImage: `linear-gradient(to bottom right, rgba(0, 0, 0, 0.9), rgba(var(--color-secondary-rgb), 0.5))`
+              }}
+            ></div>
             <span className="relative z-10">{userProfile?.name?.charAt(0).toUpperCase() || "U"}</span>
           </div>
           {/* Online status indicator */}
@@ -73,24 +84,56 @@ const UserMenu = () => {
             <div className="absolute inset-0 rounded-full bg-green-400 animate-ping opacity-75"></div>
           </div>
         </div>
-        <ChevronDown className={`h-4 w-4 text-white group-hover:text-indigo-300 transition-all duration-300 ${isOpen ? 'rotate-180' : ''}`} />
+        <ChevronDown className={`h-4 w-4 text-white transition-all duration-300 ${isOpen ? 'rotate-180' : ''}`} style={{color: 'var(--color-primary)'}} />
       </Button>
 
       {isOpen && (
-        <div className="absolute right-0 top-full mt-2 w-72 bg-slate-900/95 backdrop-blur-xl border border-slate-700/50 shadow-2xl rounded-2xl p-0 overflow-hidden z-50">
+        <div 
+          className="absolute right-0 top-full mt-2 w-72 backdrop-blur-xl border shadow-2xl rounded-2xl p-0 overflow-hidden z-50"
+          style={{
+            backgroundColor: 'rgba(15, 23, 42, 0.95)',
+            borderColor: 'rgba(255, 255, 255, 0.1)',
+          }}
+        >
           {/* Header with user info */}
-          <div className="relative p-6 bg-gradient-to-br from-indigo-600/20 via-violet-600/20 to-slate-900/50 border-b border-slate-700/50">
+          <div 
+            className="relative p-6 border-b rounded-t-2xl"
+            style={{
+              backgroundImage: `linear-gradient(to bottom right, rgba(var(--color-primary-rgb), 0.2), rgba(var(--color-secondary-rgb), 0.2))`,
+              borderColor: 'rgba(255, 255, 255, 0.1)',
+            }}
+          >
             {/* Decorative gradient overlay */}
-            <div className="absolute inset-0 bg-gradient-to-br from-purple-950/30 to-slate-900/95 "></div>
+            <div 
+              className="absolute inset-0"
+              style={{
+                backgroundImage: `linear-gradient(to bottom right, rgba(var(--color-primary-rgb), 0.1), rgba(0, 0, 0, 0.7))`,
+              }}
+            ></div>
 
             <div className="relative flex items-center gap-4">
               {/* Larger avatar for header */}
               <div className="relative">
-                <div className="w-12 h-12 rounded-full bg-gradient-to-br from-indigo-500 via-blue-500 to-blue-600 flex items-center justify-center text-white text-lg font-bold ">
-                  <div className="absolute inset-0 rounded-full bg-gradient-to-br from-indigo-400 to-violet-600 blur-lg opacity-50"></div>
+                <div 
+                  className="w-12 h-12 rounded-full flex items-center justify-center text-white text-lg font-bold"
+                  style={{
+                    backgroundImage: `linear-gradient(to bottom right, var(--color-primary), var(--color-secondary))`,
+                  }}
+                >
+                  <div 
+                    className="absolute inset-0 rounded-full blur-lg opacity-50"
+                    style={{
+                      backgroundImage: `linear-gradient(to bottom right, var(--color-primary), var(--color-accent))`,
+                    }}
+                  ></div>
                   <span className="relative z-10">{userProfile?.name?.charAt(0).toUpperCase() || "U"}</span>
                 </div>
-                <div className="absolute -bottom-1 -right-1 w-4 h-4 bg-gradient-to-br from-green-400 to-emerald-500 rounded-full border-2 border-slate-900 shadow-lg"></div>
+                <div 
+                  className="absolute -bottom-1 -right-1 w-4 h-4 rounded-full border-2 border-slate-900 shadow-lg"
+                  style={{
+                    backgroundImage: `linear-gradient(to bottom right, rgb(74, 222, 128), rgb(16, 185, 129))`,
+                  }}
+                ></div>
               </div>
 
               {/* User info */}
@@ -112,11 +155,35 @@ const UserMenu = () => {
                 router.push("/profile");
                 setIsOpen(false);
               }}
-              className="group cursor-pointer rounded-xl p-3 hover:bg-indigo-600/10 transition-all duration-300 border border-transparent hover:border-indigo-500/30"
+              className="group cursor-pointer rounded-xl p-3 transition-all duration-300 border border-transparent"
+              style={{
+                backgroundColor: 'transparent',
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.backgroundColor = `rgba(var(--color-primary-rgb), 0.1)`;
+                e.currentTarget.style.borderColor = `rgba(var(--color-primary-rgb), 0.3)`;
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.backgroundColor = 'transparent';
+                e.currentTarget.style.borderColor = 'transparent';
+              }}
             >
               <div className="flex items-center gap-3">
-                <div className="w-9 h-9 rounded-lg bg-slate-800/50 group-hover:bg-indigo-600/20 flex items-center justify-center transition-all duration-300 group-hover:shadow-lg group-hover:shadow-indigo-500/20">
-                  <User className="h-4 w-4 text-slate-400 group-hover:text-indigo-400 transition-colors" />
+                <div 
+                  className="w-9 h-9 rounded-lg flex items-center justify-center transition-all duration-300"
+                  style={{
+                    backgroundColor: 'rgba(71, 85, 105, 0.5)',
+                  }}
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.backgroundColor = `rgba(var(--color-primary-rgb), 0.2)`;
+                    e.currentTarget.style.boxShadow = `0 0 12px rgba(var(--color-primary-rgb), 0.2)`;
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.backgroundColor = 'rgba(71, 85, 105, 0.5)';
+                    e.currentTarget.style.boxShadow = 'none';
+                  }}
+                >
+                  <User className="h-4 w-4" style={{color: 'rgb(148, 163, 184)'}} />
                 </div>
                 <div className="flex-1">
                   <p className="font-semibold text-white text-sm">Mi Perfil</p>
@@ -173,7 +240,7 @@ const NavLink: React.FC<NavLinkProps> = ({
 }) => (
   <Link
     href={href}
-    className={`inline-flex h-11 items-center justify-center rounded-xl px-6 text-sm font-medium transition-all duration-300  dark:hover:bg-slate-800 hover:text-slate-900 dark:hover:text-white font-medium ${className}`}
+    className={`inline-flex h-11 items-center justify-center rounded-xl px-6 text-sm font-medium transition-all duration-300 hover:bg-slate-800 hover:text-white font-medium ${className}`}
     {...props}
   >
     {children}
@@ -194,9 +261,9 @@ const IconButton: React.FC<IconButtonProps> = ({
   ...props
 }) => {
   const variants = {
-    default: `h-11 w-11 hover:bg-slate-100 dark:hover:bg-slate-800 transition-all duration-300 rounded-xl hover:scale-110`,
-    heart: `h-11 w-11 hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-pink-500 transition-all duration-300 rounded-xl hover:scale-110`,
-    cart: `h-11 w-11 hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-blue-500 transition-all duration-300 rounded-xl hover:scale-110`,
+    default: `h-11 w-11 hover:bg-slate-800 transition-all duration-300 rounded-xl hover:scale-110`,
+    heart: `h-11 w-11 hover:bg-slate-800 hover:text-pink-500 transition-all duration-300 rounded-xl hover:scale-110`,
+    cart: `h-11 w-11 hover:bg-slate-800 hover:text-blue-500 transition-all duration-300 rounded-xl hover:scale-110`,
   };
 
   return (
@@ -278,7 +345,7 @@ export const Navbar = () => {
   };
 
   const handleProductClick = (product: IProduct) => {
-    router.push(`/${product.id}`);
+    router.push(`/product/${product.id}`);
     setIsSearchFocused(false);
     setSearchResults([]);
     setSearchQuery("");
@@ -591,12 +658,12 @@ export const Navbar = () => {
                             {/* Category Header */}
                             <Link
                               href={createCategoryUrl(category.name)}
-                              className="flex items-center gap-4 mb-5 p-4 rounded-xl bg-gradient-to-br from-blue-500/15 via-purple-500/12 to-indigo-500/10 hover:from-blue-500/25 hover:via-purple-500/20 hover:to-indigo-500/15 transition-all duration-300 group/link h-24 border border-slate-700/40 hover:border-slate-600/60 hover:shadow-lg hover:shadow-blue-600/20 relative overflow-hidden"
+                              className="flex items-center gap-4 mb-5 p-4 rounded-xl bg-gradient-to-br from-blue-400/30 via-purple-400/30 to-indigo-300/30 hover:from-blue-400/50 hover:via-purple-400/40 hover:to-indigo-400/40 transition-all duration-300 group/link h-24 border border-slate-700/40 hover:border-slate-600/60 hover:shadow-lg hover:shadow-blue-600/20 relative overflow-hidden"
                             >
                               {/* Background glow effect */}
                               <div className="absolute inset-0 bg-gradient-to-r from-blue-600/5 via-purple-500/4 to-indigo-600/3 group-hover/link:from-blue-600/15 group-hover/link:via-purple-500/12 group-hover/link:to-indigo-600/10 transition-all duration-300"></div>
 
-                              <div className="w-12 h-12 bg-gradient-to-br from-blue-600/40 via-purple-600/30 to-indigo-700/25 rounded-xl flex items-center justify-center group-hover/link:from-blue-500/60 group-hover/link:via-purple-500/50 group-hover/link:to-indigo-600/40 transition-all duration-300 group-hover/link:shadow-lg group-hover/link:shadow-blue-500/30 border border-slate-700/50 group-hover/link:border-slate-600/70 flex-shrink-0 relative z-10">
+                              <div className="w-12 h-12 bg-gradient-to-br from-blue-600/70 via-purple-600/70 to-indigo-700/25 rounded-xl flex items-center justify-center group-hover/link:from-blue-500/60 group-hover/link:via-purple-500/50 group-hover/link:to-indigo-600/40 transition-all duration-300  border border-slate-700/50 group-hover/link:border-slate-600/70 flex-shrink-0 relative z-10">
                                 <category.icon className="h-6 w-6 text-slate-200 group-hover/link:text-slate-100 transition-colors drop-shadow-lg" />
                               </div>
                               <div className="flex-1 min-w-0 flex flex-col justify-center relative z-10">
@@ -604,7 +671,7 @@ export const Navbar = () => {
                                   {category.name}
                                 </h3>
                                 {category.featured && (
-                                  <span className="text-xs px-2.5 py-1 bg-gradient-to-r from-fuchsia-500/30 to-purple-500/25 text-purple-200 rounded-full w-fit font-bold border border-slate-700/40 group-hover/link:from-fuchsia-500/50 group-hover/link:to-purple-500/40 transition-all shadow-lg shadow-purple-500/20">
+                                  <span className="text-xs px-2.5 py-1 bg-gradient-to-r from-fuchsia-400/50 to-purple-400/70 text-purple-200 rounded-full w-fit font-bold border border-slate-700/40 group-hover/link:from-fuchsia-500/50 group-hover/link:to-purple-500/40 transition-all shadow-lg shadow-purple-500/20">
                                     ⭐ Destacada
                                   </span>
                                 )}
@@ -622,16 +689,16 @@ export const Navbar = () => {
                                 <Link
                                   key={sub.id}
                                   href={createCategoryUrl(category.name, sub.name)}
-                                  className="flex items-center gap-2.5 text-sm text-slate-300 hover:text-slate-200 py-3 px-3 rounded-lg bg-transparent hover:bg-gradient-to-r hover:from-blue-500/15 hover:via-purple-500/12 hover:to-indigo-500/10 transition-all duration-300 font-medium border border-transparent hover:border-slate-700/40 group/sub"
+                                  className="flex items-center gap-2.5 text-sm text-slate-200 hover:text-slate-200 py-3 px-3 rounded-lg bg-transparent hover:bg-gradient-to-r hover:from-blue-400/40 hover:via-purple-400/40 hover:to-indigo-400/25 transition-all duration-300 font-medium border border-transparent hover:border-slate-700/40 group/sub"
                                 >
-                                  <div className="w-2 h-2 rounded-full bg-gradient-to-r from-purple-400/60 to-indigo-400/50 group-hover/sub:shadow-lg group-hover/sub:shadow-purple-400/40 transition-all flex-shrink-0"></div>
+                                  <div className="w-2 h-2 rounded-full bg-gradient-to-r from-purple-400/80 to-indigo-400/70 group-hover/sub:shadow-lg group-hover/sub:shadow-purple-400/40 transition-all flex-shrink-0"></div>
                                   <span className="truncate">{sub.name}</span>
                                 </Link>
                               ))}
                               {category.subcategories.length > 5 && (
                                 <Link
                                   href={createCategoryUrl(category.name)}
-                                  className="flex items-center justify-between text-sm text-slate-300 hover:text-slate-200 py-3 px-3 rounded-lg bg-gradient-to-r from-fuchsia-500/20 to-purple-500/15 hover:from-fuchsia-500/30 hover:to-purple-500/25 transition-all duration-300 font-bold border border-slate-700/40 hover:border-slate-600/60 mt-2 group/more shadow-lg shadow-purple-500/15"
+                                  className="flex items-center justify-between text-sm text-slate-200 hover:text-slate-200 py-3 px-3 rounded-lg bg-gradient-to-r from-fuchsia-500/20 to-purple-500/15 hover:from-fuchsia-500/30 hover:to-purple-500/25 transition-all duration-300 font-bold border border-slate-700/40 hover:border-slate-600/60 mt-2 group/more shadow-lg shadow-purple-500/15"
                                 >
                                   <span>Ver todas</span>
                                   <span className="text-xs px-2.5 py-1 bg-gradient-to-r from-indigo-500/30 to-fuchsia-500/25 rounded-full text-purple-200 group-hover/more:from-indigo-500/50 group-hover/more:to-fuchsia-500/40 transition-all font-bold shadow-lg shadow-indigo-500/20">
@@ -789,7 +856,16 @@ export const Navbar = () => {
               ) : (
                 <Button
                   onClick={() => router.push("/login")}
-                  className="cursor-pointer h-10 px-4 ml-4 rounded-xl bg-blue-600 hover:bg-blue-700 text-white transition-colors font-medium"
+                  className="cursor-pointer h-10 px-4 ml-4 rounded-xl text-white transition-colors font-medium"
+                  style={{
+                    backgroundColor: `var(--color-primary)`
+                  }}
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.opacity = '0.9';
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.opacity = '1';
+                  }}
                 >
                   Iniciar Sesión
                 </Button>

@@ -93,27 +93,62 @@ export const Pricing = () => {
     <section className="py-20 relative overflow-hidden">
       {/* Background Effects */}
       <div className="absolute inset-0">
-        <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-blue-500/3 rounded-full blur-3xl"></div>
-        <div className="absolute bottom-1/4 right-1/4 w-96 h-96 bg-purple-500/3 rounded-full blur-3xl"></div>
-        <div className="absolute top-1/2 left-1/2 w-96 h-96 bg-cyan-500/2 rounded-full blur-3xl"></div>
+        <div 
+          className="absolute top-1/4 left-1/4 w-96 h-96 rounded-full blur-3xl"
+          style={{
+            backgroundImage: `radial-gradient(circle, rgba(var(--color-primary-rgb), 0.15), transparent)`,
+          }}
+        ></div>
+        <div 
+          className="absolute bottom-1/4 right-1/4 w-96 h-96 rounded-full blur-3xl"
+          style={{
+            backgroundImage: `radial-gradient(circle, rgba(var(--color-secondary-rgb), 0.15), transparent)`,
+          }}
+        ></div>
+        <div 
+          className="absolute top-1/2 left-1/2 w-96 h-96 rounded-full blur-3xl"
+          style={{
+            backgroundImage: `radial-gradient(circle, rgba(var(--color-accent-rgb), 0.1), transparent)`,
+          }}
+        ></div>
       </div>
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
         {/* Header */}
         <div className="text-center mb-16">
           <div className="inline-flex items-center gap-3 bg-white/10 backdrop-blur-md border border-white/20 rounded-full px-6 py-3 mb-6">
-            <div className="w-2 h-2 bg-linear-to-r from-blue-400 to-purple-400 rounded-full animate-pulse"></div>
+            <div 
+              className="w-2 h-2 rounded-full animate-pulse"
+              style={{
+                backgroundImage: `linear-gradient(to right, var(--color-primary), var(--color-secondary))`,
+              }}
+            ></div>
             <span className="text-white text-sm font-medium tracking-wider uppercase">
               Planes de Precios
             </span>
-            <div className="w-2 h-2 bg-linear-to-r from-purple-400 to-cyan-400 rounded-full animate-pulse"></div>
+            <div 
+              className="w-2 h-2 rounded-full animate-pulse"
+              style={{
+                backgroundImage: `linear-gradient(to right, var(--color-secondary), var(--color-accent))`,
+              }}
+            ></div>
           </div>
           <h2 className="text-5xl md:text-6xl font-bold mb-6">
-            <span className="bg-linear-to-r from-white via-blue-100 to-purple-100 bg-clip-text text-transparent">
+            <span 
+              className="bg-clip-text text-transparent"
+              style={{
+                backgroundImage: `linear-gradient(to right, rgb(255, 255, 255), rgba(var(--color-primary-rgb), 0.7))`,
+              }}
+            >
               Planes que se
             </span>
             <br />
-            <span className="bg-linear-to-r from-blue-300 via-purple-300 to-cyan-300 bg-clip-text text-transparent">
+            <span 
+              className="bg-clip-text text-transparent"
+              style={{
+                backgroundImage: `linear-gradient(to right, rgba(var(--color-primary-rgb), 0.7), rgba(var(--color-secondary-rgb), 0.7), rgba(var(--color-accent-rgb), 0.7))`,
+              }}
+            >
               adaptan a ti
             </span>
           </h2>

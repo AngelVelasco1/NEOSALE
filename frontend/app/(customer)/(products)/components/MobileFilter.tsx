@@ -67,12 +67,22 @@ export const MobileFilter = ({
         <Button
           variant="outline"
           onClick={() => setIsOpen(true)}
-          className="w-full sm:w-auto border-blue-200 text-blue-600 hover:bg-blue-50 bg-white/70 backdrop-blur-sm"
+          className="w-full sm:w-auto bg-white/70 backdrop-blur-sm"
+          style={{
+            borderColor: `rgba(var(--color-primary-rgb), 0.2)`,
+            color: `var(--color-primary)`
+          }}
+          onMouseEnter={(e) => {
+            e.currentTarget.style.backgroundColor = `rgba(var(--color-primary-rgb), 0.05)`;
+          }}
+          onMouseLeave={(e) => {
+            e.currentTarget.style.backgroundColor = `rgba(255, 255, 255, 0.7)`;
+          }}
         >
           <FilterIcon className="h-4 w-4 mr-2" />
           Filtros
           {activeFiltersCount > 0 && (
-            <Badge className="ml-2 bg-linear-to-r from-blue-500 to-indigo-600 text-white">{activeFiltersCount}</Badge>
+            <Badge className="ml-2 text-white" style={{backgroundImage: `linear-gradient(to right, var(--color-primary), var(--color-secondary))`}}>{activeFiltersCount}</Badge>
           )}
         </Button>
       </div>
@@ -188,19 +198,32 @@ export const MobileFilter = ({
                 )}
               </div>
 
-              <div className="mt-6 pt-6 border-t border-blue-200 space-y-3">
+              <div className="mt-6 pt-6 space-y-3" style={{borderTopColor: `rgba(var(--color-primary-rgb), 0.2)`}}>
                 {activeFiltersCount > 0 && (
                   <Button
                     variant="outline"
                     onClick={clearAllFilters}
-                    className="w-full border-blue-200 text-blue-600 hover:bg-blue-50 bg-transparent"
+                    className="w-full bg-transparent"
+                    style={{
+                      borderColor: `rgba(var(--color-primary-rgb), 0.2)`,
+                      color: `var(--color-primary)`
+                    }}
+                    onMouseEnter={(e) => {
+                      e.currentTarget.style.backgroundColor = `rgba(var(--color-primary-rgb), 0.05)`;
+                    }}
+                    onMouseLeave={(e) => {
+                      e.currentTarget.style.backgroundColor = `transparent`;
+                    }}
                   >
                     Limpiar Filtros
                   </Button>
                 )}
                 <Button
                   onClick={() => setIsOpen(false)}
-                  className="w-full bg-linear-to-r from-blue-600 to-indigo-700 hover:from-blue-700 hover:to-indigo-800 text-white"
+                  className="w-full text-white"
+                  style={{
+                    backgroundImage: `linear-gradient(to right, var(--color-primary), var(--color-secondary))`
+                  }}
                 >
                   Aplicar Filtros
                 </Button>

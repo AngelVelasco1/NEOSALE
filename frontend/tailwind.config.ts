@@ -2,7 +2,6 @@ import animate from "tailwindcss-animate";
 import scrollbar from "tailwind-scrollbar";
 
 const config = {
-    darkMode: "class",
     content: [
     "./pages/**/*.{js,ts,jsx,tsx,mdx}",
     "./components/**/*.{js,ts,jsx,tsx,mdx}",

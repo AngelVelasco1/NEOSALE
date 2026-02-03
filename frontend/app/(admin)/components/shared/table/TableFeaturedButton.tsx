@@ -50,8 +50,8 @@ export function TableFeaturedButton({
                 onClick={handleToggle}
                 disabled={isPending}
                 className={`p-2 rounded-lg transition-all ${isFeatured
-                        ? "text-yellow-500 hover:text-yellow-600 bg-yellow-50 dark:bg-yellow-950/30"
-                        : "text-slate-400 hover:text-yellow-500 hover:bg-yellow-50 dark:hover:bg-yellow-950/30"
+                        ? "text-yellow-500 hover:text-yellow-600 bg-yellow-950/30"
+                        : "text-slate-400 hover:text-yellow-500 hover:bg-yellow-950/30"
                     } ${isPending ? "opacity-50 cursor-wait" : "cursor-pointer"}`}
                 title="Destacar en Banner"
             >
@@ -60,7 +60,7 @@ export function TableFeaturedButton({
                     fill={isFeatured ? "currentColor" : "none"}
                 />
             </button>
-            <span className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 px-2 py-1 text-xs text-white bg-slate-900 dark:bg-slate-700 rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap pointer-events-none z-50">
+            <span className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 px-2 py-1 text-xs text-white bg-slate-700 rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap pointer-events-none z-50">
                 {isFeatured ? "Quitar de banner" : "Destacar en banner"}
             </span>
         </div>

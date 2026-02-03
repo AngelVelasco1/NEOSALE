@@ -6,6 +6,8 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 import { toast } from "sonner";
 import { getStoreSettings, updateStoreSettings } from "./actions";
+import { AppearancePreview } from "./AppearancePreview";
+import { ColorSuggestions } from "./ColorSuggestions";
 import {
   Store,
   Mail,
@@ -44,6 +46,7 @@ const storeSettingsSchema = z.object({
   favicon_url: z.string().optional(),
   primary_color: z.string().optional(),
   secondary_color: z.string().optional(),
+  accent_color: z.string().optional(),
   footer_text: z.string().optional(),
   newsletter_enabled: z.boolean().optional(),
   show_whatsapp_chat: z.boolean().optional(),
@@ -130,12 +133,14 @@ export default function StoreSettingsPage() {
   const [fetching, setFetching] = useState(true);
   const [activeSection, setActiveSection] = useState('general');
   const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
+  const [defaultValues, setDefaultValues] = useState<StoreSettingsForm | null>(null);
 
   const {
     register,
     handleSubmit,
     reset,
     watch,
+    setValue,
     formState: { errors, isDirty },
   } = useForm<StoreSettingsForm>({
     resolver: zodResolver(storeSettingsSchema),
@@ -157,6 +162,19 @@ export default function StoreSettingsPage() {
       if (result.success && result.data) {
         const formData = transformDbToForm(result.data);
         reset(formData);
+        // Guardar valores por defecto
+        setDefaultValues(formData);
+        
+        // Guardar colores en localStorage
+        if (result.data.primary_color) {
+          localStorage.setItem("primary_color", result.data.primary_color);
+        }
+        if (result.data.secondary_color) {
+          localStorage.setItem("secondary_color", result.data.secondary_color);
+        }
+        if (result.data.accent_color) {
+          localStorage.setItem("accent_color", result.data.accent_color);
+        }
       } else {
         toast.error(result.error || "Error al cargar la configuración");
       }
@@ -175,11 +193,26 @@ export default function StoreSettingsPage() {
           ...data,
           primary_color: data.primary_color || "#3B82F6",
           secondary_color: data.secondary_color || "#6366F1",
+          accent_color: data.accent_color || "#D946EF",
         });
 
         if (result.success) {
           toast.success(result.message || "Configuración guardada exitosamente");
           setHasUnsavedChanges(false);
+          
+          // Actualizar localStorage con los nuevos colores
+          if (data.primary_color) {
+            localStorage.setItem("primary_color", data.primary_color);
+          }
+          if (data.secondary_color) {
+            localStorage.setItem("secondary_color", data.secondary_color);
+          }
+          if (data.accent_color) {
+            localStorage.setItem("accent_color", data.accent_color);
+          }
+          
+          // Disparar evento storage para que ThemeColorLoader se actualice en otras tabs
+          window.dispatchEvent(new Event("storage"));
           
           // Actualizar el formulario con los datos guardados
           if (result.data) {
@@ -519,70 +552,174 @@ export default function StoreSettingsPage() {
                 </div>
               </div>
 
-              <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-                <div className="space-y-3">
-                  <label className="block text-sm font-medium text-slate-300">Logo URL</label>
-                  <div className="relative">
-                    <ImageIcon className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-500" />
-                    <input
-                      {...register("logo_url")}
-                      className="w-full pl-12 pr-4 py-3 rounded-lg bg-slate-800 border border-slate-700 text-white placeholder-slate-500 focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition-all"
-                      placeholder="https://ejemplo.com/logo.png"
-                    />
-                  </div>
-                  <p className="text-xs text-slate-500">URL de tu logo principal (recomendado: 200x60px)</p>
-                </div>
+              <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                {/* Formulario */}
+                <div className="lg:col-span-2 space-y-6">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div className="space-y-3">
+                      <label className="block text-sm font-medium text-slate-300">Logo URL</label>
+                      <div className="relative">
+                        <ImageIcon className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-500" />
+                        <input
+                          {...register("logo_url")}
+                          className="w-full pl-12 pr-4 py-3 rounded-lg bg-slate-800 border border-slate-700 text-white placeholder-slate-500 focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition-all"
+                          placeholder="https://ejemplo.com/logo.png"
+                        />
+                      </div>
+                      <p className="text-xs text-slate-500">URL de tu logo principal (recomendado: 200x60px)</p>
+                    </div>
 
-                <div className="space-y-3">
-                  <label className="block text-sm font-medium text-slate-300">Favicon URL</label>
-                  <div className="relative">
-                    <ImageIcon className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-500" />
-                    <input
-                      {...register("favicon_url")}
-                      className="w-full pl-12 pr-4 py-3 rounded-lg bg-slate-800 border border-slate-700 text-white placeholder-slate-500 focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition-all"
-                      placeholder="https://ejemplo.com/favicon.ico"
-                    />
+                    <div className="space-y-3">
+                      <label className="block text-sm font-medium text-slate-300">Favicon URL</label>
+                      <div className="relative">
+                        <ImageIcon className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-500" />
+                        <input
+                          {...register("favicon_url")}
+                          className="w-full pl-12 pr-4 py-3 rounded-lg bg-slate-800 border border-slate-700 text-white placeholder-slate-500 focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition-all"
+                          placeholder="https://ejemplo.com/favicon.ico"
+                        />
+                      </div>
+                      <p className="text-xs text-slate-500">Ícono que aparece en la pestaña del navegador (32x32px)</p>
+                    </div>
                   </div>
-                  <p className="text-xs text-slate-500">Ícono que aparece en la pestaña del navegador (32x32px)</p>
-                </div>
 
-                <div className="space-y-3">
-                  <label className="block text-sm font-medium text-slate-300">Color Primario</label>
-                  <div className="relative">
-                    <Palette className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-500" />
-                    <input
-                      {...register("primary_color")}
-                      type="color"
-                      className="w-full h-12 pl-12 pr-4 rounded-lg bg-slate-800 border border-slate-700 text-white focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition-all cursor-pointer"
-                      defaultValue="#3b82f6"
-                    />
+                  {/* Color Pickers con Labels detallados */}
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div className="space-y-3">
+                      <div className="flex items-center justify-between">
+                        <label className="block text-sm font-medium text-slate-300">Color Primario</label>
+                        <button
+                          type="button"
+                          onClick={() => {
+                            if (defaultValues?.primary_color) {
+                              setValue("primary_color", defaultValues.primary_color);
+                            }
+                          }}
+                          className="text-xs text-slate-400 hover:text-slate-300 transition-colors px-2 py-1 rounded hover:bg-slate-700/50"
+                        >
+                          ↶ Default
+                        </button>
+                      </div>
+                      <div className="flex gap-3">
+                        <input
+                          type="color"
+                          value={watch("primary_color") || defaultValues?.primary_color || "#3b82f6"}
+                          onChange={(e) => setValue("primary_color", e.target.value)}
+                          className="w-20 h-14 rounded-lg bg-slate-800 border border-slate-700 cursor-pointer focus:ring-2 focus:ring-orange-500 transition-all"
+                        />
+                        <div className="flex-1">
+                          <input
+                            {...register("primary_color")}
+                            type="text"
+                            className="w-full px-4 py-3 rounded-lg bg-slate-800 border border-slate-700 text-white placeholder-slate-500 focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition-all font-mono text-sm"
+                            placeholder={defaultValues?.primary_color || "#3b82f6"}
+                          />
+                        </div>
+                      </div>
+                      <p className="text-xs text-slate-500">Color para botones, links y elementos destacados</p>
+                    </div>
+
+                    <div className="space-y-3">
+                      <div className="flex items-center justify-between">
+                        <label className="block text-sm font-medium text-slate-300">Color Secundario</label>
+                        <button
+                          type="button"
+                          onClick={() => {
+                            if (defaultValues?.secondary_color) {
+                              setValue("secondary_color", defaultValues.secondary_color);
+                            }
+                          }}
+                          className="text-xs text-slate-400 hover:text-slate-300 transition-colors px-2 py-1 rounded hover:bg-slate-700/50"
+                        >
+                          ↶ Default
+                        </button>
+                      </div>
+                      <div className="flex gap-3">
+                        <input
+                          type="color"
+                          value={watch("secondary_color") || defaultValues?.secondary_color || "#64748b"}
+                          onChange={(e) => setValue("secondary_color", e.target.value)}
+                          className="w-20 h-14 rounded-lg bg-slate-800 border border-slate-700 cursor-pointer focus:ring-2 focus:ring-orange-500 transition-all"
+                        />
+                        <div className="flex-1">
+                          <input
+                            {...register("secondary_color")}
+                            type="text"
+                            className="w-full px-4 py-3 rounded-lg bg-slate-800 border border-slate-700 text-white placeholder-slate-500 focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition-all font-mono text-sm"
+                            placeholder={defaultValues?.secondary_color || "#64748b"}
+                          />
+                        </div>
+                      </div>
+                      <p className="text-xs text-slate-500">Color para elementos secundarios y footer</p>
+                    </div>
+
+                    <div className="space-y-3">
+                      <div className="flex items-center justify-between">
+                        <label className="block text-sm font-medium text-slate-300">Color de Acento</label>
+                        <button
+                          type="button"
+                          onClick={() => {
+                            if (defaultValues?.accent_color) {
+                              setValue("accent_color", defaultValues.accent_color);
+                            }
+                          }}
+                          className="text-xs text-slate-400 hover:text-slate-300 transition-colors px-2 py-1 rounded hover:bg-slate-700/50"
+                        >
+                          ↶ Default
+                        </button>
+                      </div>
+                      <div className="flex gap-3">
+                        <input
+                          type="color"
+                          value={watch("accent_color") || defaultValues?.accent_color || "#d946ef"}
+                          onChange={(e) => setValue("accent_color", e.target.value)}
+                          className="w-20 h-14 rounded-lg bg-slate-800 border border-slate-700 cursor-pointer focus:ring-2 focus:ring-orange-500 transition-all"
+                        />
+                        <div className="flex-1">
+                          <input
+                            {...register("accent_color")}
+                            type="text"
+                            className="w-full px-4 py-3 rounded-lg bg-slate-800 border border-slate-700 text-white placeholder-slate-500 focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition-all font-mono text-sm"
+                            placeholder={defaultValues?.accent_color || "#d946ef"}
+                          />
+                        </div>
+                      </div>
+                      <p className="text-xs text-slate-500">Color para elementos destacados y detalles</p>
+                    </div>
                   </div>
-                  <p className="text-xs text-slate-500">Color principal de botones y elementos destacados</p>
-                </div>
 
-                <div className="space-y-3">
-                  <label className="block text-sm font-medium text-slate-300">Color Secundario</label>
-                  <div className="relative">
-                    <Palette className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-500" />
-                    <input
-                      {...register("secondary_color")}
-                      type="color"
-                      className="w-full h-12 pl-12 pr-4 rounded-lg bg-slate-800 border border-slate-700 text-white focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition-all cursor-pointer"
-                      defaultValue="#64748b"
+                  <div className="space-y-3">
+                    <label className="block text-sm font-medium text-slate-300">Texto del Footer</label>
+                    <textarea
+                      {...register("footer_text")}
+                      rows={3}
+                      className="w-full px-4 py-3 rounded-lg bg-slate-800 border border-slate-700 text-white placeholder-slate-500 focus:ring-2 focus:ring-orange-500 focus:border-orange-500 resize-none transition-all"
+                      placeholder="© 2024 Tu Tienda. Todos los derechos reservados."
                     />
+                    <p className="text-xs text-slate-500">Texto que aparecerá en el footer de tu tienda</p>
                   </div>
-                  <p className="text-xs text-slate-500">Color secundario para acentos y elementos complementarios</p>
-                </div>
 
-                <div className="lg:col-span-2 space-y-3">
-                  <label className="block text-sm font-medium text-slate-300">Texto del Footer</label>
-                  <textarea
-                    {...register("footer_text")}
-                    rows={3}
-                    className="w-full px-4 py-3 rounded-lg bg-slate-800 border border-slate-700 text-white placeholder-slate-500 focus:ring-2 focus:ring-orange-500 focus:border-orange-500 resize-none transition-all"
-                    placeholder="© 2024 Tu Tienda. Todos los derechos reservados."
+                  {/* Paletas de colores sugeridas */}
+                  <ColorSuggestions
+                    onSelectPalette={(primary, secondary, accent) => {
+                      setValue("primary_color", primary);
+                      setValue("secondary_color", secondary);
+                      setValue("accent_color", accent);
+                    }}
                   />
-                  <p className="text-xs text-slate-500">Texto que aparecerá en el footer de tu tienda</p>
+                </div>
+
+                {/* Preview */}
+                <div className="lg:col-span-1">
+                  <div className="sticky top-8 bg-slate-800/50 border border-slate-700 rounded-xl p-6">
+                    <AppearancePreview
+                      primaryColor={watch("primary_color") || "#3b82f6"}
+                      secondaryColor={watch("secondary_color") || "#0ea5e9"}
+                      accentColor={watch("accent_color") || "#d946ef"}
+                      logoUrl={watch("logo_url")}
+                      storeName={watch("store_name") || "Tu Tienda"}
+                    />
+                  </div>
                 </div>
               </div>
             </div>

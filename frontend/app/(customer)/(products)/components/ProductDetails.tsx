@@ -216,10 +216,34 @@ export const ProductDetails = ({ data }: ProductDetailsProps) => {
 
               {/* Floating action buttons */}
               <div className="absolute top-5 right-5 flex gap-2 opacity-0 group-hover:opacity-100 transition-all duration-300 translate-x-4 group-hover:translate-x-0">
-                <button className="bg-white/10 backdrop-blur-2xl hover:bg-rose-500 rounded-2xl w-11 h-11 flex items-center justify-center transition-all duration-300 hover:scale-110 border border-white/10 hover:border-rose-400 group/btn">
+                <button className="bg-white/10 backdrop-blur-2xl rounded-2xl w-11 h-11 flex items-center justify-center transition-all duration-300 hover:scale-110 border border-white/10 group/btn"
+                  style={{
+                    backgroundColor: 'rgba(255, 255, 255, 0.1)'
+                  }}
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.backgroundColor = `rgba(var(--color-accent-rgb), 0.3)`;
+                    e.currentTarget.style.borderColor = `rgba(var(--color-accent-rgb), 0.5)`;
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.backgroundColor = `rgba(255, 255, 255, 0.1)`;
+                    e.currentTarget.style.borderColor = `rgba(255, 255, 255, 0.1)`;
+                  }}
+                >
                   <Heart className="h-4.5 w-4.5 text-white group-hover/btn:fill-white transition-all" />
                 </button>
-                <button className="bg-white/10 backdrop-blur-2xl hover:bg-blue-500 rounded-2xl w-11 h-11 flex items-center justify-center transition-all duration-300 hover:scale-110 border border-white/10 hover:border-blue-400">
+                <button className="bg-white/10 backdrop-blur-2xl rounded-2xl w-11 h-11 flex items-center justify-center transition-all duration-300 hover:scale-110 border border-white/10"
+                  style={{
+                    backgroundColor: 'rgba(255, 255, 255, 0.1)'
+                  }}
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.backgroundColor = `rgba(var(--color-primary-rgb), 0.3)`;
+                    e.currentTarget.style.borderColor = `rgba(var(--color-primary-rgb), 0.5)`;
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.backgroundColor = `rgba(255, 255, 255, 0.1)`;
+                    e.currentTarget.style.borderColor = `rgba(255, 255, 255, 0.1)`;
+                  }}
+                >
                   <Share2 className="h-4.5 w-4.5 text-white" />
                 </button>
               </div>
@@ -249,9 +273,13 @@ export const ProductDetails = ({ data }: ProductDetailsProps) => {
                     key={index}
                     onClick={() => handleImageChange(index, image.color_code)}
                     className={`relative flex-shrink-0 aspect-square w-20 h-20 ml-2 mt-2 overflow-hidden rounded-2xl transition-all duration-300 ${selectedImage === index
-                      ? "ring-2 ring-blue-500 ring-offset-2 ring-offset-slate-950 scale-105 shadow-xl "
+                      ? "ring-offset-2 ring-offset-slate-950 scale-105 shadow-xl "
                       : "opacity-60 hover:opacity-100 border border-white/5 hover:border-white/20 hover:scale-105"
                       }`}
+                    style={selectedImage === index ? {
+                      ringColor: `var(--color-primary)`,
+                      boxShadow: `0 0 0 2px var(--color-primary)`
+                    } : {}}
                   >
                     <Image
                       src={image.image_url || "/placeholder.svg"}
@@ -260,7 +288,7 @@ export const ProductDetails = ({ data }: ProductDetailsProps) => {
                       className="object-fit"
                     />
                     {selectedImage === index && (
-                      <div className="absolute inset-0 bg-blue-500/10 rounded-2xl"></div>
+                      <div className="absolute inset-0 rounded-2xl" style={{backgroundColor: `rgba(var(--color-primary-rgb), 0.1)`}}></div>
                     )}
                   </button>
                 ))
@@ -509,10 +537,21 @@ export const ProductDetails = ({ data }: ProductDetailsProps) => {
                     isLoadingStock ||
                     variantStock === 0
                   }
-                  className="relative flex-1 bg-linear-to-r from-white to-slate-50 hover:from-slate-50 hover:to-white text-slate-900 py-7 text-base font-bold rounded-2xl shadow-2xl shadow-white/25 hover:shadow-white/35 transition-all duration-300 hover:scale-[1.02] disabled:opacity-40 disabled:cursor-not-allowed disabled:scale-100 disabled:shadow-none min-h-[3.5rem] border-0 active:scale-95 overflow-hidden group"
+                  className="relative flex-1 py-7 text-base font-bold rounded-2xl transition-all duration-300 hover:scale-[1.02] disabled:opacity-40 disabled:cursor-not-allowed disabled:scale-100 disabled:shadow-none min-h-[3.5rem] border-0 active:scale-95 overflow-hidden group"
+                  style={{
+                    backgroundImage: `linear-gradient(to right, var(--color-accent), var(--color-primary))`,
+                    color: 'white',
+                    boxShadow: `0 25px 50px -12px rgba(var(--color-accent-rgb), 0.25)`
+                  }}
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.boxShadow = `0 25px 50px -12px rgba(var(--color-accent-rgb), 0.35)`;
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.boxShadow = `0 25px 50px -12px rgba(var(--color-accent-rgb), 0.25)`;
+                  }}
                   size="lg"
                 >
-                  <div className="absolute inset-0 bg-linear-to-r from-blue-400/30 via-purple-400/30 to-pink-400/30 translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-1000"></div>
+                  <div className="absolute inset-0 translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-1000" style={{backgroundImage: `linear-gradient(to right, rgba(var(--color-accent-rgb), 0.3), rgba(var(--color-primary-rgb), 0.3), rgba(var(--color-accent-rgb), 0.3))`}}></div>
                   {isLoadingStock ? (
                     <div className="flex items-center gap-2.5 relative z-10">
                       <div className="w-4 h-4 border-2 border-slate-900/30 border-t-slate-900 rounded-full animate-spin" />

@@ -248,7 +248,8 @@ export const ProductCard = ({
         <div className="p-4 pt-4 space-y-4">
           {/* Product name */}
           <motion.h3
-            className="text-xl font-bold text-white group-hover:text-transparent group-hover:bg-linear-to-r group-hover:from-blue-300 group-hover:via-purple-300 group-hover:to-cyan-300 group-hover:bg-clip-text transition-all duration-300 line-clamp-2 leading-relaxed"
+            className="text-xl font-bold text-white group-hover:text-transparent group-hover:bg-clip-text transition-all duration-300 line-clamp-2 leading-relaxed"
+            style={{}}
             whileHover={{ scale: 1.02 }}
             transition={{ type: "spring", stiffness: 400, damping: 25 }}
           >
@@ -258,7 +259,8 @@ export const ProductCard = ({
           <div className="flex justify-between items-end">
             <div className="space-y-1">
               <motion.p
-                className="text-3xl font-black bg-linear-to-r from-blue-300 via-purple-300 to-cyan-300 bg-clip-text text-transparent"
+                className="text-3xl font-black bg-clip-text text-transparent"
+                style={{backgroundImage: `linear-gradient(to right, var(--color-primary), var(--color-secondary), var(--color-accent))`}}
                 whileHover={{ scale: 1.05 }}
                 transition={{ type: "spring", stiffness: 400, damping: 25 }}
               >

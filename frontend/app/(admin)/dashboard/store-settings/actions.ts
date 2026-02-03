@@ -22,6 +22,7 @@ const storeSettingsSchema = z.object({
   favicon_url: z.string().optional(),
   primary_color: z.string().optional().default("#3B82F6"),
   secondary_color: z.string().optional().default("#6366F1"),
+  accent_color: z.string().optional().default("#D946EF"),
   footer_text: z.string().optional(),
   newsletter_enabled: z.boolean().optional(),
   show_whatsapp_chat: z.boolean().optional(),
@@ -81,6 +82,7 @@ export async function updateStoreSettings(formData: StoreSettingsInput) {
       ...formData,
       primary_color: formData.primary_color || "#3B82F6",
       secondary_color: formData.secondary_color || "#6366F1",
+      accent_color: formData.accent_color || "#D946EF",
     });
 
     // Buscar la configuración existente
@@ -92,13 +94,39 @@ export async function updateStoreSettings(formData: StoreSettingsInput) {
     let settings;
     
     if (existingSettings) {
+      // Construir objeto de actualización con solo los campos válidos
+      const updateData: any = {
+        store_name: validatedData.store_name,
+        store_description: validatedData.store_description,
+        contact_email: validatedData.contact_email,
+        contact_phone: validatedData.contact_phone,
+        whatsapp_number: validatedData.whatsapp_number,
+        address: validatedData.address,
+        city: validatedData.city,
+        country: validatedData.country,
+        facebook_url: validatedData.facebook_url,
+        instagram_url: validatedData.instagram_url,
+        twitter_url: validatedData.twitter_url,
+        youtube_url: validatedData.youtube_url,
+        tiktok_url: validatedData.tiktok_url,
+        logo_url: validatedData.logo_url,
+        favicon_url: validatedData.favicon_url,
+        primary_color: validatedData.primary_color,
+        secondary_color: validatedData.secondary_color,
+        accent_color: validatedData.accent_color,
+        footer_text: validatedData.footer_text,
+        newsletter_enabled: validatedData.newsletter_enabled,
+        show_whatsapp_chat: validatedData.show_whatsapp_chat,
+        seo_title: validatedData.seo_title,
+        seo_description: validatedData.seo_description,
+        seo_keywords: validatedData.seo_keywords,
+        updated_at: new Date(),
+      };
+
       // Actualizar la configuración existente
       settings = await prisma.storeSettings.update({
         where: { id: existingSettings.id },
-        data: {
-          ...validatedData,
-          updated_at: new Date(),
-        },
+        data: updateData,
       });
     } else {
       // Crear nueva configuración si no existe
