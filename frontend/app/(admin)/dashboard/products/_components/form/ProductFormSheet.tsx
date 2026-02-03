@@ -293,7 +293,7 @@ export default function ProductFormSheet({
     <Sheet open={isSheetOpen} onOpenChange={setIsSheetOpen}>
       {children}
 
-      <SheetContent className="w-full sm:max-w-[95vw] lg:max-w-[85vw] xl:max-w-[1000px] p-0 gap-0 overflow-hidden border-none bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950">
+      <SheetContent className="w-full sm:max-w-[95vw] lg:max-w-[85vw] xl:max-w-[1000px] p-0 gap-0 overflow-hidden border-none bg-linear-to-br from-slate-950 via-slate-900 to-slate-950">
         <motion.div
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
@@ -309,15 +309,15 @@ export default function ProductFormSheet({
             initial={{ y: -20, opacity: 0 }}
             animate={{ y: 0, opacity: 1 }}
             transition={{ duration: 0.4, delay: 0.1 }}
-            className="relative px-10 py-8 backdrop-blur-2xl bg-gradient-to-r from-slate-950/90 via-slate-900/70 to-slate-950/90 border-b border-slate-800/60 shadow-[0_30px_80px_rgba(2,6,23,0.6)] overflow-hidden"
+            className="relative px-10 py-8 backdrop-blur-2xl bg-linear-to-r from-slate-950/90 via-slate-900/70 to-slate-950/90 border-b border-slate-800/60 shadow-[0_30px_80px_rgba(2,6,23,0.6)] overflow-hidden"
           >
             <div className="absolute inset-0 bg-[radial-gradient(circle_at_top,_rgba(59,130,246,0.15),transparent_55%)]" />
             <div className="absolute inset-0 bg-[radial-gradient(circle_at_bottom,_rgba(147,51,234,0.12),transparent_60%)]" />
-            <div className="absolute inset-x-0 bottom-0 h-px bg-gradient-to-r from-transparent via-blue-400/40 to-transparent" />
+            <div className="absolute inset-x-0 bottom-0 h-px bg-linear-to-r from-transparent via-blue-400/40 to-transparent" />
             <div className="relative flex flex-col gap-6">
               <div className="flex flex-col xl:flex-row xl:items-center xl:justify-between gap-6">
                 <div className="space-y-2">
-                  <SheetTitle className="text-3xl font-bold tracking-tight bg-gradient-to-r from-slate-100 via-blue-100 to-slate-100 bg-clip-text text-transparent drop-shadow-sm">
+                  <SheetTitle className="text-3xl font-bold tracking-tight bg-linear-to-r from-slate-100 via-blue-100 to-slate-100 bg-clip-text text-transparent drop-shadow-sm">
                     {title}
                   </SheetTitle>
                   <p className="text-sm text-slate-400 max-w-2xl">
@@ -374,10 +374,10 @@ export default function ProductFormSheet({
                     animate={{ opacity: 1, scale: 1 }}
                     transition={{ duration: 0.4, delay: 0.3 }}
                     whileHover={{ scale: 1.01, transition: { duration: 0.2 } }}
-                    className="group relative p-8 rounded-2xl bg-gradient-to-br from-slate-900/90 via-slate-800/80 to-slate-900/90 border border-slate-700/50 backdrop-blur-sm shadow-xl hover:shadow-2xl hover:shadow-blue-500/10 transition-all duration-500 overflow-hidden"
+                    className="group relative p-8 rounded-2xl bg-linear-to-br from-slate-900/90 via-slate-800/80 to-slate-900/90 border border-slate-700/50 backdrop-blur-sm shadow-xl hover:shadow-2xl hover:shadow-blue-500/10 transition-all duration-500 overflow-hidden"
                   >
                     {/* Glow effect */}
-                    <div className="absolute inset-0 rounded-2xl bg-gradient-to-br from-blue-500/0 via-purple-500/0 to-blue-500/0 group-hover:from-blue-500/5 group-hover:via-purple-500/5 group-hover:to-blue-500/5 transition-all duration-500 pointer-events-none" />
+                    <div className="absolute inset-0 rounded-2xl bg-linear-to-br from-blue-500/0 via-purple-500/0 to-blue-500/0 group-hover:from-blue-500/5 group-hover:via-purple-500/5 group-hover:to-blue-500/5 transition-all duration-500 pointer-events-none" />
 
                     <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 relative z-10">
                       {/* Columna Izquierda: Información Básica */}
@@ -390,7 +390,7 @@ export default function ProductFormSheet({
                         <div className="flex items-center gap-3 pb-4 border-b border-slate-700/50">
                           <motion.div
                             whileHover={{ scale: 1.1, rotate: 5 }}
-                            className="flex items-center justify-center size-10 rounded-xl bg-gradient-to-br from-blue-500/20 to-blue-600/10 border border-blue-500/30 shadow-lg shadow-blue-500/20"
+                            className="flex items-center justify-center size-10 rounded-xl bg-linear-to-br from-blue-500/20 to-blue-600/10 border border-blue-500/30 shadow-lg shadow-blue-500/20"
                           >
                             <motion.div
                               animate={{
@@ -402,10 +402,10 @@ export default function ProductFormSheet({
                                 repeat: Infinity,
                                 ease: "easeInOut",
                               }}
-                              className="size-3 rounded-full bg-gradient-to-br from-blue-400 to-blue-600 shadow-lg shadow-blue-500/50"
+                              className="size-3 rounded-full bg-linear-to-br from-blue-400 to-blue-600 shadow-lg shadow-blue-500/50"
                             />
                           </motion.div>
-                          <h3 className="text-base font-bold tracking-wide bg-gradient-to-r from-slate-200 to-slate-400 bg-clip-text text-transparent uppercase">
+                          <h3 className="text-base font-bold tracking-wide bg-linear-to-r from-slate-200 to-slate-400 bg-clip-text text-transparent uppercase">
                             Información Básica
                           </h3>
                         </div>
@@ -449,7 +449,7 @@ export default function ProductFormSheet({
                         <div className="flex items-center gap-3 pb-4 border-b border-slate-700/50">
                           <motion.div
                             whileHover={{ scale: 1.1, rotate: -5 }}
-                            className="flex items-center justify-center size-10 rounded-xl bg-gradient-to-br from-orange-500/20 to-orange-600/10 border border-orange-500/30 shadow-lg shadow-orange-500/20"
+                            className="flex items-center justify-center size-10 rounded-xl bg-linear-to-br from-orange-500/20 to-orange-600/10 border border-orange-500/30 shadow-lg shadow-orange-500/20"
                           >
                             <motion.div
                               animate={{
@@ -462,10 +462,10 @@ export default function ProductFormSheet({
                                 ease: "easeInOut",
                                 delay: 0.5,
                               }}
-                              className="size-3 rounded-full bg-gradient-to-br from-orange-400 to-orange-600 shadow-lg shadow-orange-500/50"
+                              className="size-3 rounded-full bg-linear-to-br from-orange-400 to-orange-600 shadow-lg shadow-orange-500/50"
                             />
                           </motion.div>
-                          <h3 className="text-base font-bold tracking-wide bg-gradient-to-r from-slate-200 to-slate-400 bg-clip-text text-transparent uppercase">
+                          <h3 className="text-base font-bold tracking-wide bg-linear-to-r from-slate-200 to-slate-400 bg-clip-text text-transparent uppercase">
                             Tamaños
                           </h3>
                         </div>
@@ -486,7 +486,7 @@ export default function ProductFormSheet({
                                     animate={{ opacity: 1, y: 0 }}
                                     exit={{ opacity: 0, y: -10 }}
                                     transition={{ duration: 0.3 }}
-                                    className="flex flex-wrap gap-2 p-4 rounded-xl bg-gradient-to-br from-slate-800/60 to-slate-900/40 border border-slate-700/50 backdrop-blur-sm"
+                                    className="flex flex-wrap gap-2 p-4 rounded-xl bg-linear-to-br from-slate-800/60 to-slate-900/40 border border-slate-700/50 backdrop-blur-sm"
                                   >
                                     <span className="text-xs font-semibold text-slate-400 mr-2">
                                       Seleccionados:
@@ -510,7 +510,7 @@ export default function ProductFormSheet({
                                             newSizes.join(", ")
                                           );
                                         }}
-                                        className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold bg-gradient-to-r from-orange-500/20 to-orange-600/20 text-orange-300 border border-orange-400/40 rounded-lg hover:from-orange-500/30 hover:to-orange-600/30 hover:border-orange-400/60 transition-all shadow-lg shadow-orange-500/10"
+                                        className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold bg-linear-to-r from-orange-500/20 to-orange-600/20 text-orange-300 border border-orange-400/40 rounded-lg hover:from-orange-500/30 hover:to-orange-600/30 hover:border-orange-400/60 transition-all shadow-lg shadow-orange-500/10"
                                       >
                                         {size}
                                         <svg
@@ -584,8 +584,8 @@ export default function ProductFormSheet({
                                     relative h-12 px-3 rounded-xl border-2 font-bold text-sm transition-all duration-300 overflow-hidden
                                     ${
                                       isSelected
-                                        ? "border-orange-400/60 bg-gradient-to-br from-orange-500/30 to-amber-500/20 text-orange-200 shadow-lg shadow-orange-500/25"
-                                        : "border-slate-600/40 bg-gradient-to-br from-slate-800/40 to-slate-700/20 text-slate-300 hover:border-orange-400/40 hover:from-orange-500/10 hover:to-amber-500/5"
+                                        ? "border-orange-400/60 bg-linear-to-br from-orange-500/30 to-amber-500/20 text-orange-200 shadow-lg shadow-orange-500/25"
+                                        : "border-slate-600/40 bg-linear-to-br from-slate-800/40 to-slate-700/20 text-slate-300 hover:border-orange-400/40 hover:from-orange-500/10 hover:to-amber-500/5"
                                     }
                                   `}
                                 >
@@ -593,7 +593,7 @@ export default function ProductFormSheet({
                                   {isSelected && (
                                     <motion.div
                                       layoutId="size-selected"
-                                      className="absolute inset-0 bg-gradient-to-br from-orange-500/20 to-amber-500/10 rounded-xl"
+                                      className="absolute inset-0 bg-linear-to-br from-orange-500/20 to-amber-500/10 rounded-xl"
                                       transition={{
                                         type: "spring",
                                         bounce: 0.2,
@@ -617,7 +617,7 @@ export default function ProductFormSheet({
                               <input
                                 type="text"
                                 placeholder="Tamaño personalizado (ej: 3XL, PRO)"
-                                className="flex-1 h-12 px-4 rounded-xl border-2 border-slate-600/40 bg-gradient-to-br from-slate-800/60 to-slate-900/40 text-slate-200 placeholder:text-slate-500 focus:border-orange-400/60 focus:outline-none focus:ring-2 focus:ring-orange-500/20 transition-all duration-300 text-sm backdrop-blur-sm"
+                                className="flex-1 h-12 px-4 rounded-xl border-2 border-slate-600/40 bg-linear-to-br from-slate-800/60 to-slate-900/40 text-slate-200 placeholder:text-slate-500 focus:border-orange-400/60 focus:outline-none focus:ring-2 focus:ring-orange-500/20 transition-all duration-300 text-sm backdrop-blur-sm"
                                 onKeyDown={(e) => {
                                   if (e.key === "Enter") {
                                     e.preventDefault();
@@ -686,7 +686,7 @@ export default function ProductFormSheet({
                                     input.value = "";
                                   }
                                 }}
-                                className="h-12 px-5 rounded-xl border-2 border-orange-500/40 bg-gradient-to-r from-orange-500/20 to-amber-500/10 text-orange-300 font-bold text-sm hover:border-orange-400/60 hover:from-orange-500/30 hover:to-amber-500/20 transition-all duration-300 flex items-center justify-center shadow-lg shadow-orange-500/20"
+                                className="h-12 px-5 rounded-xl border-2 border-orange-500/40 bg-linear-to-r from-orange-500/20 to-amber-500/10 text-orange-300 font-bold text-sm hover:border-orange-400/60 hover:from-orange-500/30 hover:to-amber-500/20 transition-all duration-300 flex items-center justify-center shadow-lg shadow-orange-500/20"
                                 aria-label="Agregar tamaño personalizado"
                               >
                                 <svg
@@ -709,7 +709,7 @@ export default function ProductFormSheet({
                               whileHover={{ scale: 1.02 }}
                               whileTap={{ scale: 0.98 }}
                               onClick={() => form.setValue("sizes", "")}
-                              className="w-full h-11 px-4 rounded-xl border-2 border-red-500/40 bg-gradient-to-r from-red-500/20 to-red-400/10 text-red-300 font-bold text-sm hover:border-red-400/60 hover:from-red-500/30 hover:to-red-400/20 transition-all duration-300 flex items-center justify-center gap-2 shadow-lg shadow-red-500/20"
+                              className="w-full h-11 px-4 rounded-xl border-2 border-red-500/40 bg-linear-to-r from-red-500/20 to-red-400/10 text-red-300 font-bold text-sm hover:border-red-400/60 hover:from-red-500/30 hover:to-red-400/20 transition-all duration-300 flex items-center justify-center gap-2 shadow-lg shadow-red-500/20"
                               aria-label="Limpiar todos los tamaños"
                             >
                               <svg
@@ -760,15 +760,15 @@ export default function ProductFormSheet({
                     animate={{ opacity: 1, scale: 1 }}
                     transition={{ duration: 0.4, delay: 0.5 }}
                     whileHover={{ scale: 1.01, transition: { duration: 0.2 } }}
-                    className="group relative p-8 rounded-2xl bg-gradient-to-br from-slate-900/90 via-slate-800/80 to-slate-900/90 border border-slate-700/50 backdrop-blur-sm shadow-xl hover:shadow-2xl hover:shadow-purple-500/10 transition-all duration-500 overflow-hidden"
+                    className="group relative p-8 rounded-2xl bg-linear-to-br from-slate-900/90 via-slate-800/80 to-slate-900/90 border border-slate-700/50 backdrop-blur-sm shadow-xl hover:shadow-2xl hover:shadow-purple-500/10 transition-all duration-500 overflow-hidden"
                   >
-                    <div className="absolute inset-0 rounded-2xl bg-gradient-to-br from-purple-500/0 via-pink-500/0 to-purple-500/0 group-hover:from-purple-500/5 group-hover:via-pink-500/5 group-hover:to-purple-500/5 transition-all duration-500 pointer-events-none" />
+                    <div className="absolute inset-0 rounded-2xl bg-linear-to-br from-purple-500/0 via-pink-500/0 to-purple-500/0 group-hover:from-purple-500/5 group-hover:via-pink-500/5 group-hover:to-purple-500/5 transition-all duration-500 pointer-events-none" />
 
                     <div className="relative z-10 space-y-6">
                       <div className="flex items-center gap-3 pb-4 border-b border-slate-700/50">
                         <motion.div
                           whileHover={{ scale: 1.1, rotate: 10 }}
-                          className="flex items-center justify-center size-10 rounded-xl bg-gradient-to-br from-purple-500/20 to-pink-600/10 border border-purple-500/30 shadow-lg shadow-purple-500/20"
+                          className="flex items-center justify-center size-10 rounded-xl bg-linear-to-br from-purple-500/20 to-pink-600/10 border border-purple-500/30 shadow-lg shadow-purple-500/20"
                         >
                           <motion.div
                             animate={{
@@ -781,10 +781,10 @@ export default function ProductFormSheet({
                               ease: "easeInOut",
                               delay: 1,
                             }}
-                            className="size-3 rounded-full bg-gradient-to-br from-purple-400 to-pink-600 shadow-lg shadow-purple-500/50"
+                            className="size-3 rounded-full bg-linear-to-br from-purple-400 to-pink-600 shadow-lg shadow-purple-500/50"
                           />
                         </motion.div>
-                        <h3 className="text-base font-bold tracking-wide bg-gradient-to-r from-slate-200 to-slate-400 bg-clip-text text-transparent uppercase">
+                        <h3 className="text-base font-bold tracking-wide bg-linear-to-r from-slate-200 to-slate-400 bg-clip-text text-transparent uppercase">
                           Colores e Imágenes
                         </h3>
                       </div>
@@ -808,15 +808,15 @@ export default function ProductFormSheet({
                     animate={{ opacity: 1, scale: 1 }}
                     transition={{ duration: 0.4, delay: 0.6 }}
                     whileHover={{ scale: 1.01, transition: { duration: 0.2 } }}
-                    className="group relative p-8 rounded-2xl bg-gradient-to-br from-slate-900/90 via-slate-800/80 to-slate-900/90 border border-slate-700/50 backdrop-blur-sm shadow-xl hover:shadow-2xl hover:shadow-green-500/10 transition-all duration-500 overflow-hidden"
+                    className="group relative p-8 rounded-2xl bg-linear-to-br from-slate-900/90 via-slate-800/80 to-slate-900/90 border border-slate-700/50 backdrop-blur-sm shadow-xl hover:shadow-2xl hover:shadow-green-500/10 transition-all duration-500 overflow-hidden"
                   >
-                    <div className="absolute inset-0 rounded-2xl bg-gradient-to-br from-green-500/0 via-emerald-500/0 to-green-500/0 group-hover:from-green-500/5 group-hover:via-emerald-500/5 group-hover:to-green-500/5 transition-all duration-500 pointer-events-none" />
+                    <div className="absolute inset-0 rounded-2xl bg-linear-to-br from-green-500/0 via-emerald-500/0 to-green-500/0 group-hover:from-green-500/5 group-hover:via-emerald-500/5 group-hover:to-green-500/5 transition-all duration-500 pointer-events-none" />
 
                     <div className="relative z-10 space-y-6">
                       <div className="flex items-center gap-3 pb-4 border-b border-slate-700/50">
                         <motion.div
                           whileHover={{ scale: 1.1, rotate: -10 }}
-                          className="flex items-center justify-center size-10 rounded-xl bg-gradient-to-br from-green-500/20 to-emerald-600/10 border border-green-500/30 shadow-lg shadow-green-500/20"
+                          className="flex items-center justify-center size-10 rounded-xl bg-linear-to-br from-green-500/20 to-emerald-600/10 border border-green-500/30 shadow-lg shadow-green-500/20"
                         >
                           <motion.div
                             animate={{
@@ -829,10 +829,10 @@ export default function ProductFormSheet({
                               ease: "easeInOut",
                               delay: 1.5,
                             }}
-                            className="size-3 rounded-full bg-gradient-to-br from-green-400 to-emerald-600 shadow-lg shadow-green-500/50"
+                            className="size-3 rounded-full bg-linear-to-br from-green-400 to-emerald-600 shadow-lg shadow-green-500/50"
                           />
                         </motion.div>
-                        <h3 className="text-base font-bold tracking-wide bg-gradient-to-r from-slate-200 to-slate-400 bg-clip-text text-transparent uppercase">
+                        <h3 className="text-base font-bold tracking-wide bg-linear-to-r from-slate-200 to-slate-400 bg-clip-text text-transparent uppercase">
                           Stock por Variante
                         </h3>
                       </div>
@@ -855,15 +855,15 @@ export default function ProductFormSheet({
                     animate={{ opacity: 1, scale: 1 }}
                     transition={{ duration: 0.4, delay: 0.7 }}
                     whileHover={{ scale: 1.01, transition: { duration: 0.2 } }}
-                    className="group relative p-8 rounded-2xl bg-gradient-to-br from-slate-900/90 via-slate-800/80 to-slate-900/90 border border-slate-700/50 backdrop-blur-sm shadow-xl hover:shadow-2xl hover:shadow-blue-500/10 transition-all duration-500 overflow-hidden"
+                    className="group relative p-8 rounded-2xl bg-linear-to-br from-slate-900/90 via-slate-800/80 to-slate-900/90 border border-slate-700/50 backdrop-blur-sm shadow-xl hover:shadow-2xl hover:shadow-blue-500/10 transition-all duration-500 overflow-hidden"
                   >
-                    <div className="absolute inset-0 rounded-2xl bg-gradient-to-br from-blue-500/0 via-cyan-500/0 to-blue-500/0 group-hover:from-blue-500/5 group-hover:via-cyan-500/5 group-hover:to-blue-500/5 transition-all duration-500 pointer-events-none" />
+                    <div className="absolute inset-0 rounded-2xl bg-linear-to-br from-blue-500/0 via-cyan-500/0 to-blue-500/0 group-hover:from-blue-500/5 group-hover:via-cyan-500/5 group-hover:to-blue-500/5 transition-all duration-500 pointer-events-none" />
 
                     <div className="relative z-10 space-y-6">
                       <div className="flex items-center gap-3 pb-4 border-b border-slate-700/50">
                         <motion.div
                           whileHover={{ scale: 1.1, rotate: 5 }}
-                          className="flex items-center justify-center size-10 rounded-xl bg-gradient-to-br from-blue-500/20 to-cyan-600/10 border border-blue-500/30 shadow-lg shadow-blue-500/20"
+                          className="flex items-center justify-center size-10 rounded-xl bg-linear-to-br from-blue-500/20 to-cyan-600/10 border border-blue-500/30 shadow-lg shadow-blue-500/20"
                         >
                           <motion.div
                             animate={{
@@ -876,10 +876,10 @@ export default function ProductFormSheet({
                               ease: "easeInOut",
                               delay: 2,
                             }}
-                            className="size-3 rounded-full bg-gradient-to-br from-blue-400 to-cyan-600 shadow-lg shadow-blue-500/50"
+                            className="size-3 rounded-full bg-linear-to-br from-blue-400 to-cyan-600 shadow-lg shadow-blue-500/50"
                           />
                         </motion.div>
-                        <h3 className="text-base font-bold tracking-wide bg-gradient-to-r from-slate-200 to-slate-400 bg-clip-text text-transparent uppercase">
+                        <h3 className="text-base font-bold tracking-wide bg-linear-to-r from-slate-200 to-slate-400 bg-clip-text text-transparent uppercase">
                           Precios y Dimensiones
                         </h3>
                       </div>
@@ -923,10 +923,10 @@ export default function ProductFormSheet({
                     animate={{ opacity: 1, scale: 1 }}
                     transition={{ duration: 0.4, delay: 0.8 }}
                     whileHover={{ scale: 1.01, transition: { duration: 0.2 } }}
-                    className="group relative p-8 rounded-2xl bg-gradient-to-br from-slate-900/90 via-slate-800/80 to-slate-900/90 border border-slate-700/50 backdrop-blur-sm shadow-xl hover:shadow-2xl hover:shadow-purple-500/10 transition-all duration-500 overflow-hidden"
+                    className="group relative p-8 rounded-2xl bg-linear-to-br from-slate-900/90 via-slate-800/80 to-slate-900/90 border border-slate-700/50 backdrop-blur-sm shadow-xl hover:shadow-2xl hover:shadow-purple-500/10 transition-all duration-500 overflow-hidden"
                   >
                     <div
-                      className="absolute inset-x-0 rounded-2xl bg-gradient-to-br from-purple-500/0 via-indigo-500/0 to-purple-500/0 group-hover:from-purple-500/5 group-hover:via-indigo-500/5 group-hover:to-purple-500/5 transition-all duration-500 pointer-events-none"
+                      className="absolute inset-x-0 rounded-2xl bg-linear-to-br from-purple-500/0 via-indigo-500/0 to-purple-500/0 group-hover:from-purple-500/5 group-hover:via-indigo-500/5 group-hover:to-purple-500/5 transition-all duration-500 pointer-events-none"
                       style={{ top: -12, bottom: -12 }}
                     />
 
@@ -934,7 +934,7 @@ export default function ProductFormSheet({
                       <div className="flex items-center gap-3 pb-4 border-b border-slate-700/50">
                         <motion.div
                           whileHover={{ scale: 1.1, rotate: -5 }}
-                          className="flex items-center justify-center size-10 rounded-xl bg-gradient-to-br from-purple-500/20 to-indigo-600/10 border border-purple-500/30 shadow-lg shadow-purple-500/20"
+                          className="flex items-center justify-center size-10 rounded-xl bg-linear-to-br from-purple-500/20 to-indigo-600/10 border border-purple-500/30 shadow-lg shadow-purple-500/20"
                         >
                           <motion.div
                             animate={{
@@ -947,10 +947,10 @@ export default function ProductFormSheet({
                               ease: "easeInOut",
                               delay: 2.5,
                             }}
-                            className="size-3 rounded-full bg-gradient-to-br from-purple-400 to-indigo-600 shadow-lg shadow-purple-500/50"
+                            className="size-3 rounded-full bg-linear-to-br from-purple-400 to-indigo-600 shadow-lg shadow-purple-500/50"
                           />
                         </motion.div>
-                        <h3 className="text-base font-bold tracking-wide bg-gradient-to-r from-slate-200 to-slate-400 bg-clip-text text-transparent uppercase">
+                        <h3 className="text-base font-bold tracking-wide bg-linear-to-r from-slate-200 to-slate-400 bg-clip-text text-transparent uppercase">
                           Categorización
                         </h3>
                       </div>
@@ -1005,7 +1005,7 @@ export default function ProductFormSheet({
                             initial={{ opacity: 0, y: 10 }}
                             animate={{ opacity: 1, y: 0 }}
                             transition={{ duration: 0.3, delay: 1 }}
-                            className="relative p-4 rounded-xl bg-gradient-to-r from-blue-500/10 to-cyan-500/10 border border-blue-500/30 backdrop-blur-sm"
+                            className="relative p-4 rounded-xl bg-linear-to-r from-blue-500/10 to-cyan-500/10 border border-blue-500/30 backdrop-blur-sm"
                           >
                             <div className="flex items-start gap-3">
                               <svg
@@ -1038,7 +1038,7 @@ export default function ProductFormSheet({
                   transition={{ duration: 0.4, delay: 0.9 }}
                   className="max-w-5xl mx-auto mt-10 relative z-10"
                 >
-                  <div className="relative flex flex-col md:flex-row md:items-center gap-6 rounded-2xl border border-slate-800/70 bg-gradient-to-br from-slate-950/95 via-slate-900/85 to-slate-950/95 p-6 shadow-[0_45px_90px_rgba(2,6,23,0.65)] overflow-hidden">
+                  <div className="relative flex flex-col md:flex-row md:items-center gap-6 rounded-2xl border border-slate-800/70 bg-linear-to-br from-slate-950/95 via-slate-900/85 to-slate-950/95 p-6 shadow-[0_45px_90px_rgba(2,6,23,0.65)] overflow-hidden">
                     <div className="absolute inset-0 bg-[linear-gradient(130deg,rgba(59,130,246,0.12),transparent_45%)] pointer-events-none" />
                     <div className="absolute inset-0 bg-[linear-gradient(310deg,rgba(16,185,129,0.08),transparent_55%)] pointer-events-none" />
                     <div className="relative flex-1 space-y-2">
@@ -1066,7 +1066,7 @@ export default function ProductFormSheet({
                     <div className="relative w-full md:w-auto">
                       <FormSubmitButton
                         isPending={isPending}
-                        className="w-full md:w-auto px-8 h-12 text-sm font-semibold tracking-wide bg-gradient-to-r from-black via-slate-950 to-slate-900 hover:via-slate-800 hover:to-slate-900 text-slate-100 shadow-[0_25px_55px_rgba(0,0,0,0.65)] rounded-xl border border-slate-800/80 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-slate-100/20 relative overflow-hidden group transition-all duration-500"
+                        className="w-full md:w-auto px-8 h-12 text-sm font-semibold tracking-wide bg-linear-to-r from-black via-slate-950 to-slate-900 hover:via-slate-800 hover:to-slate-900 text-slate-100 shadow-[0_25px_55px_rgba(0,0,0,0.65)] rounded-xl border border-slate-800/80 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-slate-100/20 relative overflow-hidden group transition-all duration-500"
                       >
                         <motion.div
                           animate={{
@@ -1077,7 +1077,7 @@ export default function ProductFormSheet({
                             repeat: Infinity,
                             ease: "linear",
                           }}
-                          className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent opacity-40"
+                          className="absolute inset-0 bg-linear-to-r from-transparent via-white/10 to-transparent opacity-40"
                         />
                         <div className="absolute inset-0 bg-[radial-gradient(circle_at_top,rgba(59,130,246,0.15),transparent_60%)] opacity-40" />
                         {isPending ? (

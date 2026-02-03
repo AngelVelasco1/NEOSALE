@@ -124,7 +124,7 @@ export default function ReviewsFilters() {
   return (
     <Card className={FILTER_CARD_CLASS}>
       <div className="space-y-2">
-        <div className="relative overflow-hidden rounded-3xl border border-slate-800/50 bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950 p-6 text-white shadow-lg shadow-orange-900/25">
+        <div className="relative overflow-hidden rounded-3xl border border-slate-800/50 bg-linear-to-br from-slate-950 via-slate-900 to-slate-950 p-6 text-white shadow-lg shadow-orange-900/25">
           <div
             className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_top,rgba(249,115,22,0.4),transparent_55%)]"
             aria-hidden="true"
@@ -159,7 +159,7 @@ export default function ReviewsFilters() {
           </div>
         </div>
 
-        <div className="rounded-3xl border border-slate-200/70 bg-gradient-to-br from-white via-slate-50 to-slate-100 p-4 shadow-sm dark:border-slate-900 dark:from-slate-950/50 dark:via-slate-900/40 dark:to-slate-950/30">
+        <div className="rounded-3xl border border-slate-200/70 bg-linear-to-br from-white via-slate-50 to-slate-100 p-4 shadow-sm dark:border-slate-900 dark:from-slate-950/50 dark:via-slate-900/40 dark:to-slate-950/30">
           <div className="grid grid-cols-1 gap-6 md:grid-cols-[2fr_1fr_1fr]">
             <div className="space-y-2">
               <Label className="flex items-center gap-2 text-sm font-semibold text-slate-900 dark:text-slate-100">
@@ -306,7 +306,7 @@ export default function ReviewsFilters() {
         </div>
 
         {hasActiveFilters && (
-          <div className="rounded-3xl border border-slate-200/80 bg-gradient-to-r from-slate-50 via-white to-slate-100 p-5 shadow-sm dark:border-slate-900 dark:from-slate-900/70 dark:via-slate-900/40 dark:to-slate-900/20">
+          <div className="rounded-3xl border border-slate-200/80 bg-linear-to-r from-slate-50 via-white to-slate-100 p-5 shadow-sm dark:border-slate-900 dark:from-slate-900/70 dark:via-slate-900/40 dark:to-slate-900/20">
             <div className="flex flex-wrap items-center gap-3">
               <span className="flex items-center gap-2 rounded-2xl bg-slate-900 px-4 py-2 text-[10px] font-semibold uppercase tracking-[0.35em] text-white dark:bg-white/10">
                 <div className="h-2 w-2 animate-pulse rounded-full bg-orange-400" />

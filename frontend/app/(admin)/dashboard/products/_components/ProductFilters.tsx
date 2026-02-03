@@ -1,21 +1,12 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useState } from "react";
-import { useRouter, useSearchParams } from "next/navigation";
-import { useQuery } from "@tanstack/react-query";
-import { Search, X, DollarSign, Tag, ShieldCheck, Package, Layers } from "lucide-react";
+import { Search, X, Loader2, Tag, DollarSign, Layers, ShieldCheck, Package } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Separator } from "@/components/ui/separator";
 import { Badge } from "@/components/ui/badge";
-
-import FetchDropdownContainer from "@/app/(admin)/components/shared/FetchDropdownContainer";
-import { fetchCategoriesDropdown } from "@/app/(admin)/services/categories";
-import { fetchBrandsDropdown } from "@/app/(admin)/services/brands";
-BiDollar
 
 import {
   FILTER_ACTIVE_BADGE_CLASS,
@@ -25,211 +16,36 @@ import {
   FILTER_INPUT_CLASS,
   FILTER_LABEL_CLASS,
   FILTER_RESET_BUTTON_CLASS,
-  FILTER_SELECT_TRIGGER_CLASS,
 } from "@/app/(admin)/components/shared/filters/styles";
 import { BiDollar } from "react-icons/bi";
 
-const PUBLISHED_PRESETS = [
-  { label: "Activos", value: "true" },
-  { label: "Pausados", value: "false" },
-];
-
-const STOCK_PRESETS = [
-  { label: "Con stock", value: "selling" },
-  { label: "Agotados", value: "out-of-stock" },
-];
-
-const PRICE_PRESETS = [
-  { label: "Bajo < $500", max: "500" },
-  { label: "Medio $500-1500", min: "500", max: "1500" },
-  { label: "Premium > $1500", min: "1500" },
-];
-
-const STOCK_RANGE_PRESETS = [
-  { label: "Top sellers", min: "20" },
-  { label: "Nivel crítico", max: "5" },
-];
+import { PUBLISHED_PRESETS, STOCK_PRESETS } from "./constants";
+import { useProductFilters } from "./useProductFilters";
 
 export default function ProductFilters() {
-  const router = useRouter();
-  const searchParams = useSearchParams();
-  const searchParamsRaw = useMemo(() => searchParams.toString(), [searchParams]);
-  const filtersSignature = useMemo(() => {
-    const params = new URLSearchParams(searchParamsRaw);
-    params.delete("page");
-    params.delete("limit");
-    return params.toString();
-  }, [searchParamsRaw]);
-
-  const [searchValue, setSearchValue] = useState(searchParams.get("search") || "");
-  const [minPriceValue, setMinPriceValue] = useState(searchParams.get("minPrice") || "");
-  const [maxPriceValue, setMaxPriceValue] = useState(searchParams.get("maxPrice") || "");
-  const [minStockValue, setMinStockValue] = useState(searchParams.get("minStock") || "");
-  const [maxStockValue, setMaxStockValue] = useState(searchParams.get("maxStock") || "");
-
-  const filterSearch = searchParams.get("search") || "";
-  const filterCategory = searchParams.get("category") || "all";
-  const filterBrand = searchParams.get("brand") || "all";
-  const filterMinPrice = searchParams.get("minPrice") || "";
-  const filterMaxPrice = searchParams.get("maxPrice") || "";
-  const filterPublished = searchParams.get("published") || "all";
-  const filterStatus = searchParams.get("status") || "all";
-  const filterMinStock = searchParams.get("minStock") || "";
-  const filterMaxStock = searchParams.get("maxStock") || "";
-
-  const currentFilters = useMemo(
-    () => ({
-      search: filterSearch,
-      category: filterCategory,
-      brand: filterBrand,
-      minPrice: filterMinPrice,
-      maxPrice: filterMaxPrice,
-      publishedFilter: filterPublished,
-      stockFilter: filterStatus,
-      minStock: filterMinStock,
-      maxStock: filterMaxStock,
-    }),
-    [
-      filterSearch,
-      filterCategory,
-      filterBrand,
-      filterMinPrice,
-      filterMaxPrice,
-      filterPublished,
-      filterStatus,
-      filterMinStock,
-      filterMaxStock,
-    ]
-  );
-
   const {
-    data: categories,
-    isLoading: isLoadingCategories,
-    isError: isErrorCategories,
-  } = useQuery({
-    queryKey: ["categories", "dropdown"],
-    queryFn: fetchCategoriesDropdown,
-    staleTime: 10 * 60 * 1000, // 10 minutos - datos dropdown cambian poco
-    gcTime: 15 * 60 * 1000, // 15 minutos en cache
-  });
-
-  const {
-    data: brands,
-    isLoading: isLoadingBrands,
-    isError: isErrorBrands,
-  } = useQuery({
-    queryKey: ["brands", "dropdown"],
-    queryFn: fetchBrandsDropdown,
-    staleTime: 10 * 60 * 1000, // 10 minutos - datos dropdown cambian poco
-    gcTime: 15 * 60 * 1000, // 15 minutos en cache
-  });
-
-  const limitParam = searchParams.get("limit") || "10";
-
-  const applyFilters = useCallback(
-    (newFilters: Record<string, string>) => {
-      const params = new URLSearchParams();
-
-      if (newFilters.search) params.set("search", newFilters.search);
-      if (newFilters.category && newFilters.category !== "all") params.set("category", newFilters.category);
-      if (newFilters.brand && newFilters.brand !== "all") params.set("brand", newFilters.brand);
-      if (newFilters.minPrice) params.set("minPrice", newFilters.minPrice);
-      if (newFilters.maxPrice) params.set("maxPrice", newFilters.maxPrice);
-      if (newFilters.publishedFilter && newFilters.publishedFilter !== "all") params.set("published", newFilters.publishedFilter);
-      if (newFilters.stockFilter && newFilters.stockFilter !== "all") params.set("status", newFilters.stockFilter);
-      if (newFilters.minStock) params.set("minStock", newFilters.minStock);
-      if (newFilters.maxStock) params.set("maxStock", newFilters.maxStock);
-
-      const nextFiltersSignature = params.toString();
-      if (nextFiltersSignature === filtersSignature) {
-        return;
-      }
-
-      params.set("page", "1");
-      params.set("limit", limitParam);
-
-      router.push(`/dashboard/products?${params.toString()}`, { scroll: false });
-    },
-    [router, filtersSignature, limitParam]
-  );
-
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      applyFilters({ ...currentFilters, search: searchValue });
-    }, 800);
-
-    return () => clearTimeout(timer);
-  }, [searchValue, currentFilters, applyFilters]);
-
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      applyFilters({ ...currentFilters, minPrice: minPriceValue, maxPrice: maxPriceValue });
-    }, 800);
-
-    return () => clearTimeout(timer);
-  }, [minPriceValue, maxPriceValue, currentFilters, applyFilters]);
-
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      applyFilters({ ...currentFilters, minStock: minStockValue, maxStock: maxStockValue });
-    }, 800);
-
-    return () => clearTimeout(timer);
-  }, [minStockValue, maxStockValue, currentFilters, applyFilters]);
-
-  const handleSearchChange = (value: string) => setSearchValue(value);
-  const handleCategoryChange = (value: string) => applyFilters({ ...currentFilters, category: value });
-  const handleBrandChange = (value: string) => applyFilters({ ...currentFilters, brand: value });
-  const handleMinPriceChange = (value: string) => setMinPriceValue(value);
-  const handleMaxPriceChange = (value: string) => setMaxPriceValue(value);
-  const handlePublishedFilter = (value: string) => applyFilters({ ...currentFilters, publishedFilter: value });
-  const handleStockFilter = (value: string) => applyFilters({ ...currentFilters, stockFilter: value });
-  const handleMinStockChange = (value: string) => setMinStockValue(value);
-  const handleMaxStockChange = (value: string) => setMaxStockValue(value);
-
-  const handleQuickPublished = (value: string) => {
-    const next = currentFilters.publishedFilter === value ? "all" : value;
-    handlePublishedFilter(next);
-  };
-
-  const handleQuickStockStatus = (value: string) => {
-    const next = currentFilters.stockFilter === value ? "all" : value;
-    handleStockFilter(next);
-  };
-
-  const handleQuickPrice = (min?: string, max?: string) => {
-    setMinPriceValue(min || "");
-    setMaxPriceValue(max || "");
-
-    applyFilters({ ...currentFilters, minPrice: min || "", maxPrice: max || "" });
-  };
-
-  const handleQuickStockRange = (min?: string, max?: string) => {
-    setMinStockValue(min || "");
-    setMaxStockValue(max || "");
-
-    applyFilters({ ...currentFilters, minStock: min || "", maxStock: max || "" });
-  };
-
-  const handleResetFilters = () => {
-    setSearchValue("");
-    setMinPriceValue("");
-    setMaxPriceValue("");
-    setMinStockValue("");
-    setMaxStockValue("");
-
-    applyFilters({
-      search: "",
-      category: "all",
-      brand: "all",
-      minPrice: "",
-      maxPrice: "",
-      publishedFilter: "all",
-      stockFilter: "all",
-      minStock: "",
-      maxStock: "",
-    });
-  };
+    filters: currentFilters,
+    isLoadingSearch,
+    hasActiveFilters,
+    categories,
+    isLoadingCategories,
+    isErrorCategories,
+    brands,
+    isLoadingBrands,
+    isErrorBrands,
+    handleSearchChange,
+    handleCategoryChange,
+    handleBrandChange,
+    handleMinPriceChange,
+    handleMaxPriceChange,
+    handlePublishedFilter,
+    handleStockFilter,
+    handleMinStockChange,
+    handleMaxStockChange,
+    handleQuickPublished,
+    handleQuickStockStatus,
+    handleResetFilters,
+  } = useProductFilters();
 
   const chipClass = (isActive: boolean) =>
     isActive
@@ -243,21 +59,10 @@ export default function ProductFilters() {
         "border-white/15 bg-white/5 text-slate-100 backdrop-blur hover:border-cyan-200/40 hover:text-white"
       );
 
-  const hasActiveFilters =
-    currentFilters.search ||
-    currentFilters.category !== "all" ||
-    currentFilters.brand !== "all" ||
-    currentFilters.minPrice ||
-    currentFilters.maxPrice ||
-    currentFilters.publishedFilter !== "all" ||
-    currentFilters.stockFilter !== "all" ||
-    currentFilters.minStock ||
-    currentFilters.maxStock;
-
   return (
     <Card className={FILTER_CARD_CLASS}>
       <div className="space-y-2">
-        <div className="relative overflow-hidden rounded-3xl border border-slate-800/50 bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950 p-6 text-white shadow-md shadow-emerald-900/25">
+        <div className="relative overflow-hidden rounded-3xl border border-slate-800/50 bg-linear-to-br from-slate-950 via-slate-900 to-slate-950 p-6 text-white shadow-md shadow-emerald-900/25">
           <div
             className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_top,rgba(16,185,129,0.4),transparent_55%)]"
             aria-hidden="true"
@@ -281,6 +86,39 @@ export default function ProductFilters() {
               </div>
             </div>
             <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
+              <div className="relative w-full max-w-xs">
+                <label htmlFor="product-search" className="sr-only">Buscar productos</label>
+                <span className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400">
+                  <Search className="w-5 h-5" />
+                </span>
+                <input
+                  id="product-search"
+                  type="search"
+                  autoComplete="off"
+                  className="block w-full rounded-xl border border-slate-700 bg-slate-900/80 py-2.5 pl-11 pr-12 text-base text-white placeholder-slate-400 focus:border-cyan-500 focus:ring-2 focus:ring-cyan-500/30 transition-all shadow-sm outline-none"
+                  placeholder="Buscar por nombre, SKU o descripción..."
+                  value={currentFilters.search}
+                  onChange={e => handleSearchChange(e.target.value)}
+                  aria-label="Buscar productos"
+                  disabled={isLoadingSearch}
+                />
+                {currentFilters.search && (
+                  <button
+                    type="button"
+                    aria-label="Limpiar búsqueda"
+                    className="absolute right-3 top-1/2 -translate-y-1/2 rounded-full bg-slate-700/70 p-1 text-slate-300 hover:bg-slate-600 hover:text-white transition-all"
+                    onClick={() => handleSearchChange("")}
+                    tabIndex={0}
+                  >
+                    <X className="w-4 h-4" />
+                  </button>
+                )}
+                {isLoadingSearch && (
+                  <span className="absolute right-10 top-1/2 -translate-y-1/2">
+                    <Loader2 className="w-4 h-4 animate-spin text-cyan-400" />
+                  </span>
+                )}
+              </div>
               <button
                 type="button"
                 className={`${FILTER_RESET_BUTTON_CLASS} text-white/95 transition-all hover:text-white cursor-pointer `}
@@ -307,10 +145,10 @@ export default function ProductFilters() {
                   type="search"
                   placeholder="Nombre, SKU o descripción..."
                   className={`${FILTER_INPUT_CLASS} h-11 pl-12 pr-12 text-base`}
-                  value={searchValue}
+                  value={currentFilters.search}
                   onChange={(e) => handleSearchChange(e.target.value)}
                 />
-                {searchValue && (
+                {currentFilters.search && (
                   <button
                     onClick={() => handleSearchChange("")}
                     className="absolute right-4 top-1/2 -translate-y-1/2 rounded-full bg-slate-100 p-1 text-slate-500 transition-all hover:bg-slate-200 hover:text-slate-700 dark:bg-slate-700 dark:text-slate-400 dark:hover:bg-slate-600 dark:hover:text-slate-100"
@@ -464,7 +302,7 @@ export default function ProductFilters() {
                       placeholder="0"
                       min="0"
                       className={`${FILTER_INPUT_CLASS} focus:border-emerald-500 focus:ring-emerald-500/30`}
-                      value={minPriceValue}
+                      value={currentFilters.minPrice}
                       onChange={(e) => handleMinPriceChange(e.target.value)}
                     />
                   </div>
@@ -475,7 +313,7 @@ export default function ProductFilters() {
                       placeholder="10000"
                       min="0"
                       className={`${FILTER_INPUT_CLASS} focus:border-emerald-500 focus:ring-emerald-500/30`}
-                      value={maxPriceValue}
+                      value={currentFilters.maxPrice}
                       onChange={(e) => handleMaxPriceChange(e.target.value)}
                     />
                   </div>
@@ -486,7 +324,7 @@ export default function ProductFilters() {
         </div>
 
         {hasActiveFilters && (
-          <div className="rounded-3xl border border-slate-200/80 bg-gradient-to-r from-slate-50 via-white to-slate-100 p-5 shadow-sm dark:border-slate-900 dark:from-slate-900/70 dark:via-slate-900/40 dark:to-slate-900/20">
+          <div className="rounded-3xl border border-slate-200/80 bg-linear-to-r from-slate-50 via-white to-slate-100 p-5 shadow-sm dark:border-slate-900 dark:from-slate-900/70 dark:via-slate-900/40 dark:to-slate-900/20">
             <div className="flex flex-wrap items-center gap-3">
               <span className="flex items-center gap-2 rounded-2xl bg-slate-900 px-4 py-2 text-[10px] font-semibold uppercase tracking-[0.35em] text-white dark:bg-white/10">
                 <div className="h-2 w-2 animate-pulse rounded-full bg-emerald-400" />

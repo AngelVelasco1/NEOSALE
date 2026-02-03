@@ -97,7 +97,18 @@ export const DesktopFilter = ({
               variant="ghost"
               size="sm"
               onClick={clearAllFilters}
-              className="text-slate-300 hover:text-slate-100 hover:bg-slate-800 h-9 px-3"
+              className="h-9 px-3 transition-colors"
+              style={{
+                color: `var(--color-primary)`
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.backgroundColor = `rgba(var(--color-primary-rgb), 0.1)`;
+                e.currentTarget.style.color = `var(--color-primary)`;
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.backgroundColor = `transparent`;
+                e.currentTarget.style.color = `var(--color-primary)`;
+              }}
             >
               <RotateCcw className="h-4 w-4 mr-2" />
               Limpiar

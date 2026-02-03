@@ -8,8 +8,7 @@ import { IProduct } from "./types";
 import { useRouter } from "next/navigation";
 import { Testimonials } from "../components/Testimonials";
 import { BenefitsList } from "../components/BenefitsList";
-import { ArrowRight, Sparkles } from "lucide-react";
-import CouponBanner from "./components/CouponBanner";
+import { ArrowRight } from "lucide-react";
 import { Pricing } from "../components/Pricing";
 import { motion } from "framer-motion";
 

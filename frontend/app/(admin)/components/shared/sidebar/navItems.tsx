@@ -5,11 +5,9 @@ import { LuUsers } from "react-icons/lu";
 import { TbTruckDelivery } from "react-icons/tb";
 import { RiCoupon2Line } from "react-icons/ri";
 import { TbTag } from "react-icons/tb";
-import { TbBriefcase } from "react-icons/tb";
 import { MdOutlineShoppingCart } from "react-icons/md";
 import { MdOutlineRateReview } from "react-icons/md";
-import { MdOutlineSettings } from "react-icons/md";
-import { MdStore } from "react-icons/md";
+
 
 type NavItem = {
   title: string;
@@ -60,12 +58,6 @@ export const navItems: NavItem[] = [
     url: "/dashboard/reviews",
     icon: <MdOutlineRateReview />,
     accent: "from-lime-500/25 via-emerald-500/15 to-transparent",
-  },
-  {
-    title: "Personalizar Tienda",
-    url: "/dashboard/store-settings",
-    icon: <MdStore />,
-    accent: "from-violet-500/25 via-purple-500/15 to-transparent",
-  },
+  }
 
 ];

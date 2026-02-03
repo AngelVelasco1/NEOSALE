@@ -50,7 +50,7 @@ export default function WeeklySales({ data, dateRange }: WeeklySalesProps) {
   const periodDescription = getPeriodDescription();
 
   return (
-    <div className="relative overflow-hidden rounded-3xl border border-slate-200/70 dark:border-slate-800 bg-white/95 dark:bg-slate-950/85 shadow-[0_25px_80px_-60px_rgba(15,23,42,1)]">
+    <div className="relative overflow-hidden rounded-3xl border border-slate-800 bg-slate-950/85 shadow-[0_25px_80px_-60px_rgba(15,23,42,1)]">
       <div className="pointer-events-none absolute inset-0">
         <div className="absolute -right-10 top-0 h-48 w-48 rounded-full bg-blue-500/15 blur-3xl" />
         <div className="absolute -left-10 bottom-0 h-56 w-56 rounded-full bg-purple-500/10 blur-[120px]" />
@@ -63,10 +63,10 @@ export default function WeeklySales({ data, dateRange }: WeeklySalesProps) {
       <div className="relative border-b border-white/10 px-6 py-4 backdrop-blur-sm">
         <div className="flex flex-col gap-2 md:flex-row md:items-center md:justify-between">
           <div className="max-w-2xl">
-            <Typography className="block text-2xl font-semibold text-slate-900 dark:text-white">
+            <Typography className="block text-2xl font-semibold text-white">
               Ventas y Órdenes
             </Typography>
-            <Typography className="text-sm text-slate-500 dark:text-slate-400">
+            <Typography className="text-sm text-slate-400">
               Análisis del período • {periodDescription}
             </Typography>
           </div>
@@ -119,7 +119,7 @@ export default function WeeklySales({ data, dateRange }: WeeklySalesProps) {
                 "flex items-center justify-center gap-2 whitespace-nowrap sm:w-auto",
                 "data-[state=active]:bg-linear-to-r data-[state=active]:from-blue-500 data-[state=active]:to-purple-500",
                 "data-[state=active]:text-white data-[state=active]:shadow-lg data-[state=active]:shadow-blue-500/30",
-                "data-[state=inactive]:text-slate-600 dark:data-[state=inactive]:text-slate-400"
+                "data-[state=inactive]:text-slate-400"
               )}
             >
               <DollarSign className="mr-2 size-4" />
@@ -132,7 +132,7 @@ export default function WeeklySales({ data, dateRange }: WeeklySalesProps) {
                 "flex items-center justify-center gap-2 whitespace-nowrap sm:w-auto",
                 "data-[state=active]:bg-linear-to-r data-[state=active]:from-orange-500 data-[state=active]:to-red-500",
                 "data-[state=active]:text-white data-[state=active]:shadow-lg data-[state=active]:shadow-orange-500/30",
-                "data-[state=inactive]:text-slate-600 dark:data-[state=inactive]:text-slate-400"
+                "data-[state=inactive]:text-slate-400"
               )}
             >
               <TrendingUp className="mr-2 size-4" />
@@ -153,7 +153,7 @@ export default function WeeklySales({ data, dateRange }: WeeklySalesProps) {
               >
                 <CartesianGrid
                   strokeDasharray="3 3"
-                  className="stroke-slate-200 dark:stroke-slate-800"
+                  className="stroke-slate-800"
                   vertical={false}
                   opacity={0.5}
                 />
@@ -162,7 +162,7 @@ export default function WeeklySales({ data, dateRange }: WeeklySalesProps) {
                   tickLine={false}
                   axisLine={false}
                   tickMargin={12}
-                  className="text-xs font-medium fill-slate-600 dark:fill-slate-400"
+                  className="text-xs font-medium fill-slate-400"
                   angle={data.length > 14 ? -45 : 0}
                   textAnchor={data.length > 14 ? "end" : "middle"}
                   height={data.length > 14 ? 60 : 30}
@@ -171,7 +171,7 @@ export default function WeeklySales({ data, dateRange }: WeeklySalesProps) {
                   tickLine={false}
                   axisLine={false}
                   tickMargin={12}
-                  className="text-xs font-medium fill-slate-600 dark:fill-slate-400"
+                  className="text-xs font-medium fill-slate-400"
                   tickFormatter={(value) => `$${value >= 1000 ? (value / 1000).toFixed(1) + 'K' : value}`}
                 />
                 <ChartTooltip
@@ -182,17 +182,17 @@ export default function WeeklySales({ data, dateRange }: WeeklySalesProps) {
                     const data = payload[0].payload;
 
                     return (
-                      <div className="bg-white/95 dark:bg-slate-900/95 backdrop-blur-md border-2 border-blue-200 dark:border-blue-700 rounded-xl shadow-2xl p-4 min-w-[200px]">
-                        <div className="flex items-center gap-2 mb-3 pb-3 border-b border-slate-200 dark:border-slate-700">
+                      <div className="bg-slate-900/95 backdrop-blur-md border-2 order-blue-700 rounded-xl shadow-2xl p-4 min-w-[200px]">
+                        <div className="flex items-center gap-2 mb-3 pb-3 border-b border-slate-700">
                           <div className="w-3 h-3 rounded-full bg-linear-to-br from-blue-500 to-purple-600 shrink-0 shadow-sm" />
-                          <span className="text-sm font-bold text-slate-900 dark:text-white">
+                          <span className="text-sm font-boldtext-white">
                             {data.date}
                           </span>
                         </div>
 
                         <div className="flex flex-col gap-2.5">
                           <div className="flex items-center justify-between gap-6">
-                            <span className="text-xs font-medium text-slate-600 dark:text-slate-400">
+                            <span className="text-xs font-medium text-slate-400">
                               Ventas:
                             </span>
                             <span className="font-mono font-bold text-base bg-linear-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
@@ -201,10 +201,10 @@ export default function WeeklySales({ data, dateRange }: WeeklySalesProps) {
                           </div>
 
                           <div className="flex items-center justify-between gap-6">
-                            <span className="text-xs font-medium text-slate-600 dark:text-slate-400">
+                            <span className="text-xs font-medium text-slate-400">
                               Órdenes:
                             </span>
-                            <span className="font-mono font-semibold text-sm text-slate-700 dark:text-slate-300">
+                            <span className="font-mono font-semibold text-sm text-slate-300">
                               {data.orders}
                             </span>
                           </div>
@@ -235,7 +235,7 @@ export default function WeeklySales({ data, dateRange }: WeeklySalesProps) {
               >
                 <CartesianGrid
                   strokeDasharray="3 3"
-                  className="stroke-slate-200 dark:stroke-slate-800"
+                  className="stroke-slate-800"
                   vertical={false}
                   opacity={0.5}
                 />
@@ -244,7 +244,7 @@ export default function WeeklySales({ data, dateRange }: WeeklySalesProps) {
                   tickLine={false}
                   axisLine={false}
                   tickMargin={12}
-                  className="text-xs font-medium fill-slate-600 dark:fill-slate-400"
+                  className="text-xs font-medium fill-slate-400"
                   angle={data.length > 14 ? -45 : 0}
                   textAnchor={data.length > 14 ? "end" : "middle"}
                   height={data.length > 14 ? 60 : 30}
@@ -253,7 +253,7 @@ export default function WeeklySales({ data, dateRange }: WeeklySalesProps) {
                   tickLine={false}
                   axisLine={false}
                   tickMargin={12}
-                  className="text-xs font-medium fill-slate-600 dark:fill-slate-400"
+                  className="text-xs font-medium fill-slate-400"
                   allowDecimals={false}
                 />
                 <ChartTooltip
@@ -264,17 +264,17 @@ export default function WeeklySales({ data, dateRange }: WeeklySalesProps) {
                     const data = payload[0].payload;
 
                     return (
-                      <div className="bg-white/95 dark:bg-slate-900/95 backdrop-blur-md border-2 border-orange-200 dark:border-orange-700 rounded-xl shadow-2xl p-4 min-w-[200px]">
-                        <div className="flex items-center gap-2 mb-3 pb-3 border-b border-slate-200 dark:border-slate-700">
+                      <div className="bg-slate-900/95 backdrop-blur-md border-2 border-orange-700 rounded-xl shadow-2xl p-4 min-w-[200px]">
+                        <div className="flex items-center gap-2 mb-3 pb-3 border-b border-slate-700">
                           <div className="w-3 h-3 rounded-full bg-linear-to-br from-orange-500 to-red-500 shrink-0 shadow-sm" />
-                          <span className="text-sm font-bold text-slate-900 dark:text-white">
+                          <span className="text-sm font-bold text-white">
                             {data.date}
                           </span>
                         </div>
 
                         <div className="flex flex-col gap-2.5">
                           <div className="flex items-center justify-between gap-6">
-                            <span className="text-xs font-medium text-slate-600 dark:text-slate-400">
+                            <span className="text-xs font-medium text-slate-400">
                               Órdenes:
                             </span>
                             <span className="font-mono font-bold text-base bg-linear-to-r from-orange-600 to-red-600 bg-clip-text text-transparent">
@@ -283,10 +283,10 @@ export default function WeeklySales({ data, dateRange }: WeeklySalesProps) {
                           </div>
 
                           <div className="flex items-center justify-between gap-6">
-                            <span className="text-xs font-medium text-slate-600 dark:text-slate-400">
+                            <span className="text-xs font-medium text-slate-400">
                               Ventas:
                             </span>
-                            <span className="font-mono font-semibold text-sm text-slate-700 dark:text-slate-300">
+                            <span className="font-mono font-semibold text-sm text-slate-400">
                               ${Number(data.sales).toLocaleString()}
                             </span>
                           </div>

@@ -116,9 +116,9 @@ export function NotificationBell({ staffId }: NotificationBellProps) {
       {/* Bell Button */}
       <button
         onClick={() => setIsOpen(!isOpen)}
-        className="relative p-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
+        className="relative p-2 rounded-full hover:bg-gray-800 transition-colors"
       >
-        <Bell className="h-5 w-5 text-gray-600 dark:text-gray-400" />
+        <Bell className="h-5 w-5 text-slate-300" />
         {unreadCount > 0 && (
           <motion.span
             initial={{ scale: 0 }}
@@ -146,17 +146,17 @@ export function NotificationBell({ staffId }: NotificationBellProps) {
               animate={{ opacity: 1, y: 0, scale: 1 }}
               exit={{ opacity: 0, y: -10, scale: 0.95 }}
               transition={{ duration: 0.15 }}
-              className="absolute right-0 mt-2 w-96 bg-white dark:bg-gray-900 rounded-xl shadow-2xl border border-gray-200 dark:border-gray-800 z-50 overflow-hidden"
+              className="absolute right-0 mt-2 w-96 bg-slate-900 rounded-xl shadow-2xl border border-slate-800 z-50 overflow-hidden"
             >
               {/* Header */}
-              <div className="px-4 py-3 border-b border-gray-200 dark:border-gray-800 flex items-center justify-between bg-gradient-to-r from-blue-50 to-purple-50 dark:from-gray-800 dark:to-gray-900">
-                <h3 className="font-semibold text-gray-900 dark:text-white">
+              <div className="px-4 py-3 border-b border-slate-800 flex items-center justify-between bg-linear-to-r from-gray-800 to-gray-900">
+                <h3 className="font-semibold text-white">
                   Notificaciones
                 </h3>
                 {unreadCount > 0 && (
                   <button
                     onClick={handleMarkAllAsRead}
-                    className="text-xs text-blue-600 hover:text-blue-700 dark:text-blue-400 font-medium flex items-center gap-1"
+                    className="text-xs text-blue-400 hover:text-blue-500 font-medium flex items-center gap-1"
                   >
                     <Check className="h-3 w-3" />
                     Marcar todas
@@ -172,22 +172,22 @@ export function NotificationBell({ staffId }: NotificationBellProps) {
                   </div>
                 ) : notifications.length === 0 ? (
                   <div className="py-12 text-center">
-                    <Bell className="h-12 w-12 text-gray-300 dark:text-gray-700 mx-auto mb-3" />
-                    <p className="text-gray-500 dark:text-gray-400 text-sm">
+                    <Bell className="h-12 w-12 text-slate-300 mx-auto mb-3" />
+                    <p className="text-slate-300 text-sm">
                       No hay notificaciones
                     </p>
                   </div>
                 ) : (
-                  <div className="divide-y divide-gray-100 dark:divide-gray-800">
+                  <div className="divide-y divide-slate-800">
                     {notifications.map((notification) => (
                       <motion.div
                         key={notification.id}
                         initial={{ opacity: 0, x: -20 }}
                         animate={{ opacity: 1, x: 0 }}
                         exit={{ opacity: 0, x: 20 }}
-                        className={`p-4 hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-colors cursor-pointer group ${
+                        className={`p-4     hover:bg-slate-800/50 transition-colors cursor-pointer group ${
                           !notification.is_read
-                            ? "bg-blue-50/50 dark:bg-blue-900/10"
+                            ? "bg-blue-900/10"
                             : ""
                         }`}
                         onClick={() => {
@@ -208,17 +208,17 @@ export function NotificationBell({ staffId }: NotificationBellProps) {
                           {/* Content */}
                           <div className="flex-1 min-w-0">
                             <div className="flex items-start justify-between gap-2">
-                              <h4 className="text-sm font-medium text-gray-900 dark:text-white">
+                              <h4 className="text-sm font-medium text-white">
                                 {notification.title}
                               </h4>
                               {!notification.is_read && (
                                 <div className="flex-shrink-0 w-2 h-2 rounded-full bg-blue-500" />
                               )}
                             </div>
-                            <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">
+                            <p className="text-sm text-gray-400 mt-1">
                               {notification.message}
                             </p>
-                            <p className="text-xs text-gray-500 dark:text-gray-500 mt-2">
+                            <p className="text-xs text-gray-500 mt-2">
                               {formatRelativeTime(notification.created_at)}
                             </p>
                           </div>
@@ -229,7 +229,7 @@ export function NotificationBell({ staffId }: NotificationBellProps) {
                               e.stopPropagation();
                               handleDelete(notification.id);
                             }}
-                            className="shrink-0 cursor-pointer opacity-0 group-hover:opacity-100 transition-opacity p-1 hover:bg-red-50 dark:hover:bg-red-900/20 rounded"
+                            className="shrink-0 cursor-pointer opacity-0 group-hover:opacity-100 transition-opacity p-1 hover:bg-red-50 rounded"
                           >
                             <XIcon className="h-5 w-5 text-red-500" />
                           </button>

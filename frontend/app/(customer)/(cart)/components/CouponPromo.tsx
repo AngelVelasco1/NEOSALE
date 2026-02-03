@@ -58,7 +58,7 @@ export default function CouponPromo({ onCouponSelect }: CouponPromoProps) {
 
     if (loading) {
         return (
-            <div className="bg-gradient-to-br from-slate-900/80 via-slate-800/60 to-slate-900/80 backdrop-blur-xl rounded-3xl p-6 border border-slate-700/60 shadow-2xl">
+            <div className="bg-linear-to-br from-slate-900/80 via-slate-800/60 to-slate-900/80 backdrop-blur-xl rounded-3xl p-6 border border-slate-700/60 shadow-2xl">
                 <div className="flex items-center gap-3 mb-4">
                     <Sparkles className="w-6 h-6 text-indigo-400 animate-pulse" />
                     <h3 className="text-xl font-bold text-slate-100">Cupones Disponibles</h3>
@@ -81,11 +81,11 @@ export default function CouponPromo({ onCouponSelect }: CouponPromoProps) {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5 }}
-            className="bg-gradient-to-br from-slate-900/80 via-slate-800/60 to-slate-900/80 backdrop-blur-xl rounded-3xl p-6 border border-slate-700/60 shadow-2xl hover:shadow-indigo-500/10 transition-all duration-500"
+            className="bg-linear-to-br from-slate-900/80 via-slate-800/60 to-slate-900/80 backdrop-blur-xl rounded-3xl p-6 border border-slate-700/60 shadow-2xl hover:shadow-indigo-500/10 transition-all duration-500"
         >
             {/* Header */}
             <div className="flex items-center gap-3 mb-6">
-                <div className="p-2 bg-gradient-to-br from-indigo-500/20 to-purple-500/20 rounded-xl">
+                <div className="p-2 bg-linear-to-br from-indigo-500/20 to-purple-500/20 rounded-xl">
                     <Sparkles className="w-6 h-6 text-indigo-400" />
                 </div>
                 <div>
@@ -108,16 +108,16 @@ export default function CouponPromo({ onCouponSelect }: CouponPromoProps) {
                                 initial={{ opacity: 0, x: -20 }}
                                 animate={{ opacity: 1, x: 0 }}
                                 transition={{ delay: index * 0.1 }}
-                                className="group relative bg-gradient-to-r from-slate-800/50 to-slate-800/30 border border-slate-700/50 rounded-xl p-4 hover:border-indigo-500/50 transition-all duration-300 cursor-pointer"
+                                className="group relative bg-linear-to-r from-slate-800/50 to-slate-800/30 border border-slate-700/50 rounded-xl p-4 hover:border-indigo-500/50 transition-all duration-300 cursor-pointer"
                                 onClick={() => handleCopyCode(coupon.code)}
                             >
                                 {/* Background Pattern */}
-                                <div className="absolute inset-0 bg-gradient-to-r from-indigo-500/5 to-purple-500/5 opacity-0 group-hover:opacity-100 transition-opacity rounded-xl" />
+                                <div className="absolute inset-0 bg-linear-to-r from-indigo-500/5 to-purple-500/5 opacity-0 group-hover:opacity-100 transition-opacity rounded-xl" />
 
                                 <div className="relative flex items-center justify-between gap-4">
                                     {/* Left: Icon & Info */}
                                     <div className="flex items-center gap-3 flex-1 min-w-0">
-                                        <div className="p-2 bg-gradient-to-br from-indigo-500/20 to-purple-500/20 rounded-lg shrink-0">
+                                        <div className="p-2 bg-linear-to-br from-indigo-500/20 to-purple-500/20 rounded-lg shrink-0">
                                             <Tag className="w-5 h-5 text-indigo-400" />
                                         </div>
 

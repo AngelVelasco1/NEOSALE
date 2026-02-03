@@ -101,7 +101,7 @@ export default function Page({ searchParams }: PageProps) {
 
   return (
     <div className="relative min-h-screen overflow-hidden bg-slate-950 text-white">
-      <div className="absolute inset-x-0 top-[-35%] h-[420px] bg-gradient-to-br from-sky-500/40 via-indigo-700/30 to-fuchsia-600/30 blur-3xl" />
+      <div className="absolute inset-x-0 top-[-35%] h-[420px] bg-linear-to-br from-sky-500/40 via-indigo-700/30 to-fuchsia-600/30 blur-3xl" />
       <div className="absolute inset-x-0 bottom-[-30%] h-[360px] bg-gradient-to-tr from-slate-900 via-blue-900/40 to-transparent blur-3xl" />
       <div
         className="absolute inset-0 opacity-[0.08]"
@@ -127,7 +127,7 @@ export default function Page({ searchParams }: PageProps) {
             </header>
 
             <div className="grid gap-8 lg:grid-cols-[1.1fr_0.9fr]">
-              <section className="relative overflow-hidden rounded-[36px] border border-white/10 bg-gradient-to-br from-slate-900/85 via-slate-900/45 to-sky-900/55 p-9 shadow-2xl shadow-slate-950/60">
+              <section className="relative overflow-hidden rounded-[36px] border border-white/10 bg-linear-to-br from-slate-900/85 via-slate-900/45 to-sky-900/55 p-9 shadow-2xl shadow-slate-950/60">
                 <div className="space-y-10">
                   <div className="grid gap-4 sm:grid-cols-3">
                     {reassuranceStats.map((metric) => (
@@ -142,7 +142,7 @@ export default function Page({ searchParams }: PageProps) {
                   <div className="grid gap-4 md:grid-cols-2">
                     {confidenceHighlights.map(({ title, description, icon: Icon, accent }) => (
                       <div key={title} className="flex items-start gap-4 rounded-3xl border border-white/10 bg-white/5 px-4 py-5">
-                        <div className={`rounded-2xl bg-gradient-to-br ${accent} p-3 text-white`}>
+                        <div className={`rounded-2xl bg-linear-to-br ${accent} p-3 text-white`}>
                           <Icon className="h-5 w-5" />
                         </div>
                         <div>
@@ -173,7 +173,7 @@ export default function Page({ searchParams }: PageProps) {
               </section>
 
               <section className="relative">
-                <div className="absolute inset-0 rounded-[40px] bg-gradient-to-br from-sky-500/25 via-emerald-400/20 to-transparent blur-2xl" />
+                <div className="absolute inset-0 rounded-[40px] bg-linear-to-br from-sky-500/25 via-emerald-400/20 to-transparent blur-2xl" />
                 <div className="relative rounded-[36px] border border-white/10 bg-white p-8 text-slate-900 shadow-2xl shadow-blue-950/30">
                   <div className="flex flex-wrap items-center gap-2 text-xs font-semibold uppercase tracking-[0.35em] text-slate-400">
                     <span className="text-sky-600">Token verificado</span>

@@ -26,7 +26,7 @@ export default function CouponActions({
   const selectedCount = Object.keys(rowSelection).length;
 
   return (
-    <Card className="mb-6 p-5 border border-slate-200/60 dark:border-slate-700/50 bg-white/95 dark:bg-slate-900/95 backdrop-blur-sm shadow-lg shadow-slate-200/50 dark:shadow-slate-950/50 rounded-xl">
+    <Card className="mb-6 p-5 border border-slate-700/50 bg-slate-900/95 backdrop-blur-sm shadow-lg shadow-slate-950/50 rounded-xl">
       <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
         {/* Export Section */}
         <div className="flex flex-col sm:flex-row gap-2">
@@ -51,7 +51,7 @@ export default function CouponActions({
                       size="default"
                       type="button"
                       disabled={!selectedCount}
-                      className="h-10 px-4 rounded-lg border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 hover:bg-slate-50 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 disabled:opacity-50 transition-all text-sm font-medium"
+                      className="h-10 px-4 rounded-lg border-slate-600 bg-slate-800 hover:bg-slate-700 text-slate-200 disabled:opacity-50 transition-all text-sm font-medium"
                     >
                       <PenSquare className="mr-2 h-4 w-4" />
                       Editar {selectedCount > 0 && `(${selectedCount})`}
@@ -75,7 +75,7 @@ export default function CouponActions({
                     size="default"
                     type="button"
                     disabled={!selectedCount}
-                    className="h-10 px-4 rounded-lg border-red-300 dark:border-red-800 bg-white dark:bg-slate-800 hover:bg-red-50 dark:hover:bg-red-950/30 text-red-600 dark:text-red-400 hover:text-red-700 dark:hover:text-red-300 disabled:opacity-50 transition-all text-sm font-medium"
+                    className="h-10 px-4 rounded-lg border-red-800 bg-slate-800 hover:bg-red-950/30 text-red-400 hover:text-red-300 disabled:opacity-50 transition-all text-sm font-medium"
                   >
                     <Trash2 className="mr-2 h-4 w-4" />
                     Eliminar {selectedCount > 0 && `(${selectedCount})`}
@@ -94,7 +94,7 @@ export default function CouponActions({
                   <SheetTrigger asChild>
                     <Button
                       size="default"
-                      className="h-11 px-4 rounded-xl bg-gradient-to-r from-emerald-300 via-teal-400 to-cyan-400 text-slate-950 font-semibold shadow-[0_12px_30px_-12px_rgba(34,197,235,0.6)] transition-all hover:shadow-[0_18px_38px_-12px_rgba(34,197,235,0.75)]"
+                      className="h-11 px-4 rounded-xl bg-linear-to-r from-emerald-300 via-teal-400 to-cyan-400 text-slate-950 font-semibold shadow-[0_12px_30px_-12px_rgba(34,197,235,0.6)] transition-all hover:shadow-[0_18px_38px_-12px_rgba(34,197,235,0.75)]"
                     >
                       <Plus className="mr-2 h-4 w-4" /> Agregar Cupón
                     </Button>

@@ -98,11 +98,11 @@ export default function ReviewsTable({ reviews }: ReviewsTableProps) {
 
   if (reviews.length === 0) {
     return (
-      <div className="flex flex-col items-center justify-center py-16 rounded-3xl border border-slate-200/70 dark:border-slate-800/60 bg-white/95 dark:bg-slate-950/85 backdrop-blur-xl">
-        <div className="flex h-20 w-20 items-center justify-center rounded-2xl bg-gradient-to-br from-orange-100 to-amber-100/80 text-orange-400 shadow-sm dark:from-slate-800 dark:to-slate-700/80 dark:text-orange-200 mb-4">
+      <div className="flex flex-col items-center justify-center py-16 rounded-3xl border border-slate-800/60 bg-slate-950/85 backdrop-blur-xl">
+        <div className="flex h-20 w-20 items-center justify-center rounded-2xl bg-linear-to-br from-slate-800 to-slate-700/80 text-orange-200 shadow-sm mb-4">
           <MessageSquare className="h-10 w-10" />
         </div>
-        <p className="text-slate-600 dark:text-slate-400 font-semibold text-base">No se encontraron reseñas</p>
+        <p className="text-slate-400 font-semibold text-base">No se encontraron reseñas</p>
         <p className="text-xs text-slate-500 dark:text-slate-500 mt-1">Intenta ajustar tus filtros o criterios de búsqueda</p>
       </div>
     );
@@ -136,7 +136,7 @@ export default function ReviewsTable({ reviews }: ReviewsTableProps) {
         <div className="relative overflow-x-auto">
           <Table>
             <TableHeader>
-              <TableRow className="bg-gradient-to-r from-white via-slate-50/60 to-white dark:from-slate-900/80 dark:via-orange-950/20 dark:to-slate-900/80 border-b border-slate-200/80 dark:border-slate-800/60">
+              <TableRow className="bg-linear-to-r from-white via-slate-50/60 to-white dark:from-slate-900/80 dark:via-orange-950/20 dark:to-slate-900/80 border-b border-slate-200/80 dark:border-slate-800/60">
                 <TableHead className="uppercase whitespace-nowrap font-semibold text-slate-500 dark:text-slate-300 text-[11px] tracking-[0.25em] leading-none py-4 px-4 first:pl-6">Usuario</TableHead>
                 <TableHead className="uppercase whitespace-nowrap font-semibold text-slate-500 dark:text-slate-300 text-[11px] tracking-[0.25em] leading-none py-4 px-4">Producto</TableHead>
                 <TableHead className="uppercase whitespace-nowrap font-semibold text-slate-500 dark:text-slate-300 text-[11px] tracking-[0.25em] leading-none py-4 px-4">Rating</TableHead>
@@ -152,7 +152,7 @@ export default function ReviewsTable({ reviews }: ReviewsTableProps) {
             {reviews.map((review, index) => (
               <TableRow
                 key={review.id}
-                className="group/row border-b border-slate-100/60 dark:border-slate-900/40 transition-all duration-300 odd:bg-white even:bg-slate-50/70 dark:odd:bg-transparent dark:even:bg-slate-950/20 hover:bg-gradient-to-r hover:from-white hover:via-orange-50/40 hover:to-white dark:hover:from-slate-900/60 dark:hover:via-orange-950/20 dark:hover:to-slate-900/60"
+                className="group/row border-b border-slate-100/60 dark:border-slate-900/40 transition-all duration-300 odd:bg-white even:bg-slate-50/70 dark:odd:bg-transparent dark:even:bg-slate-950/20 hover:bg-linear-to-r hover:from-white hover:via-orange-50/40 hover:to-white dark:hover:from-slate-900/60 dark:hover:via-orange-950/20 dark:hover:to-slate-900/60"
                 style={{ animationDelay: `${index * 20}ms` }}
               >
                 <TableCell className="py-3.5 px-4 first:pl-6">
@@ -166,7 +166,7 @@ export default function ReviewsTable({ reviews }: ReviewsTableProps) {
                         className="rounded-full ring-2 ring-slate-200 dark:ring-slate-700"
                       />
                     ) : (
-                      <div className="flex h-10 w-10 items-center justify-center rounded-full bg-gradient-to-br from-blue-500 to-indigo-600 shadow-lg shadow-blue-500/20">
+                      <div className="flex h-10 w-10 items-center justify-center rounded-full bg-linear-to-br from-blue-500 to-indigo-600 shadow-lg shadow-blue-500/20">
                         <User className="h-5 w-5 text-white" />
                       </div>
                     )}

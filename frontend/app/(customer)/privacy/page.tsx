@@ -1,5 +1,5 @@
 import { Metadata } from "next";
-import { Shield, Lock, Eye, Database, UserCheck, AlertTriangle } from "lucide-react";
+import { Shield, Lock, Eye, Database, UserCheck, AlertTriangle, CheckCircle2, FileText, Users, CreditCard, Globe, Mail, Phone, MapPin, Clock, Sparkles } from "lucide-react";
 
 export const metadata: Metadata = {
   title: "Política de Privacidad | NeoSale",
@@ -11,6 +11,9 @@ export default function PrivacyPage() {
     {
       title: "1. Información que Recopilamos",
       icon: Database,
+      gradient: "from-emerald-500/20 to-teal-500/20",
+      borderColor: "border-emerald-500/30",
+      iconColor: "text-emerald-400",
       content: `Recopilamos diferentes tipos de información para brindarte un mejor servicio:
 
 **Información Personal:**
@@ -30,6 +33,9 @@ export default function PrivacyPage() {
     {
       title: "2. Cómo Usamos tu Información",
       icon: UserCheck,
+      gradient: "from-teal-500/20 to-cyan-500/20",
+      borderColor: "border-teal-500/30",
+      iconColor: "text-teal-400",
       content: `Utilizamos tu información personal para:
 
 **Operaciones Esenciales:**
@@ -49,6 +55,9 @@ export default function PrivacyPage() {
     {
       title: "3. Bases Legales para el Tratamiento",
       icon: Shield,
+      gradient: "from-cyan-500/20 to-blue-500/20",
+      borderColor: "border-cyan-500/30",
+      iconColor: "text-cyan-400",
       content: `Tratamos tus datos personales bajo las siguientes bases legales:
 
 • **Ejecución de contrato:** Para procesar tus pedidos
@@ -60,6 +69,9 @@ export default function PrivacyPage() {
     {
       title: "4. Compartir Información con Terceros",
       icon: Eye,
+      gradient: "from-green-500/20 to-emerald-500/20",
+      borderColor: "border-green-500/30",
+      iconColor: "text-green-400",
       content: `Podemos compartir tu información con:
 
 **Proveedores de Servicios:**
@@ -79,6 +91,9 @@ export default function PrivacyPage() {
     {
       title: "5. Seguridad de la Información",
       icon: Lock,
+      gradient: "from-lime-500/20 to-green-500/20",
+      borderColor: "border-lime-500/30",
+      iconColor: "text-lime-400",
       content: `Implementamos medidas de seguridad para proteger tus datos:
 
 **Medidas Técnicas:**
@@ -98,6 +113,9 @@ export default function PrivacyPage() {
     {
       title: "6. Tus Derechos",
       icon: Shield,
+      gradient: "from-emerald-500/20 to-green-500/20",
+      borderColor: "border-emerald-500/30",
+      iconColor: "text-emerald-400",
       content: `Según la Ley 1581 de 2012, tienes derecho a:
 
 **Derechos Fundamentales:**
@@ -116,6 +134,9 @@ export default function PrivacyPage() {
     {
       title: "7. Cookies y Tecnologías de Rastreo",
       icon: Database,
+      gradient: "from-teal-500/20 to-emerald-500/20",
+      borderColor: "border-teal-500/30",
+      iconColor: "text-teal-400",
       content: `Utilizamos cookies para mejorar tu experiencia:
 
 **Tipos de Cookies:**
@@ -132,6 +153,9 @@ export default function PrivacyPage() {
     {
       title: "8. Retención de Datos",
       icon: Database,
+      gradient: "from-cyan-500/20 to-teal-500/20",
+      borderColor: "border-cyan-500/30",
+      iconColor: "text-cyan-400",
       content: `Conservamos tu información personal:
 
 • Durante el tiempo necesario para prestarte servicios
@@ -147,7 +171,10 @@ export default function PrivacyPage() {
     },
     {
       title: "9. Transferencias Internacionales",
-      icon: AlertTriangle,
+      icon: Globe,
+      gradient: "from-blue-500/20 to-cyan-500/20",
+      borderColor: "border-blue-500/30",
+      iconColor: "text-blue-400",
       content: `Tu información puede ser transferida a:
 
 • Servidores ubicados fuera de Colombia
@@ -163,6 +190,9 @@ export default function PrivacyPage() {
     {
       title: "10. Menores de Edad",
       icon: Shield,
+      gradient: "from-green-500/20 to-lime-500/20",
+      borderColor: "border-green-500/30",
+      iconColor: "text-green-400",
       content: `Protección de menores:
 
 • No recopilamos intencionalmente datos de menores de 18 años
@@ -174,6 +204,9 @@ export default function PrivacyPage() {
     {
       title: "11. Marketing y Comunicaciones",
       icon: Eye,
+      gradient: "from-emerald-500/20 to-cyan-500/20",
+      borderColor: "border-emerald-500/30",
+      iconColor: "text-emerald-400",
       content: `Respecto a comunicaciones de marketing:
 
 **Consentimiento:**
@@ -190,6 +223,9 @@ export default function PrivacyPage() {
     {
       title: "12. Cambios a esta Política",
       icon: AlertTriangle,
+      gradient: "from-amber-500/20 to-orange-500/20",
+      borderColor: "border-amber-500/30",
+      iconColor: "text-amber-400",
       content: `Actualizaciones de la política:
 
 • Nos reservamos el derecho de modificar esta política
@@ -200,93 +236,244 @@ export default function PrivacyPage() {
     },
   ];
 
+  const contactInfo = [
+    {
+      icon: Mail,
+      title: "Email",
+      value: "privacidad@tutienda.com",
+      href: "mailto:privacidad@tutienda.com",
+      gradient: "from-emerald-500/20 to-teal-500/20",
+    },
+    {
+      icon: Phone,
+      title: "Teléfono",
+      value: "+57 300 123 4567",
+      href: "tel:+573001234567",
+      gradient: "from-teal-500/20 to-cyan-500/20",
+    },
+    {
+      icon: MapPin,
+      title: "Dirección",
+      value: "Bogotá, Colombia",
+      href: "#",
+      gradient: "from-green-500/20 to-emerald-500/20",
+    },
+    {
+      icon: Clock,
+      title: "Horario",
+      value: "L-V 9:00 AM - 6:00 PM",
+      href: "#",
+      gradient: "from-lime-500/20 to-green-500/20",
+    },
+  ];
+
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950">
-      {/* Background Effects */}
+    <div className="min-h-screen bg-linear-to-br from-slate-950 via-slate-900 to-slate-950 relative overflow-hidden">
+      {/* Enhanced Background Effects */}
       <div className="fixed inset-0 overflow-hidden pointer-events-none">
-        <div className="absolute top-0 right-1/4 w-96 h-96 bg-fuchsia-500/10 rounded-full blur-3xl" />
-        <div className="absolute bottom-0 left-1/4 w-96 h-96 bg-purple-500/10 rounded-full blur-3xl" />
-        <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-96 h-96 bg-blue-500/10 rounded-full blur-3xl" />
+        <div className="absolute top-0 left-1/4 w-96 h-96 bg-linear-to-br from-emerald-500/20 to-teal-500/20 rounded-full blur-3xl animate-pulse" />
+        <div className="absolute bottom-0 right-1/4 w-96 h-96 bg-linear-to-br from-cyan-500/20 to-blue-500/20 rounded-full blur-3xl animate-pulse delay-1000" />
+        <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-96 h-96 bg-linear-to-br from-green-500/20 to-lime-500/20 rounded-full blur-3xl animate-pulse delay-500" />
+        <div className="absolute top-1/4 right-1/4 w-64 h-64 bg-linear-to-br from-teal-500/15 to-cyan-500/15 rounded-full blur-2xl animate-pulse delay-700" />
+        <div className="absolute bottom-1/4 left-1/4 w-64 h-64 bg-linear-to-br from-blue-500/15 to-teal-500/15 rounded-full blur-2xl animate-pulse delay-300" />
+      </div>
+
+      {/* Floating Particles */}
+      <div className="fixed inset-0 overflow-hidden pointer-events-none">
+        {[...Array(20)].map((_, i) => (
+          <div
+            key={i}
+            className="absolute w-1 h-1 bg-white/20 rounded-full animate-ping"
+            style={{
+              left: `${Math.random() * 100}%`,
+              top: `${Math.random() * 100}%`,
+              animationDelay: `${Math.random() * 3}s`,
+              animationDuration: `${2 + Math.random() * 2}s`,
+            }}
+          />
+        ))}
       </div>
 
       {/* Content */}
       <div className="relative z-10">
         {/* Hero Section */}
-        <div className="border-b border-slate-800/50 bg-gradient-to-b from-slate-900/90 to-transparent backdrop-blur-sm">
-          <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-16 lg:py-24">
-            <div className="max-w-4xl mx-auto text-center space-y-6">
-              <div className="inline-flex items-center justify-center w-20 h-20 rounded-2xl bg-gradient-to-br from-fuchsia-500/20 to-purple-500/20 border border-fuchsia-500/30 mb-6">
-                <Shield className="w-10 h-10 text-fuchsia-400" />
+        <div className="border-b border-slate-800/50 bg-linear-to-b from-slate-900/95 via-slate-900/90 to-slate-950/80 backdrop-blur-xl">
+          <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-20 lg:py-28">
+            <div className="max-w-5xl mx-auto text-center space-y-8">
+              <div className="relative inline-flex items-center justify-center">
+                <div className="absolute inset-0 bg-linear-to-r from-emerald-600/30 to-teal-600/30 rounded-3xl blur-xl animate-pulse" />
+                <div className="relative inline-flex items-center justify-center w-24 h-24 rounded-3xl bg-linear-to-br from-emerald-500/20 via-teal-500/20 to-cyan-500/20 border border-emerald-500/30 backdrop-blur-sm">
+                  <Shield className="w-12 h-12 text-emerald-400 drop-shadow-lg" />
+                </div>
               </div>
-              
-              <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold bg-gradient-to-r from-fuchsia-300 via-purple-300 to-blue-300 bg-clip-text text-transparent">
-                Política de Privacidad
-              </h1>
-              
-              <p className="text-lg text-slate-300 max-w-2xl mx-auto">
-                Tu privacidad es nuestra prioridad. Conoce cómo recopilamos, usamos y protegemos 
-                tu información personal conforme a la legislación colombiana.
+
+              <div className="space-y-4">
+                <h1 className="text-5xl sm:text-6xl lg:text-7xl font-bold bg-linear-to-r from-emerald-300 via-teal-300 to-cyan-300 bg-clip-text text-transparent leading-tight">
+                  Política de
+                  <br />
+                  <span className="bg-linear-to-r from-teal-300 to-blue-300 bg-clip-text text-transparent">
+                    Privacidad
+                  </span>
+                </h1>
+
+                <div className="w-32 h-1 bg-linear-to-r from-emerald-500 to-teal-500 rounded-full mx-auto" />
+              </div>
+
+              <p className="text-xl text-slate-300 max-w-3xl mx-auto leading-relaxed">
+                Tu privacidad es nuestra prioridad absoluta. Conoce cómo recopilamos, usamos y protegemos
+                tu información personal conforme a la legislación colombiana y estándares internacionales.
               </p>
-              
-              <div className="flex items-center justify-center gap-2 text-sm text-slate-400">
-                <span>Última actualización:</span>
-                <span className="font-semibold text-slate-300">25 de Enero, 2026</span>
+
+              <div className="flex flex-wrap items-center justify-center gap-6 text-sm">
+                <div className="flex items-center gap-2 px-4 py-2 rounded-full bg-slate-800/50 border border-slate-700/50 backdrop-blur-sm">
+                  <div className="w-2 h-2 bg-emerald-400 rounded-full animate-pulse" />
+                  <span className="text-slate-300">Última actualización:</span>
+                  <span className="font-semibold text-white">31 de Enero, 2026</span>
+                </div>
+                <div className="flex items-center gap-2 px-4 py-2 rounded-full bg-slate-800/50 border border-slate-700/50 backdrop-blur-sm">
+                  <Lock className="w-4 h-4 text-emerald-400" />
+                  <span className="text-slate-300">Protección GDPR</span>
+                </div>
+                <div className="flex items-center gap-2 px-4 py-2 rounded-full bg-slate-800/50 border border-slate-700/50 backdrop-blur-sm">
+                  <Shield className="w-4 h-4 text-teal-400" />
+                  <span className="text-slate-300">Ley 1581 de 2012</span>
+                </div>
               </div>
             </div>
           </div>
         </div>
 
-        {/* Main Content */}
-        <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-12 lg:py-16">
-          <div className="max-w-4xl mx-auto space-y-8">
-            {sections.map((section, index) => {
-              const Icon = section.icon;
-              return (
-                <div
-                  key={index}
-                  className="group relative p-8 rounded-2xl bg-gradient-to-br from-slate-900/80 to-slate-800/60 border border-slate-700/50 backdrop-blur-sm hover:border-fuchsia-500/30 transition-all duration-300"
-                >
-                  <div className="absolute inset-0 rounded-2xl bg-gradient-to-br from-fuchsia-500/0 to-purple-500/0 group-hover:from-fuchsia-500/5 group-hover:to-purple-500/5 transition-all duration-300 pointer-events-none" />
-                  
-                  <div className="relative z-10 space-y-4">
-                    <div className="flex items-start gap-4">
-                      <div className="flex-shrink-0 w-12 h-12 rounded-xl bg-gradient-to-br from-fuchsia-500/20 to-purple-500/20 border border-fuchsia-500/30 flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
-                        <Icon className="w-6 h-6 text-fuchsia-400" />
-                      </div>
-                      
-                      <div className="flex-1 space-y-3">
-                        <h2 className="text-2xl font-bold text-white group-hover:text-fuchsia-300 transition-colors duration-300">
-                          {section.title}
-                        </h2>
-                        
-                        <div className="prose prose-invert prose-slate max-w-none">
-                          <p className="text-slate-300 leading-relaxed whitespace-pre-line">
-                            {section.content}
-                          </p>
+        {/* Main Content Grid */}
+        <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-16 lg:py-20">
+          <div className="max-w-7xl mx-auto">
+            {/* Introduction Card */}
+            <div className="mb-16">
+              <div className="relative p-8 rounded-3xl bg-linear-to-br from-slate-900/80 via-slate-800/60 to-slate-900/40 border border-slate-700/50 backdrop-blur-xl">
+                <div className="absolute inset-0 rounded-3xl bg-linear-to-br from-emerald-500/5 via-teal-500/5 to-cyan-500/5" />
+                <div className="relative z-10 text-center space-y-4">
+                  <h2 className="text-3xl font-bold bg-linear-to-r from-emerald-300 to-teal-300 bg-clip-text text-transparent">
+                    Compromiso con tu Privacidad
+                  </h2>
+                  <p className="text-slate-300 max-w-3xl mx-auto leading-relaxed">
+                    En NeoSale, la protección de tus datos personales es fundamental. Esta política explica
+                    de manera transparente cómo manejamos tu información y cuáles son tus derechos.
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            {/* Privacy Grid */}
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-16">
+              {sections.map((section, index) => {
+                const Icon = section.icon;
+                return (
+                  <div
+                    key={index}
+                    className="group relative p-8 rounded-2xl bg-linear-to-br from-slate-900/80 to-slate-800/60 border border-slate-700/50 backdrop-blur-xl hover:border-slate-600/70 transition-all duration-500 hover:scale-[1.02] hover:shadow-2xl hover:shadow-emerald-500/10"
+                  >
+                    <div className={`absolute inset-0 rounded-2xl bg-linear-to-br ${section.gradient} opacity-0 group-hover:opacity-100 transition-opacity duration-500`} />
+
+                    <div className="relative z-10 space-y-6">
+                      <div className="flex items-start gap-4">
+                        <div className={`flex-shrink-0 w-14 h-14 rounded-2xl bg-linear-to-br ${section.gradient} border ${section.borderColor} flex items-center justify-center group-hover:scale-110 transition-transform duration-300 shadow-lg`}>
+                          <Icon className={`w-7 h-7 ${section.iconColor} drop-shadow-sm`} />
+                        </div>
+
+                        <div className="flex-1 space-y-3">
+                          <h3 className="text-xl font-bold text-white group-hover:text-emerald-300 transition-colors duration-300 leading-tight">
+                            {section.title}
+                          </h3>
+
+                          <div className="prose prose-invert prose-slate max-w-none">
+                            <p className="text-slate-300 leading-relaxed whitespace-pre-line text-sm">
+                              {section.content}
+                            </p>
+                          </div>
                         </div>
                       </div>
                     </div>
                   </div>
-                </div>
-              );
-            })}
+                );
+              })}
+            </div>
 
-            {/* Contact CTA */}
-            <div className="mt-12 p-8 rounded-2xl bg-gradient-to-br from-fuchsia-500/10 to-purple-500/10 border border-fuchsia-500/30">
+            {/* Contact Section */}
+            <div className="space-y-8">
               <div className="text-center space-y-4">
-                <h3 className="text-2xl font-bold text-white">
+                <h3 className="text-4xl font-bold bg-linear-to-r from-emerald-300 via-teal-300 to-cyan-300 bg-clip-text text-transparent">
                   ¿Preguntas sobre tu Privacidad?
                 </h3>
-                <p className="text-slate-300">
-                  Contacta a nuestro oficial de protección de datos para consultas sobre privacidad.
+                <p className="text-slate-300 text-lg max-w-2xl mx-auto">
+                  Nuestro equipo de protección de datos está aquí para resolver cualquier duda sobre
+                  cómo manejamos tu información personal.
                 </p>
-                <a
-                  href="mailto:privacidad@tutienda.com"
-                  className="inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-gradient-to-r from-fuchsia-600 to-purple-600 hover:from-fuchsia-500 hover:to-purple-500 text-white font-semibold transition-all duration-300 hover:scale-105"
-                >
-                  Contactar Privacidad
-                  <Lock className="w-5 h-5" />
-                </a>
+              </div>
+
+              {/* Contact Grid */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+                {contactInfo.map((contact, index) => {
+                  const Icon = contact.icon;
+                  return (
+                    <a
+                      key={index}
+                      href={contact.href}
+                      className="group relative p-6 rounded-2xl bg-linear-to-br from-slate-900/80 to-slate-800/60 border border-slate-700/50 backdrop-blur-xl hover:border-slate-600/70 transition-all duration-300 hover:scale-105 hover:shadow-xl hover:shadow-emerald-500/10"
+                    >
+                      <div className={`absolute inset-0 rounded-2xl bg-linear-to-br ${contact.gradient} opacity-0 group-hover:opacity-100 transition-opacity duration-300`} />
+
+                      <div className="relative z-10 text-center space-y-4">
+                        <div className={`inline-flex items-center justify-center w-12 h-12 rounded-xl bg-linear-to-br ${contact.gradient} border border-slate-600/50 group-hover:scale-110 transition-transform duration-300`}>
+                          <Icon className="w-6 h-6 text-white" />
+                        </div>
+                        <div>
+                          <h4 className="font-semibold text-white group-hover:text-emerald-300 transition-colors duration-300">
+                            {contact.title}
+                          </h4>
+                          <p className="text-slate-300 text-sm mt-1">
+                            {contact.value}
+                          </p>
+                        </div>
+                      </div>
+                    </a>
+                  );
+                })}
+              </div>
+
+              {/* Final CTA */}
+              <div className="relative p-12 rounded-3xl bg-linear-to-br from-emerald-500/10 via-teal-500/10 to-cyan-500/10 border border-emerald-500/30 backdrop-blur-xl">
+                <div className="absolute inset-0 rounded-3xl bg-linear-to-br from-emerald-500/5 to-teal-500/5" />
+                <div className="relative z-10 text-center space-y-6">
+                  <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-linear-to-br from-emerald-500/20 to-teal-500/20 border border-emerald-500/30">
+                    <Lock className="w-8 h-8 text-emerald-400" />
+                  </div>
+
+                  <div className="space-y-4">
+                    <h3 className="text-3xl font-bold text-white">
+                      Protección de Datos Garantizada
+                    </h3>
+                    <p className="text-slate-300 text-lg max-w-2xl mx-auto">
+                      Cumplimos con la Ley 1581 de 2012 y estándares internacionales de protección de datos.
+                      Tu información está segura con nosotros.
+                    </p>
+                  </div>
+
+                  <div className="flex flex-col sm:flex-row gap-4 justify-center">
+                    <a
+                      href="mailto:privacidad@tutienda.com"
+                      className="inline-flex items-center justify-center gap-3 px-8 py-4 rounded-2xl bg-linear-to-r from-emerald-600 via-teal-600 to-cyan-600 hover:from-emerald-500 hover:via-teal-500 hover:to-cyan-500 text-white font-semibold transition-all duration-300 hover:scale-105 hover:shadow-xl hover:shadow-emerald-500/25"
+                    >
+                      <Mail className="w-5 h-5" />
+                      Contactar Protección de Datos
+                    </a>
+                    <a
+                      href="tel:+573001234567"
+                      className="inline-flex items-center justify-center gap-3 px-8 py-4 rounded-2xl bg-linear-to-r from-slate-700 to-slate-600 hover:from-slate-600 hover:to-slate-500 text-white font-semibold transition-all duration-300 hover:scale-105 border border-slate-600/50"
+                    >
+                      <Phone className="w-5 h-5" />
+                      Llamar Ahora
+                    </a>
+                  </div>
+                </div>
               </div>
             </div>
           </div>

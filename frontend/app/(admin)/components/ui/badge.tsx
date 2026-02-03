@@ -14,13 +14,13 @@ const badgeVariants = cva(
           "border-transparent bg-secondary text-secondary-foreground hover:bg-secondary/80",
         outline: "text-foreground",
         destructive:
-          "border-red-300 bg-red-100 text-red-800 dark:border-red-700 dark:bg-red-900 dark:text-red-200 [a&]:hover:bg-red-200 dark:[a&]:hover:bg-red-800 focus-visible:ring-red-300 dark:focus-visible:ring-red-700",
+          "border-red-700 bg-red-900 text-red-200 [a&]:hover:bg-red-800 focus-visible:ring-red-700",
         success:
-          "border-green-300 bg-green-100 text-green-800 dark:border-green-700 dark:bg-green-900 dark:text-green-200 [a&]:hover:bg-green-200 dark:[a&]:hover:bg-green-800",
+          "border-green-700 bg-green-900 text-green-200 [a&]:hover:bg-green-800",
         warning:
-          "border-transparent bg-yellow-200 text-yellow-600 dark:bg-yellow-600 dark:text-yellow-200 print:!bg-yellow-200 print:!text-yellow-600 group-[.light-only]:bg-yellow-200 group-[.light-only]:text-yellow-600",
+          "border-transparent bg-yellow-600 text-yellow-200 print:!bg-yellow-200 print:!text-yellow-600 group-[.light-only]:bg-yellow-200 group-[.light-only]:text-yellow-600",
         processing:
-          "border-transparent bg-blue-200 text-blue-600 dark:bg-blue-600 dark:text-blue-200 print:!bg-blue-200 print:!text-blue-600 group-[.light-only]:bg-blue-200 group-[.light-only]:text-blue-600",
+          "border-transparent bg-blue-600 text-blue-200 print:!bg-blue-200 print:!text-blue-600 group-[.light-only]:bg-blue-200 group-[.light-only]:text-blue-600",
       },
     },
     defaultVariants: {

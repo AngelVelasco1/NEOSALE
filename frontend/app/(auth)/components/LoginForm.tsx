@@ -269,7 +269,7 @@ export const LoginForm: React.FC = () => {
 
   return (
     <div className="relative min-h-screen overflow-hidden bg-slate-950 text-white">
-      <div className="absolute inset-x-0 top-[-25%] h-[480px] bg-gradient-to-br from-blue-600/30 via-indigo-700/20 to-fuchsia-600/20 blur-3xl" />
+      <div className="absolute inset-x-0 top-[-25%] h-[480px] bg-linear-to-br from-blue-600/30 via-indigo-700/20 to-fuchsia-600/20 blur-3xl" />
       <div className="absolute inset-x-0 bottom-[-40%] h-[520px] bg-gradient-to-tr from-slate-900 via-blue-900/40 to-transparent blur-3xl" />
 
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
@@ -302,7 +302,7 @@ export const LoginForm: React.FC = () => {
               </div>
 
               <div className="space-y-3">
-                <h1 className="text-4xl font-semibold tracking-tight text-transparent md:text-5xl bg-gradient-to-r from-blue-200 via-cyan-300 to-indigo-200 bg-clip-text drop-shadow-[0_0_30px_rgba(14,165,233,0.25)]">
+                <h1 className="text-4xl font-semibold tracking-tight text-transparent md:text-5xl bg-linear-to-r from-blue-200 via-cyan-300 to-indigo-200 bg-clip-text drop-shadow-[0_0_30px_rgba(14,165,233,0.25)]">
                   Inicia sesión y vive una experiencia NeoSale
                 </h1>
                 <p className="text-base text-slate-300 md:max-w-3xl">
@@ -315,7 +315,7 @@ export const LoginForm: React.FC = () => {
 
             <div className="grid gap-8 lg:grid-cols-[1.05fr_0.95fr]">
               <motion.section
-                className="relative overflow-hidden rounded-[32px] border border-white/10 bg-gradient-to-br from-slate-900/70 via-slate-900/30 to-blue-900/40 p-8 shadow-2xl shadow-slate-950/60"
+                className="relative overflow-hidden rounded-[32px] border border-white/10 bg-linear-to-br from-slate-900/70 via-slate-900/30 to-blue-900/40 p-8 shadow-2xl shadow-slate-950/60"
                 initial={{ opacity: 0, x: -20 }}
                 animate={{ opacity: 1, x: 0 }}
                 transition={{ duration: 0.6 }}
@@ -351,7 +351,7 @@ export const LoginForm: React.FC = () => {
                         key={title}
                         className="flex items-start gap-4 rounded-2xl border border-white/5 bg-white/5 px-4 py-4"
                       >
-                        <div className={`rounded-2xl bg-gradient-to-br ${accent} p-3 text-white`}>
+                        <div className={`rounded-2xl bg-linear-to-br ${accent} p-3 text-white`}>
                           <Icon className="h-5 w-5" />
                         </div>
                         <div>
@@ -453,7 +453,7 @@ export const LoginForm: React.FC = () => {
                       <Button
                         type="submit"
                         disabled={isLoading}
-                        className="group h-12 w-full rounded-2xl bg-gradient-to-r from-blue-600 via-indigo-600 to-fuchsia-600 font-semibold text-white shadow-lg shadow-blue-900/40 transition-all hover:shadow-xl"
+                        className="group h-12 w-full rounded-2xl bg-linear-to-r from-blue-600 via-indigo-600 to-fuchsia-600 font-semibold text-white shadow-lg shadow-blue-900/40 transition-all hover:shadow-xl"
                       >
                         {isLoading ? (
                           <div className="flex items-center gap-2">

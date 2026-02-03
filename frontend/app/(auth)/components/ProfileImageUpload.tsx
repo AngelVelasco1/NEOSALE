@@ -96,15 +96,15 @@ export function ProfileImageUpload({ userId, currentImage, userName, onImageUpda
       >
         <div className="relative">
           {/* Glow effect behind avatar */}
-          <div className="absolute inset-0 bg-gradient-to-br from-blue-700/40 via-blue-900/40 to-slate-900/50 blur-2xl opacity-70 group-hover:opacity-100 transition-opacity duration-500 rounded-full scale-110"></div>
+          <div className="absolute inset-0 bg-linear-to-br from-blue-700/40 via-blue-900/40 to-slate-900/50 blur-2xl opacity-70 group-hover:opacity-100 transition-opacity duration-500 rounded-full scale-110"></div>
           
           {/* Gradient border ring */}
-          <div className="absolute inset-0 rounded-full bg-gradient-to-br from-blue-600 via-blue-900 to-slate-800 p-[3px] shadow-xl shadow-blue-900/30">
+          <div className="absolute inset-0 rounded-full bg-linear-to-br from-blue-600 via-blue-900 to-slate-800 p-[3px] shadow-xl shadow-blue-900/30">
             <div className="w-full h-full rounded-full bg-slate-900"></div>
           </div>
 
           {/* Avatar */}
-          <Avatar className="relative w-32 h-32 shadow-2xl bg-gradient-to-br from-blue-700 via-blue-800 to-slate-900 rounded-full">
+          <Avatar className="relative w-32 h-32 shadow-2xl bg-linear-to-br from-blue-700 via-blue-800 to-slate-900 rounded-full">
             {isUploading ? (
               <div className="w-full h-full flex items-center justify-center bg-slate-900/80 backdrop-blur-sm">
                 <Loader2 className="w-8 h-8 text-blue-400 animate-spin" />
@@ -143,7 +143,7 @@ export function ProfileImageUpload({ userId, currentImage, userName, onImageUpda
           type="button"
           onClick={() => fileInputRef.current?.click()}
           disabled={isUploading}
-          className="absolute -bottom-1 -right-1 w-10 h-10 bg-gradient-to-br from-blue-700 via-blue-800 to-slate-900 rounded-full flex items-center justify-center shadow-xl shadow-blue-900/40 border-2 border-slate-900 disabled:opacity-50 disabled:cursor-not-allowed"
+          className="absolute -bottom-1 -right-1 w-10 h-10 bg-linear-to-br from-blue-700 via-blue-800 to-slate-900 rounded-full flex items-center justify-center shadow-xl shadow-blue-900/40 border-2 border-slate-900 disabled:opacity-50 disabled:cursor-not-allowed"
           whileHover={!isUploading ? { scale: 1.15, rotate: 5 } : {}}
           whileTap={!isUploading ? { scale: 0.95 } : {}}
           animate={isHovering && !isUploading ? { scale: 1.1 } : { scale: 1 }}

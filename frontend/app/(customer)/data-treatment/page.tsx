@@ -1,5 +1,5 @@
 import { Metadata } from "next";
-import { Database, Shield, UserCheck, Lock, FileText, AlertTriangle, Info, CheckCircle } from "lucide-react";
+import { Database, Shield, UserCheck, Lock, FileText, AlertTriangle, Info, CheckCircle, Globe, Mail, Phone, MapPin, Clock, Scale } from "lucide-react";
 
 export const metadata: Metadata = {
   title: "Tratamiento de Datos | NeoSale",
@@ -11,6 +11,9 @@ export default function DataTreatmentPage() {
     {
       title: "1. Identificación del Responsable",
       icon: Info,
+      gradient: "from-cyan-500/20 to-blue-500/20",
+      borderColor: "border-cyan-500/30",
+      iconColor: "text-cyan-400",
       content: `**Responsable del Tratamiento:**
 
 • Razón Social: NeoSale S.A.S.
@@ -28,6 +31,9 @@ export default function DataTreatmentPage() {
     {
       title: "2. Marco Legal",
       icon: FileText,
+      gradient: "from-blue-500/20 to-indigo-500/20",
+      borderColor: "border-blue-500/30",
+      iconColor: "text-blue-400",
       content: `Esta política se fundamenta en:
 
 **Legislación Colombiana:**
@@ -44,6 +50,9 @@ export default function DataTreatmentPage() {
     {
       title: "3. Datos Personales Recopilados",
       icon: Database,
+      gradient: "from-indigo-500/20 to-purple-500/20",
+      borderColor: "border-indigo-500/30",
+      iconColor: "text-indigo-400",
       content: `**Datos de Identificación:**
 • Nombre completo
 • Tipo y número de documento de identidad
@@ -74,6 +83,9 @@ export default function DataTreatmentPage() {
     {
       title: "4. Finalidades del Tratamiento",
       icon: UserCheck,
+      gradient: "from-teal-500/20 to-cyan-500/20",
+      borderColor: "border-teal-500/30",
+      iconColor: "text-teal-400",
       content: `Tratamos tus datos personales para:
 
 **Finalidades Principales:**
@@ -99,6 +111,9 @@ export default function DataTreatmentPage() {
     {
       title: "5. Legitimación del Tratamiento",
       icon: Shield,
+      gradient: "from-cyan-500/20 to-teal-500/20",
+      borderColor: "border-cyan-500/30",
+      iconColor: "text-cyan-400",
       content: `El tratamiento de tus datos se basa en:
 
 **Consentimiento Informado:**
@@ -126,6 +141,9 @@ export default function DataTreatmentPage() {
     {
       title: "6. Derechos del Titular",
       icon: CheckCircle,
+      gradient: "from-blue-500/20 to-cyan-500/20",
+      borderColor: "border-blue-500/30",
+      iconColor: "text-blue-400",
       content: `Conforme a la Ley 1581 de 2012, tienes derecho a:
 
 **Derecho de Conocer:**
@@ -157,10 +175,12 @@ export default function DataTreatmentPage() {
 • Oponerte a ciertos tratamientos
 • Solicitar cese de tratamiento cuando sea procedente`,
     },
-  
     {
-      title: "8. Medidas de Seguridad",
+      title: "7. Medidas de Seguridad",
       icon: Lock,
+      gradient: "from-indigo-500/20 to-blue-500/20",
+      borderColor: "border-indigo-500/30",
+      iconColor: "text-indigo-400",
       content: `Implementamos medidas técnicas y organizacionales:
 
 **Seguridad Técnica:**
@@ -185,8 +205,11 @@ export default function DataTreatmentPage() {
 • Pruebas de penetración`,
     },
     {
-      title: "9. Transferencia de Datos",
-      icon: Database,
+      title: "8. Transferencia de Datos",
+      icon: Globe,
+      gradient: "from-purple-500/20 to-indigo-500/20",
+      borderColor: "border-purple-500/30",
+      iconColor: "text-purple-400",
       content: `**Transferencias Nacionales:**
 • Proveedores de servicios en Colombia
 • Empresas de logística y transporte
@@ -206,8 +229,11 @@ export default function DataTreatmentPage() {
 • Consentimiento explícito cuando sea requerido`,
     },
     {
-      title: "10. Conservación de Datos",
+      title: "9. Conservación de Datos",
       icon: AlertTriangle,
+      gradient: "from-teal-500/20 to-blue-500/20",
+      borderColor: "border-teal-500/30",
+      iconColor: "text-teal-400",
       content: `**Períodos de Retención:**
 
 • **Datos de cuenta activa:** Mientras mantengas cuenta
@@ -228,8 +254,11 @@ export default function DataTreatmentPage() {
 • Defensa de derechos legales`,
     },
     {
-      title: "11. Datos Sensibles",
+      title: "10. Datos Sensibles",
       icon: Shield,
+      gradient: "from-cyan-500/20 to-indigo-500/20",
+      borderColor: "border-cyan-500/30",
+      iconColor: "text-cyan-400",
       content: `**No Recopilamos Datos Sensibles:**
 
 NeoSale NO solicita ni procesa datos sensibles como:
@@ -249,8 +278,11 @@ Si por alguna razón necesitáramos procesar datos sensibles:
 • Se cumplirán requisitos adicionales de la ley`,
     },
     {
-      title: "12. Datos de Menores de Edad",
+      title: "11. Datos de Menores de Edad",
       icon: AlertTriangle,
+      gradient: "from-blue-500/20 to-teal-500/20",
+      borderColor: "border-blue-500/30",
+      iconColor: "text-blue-400",
       content: `**Política sobre Menores:**
 
 • Nuestros servicios están dirigidos a mayores de 18 años
@@ -268,8 +300,11 @@ Si por alguna razón necesitáramos procesar datos sensibles:
 • Protocolos especiales de manejo`,
     },
     {
-      title: "13. Actualizaciones de la Política",
+      title: "12. Actualizaciones de la Política",
       icon: FileText,
+      gradient: "from-indigo-500/20 to-cyan-500/20",
+      borderColor: "border-indigo-500/30",
+      iconColor: "text-indigo-400",
       content: `**Modificaciones:**
 
 • Esta política puede actualizarse periódicamente
@@ -288,8 +323,11 @@ Si por alguna razón necesitáramos procesar datos sensibles:
 • Fecha efectiva de cada versión indicada`,
     },
     {
-      title: "14. Autoridad de Control",
-      icon: Shield,
+      title: "13. Autoridad de Control",
+      icon: Scale,
+      gradient: "from-purple-500/20 to-blue-500/20",
+      borderColor: "border-purple-500/30",
+      iconColor: "text-purple-400",
       content: `**Superintendencia de Industria y Comercio (SIC):**
 
 Si no estás satisfecho con nuestra respuesta, puedes acudir a:
@@ -307,52 +345,128 @@ Si no estás satisfecho con nuestra respuesta, puedes acudir a:
     },
   ];
 
+  const contactInfo = [
+    {
+      icon: Mail,
+      title: "Email",
+      value: "protecciondatos@tutienda.com",
+      href: "mailto:protecciondatos@tutienda.com",
+      gradient: "from-cyan-500/20 to-blue-500/20",
+    },
+    {
+      icon: Phone,
+      title: "Teléfono",
+      value: "+57 300 123 4567",
+      href: "tel:+573001234567",
+      gradient: "from-indigo-500/20 to-purple-500/20",
+    },
+    {
+      icon: MapPin,
+      title: "Dirección",
+      value: "Bogotá, Colombia",
+      href: "#",
+      gradient: "from-teal-500/20 to-cyan-500/20",
+    },
+    {
+      icon: Clock,
+      title: "Horario",
+      value: "L-V 9:00 AM - 6:00 PM",
+      href: "#",
+      gradient: "from-blue-500/20 to-indigo-500/20",
+    },
+  ];
+
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950">
-      {/* Background Effects */}
+    <div className="min-h-screen bg-linear-to-br from-slate-950 via-slate-900 to-slate-950 relative overflow-hidden">
+      {/* Enhanced Background Effects */}
       <div className="fixed inset-0 overflow-hidden pointer-events-none">
-        <div className="absolute top-0 left-1/3 w-96 h-96 bg-blue-500/10 rounded-full blur-3xl" />
-        <div className="absolute bottom-0 right-1/3 w-96 h-96 bg-purple-500/10 rounded-full blur-3xl" />
-        <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-96 h-96 bg-fuchsia-500/10 rounded-full blur-3xl" />
+        <div className="absolute top-0 left-1/4 w-96 h-96 bg-linear-to-br from-cyan-500/20 to-blue-500/20 rounded-full blur-3xl animate-pulse" />
+        <div className="absolute bottom-0 right-1/4 w-96 h-96 bg-linear-to-br from-indigo-500/20 to-purple-500/20 rounded-full blur-3xl animate-pulse delay-1000" />
+        <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-96 h-96 bg-linear-to-br from-teal-500/20 to-cyan-500/20 rounded-full blur-3xl animate-pulse delay-500" />
+        <div className="absolute top-1/4 right-1/4 w-64 h-64 bg-linear-to-br from-blue-500/15 to-indigo-500/15 rounded-full blur-2xl animate-pulse delay-700" />
+        <div className="absolute bottom-1/4 left-1/4 w-64 h-64 bg-linear-to-br from-purple-500/15 to-blue-500/15 rounded-full blur-2xl animate-pulse delay-300" />
+      </div>
+
+      {/* Floating Particles */}
+      <div className="fixed inset-0 overflow-hidden pointer-events-none">
+        {[...Array(20)].map((_, i) => (
+          <div
+            key={i}
+            className="absolute w-1 h-1 bg-white/20 rounded-full animate-ping"
+            style={{
+              left: `${Math.random() * 100}%`,
+              top: `${Math.random() * 100}%`,
+              animationDelay: `${Math.random() * 3}s`,
+              animationDuration: `${2 + Math.random() * 2}s`,
+            }}
+          />
+        ))}
       </div>
 
       {/* Content */}
       <div className="relative z-10">
         {/* Hero Section */}
-        <div className="border-b border-slate-800/50 bg-gradient-to-b from-slate-900/90 to-transparent backdrop-blur-sm">
-          <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-16 lg:py-24">
-            <div className="max-w-4xl mx-auto text-center space-y-6">
-              <div className="inline-flex items-center justify-center w-20 h-20 rounded-2xl bg-gradient-to-br from-blue-500/20 to-fuchsia-500/20 border border-blue-500/30 mb-6">
-                <Database className="w-10 h-10 text-blue-400" />
+        <div className="border-b border-slate-800/50 bg-linear-to-b from-slate-900/95 via-slate-900/90 to-slate-950/80 backdrop-blur-xl">
+          <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-20 lg:py-28">
+            <div className="max-w-5xl mx-auto text-center space-y-8">
+              <div className="relative inline-flex items-center justify-center">
+                <div className="absolute inset-0 bg-linear-to-r from-cyan-600/30 to-blue-600/30 rounded-3xl blur-xl animate-pulse" />
+                <div className="relative inline-flex items-center justify-center w-24 h-24 rounded-3xl bg-linear-to-br from-cyan-500/20 via-blue-500/20 to-indigo-500/20 border border-cyan-500/30 backdrop-blur-sm">
+                  <Database className="w-12 h-12 text-cyan-400 drop-shadow-lg" />
+                </div>
               </div>
-              
-              <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold bg-gradient-to-r from-blue-300 via-purple-300 to-fuchsia-300 bg-clip-text text-transparent">
-                Tratamiento de Datos Personales
-              </h1>
-              
-              <p className="text-lg text-slate-300 max-w-2xl mx-auto">
-                Política de tratamiento y protección de datos personales conforme a la Ley 1581 de 2012 
-                y normativa colombiana vigente.
+
+              <div className="space-y-4">
+                <h1 className="text-5xl sm:text-6xl lg:text-7xl font-bold bg-linear-to-r from-cyan-300 via-blue-300 to-indigo-300 bg-clip-text text-transparent leading-tight">
+                  Tratamiento de
+                  <br />
+                  <span className="bg-linear-to-r from-teal-300 to-purple-300 bg-clip-text text-transparent">
+                    Datos Personales
+                  </span>
+                </h1>
+
+                <div className="w-32 h-1 bg-linear-to-r from-cyan-500 to-blue-500 rounded-full mx-auto" />
+              </div>
+
+              <p className="text-xl text-slate-300 max-w-3xl mx-auto leading-relaxed">
+                Política completa de tratamiento y protección de datos personales conforme a la
+                Ley 1581 de 2012 y la normativa colombiana vigente.
               </p>
-              
-              <div className="flex items-center justify-center gap-2 text-sm text-slate-400">
-                <span>Última actualización:</span>
-                <span className="font-semibold text-slate-300">25 de Enero, 2026</span>
+
+              <div className="flex flex-wrap items-center justify-center gap-6 text-sm">
+                <div className="flex items-center gap-2 px-4 py-2 rounded-full bg-slate-800/50 border border-slate-700/50 backdrop-blur-sm">
+                  <div className="w-2 h-2 bg-cyan-400 rounded-full animate-pulse" />
+                  <span className="text-slate-300">Última actualización:</span>
+                  <span className="font-semibold text-white">31 de Enero, 2026</span>
+                </div>
+                <div className="flex items-center gap-2 px-4 py-2 rounded-full bg-slate-800/50 border border-slate-700/50 backdrop-blur-sm">
+                  <Shield className="w-4 h-4 text-blue-400" />
+                  <span className="text-slate-300">Ley 1581 de 2012</span>
+                </div>
+                <div className="flex items-center gap-2 px-4 py-2 rounded-full bg-slate-800/50 border border-slate-700/50 backdrop-blur-sm">
+                  <Scale className="w-4 h-4 text-indigo-400" />
+                  <span className="text-slate-300">SIC Autoridad</span>
+                </div>
               </div>
 
               {/* Important Notice */}
-              <div className="mt-8 p-6 rounded-xl bg-gradient-to-r from-blue-500/10 to-purple-500/10 border border-blue-500/30 max-w-2xl mx-auto">
-                <div className="flex items-start gap-3">
-                  <Info className="w-6 h-6 text-blue-400 flex-shrink-0 mt-1" />
-                  <div className="text-left space-y-2">
-                    <p className="font-semibold text-white">
-                      Autorización para Tratamiento de Datos
-                    </p>
-                    <p className="text-sm text-slate-300">
-                      Al registrarte y usar nuestros servicios, autorizas expresamente a NeoSale para recopilar, 
-                      almacenar, usar, circular y tratar tus datos personales conforme a esta política y la 
-                      legislación colombiana vigente.
-                    </p>
+              <div className="relative p-8 rounded-3xl bg-linear-to-br from-cyan-500/10 via-blue-500/10 to-indigo-500/10 border border-cyan-500/30 backdrop-blur-xl max-w-4xl mx-auto">
+                <div className="absolute inset-0 rounded-3xl bg-linear-to-br from-cyan-500/5 to-blue-500/5" />
+                <div className="relative z-10">
+                  <div className="flex items-start gap-4">
+                    <div className="flex-shrink-0 w-12 h-12 rounded-2xl bg-linear-to-br from-cyan-500/20 to-blue-500/20 border border-cyan-500/30 flex items-center justify-center">
+                      <Info className="w-6 h-6 text-cyan-400" />
+                    </div>
+                    <div className="flex-1 text-left space-y-3">
+                      <h3 className="text-xl font-bold bg-linear-to-r from-cyan-300 to-blue-300 bg-clip-text text-transparent">
+                        Autorización para Tratamiento de Datos
+                      </h3>
+                      <p className="text-slate-300 leading-relaxed">
+                        Al registrarte y usar nuestros servicios, autorizas expresamente a NeoSale para recopilar,
+                        almacenar, usar, circular y tratar tus datos personales conforme a esta política y la
+                        legislación colombiana vigente. Esta autorización es revocable en cualquier momento.
+                      </p>
+                    </div>
                   </div>
                 </div>
               </div>
@@ -360,75 +474,165 @@ Si no estás satisfecho con nuestra respuesta, puedes acudir a:
           </div>
         </div>
 
-        {/* Main Content */}
-        <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-12 lg:py-16">
-          <div className="max-w-6xl mx-auto grid grid-cols-2 md:grid-cols-2 gap-8">
-            {sections.map((section, index) => {
-              const Icon = section.icon;
-              return (
-                <div
-                  key={index}
-                  className="group relative p-8 rounded-2xl bg-gradient-to-br from-slate-900/80 to-slate-800/60 border border-slate-700/50 backdrop-blur-sm hover:border-blue-500/30 transition-all duration-300"
-                >
-                  <div className="absolute inset-0 rounded-2xl bg-gradient-to-br from-blue-500/0 to-purple-500/0 group-hover:from-blue-500/5 group-hover:to-purple-500/5 transition-all duration-300 pointer-events-none" />
-                  
-                  <div className="relative z-10 space-y-4">
-                    <div className="flex items-start gap-4">
-                      <div className="flex-shrink-0 w-12 h-12 rounded-xl bg-gradient-to-br from-blue-500/20 to-purple-500/20 border border-blue-500/30 flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
-                        <Icon className="w-6 h-6 text-blue-400" />
-                      </div>
-                      
-                      <div className="flex-1 space-y-3">
-                        <h2 className="text-2xl font-bold text-white group-hover:text-blue-300 transition-colors duration-300">
-                          {section.title}
-                        </h2>
-                        
-                        <div className="prose prose-invert prose-slate max-w-none">
-                          <div className="text-slate-300 leading-relaxed whitespace-pre-line [&>strong]:text-white [&>strong]:font-semibold">
-                            {section.content}
+        {/* Main Content Grid */}
+        <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-16 lg:py-20">
+          <div className="max-w-7xl mx-auto">
+            {/* Introduction Card */}
+            <div className="mb-16">
+              <div className="relative p-8 rounded-3xl bg-linear-to-br from-slate-900/80 via-slate-800/60 to-slate-900/40 border border-slate-700/50 backdrop-blur-xl">
+                <div className="absolute inset-0 rounded-3xl bg-linear-to-br from-cyan-500/5 via-blue-500/5 to-indigo-500/5" />
+                <div className="relative z-10 text-center space-y-4">
+                  <h2 className="text-3xl font-bold bg-linear-to-r from-cyan-300 to-blue-300 bg-clip-text text-transparent">
+                    Compromiso con tus Derechos
+                  </h2>
+                  <p className="text-slate-300 max-w-3xl mx-auto leading-relaxed">
+                    En NeoSale, entendemos la importancia de proteger tu información personal. Esta política
+                    detalla cómo recopilamos, usamos y protegemos tus datos, garantizando el cumplimiento
+                    de tus derechos según la legislación colombiana.
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            {/* Data Treatment Grid */}
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-16">
+              {sections.map((section, index) => {
+                const Icon = section.icon;
+                return (
+                  <div
+                    key={index}
+                    className="group relative p-8 rounded-2xl bg-linear-to-br from-slate-900/80 to-slate-800/60 border border-slate-700/50 backdrop-blur-xl hover:border-slate-600/70 transition-all duration-500 hover:scale-[1.02] hover:shadow-2xl hover:shadow-cyan-500/10"
+                  >
+                    <div className={`absolute inset-0 rounded-2xl bg-linear-to-br ${section.gradient} opacity-0 group-hover:opacity-100 transition-opacity duration-500`} />
+
+                    <div className="relative z-10 space-y-6">
+                      <div className="flex items-start gap-4">
+                        <div className={`flex-shrink-0 w-14 h-14 rounded-2xl bg-linear-to-br ${section.gradient} border ${section.borderColor} flex items-center justify-center group-hover:scale-110 transition-transform duration-300 shadow-lg`}>
+                          <Icon className={`w-7 h-7 ${section.iconColor} drop-shadow-sm`} />
+                        </div>
+
+                        <div className="flex-1 space-y-3">
+                          <h3 className="text-xl font-bold text-white group-hover:text-cyan-300 transition-colors duration-300 leading-tight">
+                            {section.title}
+                          </h3>
+
+                          <div className="prose prose-invert prose-slate max-w-none">
+                            <div className="text-slate-300 leading-relaxed whitespace-pre-line [&>strong]:text-white [&>strong]:font-semibold">
+                              {section.content}
+                            </div>
                           </div>
                         </div>
                       </div>
                     </div>
                   </div>
-                </div>
-              );
-            })}
-
-            {/* Contact CTA */}
-            <div className="mt-12 p-8 rounded-2xl bg-gradient-to-br from-blue-500/10 to-purple-500/10 border border-blue-500/30">
-              <div className="text-center space-y-4">
-                <h3 className="text-2xl font-bold text-white">
-                  Ejercicio de Derechos ARCO
-                </h3>
-                <p className="text-slate-300">
-                  Para ejercer tus derechos de Acceso, Rectificación, Cancelación u Oposición, contáctanos:
-                </p>
-                <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
-                  <a
-                    href="mailto:protecciondatos@tutienda.com"
-                    className="inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-500 hover:to-purple-500 text-white font-semibold transition-all duration-300 hover:scale-105"
-                  >
-                    Contactar Protección de Datos
-                    <Shield className="w-5 h-5" />
-                  </a>
-                  <a
-                    href="tel:+573001234567"
-                    className="inline-flex items-center gap-2 px-6 py-3 rounded-xl border border-slate-600 hover:border-blue-500/50 text-white font-semibold transition-all duration-300 hover:scale-105"
-                  >
-                    +57 300 123 4567
-                  </a>
-                </div>
-              </div>
+                );
+              })}
             </div>
 
-            {/* Legal Footer */}
-            <div className="mt-8 p-6 rounded-xl bg-slate-900/50 border border-slate-700/30">
-              <p className="text-center text-sm text-slate-400">
-                Esta política cumple con la <span className="text-blue-400 font-semibold">Ley 1581 de 2012</span> y el{" "}
-                <span className="text-purple-400 font-semibold">Decreto 1377 de 2013</span> sobre protección de datos 
-                personales en Colombia. Superintendencia de Industria y Comercio (SIC) es la autoridad de control.
-              </p>
+            {/* Contact Section */}
+            <div className="space-y-8">
+              <div className="text-center space-y-4">
+                <h3 className="text-4xl font-bold bg-linear-to-r from-cyan-300 via-blue-300 to-indigo-300 bg-clip-text text-transparent">
+                  Ejercicio de Derechos ARCO
+                </h3>
+                <p className="text-slate-300 text-lg max-w-2xl mx-auto">
+                  Para ejercer tus derechos de Acceso, Rectificación, Cancelación u Oposición sobre tus datos personales,
+                  nuestro equipo de protección de datos está disponible para ayudarte.
+                </p>
+              </div>
+
+              {/* Contact Grid */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+                {contactInfo.map((contact, index) => {
+                  const Icon = contact.icon;
+                  return (
+                    <a
+                      key={index}
+                      href={contact.href}
+                      className="group relative p-6 rounded-2xl bg-linear-to-br from-slate-900/80 to-slate-800/60 border border-slate-700/50 backdrop-blur-xl hover:border-slate-600/70 transition-all duration-300 hover:scale-105 hover:shadow-xl hover:shadow-cyan-500/10"
+                    >
+                      <div className={`absolute inset-0 rounded-2xl bg-linear-to-br ${contact.gradient} opacity-0 group-hover:opacity-100 transition-opacity duration-300`} />
+
+                      <div className="relative z-10 text-center space-y-4">
+                        <div className={`inline-flex items-center justify-center w-12 h-12 rounded-xl bg-linear-to-br ${contact.gradient} border border-slate-600/50 group-hover:scale-110 transition-transform duration-300`}>
+                          <Icon className="w-6 h-6 text-white" />
+                        </div>
+                        <div>
+                          <h4 className="font-semibold text-white group-hover:text-cyan-300 transition-colors duration-300">
+                            {contact.title}
+                          </h4>
+                          <p className="text-slate-300 text-sm mt-1">
+                            {contact.value}
+                          </p>
+                        </div>
+                      </div>
+                    </a>
+                  );
+                })}
+              </div>
+
+              {/* Final CTA */}
+              <div className="relative p-12 rounded-3xl bg-linear-to-br from-cyan-500/10 via-blue-500/10 to-indigo-500/10 border border-cyan-500/30 backdrop-blur-xl">
+                <div className="absolute inset-0 rounded-3xl bg-linear-to-br from-cyan-500/5 to-blue-500/5" />
+                <div className="relative z-10 text-center space-y-6">
+                  <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-linear-to-br from-cyan-500/20 to-blue-500/20 border border-cyan-500/30">
+                    <Shield className="w-8 h-8 text-cyan-400" />
+                  </div>
+
+                  <div className="space-y-4">
+                    <h3 className="text-3xl font-bold text-white">
+                      Protección de Datos Garantizada
+                    </h3>
+                    <p className="text-slate-300 text-lg max-w-2xl mx-auto">
+                      Cumplimos estrictamente con la Ley 1581 de 2012 y trabajamos bajo la supervisión
+                      de la Superintendencia de Industria y Comercio (SIC) para garantizar tus derechos.
+                    </p>
+                  </div>
+
+                  <div className="flex flex-col sm:flex-row gap-4 justify-center">
+                    <a
+                      href="mailto:protecciondatos@tutienda.com"
+                      className="inline-flex items-center justify-center gap-3 px-8 py-4 rounded-2xl bg-linear-to-r from-cyan-600 via-blue-600 to-indigo-600 hover:from-cyan-500 hover:via-blue-500 hover:to-indigo-500 text-white font-semibold transition-all duration-300 hover:scale-105 hover:shadow-xl hover:shadow-cyan-500/25"
+                    >
+                      <Mail className="w-5 h-5" />
+                      Contactar Protección de Datos
+                    </a>
+                    <a
+                      href="tel:+573001234567"
+                      className="inline-flex items-center justify-center gap-3 px-8 py-4 rounded-2xl bg-linear-to-r from-slate-700 to-slate-600 hover:from-slate-600 hover:to-slate-500 text-white font-semibold transition-all duration-300 hover:scale-105 border border-slate-600/50"
+                    >
+                      <Phone className="w-5 h-5" />
+                      Llamar Ahora
+                    </a>
+                  </div>
+                </div>
+              </div>
+
+              {/* Legal Footer */}
+              <div className="relative p-8 rounded-3xl bg-linear-to-br from-slate-900/80 to-slate-800/60 border border-slate-700/50 backdrop-blur-xl">
+                <div className="absolute inset-0 rounded-3xl bg-linear-to-br from-indigo-500/5 via-purple-500/5 to-blue-500/5" />
+                <div className="relative z-10 text-center space-y-4">
+                  <div className="flex items-center justify-center gap-4 text-sm">
+                    <div className="flex items-center gap-2 px-4 py-2 rounded-full bg-slate-800/50 border border-slate-700/50 backdrop-blur-sm">
+                      <Scale className="w-4 h-4 text-cyan-400" />
+                      <span className="text-slate-300">Ley 1581 de 2012</span>
+                    </div>
+                    <div className="flex items-center gap-2 px-4 py-2 rounded-full bg-slate-800/50 border border-slate-700/50 backdrop-blur-sm">
+                      <Shield className="w-4 h-4 text-blue-400" />
+                      <span className="text-slate-300">Decreto 1377 de 2013</span>
+                    </div>
+                    <div className="flex items-center gap-2 px-4 py-2 rounded-full bg-slate-800/50 border border-slate-700/50 backdrop-blur-sm">
+                      <Database className="w-4 h-4 text-indigo-400" />
+                      <span className="text-slate-300">Superintendencia SIC</span>
+                    </div>
+                  </div>
+                  <p className="text-slate-400 text-sm max-w-3xl mx-auto leading-relaxed">
+                    Esta política cumple con la legislación colombiana sobre protección de datos personales.
+                    La Superintendencia de Industria y Comercio (SIC) es la autoridad de control competente
+                    para velar por el cumplimiento de estas normas.
+                  </p>
+                </div>
+              </div>
             </div>
           </div>
         </div>

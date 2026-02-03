@@ -241,7 +241,7 @@ export default function Profile() {
   // Muestra el esqueleto de carga mientras se obtiene la sesión o los datos del usuario
   if (status === "loading" || isLoading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-900 to-slate-800 py-8">
+      <div className="min-h-screen bg-linear-to-br from-slate-900 via-slate-900 to-slate-800 py-8">
         <ProfileSkeleton />
       </div>
     )
@@ -249,7 +249,7 @@ export default function Profile() {
 
   return (
     <motion.div
-      className="min-h-screen bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950 py-6 px-4 md:px-6 lg:px-8 relative overflow-hidden"
+      className="min-h-screen bg-linear-to-br from-slate-950 via-slate-900 to-slate-950 py-6 px-4 md:px-6 lg:px-8 relative overflow-hidden"
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       transition={{ duration: 0.6 }}
@@ -277,7 +277,7 @@ export default function Profile() {
             animate={{ x: 0, opacity: 1 }}
             transition={{ duration: 0.6, delay: 0.3 }}
           >
-            <Card className="sticky top-6 border border-slate-700/50 shadow-2xl bg-gradient-to-br from-slate-900/98 via-slate-900/95 to-slate-800/98 backdrop-blur-2xl overflow-hidden">
+            <Card className="sticky top-6 border border-slate-700/50 shadow-2xl bg-linear-to-br from-slate-900/98 via-slate-900/95 to-slate-800/98 backdrop-blur-2xl overflow-hidden">
               <CardContent className="p-6 space-y-6">
                 {/* Avatar y nombre */}
                 <div className="flex flex-col items-center text-center space-y-4 pb-6 border-b border-slate-700/50">
@@ -288,7 +288,7 @@ export default function Profile() {
                     onImageUpdate={handleImageUpdate}
                   />
                   <div className="mt-16">
-                    <h2 className="text-2xl font-bold bg-gradient-to-r from-blue-400 via-purple-400 to-blue-400 bg-clip-text text-transparent">
+                    <h2 className="text-2xl font-bold bg-linear-to-r from-blue-400 via-purple-400 to-blue-400 bg-clip-text text-transparent">
                       {userProfile?.name || "Usuario"}
                     </h2>
                     <p className="text-sm text-slate-400 mt-1">{userProfile?.email || ""}</p>
@@ -301,7 +301,7 @@ export default function Profile() {
                     onClick={() => setActiveSection('info')}
                     className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg transition-all duration-300 ${
                       activeSection === 'info'
-                        ? "bg-gradient-to-r from-blue-600/20 to-purple-600/20 text-blue-400 border border-blue-500/30 shadow-lg shadow-blue-500/20"
+                        ? "bg-linear-to-r from-blue-600/20 to-purple-600/20 text-blue-400 border border-blue-500/30 shadow-lg shadow-blue-500/20"
                         : "text-slate-400 hover:text-slate-200 hover:bg-slate-800/50"
                     }`}
                     whileHover={{ scale: 1.02, x: 4 }}
@@ -315,7 +315,7 @@ export default function Profile() {
                     onClick={() => setActiveSection('edit')}
                     className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg transition-all duration-300 ${
                       activeSection === 'edit'
-                        ? "bg-gradient-to-r from-blue-600/20 to-purple-600/20 text-blue-400 border border-blue-500/30 shadow-lg shadow-blue-500/20"
+                        ? "bg-linear-to-r from-blue-600/20 to-purple-600/20 text-blue-400 border border-blue-500/30 shadow-lg shadow-blue-500/20"
                         : "text-slate-400 hover:text-slate-200 hover:bg-slate-800/50"
                     }`}
                     whileHover={{ scale: 1.02, x: 4 }}
@@ -329,7 +329,7 @@ export default function Profile() {
                     onClick={() => setActiveSection('password')}
                     className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg transition-all duration-300 ${
                       activeSection === 'password'
-                        ? "bg-gradient-to-r from-purple-600/20 to-blue-600/20 text-purple-400 border border-purple-500/30 shadow-lg shadow-purple-500/20"
+                        ? "bg-linear-to-r from-purple-600/20 to-blue-600/20 text-purple-400 border border-purple-500/30 shadow-lg shadow-purple-500/20"
                         : "text-slate-400 hover:text-slate-200 hover:bg-slate-800/50"
                     }`}
                     whileHover={{ scale: 1.02, x: 4 }}
@@ -343,7 +343,7 @@ export default function Profile() {
                     onClick={() => setActiveSection('addresses')}
                     className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg transition-all duration-300 ${
                       activeSection === 'addresses'
-                        ? "bg-gradient-to-r from-blue-600/20 to-slate-600/20 text-blue-400 border border-blue-500/30 shadow-lg shadow-blue-500/20"
+                        ? "bg-linear-to-r from-blue-600/20 to-slate-600/20 text-blue-400 border border-blue-500/30 shadow-lg shadow-blue-500/20"
                         : "text-slate-400 hover:text-slate-200 hover:bg-slate-800/50"
                     }`}
                     whileHover={{ scale: 1.02, x: 4 }}
@@ -364,10 +364,10 @@ export default function Profile() {
             animate={{ x: 0, opacity: 1 }}
             transition={{ duration: 0.6, delay: 0.4 }}
           >
-            <Card className="border border-slate-700/50 shadow-2xl bg-gradient-to-br from-slate-900/98 via-slate-900/95 to-slate-800/98 backdrop-blur-2xl overflow-hidden min-h-[calc(100vh-3rem)]">
+            <Card className="border border-slate-700/50 shadow-2xl bg-linear-to-br from-slate-900/98 via-slate-900/95 to-slate-800/98 backdrop-blur-2xl overflow-hidden min-h-[calc(100vh-3rem)]">
               {/* Gradient accent lines */}
-              <div className="absolute inset-0 bg-gradient-to-br from-blue-500/5 via-transparent to-purple-500/5 pointer-events-none"></div>
-              <div className="absolute top-0 left-0 w-full h-[2px] bg-gradient-to-r from-transparent via-blue-500/50 to-transparent"></div>
+              <div className="absolute inset-0 bg-linear-to-br from-blue-500/5 via-transparent to-purple-500/5 pointer-events-none"></div>
+              <div className="absolute top-0 left-0 w-full h-[2px] bg-linear-to-r from-transparent via-blue-500/50 to-transparent"></div>
               
               <CardContent className="p-8 relative z-10">
 
@@ -385,13 +385,13 @@ export default function Profile() {
                     {/* Header */}
                     <div className="flex items-center justify-between mb-6 pb-4 border-b border-slate-700/50">
                       <div>
-                        <h2 className="text-3xl font-bold bg-gradient-to-r from-blue-400 via-purple-400 to-slate-400 bg-clip-text text-transparent">
+                        <h2 className="text-3xl font-bold bg-linear-to-r from-blue-400 via-purple-400 to-slate-400 bg-clip-text text-transparent">
                           Información del Perfil
                         </h2>
                         <p className="text-slate-400 mt-1">Gestiona tu información personal</p>
                       </div>
                       <motion.div
-                        className="p-3 bg-gradient-to-br from-blue-600/20 to-purple-600/20 rounded-xl border border-blue-500/30"
+                        className="p-3 bg-linear-to-br from-blue-600/20 to-purple-600/20 rounded-xl border border-blue-500/30"
                         transition={{ duration: 2, repeat: Infinity, repeatDelay: 3 }}
                       >
                         <Settings className="w-6 h-6 text-blue-400" />
@@ -409,10 +409,10 @@ export default function Profile() {
                           transition={{ duration: 0.3, delay: index * 0.1 }}
                           whileHover={{ y: -2, scale: 1.01 }}
                         >
-                          <div className="absolute inset-0 bg-gradient-to-br from-blue-600/10 via-purple-600/5 to-slate-600/10 rounded-xl opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+                          <div className="absolute inset-0 bg-linear-to-br from-blue-600/10 via-purple-600/5 to-slate-600/10 rounded-xl opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
                           <div className="relative p-5 rounded-xl bg-slate-800/40 border border-slate-700/50 backdrop-blur-sm hover:border-blue-500/30 transition-all duration-300">
                             <div className="flex items-start gap-4">
-                              <div className={`p-3 rounded-lg bg-gradient-to-br from-slate-900 to-slate-800 border border-slate-700/50 ${item.color} group-hover:scale-110 transition-transform duration-300 shadow-lg`}>
+                              <div className={`p-3 rounded-lg bg-linear-to-br from-slate-900 to-slate-800 border border-slate-700/50 ${item.color} group-hover:scale-110 transition-transform duration-300 shadow-lg`}>
                                 <item.icon className="w-5 h-5" />
                               </div>
                               <div className="flex-1 min-w-0">
@@ -425,7 +425,7 @@ export default function Profile() {
                               </div>
                             </div>
                             {/* Corner accent */}
-                            <div className="absolute top-0 right-0 w-20 h-20 bg-gradient-to-br from-blue-500/10 via-purple-500/5 to-transparent rounded-bl-3xl" />
+                            <div className="absolute top-0 right-0 w-20 h-20 bg-linear-to-br from-blue-500/10 via-purple-500/5 to-transparent rounded-bl-3xl" />
                           </div>
                         </motion.div>
                       ))}
@@ -433,7 +433,7 @@ export default function Profile() {
 
                     {/* Stats Section */}
                     <motion.div
-                      className="mt-8 p-6 rounded-xl bg-gradient-to-br from-blue-900/20 via-purple-900/10 to-slate-900/20 border border-blue-500/20"
+                      className="mt-8 p-6 rounded-xl bg-linear-to-br from-blue-900/20 via-purple-900/10 to-slate-900/20 border border-blue-500/20"
                       initial={{ opacity: 0, y: 20 }}
                       animate={{ opacity: 1, y: 0 }}
                       transition={{ duration: 0.5, delay: 0.6 }}
@@ -473,7 +473,7 @@ export default function Profile() {
                   >
                     {/* Header */}
                     <div className="mb-8 pb-4 border-b border-slate-700/50">
-                      <h2 className="text-3xl font-bold bg-gradient-to-r from-blue-400 via-purple-400 to-slate-400 bg-clip-text text-transparent">
+                      <h2 className="text-3xl font-bold bg-linear-to-r from-blue-400 via-purple-400 to-slate-400 bg-clip-text text-transparent">
                         Editar Información
                       </h2>
                       <p className="text-slate-400 mt-1">Actualiza tu información personal</p>
@@ -618,9 +618,9 @@ export default function Profile() {
                           <motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
                             <Button
                               type="submit"
-                              className="relative bg-gradient-to-r from-blue-600 via-purple-600 to-blue-700 hover:from-blue-500 hover:via-purple-500 hover:to-blue-600 text-white h-12 rounded-lg px-8 shadow-xl hover:shadow-blue-500/50 transition-all duration-300 font-bold overflow-hidden group"
+                              className="relative bg-linear-to-r from-blue-600 via-purple-600 to-blue-700 hover:from-blue-500 hover:via-purple-500 hover:to-blue-600 text-white h-12 rounded-lg px-8 shadow-xl hover:shadow-blue-500/50 transition-all duration-300 font-bold overflow-hidden group"
                             >
-                              <div className="absolute inset-0 bg-gradient-to-r from-white/0 via-white/20 to-white/0 translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-700"></div>
+                              <div className="absolute inset-0 bg-linear-to-r from-white/0 via-white/20 to-white/0 translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-700"></div>
                               <span className="relative z-10">Guardar Cambios</span>
                             </Button>
                           </motion.div>
@@ -643,7 +643,7 @@ export default function Profile() {
                   >
                     {/* Header */}
                     <div className="mb-8 pb-4 border-b border-slate-700/50">
-                      <h2 className="text-3xl font-bold bg-gradient-to-r from-purple-400 via-blue-400 to-slate-400 bg-clip-text text-transparent">
+                      <h2 className="text-3xl font-bold bg-linear-to-r from-purple-400 via-blue-400 to-slate-400 bg-clip-text text-transparent">
                         Seguridad y Contraseña
                       </h2>
                       <p className="text-slate-400 mt-1">Actualiza tu contraseña para mantener tu cuenta segura</p>
@@ -826,7 +826,7 @@ export default function Profile() {
                             <motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
                               <Button
                                 type="submit"
-                                className="bg-gradient-to-r from-purple-600 via-blue-600 to-purple-700 hover:from-purple-500 hover:via-blue-500 hover:to-purple-600 text-white h-12 rounded-lg px-8 shadow-lg hover:shadow-purple-500/30 transition-all duration-200 font-bold"
+                                className="bg-linear-to-r from-purple-600 via-blue-600 to-purple-700 hover:from-purple-500 hover:via-blue-500 hover:to-purple-600 text-white h-12 rounded-lg px-8 shadow-lg hover:shadow-purple-500/30 transition-all duration-200 font-bold"
                               >
                                 Actualizar Contraseña
                               </Button>
@@ -851,7 +851,7 @@ export default function Profile() {
                   >
                     {/* Header */}
                     <div className="mb-8 pb-4 border-b border-slate-700/50">
-                      <h2 className="text-3xl font-bold bg-gradient-to-r from-blue-400 via-slate-400 to-purple-400 bg-clip-text text-transparent">
+                      <h2 className="text-3xl font-bold bg-linear-to-r from-blue-400 via-slate-400 to-purple-400 bg-clip-text text-transparent">
                         Gestión de Direcciones
                       </h2>
                       <p className="text-slate-400 mt-1">Administra tus direcciones de envío (máximo 3)</p>

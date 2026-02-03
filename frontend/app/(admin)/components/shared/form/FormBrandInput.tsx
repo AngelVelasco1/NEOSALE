@@ -167,14 +167,14 @@ const FormBrandInput = forwardRef(function FormBrandInputRender<
                   type="button"
                   variant="outline"
                   onClick={() => setIsCreating(true)}
-                  className="w-full h-11 rounded-xl border-2 border-purple-500/30 bg-gradient-to-r from-purple-500/10 to-fuchsia-500/10 text-purple-300 hover:border-purple-400/50 hover:from-purple-500/20 hover:to-fuchsia-500/20 transition-all duration-300 flex items-center justify-center gap-2"
+                  className="w-full h-11 rounded-xl border-2 border-purple-500/30 bg-linear-to-r from-purple-500/10 to-fuchsia-500/10 text-purple-300 hover:border-purple-400/50 hover:from-purple-500/20 hover:to-fuchsia-500/20 transition-all duration-300 flex items-center justify-center gap-2"
                 >
                   <Plus className="w-4 h-4" />
                   Crear nueva marca
                 </Button>
               </>
             ) : (
-              <div className="space-y-4 p-5 rounded-xl border-2 border-purple-500/30 bg-gradient-to-br from-slate-900/90 to-slate-800/90">
+              <div className="space-y-4 p-5 rounded-xl border-2 border-purple-500/30 bg-linear-to-br from-slate-900/90 to-slate-800/90">
                 <div className="flex items-center gap-2 mb-2">
                   <Plus className="w-4 h-4 text-purple-400" />
                   <span className="text-sm font-semibold text-purple-300">Nueva Marca</span>
@@ -247,7 +247,7 @@ const FormBrandInput = forwardRef(function FormBrandInputRender<
                     type="button"
                     onClick={() => handleCreateBrand(field)}
                     disabled={isPending || !newBrandName.trim()}
-                    className="flex-1 h-10 rounded-lg bg-gradient-to-r from-purple-600 to-fuchsia-600 text-white hover:from-purple-500 hover:to-fuchsia-500 disabled:opacity-50 disabled:cursor-not-allowed"
+                    className="flex-1 h-10 rounded-lg bg-linear-to-r from-purple-600 to-fuchsia-600 text-white hover:from-purple-500 hover:to-fuchsia-500 disabled:opacity-50 disabled:cursor-not-allowed"
                   >
                     {isPending ? (
                       <>

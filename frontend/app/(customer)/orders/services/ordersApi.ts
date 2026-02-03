@@ -18,6 +18,13 @@ export interface OrderItem {
     categories: {
       name: string;
     };
+    images: Array<{
+      id: number;
+      image_url: string;
+      color_code: string;
+      color: string;
+      is_primary?: boolean;
+    }>;
   };
 }
 
@@ -57,6 +64,7 @@ export interface Order {
   success?: boolean;
   message?: string;
   user_id?: number;
+  delivered_at?: string;
   addresses: {
     id: number;
     address: string;

@@ -13,7 +13,7 @@ export default async function BrandsPage() {
   const brands = await getAllBrands();
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950">
+    <div className="min-h-screen bg-linear-to-br from-slate-950 via-slate-900 to-slate-950">
       {/* Background Effects */}
       <div className="fixed inset-0 overflow-hidden pointer-events-none">
         <div className="absolute top-0 left-1/4 w-96 h-96 bg-purple-500/10 rounded-full blur-3xl" />
@@ -24,14 +24,14 @@ export default async function BrandsPage() {
       {/* Content */}
       <div className="relative z-10">
         {/* Hero Section */}
-        <div className="border-b border-slate-800/50 bg-gradient-to-b from-slate-900/90 to-transparent backdrop-blur-sm">
+        <div className="border-b border-slate-800/50 bg-linear-to-b from-slate-900/90 to-transparent backdrop-blur-sm">
           <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-16 lg:py-24">
             <div className="max-w-4xl mx-auto text-center space-y-6">
-              <div className="inline-flex items-center justify-center w-20 h-20 rounded-2xl bg-gradient-to-br from-purple-500/20 to-fuchsia-500/20 border border-purple-500/30 mb-6">
+              <div className="inline-flex items-center justify-center w-20 h-20 rounded-2xl bg-linear-to-br from-purple-500/20 to-fuchsia-500/20 border border-purple-500/30 mb-6">
                 <Package2 className="w-10 h-10 text-purple-400" />
               </div>
               
-              <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold bg-gradient-to-r from-purple-300 via-fuchsia-300 to-blue-300 bg-clip-text text-transparent">
+              <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold bg-linear-to-r from-purple-300 via-fuchsia-300 to-blue-300 bg-clip-text text-transparent">
                 Nuestras Marcas
               </h1>
               
@@ -71,10 +71,10 @@ export default async function BrandsPage() {
                   <Link
                     key={brand.id}
                     href={`/brands/${slug}`}
-                    className="group relative overflow-hidden rounded-xl bg-gradient-to-br from-slate-900/80 to-slate-800/60 border border-slate-700/50 hover:border-purple-500/30 transition-all duration-300 hover:scale-[1.02]"
+                    className="group relative overflow-hidden rounded-xl bg-linear-to-br from-slate-900/80 to-slate-800/60 border border-slate-700/50 hover:border-purple-500/30 transition-all duration-300 hover:scale-[1.02]"
                   >
                     {/* Hover Glow Effect */}
-                    <div className="absolute inset-0 bg-gradient-to-br from-purple-500/0 to-fuchsia-500/0 group-hover:from-purple-500/5 group-hover:to-fuchsia-500/5 transition-all duration-300 pointer-events-none" />
+                    <div className="absolute inset-0 bg-linear-to-br from-purple-500/0 to-fuchsia-500/0 group-hover:from-purple-500/5 group-hover:to-fuchsia-500/5 transition-all duration-300 pointer-events-none" />
                     
                     {/* Content */}
                     <div className="relative z-10 p-6 space-y-4">
@@ -126,7 +126,7 @@ export default async function BrandsPage() {
 
                     {/* Featured Badge (if has many products) */}
                     {productCount > 10 && (
-                      <div className="absolute top-4 right-4 px-2 py-1 rounded-lg bg-gradient-to-r from-purple-600/90 to-fuchsia-600/90 backdrop-blur-sm border border-purple-500/30">
+                      <div className="absolute top-4 right-4 px-2 py-1 rounded-lg bg-linear-to-r from-purple-600/90 to-fuchsia-600/90 backdrop-blur-sm border border-purple-500/30">
                         <span className="text-xs font-semibold text-white">Popular</span>
                       </div>
                     )}
@@ -138,9 +138,9 @@ export default async function BrandsPage() {
         </div>
 
         {/* CTA Section */}
-        <div className="border-t border-slate-800/50 bg-gradient-to-b from-transparent to-slate-900/50">
+        <div className="border-t border-slate-800/50 bg-linear-to-b from-transparent to-slate-900/50">
           <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-12 lg:py-16">
-            <div className="max-w-3xl mx-auto p-8 rounded-2xl bg-gradient-to-br from-purple-500/10 to-fuchsia-500/10 border border-purple-500/30">
+            <div className="max-w-3xl mx-auto p-8 rounded-2xl bg-linear-to-br from-purple-500/10 to-fuchsia-500/10 border border-purple-500/30">
               <div className="text-center space-y-4">
                 <h3 className="text-2xl font-bold text-white">
                   ¿No encuentras tu marca favorita?
@@ -150,7 +150,7 @@ export default async function BrandsPage() {
                 </p>
                 <a
                   href="mailto:info@tutienda.com"
-                  className="inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-gradient-to-r from-purple-600 to-fuchsia-600 hover:from-purple-500 hover:to-fuchsia-500 text-white font-semibold transition-all duration-300 hover:scale-105"
+                  className="inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-linear-to-r from-purple-600 to-fuchsia-600 hover:from-purple-500 hover:to-fuchsia-500 text-white font-semibold transition-all duration-300 hover:scale-105"
                 >
                   Contáctanos
                   <ArrowRight className="w-5 h-5" />

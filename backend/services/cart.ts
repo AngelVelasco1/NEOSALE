@@ -1,4 +1,4 @@
-import { prisma } from "../lib/prisma";
+import { prisma } from "../lib/prisma.js";
 
 export interface CartItem {
   id: number;
@@ -21,6 +21,28 @@ export interface CartResponse {
   total_amount: number;
   cart_id: number;
 }
+
+
+const ensureCartExists = async (user_id: number): Promise<void> => {
+  const existingCart = await prisma.cart.findFirst({
+    where: { user_id },
+  });
+
+  if (!existingCart) {
+    try {
+      await prisma.cart.create({
+        data: {
+          user_id,
+          subtotal: 0,
+        },
+      });
+
+    } catch (error) {
+      console.error(`Error creando carrito para user ${user_id}:`, error);
+      throw new Error("No se pudo crear el carrito del usuario");
+    }
+  }
+};
 
 export const getCartService = async (
   user_id: string
@@ -81,16 +103,16 @@ export const getCartService = async (
     };
   }
 
-  const cartItems: CartItem[] = cart.cart_items.map((item) => {
+  const cartItems: CartItem[] = cart.cart_items.map((item: any) => {
     const product = item.products;
 
     const variant = product.product_variants.find(
-      (v) => v.color_code === item.color_code && v.size === item.size
+      (v: any) => v.color_code === item.color_code && v.size === item.size
     );
 
     const selectedImage =
-      product.images.find((img) => img.color_code === item.color_code) ||
-      product.images.find((img) => img.is_primary) ||
+      product.images.find((img: any) => img.color_code === item.color_code) ||
+      product.images.find((img: any) => img.is_primary) ||
       product.images[0];
 
     return {
@@ -140,6 +162,10 @@ export const addProductToCartService = async (
     throw new Error("Parámetros inválidos");
   }
 
+  // ✅ Validación: Asegurar que el carrito existe
+  const userId = parseInt(user_id);
+  await ensureCartExists(userId);
+
   await prisma.$executeRaw`CALL sp_add_product_to_cart(${user_id}::integer, ${product_id}::integer, ${quantity}::integer, ${color_code}::varchar, ${size}::varchar)`;
 
   return await getCartService(user_id);
@@ -155,6 +181,10 @@ export const updateCartItemService = async (
   if (!user_id || !product_id || quantity < 0 || !color_code || !size) {
     throw new Error("Parámetros inválidos");
   }
+
+  // ✅ Validación: Asegurar que el carrito existe
+  const userId = parseInt(user_id);
+  await ensureCartExists(userId);
 
   if (quantity === 0) {
     await prisma.$executeRaw`
@@ -178,6 +208,10 @@ export const removeCartItemService = async (
   if (!user_id || !product_id || !color_code || !size) {
     throw new Error("Parámetros inválidos");
   }
+
+  // ✅ Validación: Asegurar que el carrito existe
+  const userId = parseInt(user_id);
+  await ensureCartExists(userId);
 
   await prisma.$executeRaw`CALL sp_delete_product_from_cart(${user_id}::integer, ${product_id}::integer, ${color_code}::varchar, ${size}::varchar)`;
 

@@ -300,7 +300,7 @@ export const RegisterForm: React.FC = () => {
                 >
                   <Link
                     href="/login"
-                    className="inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white font-semibold rounded-xl transition-all duration-300 shadow-lg shadow-blue-500/30"
+                    className="inline-flex items-center gap-2 px-6 py-3 bg-linear-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white font-semibold rounded-xl transition-all duration-300 shadow-lg shadow-blue-500/30"
                   >
                     Ir al inicio de sesión
                     <ArrowRight className="w-4 h-4" />
@@ -343,8 +343,8 @@ export const RegisterForm: React.FC = () => {
             transition={{ duration: 0.5, delay: 0.1 }}
           >
             <div className="absolute inset-0 pointer-events-none">
-              <div className="absolute -top-20 right-6 w-56 h-56 bg-gradient-to-br from-sky-500/30 to-indigo-500/30 blur-3xl" />
-              <div className="absolute -bottom-16 left-10 w-44 h-44 bg-gradient-to-br from-fuchsia-500/20 to-blue-500/20 blur-3xl" />
+              <div className="absolute -top-20 right-6 w-56 h-56 bg-linear-to-br from-sky-500/30 to-indigo-500/30 blur-3xl" />
+              <div className="absolute -bottom-16 left-10 w-44 h-44 bg-linear-to-br from-fuchsia-500/20 to-blue-500/20 blur-3xl" />
             </div>
 
             <div className="relative z-10">
@@ -355,7 +355,7 @@ export const RegisterForm: React.FC = () => {
                 transition={{ duration: 0.6, delay: 0.2 }}
               >
               
-                <h2 className="text-3xl md:text-4xl font-bold bg-gradient-to-r from-blue-200 via-indigo-200 to-sky-200 bg-clip-text text-transparent">
+                <h2 className="text-3xl md:text-4xl font-bold bg-linear-to-r from-blue-200 via-indigo-200 to-sky-200 bg-clip-text text-transparent">
                   Crea tu cuenta
                 </h2>
               
@@ -371,7 +371,7 @@ export const RegisterForm: React.FC = () => {
                   </div>
                   <div className="mt-3 h-2 w-full rounded-full bg-slate-800/70 overflow-hidden">
                     <motion.div
-                      className="h-full rounded-full bg-gradient-to-r from-sky-500 via-indigo-500 to-purple-500"
+                      className="h-full rounded-full bg-linear-to-r from-sky-500 via-indigo-500 to-purple-500"
                       animate={{ width: `${Math.max(completionDisplay, 6)}%` }}
                       transition={{ duration: 0.5, ease: "easeOut" }}
                     />
@@ -661,7 +661,7 @@ export const RegisterForm: React.FC = () => {
                     <motion.div whileHover={{ scale: 1.01 }} whileTap={{ scale: 0.99 }}>
                       <Button
                         type="submit"
-                        className="w-full h-12 bg-gradient-to-r from-blue-600 via-indigo-600 to-fuchsia-600 hover:from-blue-500 hover:via-indigo-500 hover:to-fuchsia-500 text-white font-semibold rounded-2xl transition-all duration-300 shadow-xl shadow-blue-900/40"
+                        className="w-full h-12 bg-linear-to-r from-blue-600 via-indigo-600 to-fuchsia-600 hover:from-blue-500 hover:via-indigo-500 hover:to-fuchsia-500 text-white font-semibold rounded-2xl transition-all duration-300 shadow-xl shadow-blue-900/40"
                         disabled={isLoading}
                       >
                         {isLoading ? (

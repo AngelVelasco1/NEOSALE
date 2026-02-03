@@ -1,20 +1,12 @@
-import { Metadata } from "next";
+"use client";
 
-import Container from "./(admin)/components/ui/container";
 import { NotFound } from "./(admin)/components/shared/NotFound";
-
-export const metadata: Metadata = {
-  title: "Page Not Found",
-};
+import { usePathname } from "next/navigation";
 
 export default function NotFoundPage() {
+  const pathname = usePathname().slice(1);
+  
   return (
-    <div className="w-full min-h-svh flex">
-      <main className="w-full flex flex-grow">
-        <Container>
-          <NotFound />
-        </Container>
-      </main>
-    </div>
+          <NotFound page={pathname} />
   );
 }

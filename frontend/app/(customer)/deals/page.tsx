@@ -9,9 +9,9 @@ export const metadata: Metadata = {
 
 export default function DealsPage() {
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-blue-50">
+    <div className="min-h-screen bg-linear-to-br from-slate-50 via-white to-blue-50">
       {/* Hero Section */}
-      <div className="relative bg-gradient-to-r from-red-600 via-pink-600 to-purple-600 text-white overflow-hidden">
+      <div className="relative bg-linear-to-r from-red-600 via-pink-600 to-purple-600 text-white overflow-hidden">
         <div className="absolute inset-0 bg-black/10"></div>
         <div className="container mx-auto px-4 py-20 md:py-28 relative z-10">
           <div className="max-w-4xl mx-auto text-center">
@@ -39,7 +39,7 @@ export default function DealsPage() {
               Estamos preparando descuentos especiales solo para ti. Suscríbete a nuestro newsletter para ser el primero en enterarte de nuestras ofertas exclusivas.
             </p>
             
-            <div className="bg-gradient-to-br from-pink-50 to-purple-50 rounded-2xl p-8 mb-8">
+            <div className="bg-linear-to-br from-pink-50 to-purple-50 rounded-2xl p-8 mb-8">
               <h3 className="text-xl font-bold text-gray-900 mb-4">
                 Suscríbete y Recibe
               </h3>
@@ -69,7 +69,7 @@ export default function DealsPage() {
                 />
                 <button
                   type="submit"
-                  className="bg-gradient-to-r from-pink-600 to-purple-600 text-white px-6 py-3 rounded-lg font-semibold hover:from-pink-700 hover:to-purple-700 transition-all shadow-lg whitespace-nowrap"
+                  className="bg-linear-to-r from-pink-600 to-purple-600 text-white px-6 py-3 rounded-lg font-semibold hover:from-pink-700 hover:to-purple-700 transition-all shadow-lg whitespace-nowrap"
                 >
                   Suscribirse
                 </button>
@@ -79,7 +79,7 @@ export default function DealsPage() {
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
               <Link
                 href="/"
-                className="bg-gradient-to-r from-pink-600 to-purple-600 text-white px-8 py-4 rounded-lg font-semibold hover:from-pink-700 hover:to-purple-700 transition-all shadow-lg"
+                className="bg-linear-to-r from-pink-600 to-purple-600 text-white px-8 py-4 rounded-lg font-semibold hover:from-pink-700 hover:to-purple-700 transition-all shadow-lg"
               >
                 Ver Todos los Productos
               </Link>

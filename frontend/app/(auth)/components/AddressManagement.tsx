@@ -115,9 +115,9 @@ export function AddressManagement({ userId, addresses, onAddressChange }: Addres
           <motion.div whileHover={{ scale: 1.03 }} whileTap={{ scale: 0.97 }}>
             <Button
               onClick={() => handleOpenDialog()}
-              className="relative bg-gradient-to-r from-blue-600 via-purple-600 to-blue-700 hover:from-blue-500 hover:via-purple-500 hover:to-blue-600 text-white shadow-xl hover:shadow-blue-500/50 transition-all duration-300 rounded-lg font-bold overflow-hidden group"
+              className="relative bg-linear-to-r from-blue-600 via-purple-600 to-blue-700 hover:from-blue-500 hover:via-purple-500 hover:to-blue-600 text-white shadow-xl hover:shadow-blue-500/50 transition-all duration-300 rounded-lg font-bold overflow-hidden group"
             >
-              <div className="absolute inset-0 bg-gradient-to-r from-white/0 via-white/20 to-white/0 translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-700"></div>
+              <div className="absolute inset-0 bg-linear-to-r from-white/0 via-white/20 to-white/0 translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-700"></div>
               <Plus className="w-4 h-4 mr-2 relative z-10" />
               <span className="relative z-10">Agregar Dirección</span>
             </Button>
@@ -129,7 +129,7 @@ export function AddressManagement({ userId, addresses, onAddressChange }: Addres
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          className="p-12 border-2 border-dashed border-slate-700/50 rounded-xl bg-gradient-to-br from-slate-800/30 to-slate-900/30 text-center"
+          className="p-12 border-2 border-dashed border-slate-700/50 rounded-xl bg-linear-to-br from-slate-800/30 to-slate-900/30 text-center"
         >
           <div className="p-4 bg-slate-800/50 rounded-full w-20 h-20 mx-auto mb-4 flex items-center justify-center">
             <MapPin className="w-10 h-10 text-slate-500" />
@@ -137,7 +137,7 @@ export function AddressManagement({ userId, addresses, onAddressChange }: Addres
           <p className="text-slate-400 text-lg mb-6 font-semibold">No tienes direcciones guardadas</p>
           <Button
             onClick={() => handleOpenDialog()}
-            className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-500 hover:to-purple-500 text-white shadow-lg"
+            className="bg-linear-to-r from-blue-600 to-purple-600 hover:from-blue-500 hover:to-purple-500 text-white shadow-lg"
           >
             <Plus className="w-4 h-4 mr-2" />
             Agregar tu primera dirección
@@ -157,7 +157,7 @@ export function AddressManagement({ userId, addresses, onAddressChange }: Addres
               >
                 <div className={`relative p-6 rounded-xl border ${
                   address.is_default
-                    ? "border-blue-500/50 bg-gradient-to-br from-blue-900/20 via-slate-800/40 to-purple-900/20"
+                    ? "border-blue-500/50 bg-linear-to-br from-blue-900/20 via-slate-800/40 to-purple-900/20"
                     : "border-slate-700/50 bg-slate-800/40"
                 } hover:shadow-xl hover:shadow-blue-500/20 transition-all duration-300 backdrop-blur-sm`}>
                   {address.is_default && (
@@ -166,7 +166,7 @@ export function AddressManagement({ userId, addresses, onAddressChange }: Addres
                         initial={{ scale: 0, rotate: -180 }}
                         animate={{ scale: 1, rotate: 0 }}
                         transition={{ type: "spring", bounce: 0.5 }}
-                        className="flex items-center gap-1.5 px-3 py-1.5 bg-gradient-to-r from-blue-600 to-purple-600 rounded-lg text-xs font-bold text-white shadow-lg"
+                        className="flex items-center gap-1.5 px-3 py-1.5 bg-linear-to-r from-blue-600 to-purple-600 rounded-lg text-xs font-bold text-white shadow-lg"
                       >
                         <Star className="w-3.5 h-3.5 fill-white" />
                         Predeterminada
@@ -175,7 +175,7 @@ export function AddressManagement({ userId, addresses, onAddressChange }: Addres
                   )}
 
                 <div className="flex items-start gap-4 mb-4">
-                  <div className="p-3 rounded-xl bg-gradient-to-br from-blue-600/20 to-purple-600/20 border border-blue-500/30 text-blue-400 group-hover:scale-110 transition-transform duration-300">
+                  <div className="p-3 rounded-xl bg-linear-to-br from-blue-600/20 to-purple-600/20 border border-blue-500/30 text-blue-400 group-hover:scale-110 transition-transform duration-300">
                     <MapPin className="w-5 h-5" />
                   </div>
                   <div className="flex-1">
@@ -252,9 +252,9 @@ export function AddressManagement({ userId, addresses, onAddressChange }: Addres
 
       {/* Dialog para agregar/editar dirección */}
       <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-        <DialogContent className="bg-gradient-to-br from-slate-900 via-slate-900 to-slate-800 border border-slate-700/50 text-slate-200 max-w-2xl">
+        <DialogContent className="bg-linear-to-br from-slate-900 via-slate-900 to-slate-800 border border-slate-700/50 text-slate-200 max-w-2xl">
           <DialogHeader>
-            <DialogTitle className="text-2xl font-bold bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-transparent">
+            <DialogTitle className="text-2xl font-bold bg-linear-to-r from-blue-400 to-purple-400 bg-clip-text text-transparent">
               {editingAddress ? "Editar Dirección" : "Agregar Nueva Dirección"}
             </DialogTitle>
             <DialogDescription className="text-slate-400">
@@ -381,9 +381,9 @@ export function AddressManagement({ userId, addresses, onAddressChange }: Addres
                 <motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
                   <Button
                     type="submit"
-                    className="relative bg-gradient-to-r from-blue-600 via-purple-600 to-cyan-600 hover:from-blue-500 hover:via-purple-500 hover:to-cyan-500 text-white shadow-xl hover:shadow-blue-500/50 transition-all duration-300 rounded-lg font-bold overflow-hidden group"
+                    className="relative bg-linear-to-r from-blue-600 via-purple-600 to-cyan-600 hover:from-blue-500 hover:via-purple-500 hover:to-cyan-500 text-white shadow-xl hover:shadow-blue-500/50 transition-all duration-300 rounded-lg font-bold overflow-hidden group"
                   >
-                    <div className="absolute inset-0 bg-gradient-to-r from-white/0 via-white/20 to-white/0 translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-700"></div>
+                    <div className="absolute inset-0 bg-linear-to-r from-white/0 via-white/20 to-white/0 translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-700"></div>
                     <span className="relative z-10">
                       {editingAddress ? "Actualizar" : "Agregar"} Dirección
                     </span>

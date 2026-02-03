@@ -74,7 +74,7 @@ export function RecoveryPanelContent({ expirationMinutes }: Props) {
           <Link
             href="/forgot-password"
             scroll={false}
-            className="mt-6 inline-flex w-full items-center justify-center rounded-2xl bg-gradient-to-r from-rose-500 via-amber-500 to-orange-500 px-4 py-3 text-sm font-semibold text-white shadow-lg shadow-rose-200"
+            className="mt-6 inline-flex w-full items-center justify-center rounded-2xl bg-linear-to-r from-rose-500 via-amber-500 to-orange-500 px-4 py-3 text-sm font-semibold text-white shadow-lg shadow-rose-200"
           >
             Solicitar otro enlace
           </Link>

@@ -24,7 +24,7 @@ const TableHeader = React.forwardRef<
     ref={ref} 
     className={cn(
       "[&_tr]:border-b [&_tr]:border-slate-200/50 dark:[&_tr]:border-slate-600/40",
-      "bg-gradient-to-r from-slate-50/80 to-slate-100/80",
+      "bg-linear-to-r from-slate-50/80 to-slate-100/80",
       "dark:from-slate-800/50 dark:to-slate-700/50",
       "backdrop-blur-sm",
       className
@@ -58,7 +58,7 @@ const TableFooter = React.forwardRef<
     ref={ref}
     className={cn(
       "border-t border-slate-200/50 dark:border-slate-600/40",
-      "bg-gradient-to-r from-slate-50/90 to-slate-100/90",
+      "bg-linear-to-r from-slate-50/90 to-slate-100/90",
       "dark:from-slate-800/60 dark:to-slate-700/60",
       "backdrop-blur-sm font-semibold [&>tr]:last:border-b-0",
       className
@@ -97,7 +97,7 @@ const TableHead = React.forwardRef<
     className={cn(
       "h-14 px-6 text-left align-middle font-bold text-xs uppercase tracking-wider",
       "text-slate-700 dark:text-slate-300",
-      "bg-gradient-to-r from-slate-600 to-slate-800",
+      "bg-linear-to-r from-slate-600 to-slate-800",
       "dark:from-slate-200 dark:to-slate-400",
       "bg-clip-text text-transparent",
       "[&:has([role=checkbox])]:pr-0 relative",
@@ -134,7 +134,7 @@ const TableCaption = React.forwardRef<
     ref={ref}
     className={cn(
       "mt-6 text-sm font-medium text-slate-600 dark:text-slate-400",
-      "bg-gradient-to-r from-slate-600 to-slate-700",
+      "bg-linear-to-r from-slate-600 to-slate-700",
       "dark:from-slate-300 dark:to-slate-400",
       "bg-clip-text text-transparent",
       className

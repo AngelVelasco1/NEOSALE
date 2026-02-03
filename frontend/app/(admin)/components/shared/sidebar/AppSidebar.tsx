@@ -72,7 +72,7 @@ export default function AppSidebar({ isOpen, isMobile = false, onClose }: AppSid
           </button>
         )}
 
-        <div className="relative mb-6 rounded-3xl border-none px-4 py-5 text-center">
+        <div className="relative mb-10 rounded-3xl border-none px-4 py-5 text-center">
           <div className="absolute -top-8 left-1/2 h-28 w-28 -translate-x-1/2 rounded-full bg-blue-500/20 blur-3xl" />
           <div className="absolute -bottom-10 right-6 h-24 w-24 rounded-full bg-purple-500/15 blur-2xl" />
           <Link href="/dashboard" onClick={handleLinkClick} className="relative z-10 flex flex-col items-center gap-4 group">
@@ -97,7 +97,7 @@ export default function AppSidebar({ isOpen, isMobile = false, onClose }: AppSid
         </div>
 
         <nav className="flex-1 overflow-y-auto scrollbar-thin scrollbar-thumb-white/10 scrollbar-track-transparent">
-          <ul className="space-y-1.5 border-none">
+          <ul className="space-y-2 border-none">
             {navItems.map((navItem) => {
               const toneClass = navItem.accent ?? "from-cyan-500/20 via-blue-500/15 to-transparent";
               const isActive = pathname === navItem.url;
@@ -111,7 +111,7 @@ export default function AppSidebar({ isOpen, isMobile = false, onClose }: AppSid
                     className={cn(
                       "group relative flex items-center gap-3 rounded-2xl border border-transparent px-4 py-3 text-sm font-medium text-slate-300 transition-colors duration-200",
                       "hover:border-white/5 hover:bg-white/5",
-                      isActive && cn("text-white", "bg-gradient-to-r", toneClass)
+                      isActive && cn("text-white", "bg-linear-to-r", toneClass)
                     )}
                   >
                     <span

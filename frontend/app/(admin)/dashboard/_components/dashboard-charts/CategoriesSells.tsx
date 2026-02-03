@@ -106,7 +106,7 @@ export default function CategoriesSells({ data, totalOrders, dateRange }: Catego
   const averageOrderValue = totalOrders > 0 ? totalSales / totalOrders : 0;
 
   return (
-    <div className="relative overflow-hidden rounded-[34px] border border-slate-200/70 dark:border-slate-800 bg-white/95 dark:bg-slate-950/85">
+    <div className="relative overflow-hidden rounded-[34px] border border-slate-800 bg-slate-950/85">
       <div className="pointer-events-none absolute inset-0">
         <div className="absolute -left-16 top-0 h-60 w-60 rounded-full bg-cyan-500/15 blur-[140px]" />
         <div className="absolute -right-10 bottom-0 h-64 w-64 rounded-full bg-fuchsia-500/12 blur-[160px]" />
@@ -128,7 +128,7 @@ export default function CategoriesSells({ data, totalOrders, dateRange }: Catego
 
       <div className="relative px-6 mt-3">
         
-          <div className="rounded-3xl flex justify-between border border-white/10 bg-gradient-to-br from-emerald-500/20 via-emerald-500/10 to-transparent px-5 py-3 text-white shadow-inner shadow-emerald-900/30">
+          <div className="rounded-3xl flex justify-between border border-white/10 bg-linear-to-br from-emerald-500/20 via-emerald-500/10 to-transparent px-5 py-3 text-white shadow-inner shadow-emerald-900/30">
            <div>
              <p className="text-[11px] uppercase tracking-[0.3em] text-emerald-100">Top categoría</p>
             <p className="text-lg font-semibold">
@@ -156,7 +156,7 @@ export default function CategoriesSells({ data, totalOrders, dateRange }: Catego
             <div className="flex-1 w-full">
               <ChartContainer
                 config={chartConfig}
-                className="h-[300px] w-full rounded-3xl border border-white/10 bg-white/10 dark:bg-slate-900/40 p-4 shadow-[0_30px_80px_-60px_rgba(15,23,42,1)] backdrop-blur-xl"
+                className="h-[300px] w-full rounded-3xl border border-white/10 bg-slate-900/40 p-4 shadow-[0_30px_80px_-60px_rgba(15,23,42,1)] backdrop-blur-xl"
               >
                 <PieChart>
                   <ChartTooltip
@@ -167,14 +167,14 @@ export default function CategoriesSells({ data, totalOrders, dateRange }: Catego
                       const data = payload[0].payload;
 
                       return (
-                        <div className="bg-white/95 dark:bg-slate-900/95 backdrop-blur-md border-2 border-slate-200 dark:border-slate-700 rounded-xl shadow-2xl p-4 min-w-[220px]">
+                        <div className="bg-slate-900/95 backdrop-blur-md border-2 border-slate-700 rounded-xl shadow-2xl p-4 min-w-[220px]">
                           {/* Category Header with Color Indicator */}
-                          <div className="flex items-center gap-3 mb-3 pb-3 border-b border-slate-200 dark:border-slate-700">
+                          <div className="flex items-center gap-3 mb-3 pb-3 border-b border-slate-700">
                             <div
-                              className="w-3 h-3 rounded-full shrink-0 ring-2 ring-white dark:ring-slate-900 shadow-sm"
+                              className="w-3 h-3 rounded-full shrink-0 ring-2 ring-slate-900 shadow-sm"
                               style={{ backgroundColor: data.fill }}
                             />
-                            <span className="text-sm font-bold text-slate-900 dark:text-white">
+                            <span className="text-sm font-bold text-white">
                               {data.category}
                             </span>
                           </div>
@@ -182,25 +182,25 @@ export default function CategoriesSells({ data, totalOrders, dateRange }: Catego
                           {/* Stats Grid */}
                           <div className="flex flex-col gap-2.5">
                             <div className="flex items-center justify-between gap-6">
-                              <span className="text-xs font-medium text-slate-600 dark:text-slate-400">
+                              <span className="text-xs font-medium text-slate-400">
                                 Ventas:
                               </span>
-                              <span className="font-mono font-bold text-sm text-slate-900 dark:text-white">
+                              <span className="font-mono font-bold text-sm text-white">
                                 {currencyFormatter.format(data.sales)}
                               </span>
                             </div>
 
                             <div className="flex items-center justify-between gap-6">
-                              <span className="text-xs font-medium text-slate-600 dark:text-slate-400">
+                              <span className="text-xs font-medium text-slate-400">
                                 Órdenes:
                               </span>
-                              <span className="font-mono font-bold text-sm text-slate-900 dark:text-white">
+                              <span className="font-mono font-bold text-sm text-white">
                                 {data.orders}
                               </span>
                             </div>
 
-                            <div className="flex items-center justify-between gap-6 pt-2 border-t border-slate-100 dark:border-slate-800">
-                              <span className="text-xs font-medium text-slate-600 dark:text-slate-400">
+                            <div className="flex items-center justify-between gap-6 pt-2 border-t border-slate-800">
+                              <span className="text-xs font-medium text-slate-400">
                                 Del total:
                               </span>
                               <span className="font-mono font-bold text-sm bg-linear-to-r from-blue-500 to-purple-500 bg-clip-text text-transparent">
@@ -246,14 +246,14 @@ export default function CategoriesSells({ data, totalOrders, dateRange }: Catego
                               <tspan
                                 x={viewBox.cx}
                                 y={viewBox.cy}
-                                className="fill-slate-900 dark:fill-white text-2xl font-bold"
+                                className="fill-white text-2xl font-bold"
                               >
                                 {currencyFormatter.format(totalSales)}
                               </tspan>
                               <tspan
                                 x={viewBox.cx}
                                 y={(viewBox.cy || 0) + 28}
-                                className="fill-slate-500 dark:fill-slate-400 text-sm font-medium"
+                                className="fill-slate-400 text-sm font-medium"
                               >
                                 Total Ventas
                               </tspan>

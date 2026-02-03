@@ -67,7 +67,7 @@ export function CookieConsent() {
             className="fixed bottom-0 left-0 right-0 z-50 p-4 sm:p-6"
           >
             <div className="container mx-auto max-w-6xl">
-              <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-slate-900/95 to-slate-800/95 backdrop-blur-xl border border-slate-700/50 shadow-2xl">
+              <div className="relative overflow-hidden rounded-2xl bg-linear-to-br from-slate-900/95 to-slate-800/95 backdrop-blur-xl border border-slate-700/50 shadow-2xl">
                 {/* Decorative Background */}
                 <div className="absolute inset-0 overflow-hidden pointer-events-none">
                   <div className="absolute -top-20 -right-20 w-64 h-64 bg-purple-500/10 rounded-full blur-3xl" />
@@ -79,7 +79,7 @@ export function CookieConsent() {
                   <div className="flex flex-col lg:flex-row items-start lg:items-center gap-6">
                     {/* Icon and Text */}
                     <div className="flex items-start gap-4 flex-1">
-                      <div className="flex-shrink-0 w-12 h-12 rounded-xl bg-gradient-to-br from-purple-500/20 to-fuchsia-500/20 border border-purple-500/30 flex items-center justify-center">
+                      <div className="flex-shrink-0 w-12 h-12 rounded-xl bg-linear-to-br from-purple-500/20 to-fuchsia-500/20 border border-purple-500/30 flex items-center justify-center">
                         <Cookie className="w-6 h-6 text-purple-400" />
                       </div>
                       
@@ -119,7 +119,7 @@ export function CookieConsent() {
                       
                       <button
                         onClick={acceptAll}
-                        className="px-5 py-2.5 rounded-xl bg-gradient-to-r from-purple-600 to-fuchsia-600 hover:from-purple-500 hover:to-fuchsia-500 text-white font-semibold transition-all duration-300 hover:scale-105 shadow-lg shadow-purple-500/25"
+                        className="px-5 py-2.5 rounded-xl bg-linear-to-r from-purple-600 to-fuchsia-600 hover:from-purple-500 hover:to-fuchsia-500 text-white font-semibold transition-all duration-300 hover:scale-105 shadow-lg shadow-purple-500/25"
                       >
                         Aceptar Todo
                       </button>
@@ -152,7 +152,7 @@ export function CookieConsent() {
                 animate={{ scale: 1, opacity: 1, y: 0 }}
                 exit={{ scale: 0.9, opacity: 0, y: 20 }}
                 transition={{ type: "spring", stiffness: 300, damping: 30 }}
-                className="relative w-full max-w-2xl max-h-[90vh] overflow-y-auto bg-gradient-to-br from-slate-900 to-slate-800 rounded-2xl border border-slate-700/50 shadow-2xl"
+                className="relative w-full max-w-2xl max-h-[90vh] overflow-y-auto bg-linear-to-br from-slate-900 to-slate-800 rounded-2xl border border-slate-700/50 shadow-2xl"
               >
                 {/* Decorative Background */}
                 <div className="absolute inset-0 overflow-hidden pointer-events-none rounded-2xl">
@@ -166,7 +166,7 @@ export function CookieConsent() {
                   <div className="sticky top-0 bg-slate-900/90 backdrop-blur-sm border-b border-slate-700/50 p-6 rounded-t-2xl">
                     <div className="flex items-center justify-between">
                       <div className="flex items-center gap-3">
-                        <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-purple-500/20 to-fuchsia-500/20 border border-purple-500/30 flex items-center justify-center">
+                        <div className="w-10 h-10 rounded-lg bg-linear-to-br from-purple-500/20 to-fuchsia-500/20 border border-purple-500/30 flex items-center justify-center">
                           <Settings className="w-5 h-5 text-purple-400" />
                         </div>
                         <h2 className="text-2xl font-bold text-white">
@@ -194,10 +194,10 @@ export function CookieConsent() {
                       return (
                         <div
                           key={type.id}
-                          className="group relative p-5 rounded-xl bg-gradient-to-br from-slate-800/80 to-slate-700/60 border border-slate-700/50 hover:border-purple-500/30 transition-all duration-300"
+                          className="group relative p-5 rounded-xl bg-linear-to-br from-slate-800/80 to-slate-700/60 border border-slate-700/50 hover:border-purple-500/30 transition-all duration-300"
                         >
                           <div className="flex items-start gap-4">
-                            <div className="flex-shrink-0 w-10 h-10 rounded-lg bg-gradient-to-br from-purple-500/20 to-fuchsia-500/20 border border-purple-500/30 flex items-center justify-center">
+                            <div className="flex-shrink-0 w-10 h-10 rounded-lg bg-linear-to-br from-purple-500/20 to-fuchsia-500/20 border border-purple-500/30 flex items-center justify-center">
                               <Icon className="w-5 h-5 text-purple-400" />
                             </div>
 
@@ -266,7 +266,7 @@ export function CookieConsent() {
                       </button>
                       <button
                         onClick={handleSaveCustom}
-                        className="px-6 py-2.5 rounded-xl bg-gradient-to-r from-purple-600 to-fuchsia-600 hover:from-purple-500 hover:to-fuchsia-500 text-white font-semibold transition-all duration-300 hover:scale-105 shadow-lg shadow-purple-500/25"
+                        className="px-6 py-2.5 rounded-xl bg-linear-to-r from-purple-600 to-fuchsia-600 hover:from-purple-500 hover:to-fuchsia-500 text-white font-semibold transition-all duration-300 hover:scale-105 shadow-lg shadow-purple-500/25"
                       >
                         Guardar Preferencias
                       </button>

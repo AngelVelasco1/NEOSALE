@@ -54,7 +54,7 @@ export default function ReviewDetailModal({
     <Dialog open={true} onOpenChange={onClose}>
       <DialogContent className="max-w-3xl border-slate-700/50 bg-slate-900 text-slate-100 shadow-2xl">
         <DialogHeader className="border-b border-slate-700/50 pb-4">
-          <DialogTitle className="text-2xl font-bold bg-gradient-to-r from-blue-400 to-indigo-400 bg-clip-text text-transparent">Detalle de Reseña</DialogTitle>
+          <DialogTitle className="text-2xl font-bold bg-linear-to-r from-blue-400 to-indigo-400 bg-clip-text text-transparent">Detalle de Reseña</DialogTitle>
         </DialogHeader>
 
         <div className="space-y-5 max-h-[70vh] overflow-y-auto pr-2">
@@ -69,7 +69,7 @@ export default function ReviewDetailModal({
                 className="rounded-full ring-2 ring-blue-500/30"
               />
             ) : (
-              <div className="flex h-15 w-15 items-center justify-center rounded-full bg-gradient-to-br from-blue-500 to-indigo-600 shadow-lg shadow-blue-500/20">
+              <div className="flex h-15 w-15 items-center justify-center rounded-full bg-linear-to-br from-blue-500 to-indigo-600 shadow-lg shadow-blue-500/20">
                 <User className="h-8 w-8 text-white" />
               </div>
             )}
