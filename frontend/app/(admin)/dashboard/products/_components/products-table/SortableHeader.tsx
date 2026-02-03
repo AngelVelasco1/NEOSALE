@@ -45,12 +45,12 @@ export function SortableHeader({ label, sortKey }: SortableHeaderProps) {
         <Button
             variant="ghost"
             onClick={handleSort}
-            className="h-8 px-2 hover:bg-slate-100 dark:hover:bg-slate-800"
+            className="h-8 px-2 :hover:bg-slate-800"
         >
             <span className="font-semibold">{label}</span>
             {!isActive && <ArrowUpDown className="ml-2 h-4 w-4 text-slate-400" />}
-            {isAsc && <ArrowUp className="ml-2 h-4 w-4 text-blue-600 dark:text-blue-400" />}
-            {isDesc && <ArrowDown className="ml-2 h-4 w-4 text-blue-600 dark:text-blue-400" />}
+            {isAsc && <ArrowUp className="ml-2 h-4 w-4 text-blue-400" />}
+            {isDesc && <ArrowDown className="ml-2 h-4 w-4 text-blue-400" />}
         </Button>
     );
 }

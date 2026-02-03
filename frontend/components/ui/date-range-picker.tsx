@@ -120,7 +120,7 @@ export function   DatePickerWithRange({
                         <div className="grid grid-cols-2 gap-4">
                             {/* From Date */}
                             <div className="space-y-2">
-                                <label className="text-xs font-medium text-slate-600 dark:text-slate-400 uppercase tracking-wide">
+                                <label className="text-xs font-medium text-slate-400 uppercase tracking-wide">
                                     Fecha Inicio
                                 </label>
                                 <Popover>
@@ -156,7 +156,7 @@ export function   DatePickerWithRange({
 
                             {/* To Date */}
                             <div className="space-y-2">
-                                <label className="text-xs font-medium text-slate-600 dark:text-slate-400 uppercase tracking-wide">
+                                <label className="text-xs font-medium text-slate-400 uppercase tracking-wide">
                                     Fecha Fin
                                 </label>
                                 <Popover>

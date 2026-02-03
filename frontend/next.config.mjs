@@ -1,7 +1,7 @@
 import { FRONT_CONFIG } from "./config/credentials.js";
 import path from "path";
 import { fileURLToPath } from "url";
-import { getSecurityHeaders } from "./lib/security.ts";
+import { getSecurityHeaders } from "./lib/security.js";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);

@@ -74,7 +74,7 @@ export const getColumns = ({
 
         return (
           <span
-            className="block max-w-32 text-wrap  text-sm text-slate-600 dark:text-slate-300"
+            className="block max-w-32 text-wrap  text-sm text-slate-300"
             title={description || "Sin descripción"}
           >
             {description || "—"}

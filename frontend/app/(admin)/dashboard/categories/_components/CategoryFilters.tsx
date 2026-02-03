@@ -157,12 +157,12 @@ export default function CategoryFilters() {
             </div>
           </div>
 
-          <div className="rounded-3xl border border-slate-200/70 bg-linear-to-br from-white via-slate-50 to-slate-100 p-4 shadow-sm dark:border-slate-900 dark:from-slate-950/50 dark:via-slate-900/40 dark:to-slate-950/30">
+          <div className="rounded-3xl border p-4 shadow-sm border-slate-900 from-slate-950/50 via-slate-900/40 to-slate-950/30">
             <div className="grid grid-cols-1 gap-6 md:grid-cols-[2fr_1fr]">
               <div className="space-y-2">
-                <Label className="flex items-center gap-2 text-sm font-semibold text-slate-900 dark:text-slate-100">
-                  <div className="rounded-xl bg-blue-100/70 p-1.5 dark:bg-blue-900/30">
-                    <Search className="h-3.5 w-3.5 text-blue-600 dark:text-blue-400" />
+                <Label className="flex items-center gap-2 text-sm font-semibold text-slate-100">
+                  <div className="rounded-xl bg-blue-900/30 p-1.5">
+                    <Search className="h-3.5 w-3.5 text-blue-400" />
                   </div>
                   Búsqueda avanzada
                 </Label>
@@ -178,7 +178,7 @@ export default function CategoryFilters() {
                   {searchValue && (
                     <button
                       onClick={() => handleSearchChange("")}
-                      className="absolute right-4 top-1/2 -translate-y-1/2 rounded-full bg-slate-100 p-1 text-slate-500 transition-all hover:bg-slate-200 hover:text-slate-700 dark:bg-slate-700 dark:text-slate-400 dark:hover:bg-slate-600 dark:hover:text-slate-100"
+                      className="absolute right-4 top-1/2 -translate-y-1/2 rounded-full bg-slate-700 p-1 text-slate-400 transition-all hover:bg-slate-600 hover:text-slate-100"
                     >
                       <X className="h-4 w-4" />
                     </button>
@@ -187,18 +187,18 @@ export default function CategoryFilters() {
               </div>
 
               <div className="space-y-2">
-                <Label className="flex items-center gap-2 text-sm font-semibold text-slate-900 dark:text-slate-100">
-                  <div className="rounded-xl bg-purple-100/70 p-1.5 dark:bg-purple-900/30">
-                    <ToggleLeft className="h-3.5 w-3.5 text-purple-600 dark:text-purple-400" />
+                <Label className="flex items-center gap-2 text-sm font-semibold text-slate-100">
+                  <div className="rounded-xl  p-1.5 bg-purple-900/30">
+                    <ToggleLeft className="h-3.5 w-3.5 text-purple-400" />
                   </div>
                   Estado
                 </Label>
                 <div className="relative">
-                  <ToggleLeft className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-purple-400 dark:text-purple-500" />
+                  <ToggleLeft className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-purple-500" />
                   <select
                     value={currentFilters.status}
                     onChange={(e) => handleStatusChange(e.target.value)}
-                    className="h-11 w-full appearance-none rounded-xl border border-slate-200/60 bg-white/80 pl-10 pr-10 text-sm font-medium text-slate-700 shadow-sm backdrop-blur-sm transition-all hover:border-purple-400/80 hover:bg-white/90 hover:shadow-md focus:border-purple-400 focus:bg-white/95 focus:outline-none focus:ring-2 focus:ring-purple-400/30 disabled:cursor-not-allowed disabled:opacity-50 dark:border-slate-700/60 dark:bg-slate-900/60 dark:text-slate-200 dark:hover:border-purple-500/60 dark:hover:bg-slate-900/70 dark:focus:border-purple-500 dark:focus:bg-slate-900/80"
+                    className="h-11 w-full appearance-none rounded-xl border border-slate-700/60 bg-slate-900/60 pl-10 pr-10 text-sm font-medium text-slate-200 shadow-sm backdrop-blur-sm transition-all hover:border-purple-500/60 hover:bg-slate-900/70 hover:shadow-md focus:border-purple-500 focus:bg-slate-900/80 focus:outline-none focus:ring-2 focus:ring-purple-500/30 disabled:cursor-not-allowed disabled:opacity-50"
                     style={{
                       backgroundImage: `url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%239ca3af' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3e%3c/svg%3e")`,
                       backgroundPosition: 'right 0.5rem center',
@@ -220,21 +220,21 @@ export default function CategoryFilters() {
        
 
           {hasActiveFilters && (
-            <div className="rounded-3xl border border-slate-200/80 bg-linear-to-r from-slate-50 via-white to-slate-100 p-5 shadow-sm dark:border-slate-900 dark:from-slate-900/70 dark:via-slate-900/40 dark:to-slate-900/20">
+            <div className="rounded-3xl border border-slate-900 bg-linear-to-r from-slate-900/70 via-slate-900/40 to-slate-900/20 p-5 shadow-sm">
               <div className="flex flex-wrap items-center gap-3">
-                <span className="flex items-center gap-2 rounded-2xl bg-slate-900 px-4 py-2 text-[10px] font-semibold uppercase tracking-[0.35em] text-white dark:bg-white/10">
+                <span className="flex items-center gap-2 rounded-2xl bg-white/10 px-4 py-2 text-[10px] font-semibold uppercase tracking-[0.35em] text-white">
                   <div className="h-2 w-2 animate-pulse rounded-full bg-purple-400" />
                   Filtros activos
                 </span>
                 {currentFilters.search && (
                   <Badge
                     variant="secondary"
-                    className={`${FILTER_ACTIVE_BADGE_CLASS} border-blue-200/70 text-blue-700 dark:border-blue-900/50 dark:text-blue-200`}
+                    className={`${FILTER_ACTIVE_BADGE_CLASS} border-blue-900/50 text-blue-200`}
                     onClick={() => handleSearchChange("")}
                   >
                     <Search className="h-3.5 w-3.5" />
                     <span className="font-medium">{currentFilters.search}</span>
-                    <div className="rounded-sm p-0.5 transition-colors group-hover:bg-blue-100/70 dark:group-hover:bg-blue-900/40">
+                    <div className="rounded-sm p-0.5 transition-colors group-hover:bg-blue-900/40">
                       <X className="h-3 w-3" />
                     </div>
                   </Badge>
@@ -242,12 +242,12 @@ export default function CategoryFilters() {
                 {currentFilters.status !== "all" && (
                   <Badge
                     variant="secondary"
-                    className={`${FILTER_ACTIVE_BADGE_CLASS} border-purple-200/70 text-purple-700 dark:border-purple-900/50 dark:text-purple-200`}
+                    className={`${FILTER_ACTIVE_BADGE_CLASS} border-purple-900/50 text-purple-200`}
                     onClick={() => handleStatusChange("all")}
                   >
                     <ToggleLeft className="h-3.5 w-3.5" />
                     <span className="font-medium">{currentFilters.status === "active" ? "Activas" : "Inactivas"}</span>
-                    <div className="rounded-sm p-0.5 transition-colors group-hover:bg-purple-100/70 dark:group-hover:bg-purple-900/40">
+                    <div className="rounded-sm p-0.5 transition-colors group-hover:bg-purple-900/40">
                       <X className="h-3 w-3" />
                     </div>
                   </Badge>

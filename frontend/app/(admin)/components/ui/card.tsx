@@ -9,12 +9,12 @@ const Card = React.forwardRef<
   <div
     ref={ref}
     className={cn(
-      "relative rounded-2xl backdrop-blur-lg bg-white/10 dark:bg-slate-900/20",
-      "border border-slate-300/50 dark:border-slate-600/40",
-      "shadow-xl shadow-slate-500/10 dark:shadow-slate-900/30",
+      "relative rounded-2xl backdrop-blur-lg bg-slate-900/20",
+      "border border-slate-600/40",
+      "shadow-xl shadow-slate-900/30",
       "text-card-foreground p-6 transition-all duration-300",
-      "hover:shadow-2xl hover:shadow-slate-500/20 dark:hover:shadow-slate-900/40",
-      "hover:bg-white/15 dark:hover:bg-slate-900/30",
+      "hover:shadow-2xl hover:shadow-slate-900/40",
+      "hover:bg-slate-900/30",
       "before:absolute before:inset-0 before:rounded-2xl",
       "before:bg-linear-to-br before:from-white/5 before:to-transparent",
       "before:pointer-events-none overflow-hidden",
@@ -33,7 +33,7 @@ const CardHeader = React.forwardRef<
     ref={ref}
     className={cn(
       "flex flex-col space-y-2 p-6 pb-4 relative z-10",
-      "border-b border-slate-200/30 dark:border-slate-600/30",
+      "border-b border-slate-600/30",
       className
     )}
     {...props}
@@ -49,8 +49,7 @@ const CardTitle = React.forwardRef<
     ref={ref}
     className={cn(
       "text-2xl font-bold leading-none tracking-tight",
-      "bg-linear-to-r from-slate-700 to-slate-900",
-      "dark:from-slate-200 dark:to-slate-400",
+      "bg-linear-to-r from-slate-200 to-slate-400",
       "bg-clip-text text-transparent",
       className
     )}
@@ -66,7 +65,7 @@ const CardDescription = React.forwardRef<
   <p
     ref={ref}
     className={cn(
-      "text-sm text-slate-600 dark:text-slate-300",
+      "text-sm text-slate-300",
       "font-medium opacity-90",
       className
     )}
@@ -95,7 +94,7 @@ const CardFooter = React.forwardRef<
     ref={ref}
     className={cn(
       "flex items-center p-6 pt-4 relative z-10",
-      "border-t border-slate-200/30 dark:border-slate-600/30",
+      "border-t border-slate-600/30",
       "backdrop-blur-sm",
       className
     )}

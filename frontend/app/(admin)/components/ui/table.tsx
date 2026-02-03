@@ -6,7 +6,7 @@ const Table = React.forwardRef<
   HTMLTableElement,
   React.HTMLAttributes<HTMLTableElement>
 >(({ className, ...props }, ref) => (
-  <div className="relative w-full overflow-hidden rounded-2xl backdrop-blur-lg bg-white/5 dark:bg-slate-900/10 border border-slate-300/40 dark:border-slate-600/30">
+  <div className="relative w-full overflow-hidden rounded-2xl backdrop-blur-lg bg-slate-900/10 border border-slate-600/30">
     <table
       ref={ref}
       className={cn("w-full caption-bottom text-sm font-medium", className)}
@@ -23,9 +23,8 @@ const TableHeader = React.forwardRef<
   <thead 
     ref={ref} 
     className={cn(
-      "[&_tr]:border-b [&_tr]:border-slate-200/50 dark:[&_tr]:border-slate-600/40",
-      "bg-linear-to-r from-slate-50/80 to-slate-100/80",
-      "dark:from-slate-800/50 dark:to-slate-700/50",
+      "[&_tr]:border-b [&_tr]:border-slate-600/40",
+      "bg-linear-to-r from-slate-800/50 to-slate-700/50",
       "backdrop-blur-sm",
       className
     )} 
@@ -57,9 +56,8 @@ const TableFooter = React.forwardRef<
   <tfoot
     ref={ref}
     className={cn(
-      "border-t border-slate-200/50 dark:border-slate-600/40",
-      "bg-linear-to-r from-slate-50/90 to-slate-100/90",
-      "dark:from-slate-800/60 dark:to-slate-700/60",
+      "border-t border-slate-600/40",
+      "bg-linear-to-r from-slate-800/60 to-slate-700/60",
       "backdrop-blur-sm font-semibold [&>tr]:last:border-b-0",
       className
     )}
@@ -75,11 +73,11 @@ const TableRow = React.forwardRef<
   <tr
     ref={ref}
     className={cn(
-      "border-b border-slate-200/40 dark:border-slate-600/30",
+      "border-b border-slate-600/30",
       "transition-all duration-200 ease-in-out",
-      "hover:bg-white/40 dark:hover:bg-slate-800/40",
+      "hover:bg-slate-800/40",
       "hover:shadow-sm hover:scale-[1.01]",
-      "data-[state=selected]:bg-slate-100/60 dark:data-[state=selected]:bg-slate-800/60",
+      "data-[state=selected]:bg-slate-800/60",
       "data-[state=selected]:shadow-md",
       className
     )}
@@ -96,9 +94,8 @@ const TableHead = React.forwardRef<
     ref={ref}
     className={cn(
       "h-14 px-6 text-left align-middle font-bold text-xs uppercase tracking-wider",
-      "text-slate-700 dark:text-slate-300",
-      "bg-linear-to-r from-slate-600 to-slate-800",
-      "dark:from-slate-200 dark:to-slate-400",
+      "text-slate-300",
+      "bg-linear-to-r from-slate-200 to-slate-400",
       "bg-clip-text text-transparent",
       "[&:has([role=checkbox])]:pr-0 relative",
       className
@@ -116,7 +113,7 @@ const TableCell = React.forwardRef<
     ref={ref}
     className={cn(
       "px-6 py-4 align-middle font-medium",
-      "text-slate-800 dark:text-slate-200",
+      "text-slate-200",
       "[&:has([role=checkbox])]:pr-0",
       "transition-colors duration-200",
       className
@@ -133,9 +130,8 @@ const TableCaption = React.forwardRef<
   <caption
     ref={ref}
     className={cn(
-      "mt-6 text-sm font-medium text-slate-600 dark:text-slate-400",
+      "mt-6 text-sm font-medium text-slate-400",
       "bg-linear-to-r from-slate-600 to-slate-700",
-      "dark:from-slate-300 dark:to-slate-400",
       "bg-clip-text text-transparent",
       className
     )}

@@ -85,7 +85,7 @@ export const getColumns = ({
       header: () => <div className="flex items-center justify-end gap-1"><DollarSign className="h-4 w-4" /><SortableHeader label="Total Gastado" sortKey="total_spent" /></div>,
       cell: ({ row }) => (
         <div className="text-right">
-          <Typography className="font-bold text-green-600 dark:text-green-400">
+          <Typography className="font-bold text-green-400">
             {formatAmount(row.original.total_spent)}
           </Typography>
         </div>
@@ -96,7 +96,7 @@ export const getColumns = ({
       header: () => <div className="flex items-center justify-end gap-1"><DollarSign className="h-4 w-4" /><SortableHeader label="Promedio" sortKey="average_spent" /></div>,
       cell: ({ row }) => (
         <div className="text-right">
-          <Typography className="font-bold text-green-600 dark:text-green-400">
+          <Typography className="font-bold text-green-400">
             {formatAmount(row.original.average_spent)}
           </Typography>
         </div>
@@ -131,7 +131,7 @@ export const getColumns = ({
                 size="icon"
                 asChild
                 variant="ghost"
-                className="text-foreground hover:text-blue-600 hover:bg-blue-50 dark:hover:bg-blue-950"
+                className="text-foreground hover:text-blue-600 hover:bg-blue-950"
               >
                 <Link href={`/dashboard/customer-orders/${row.original.id}`}>
                   <ZoomIn className="size-5" />
@@ -145,7 +145,7 @@ export const getColumns = ({
                   onClick={handleDemoDelete}
                   variant="ghost"
                   size="icon"
-                  className="text-foreground hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-950"
+                  className="text-foreground hover:text-red-600 hover:bg-red-950"
                 >
                   <Trash2 className="size-5" />
                 </Button>

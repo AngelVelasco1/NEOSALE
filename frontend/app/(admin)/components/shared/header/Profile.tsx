@@ -117,7 +117,7 @@ export default function Profile() {
         <div className="p-2">
           <DropdownMenuItem asChild>
             <Link
-              href="/store-settings"
+              href="/dashboard/store-settings"
               className="group flex items-center gap-3 py-3  mb-1 rounded-xl cursor-pointer transition-all duration-300 hover:bg-indigo-600/10 border border-transparent hover:border-indigo-500/30 focus:bg-indigo-600/10 focus:border-indigo-500/30"
             >
               <div className="flex items-center justify-center w-9 h-9 rounded-lg bg-slate-800/50 group-hover:bg-indigo-600/20 transition-all duration-300 group-hover:shadow-lg group-hover:shadow-indigo-500/20 shrink-0">

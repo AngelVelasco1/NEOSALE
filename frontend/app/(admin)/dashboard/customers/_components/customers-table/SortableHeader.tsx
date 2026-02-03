@@ -41,12 +41,12 @@ export function SortableHeader({ label, sortKey }: SortableHeaderProps) {
     return (
         <button
             onClick={handleSort}
-            className="flex items-center gap-2 hover:text-blue-600 dark:hover:text-blue-400 transition-colors font-semibold"
+            className="flex items-center gap-2 hover:text-blue-400 transition-colors font-semibold"
         >
             {label}
             {!isActive && <ArrowUpDown className="h-4 w-4 opacity-50" />}
-            {isAsc && <ArrowUp className="h-4 w-4 text-blue-600 dark:text-blue-400" />}
-            {isDesc && <ArrowDown className="h-4 w-4 text-blue-600 dark:text-blue-400" />}
+            {isAsc && <ArrowUp className="h-4 w-4 text-blue-400" />}
+            {isDesc && <ArrowDown className="h-4 w-4 text-blue-400" />}
         </button>
     );
 }

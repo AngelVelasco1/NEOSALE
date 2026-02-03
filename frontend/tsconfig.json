@@ -32,7 +32,7 @@
     "next-env.d.ts",
     "**/*.ts",
     "**/*.tsx",
-    ".next/types/**/*.ts", "app/api/auth/[...nextauth]/prisma.ts", "../backend/lib/prisma.ts", "config/credentials.js", 
+    ".next/types/**/*.ts", "app/api/auth/[...nextauth]/prisma.ts", "../backend/lib/prisma.ts", "config/credentials.js", "lib/security.js", 
   ],
     "exclude": [
       "node_modules"

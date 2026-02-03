@@ -23,7 +23,7 @@ export function generateNonce() {
  * Ajustada para el proyecto NEOSALE con seguridad optimizada
  */
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
-export function getCSPDirectives(nonce?: string) {
+export function getCSPDirectives(nonce) {
   const isDevelopment = process.env.NODE_ENV === "development";
 
   // Dominios permitidos
@@ -144,7 +144,7 @@ export function getCSPDirectives(nonce?: string) {
  * Security Headers completos según mejores prácticas
  * CSP ACTIVO en todos los entornos con políticas apropiadas
  */
-export function getSecurityHeaders(nonce?: string) {
+export function getSecurityHeaders(nonce) {
   const isDevelopment = process.env.NODE_ENV === "development";
 
   return [
@@ -210,12 +210,12 @@ export function getCSPStatus() {
   if (isDevelopment) {
     return {
       mode: "Enforced (Development Mode)",
-      message: "✅ CSP ACTIVO con políticas de desarrollo necesarias para Next.js",
+      message: "CSP ACTIVO con políticas de desarrollo necesarias para Next.js",
       details: {
         status: "Las advertencias en consola son NORMALES y NO son vulnerabilidades",
-        unsafeEval: "✅ Permitido - Requerido para Hot Module Replacement (HMR) y Turbopack",
-        unsafeInline: "✅ Permitido - Requerido para scripts inline de Next.js y Tailwind CSS",
-        security: "✅ CSP está protegiendo tu aplicación contra XSS y otros ataques",
+        unsafeEval: "Permitido - Requerido para Hot Module Replacement (HMR) y Turbopack",
+        unsafeInline: "Permitido - Requerido para scripts inline de Next.js y Tailwind CSS",
+        security: "CSP está protegiendo tu aplicación contra XSS y otros ataques",
         production: "En producción se aplicarán políticas estrictas sin unsafe-*",
         note: "Los navegadores reportan el USO de unsafe-*, no que CSP esté mal configurado"
       }

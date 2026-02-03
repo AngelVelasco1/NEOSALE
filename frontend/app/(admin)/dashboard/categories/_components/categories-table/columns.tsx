@@ -67,8 +67,8 @@ export const getColumns = ({
             }
           />
           <span className={`text-xs font-medium ${row.original.active
-            ? 'text-green-600 dark:text-green-400'
-            : 'text-red-600 dark:text-red-400'
+            ? 'text-green-400'
+            : 'text-red-400'
             }`}>
             {row.original.active ? 'Activa' : 'Inactiva'}
           </span>

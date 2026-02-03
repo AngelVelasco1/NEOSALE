@@ -19,8 +19,8 @@ export default function ReviewsStats({ stats }: ReviewsStatsProps) {
       value: stats.total,
       icon: MessageSquare,
       gradient: "from-blue-500/30 via-indigo-500/30 to-blue-500/30",
-      cardBg: "bg-linear-to-br from-blue-50 via-indigo-50 to-blue-50 dark:from-blue-950/40 dark:via-indigo-950/40 dark:to-blue-950/40",
-      borderColor: "border-blue-200/60 dark:border-blue-800/60",
+      cardBg: "bg-linear-to-br from-blue-950/40 via-indigo-950/40 to-blue-950/40",
+      borderColor: "border-blue-800/60",
       iconBg: "bg-linear-to-br from-blue-500 to-indigo-600",
       iconColor: "text-white",
       glowColor: "bg-blue-400/40",
@@ -32,8 +32,8 @@ export default function ReviewsStats({ stats }: ReviewsStatsProps) {
       value: stats.pending,
       icon: Clock,
       gradient: "from-amber-500/30 via-orange-500/30 to-amber-500/30",
-      cardBg: "bg-linear-to-br from-amber-50 via-orange-50 to-amber-50 dark:from-amber-950/40 dark:via-orange-950/40 dark:to-amber-950/40",
-      borderColor: "border-amber-200/60 dark:border-amber-800/60",
+      cardBg: "bg-linear-to-br from-amber-950/40 via-orange-950/40 to-amber-950/40",
+      borderColor: "border-amber-800/60",
       iconBg: "bg-linear-to-br from-amber-500 to-orange-600",
       iconColor: "text-white",
       glowColor: "bg-amber-400/40",
@@ -45,8 +45,8 @@ export default function ReviewsStats({ stats }: ReviewsStatsProps) {
       value: stats.approved,
       icon: CheckCircle,
       gradient: "from-emerald-500/30 via-teal-500/30 to-emerald-500/30",
-      cardBg: "bg-linear-to-br from-emerald-50 via-teal-50 to-emerald-50 dark:from-emerald-950/40 dark:via-teal-950/40 dark:to-emerald-950/40",
-      borderColor: "border-emerald-200/60 dark:border-emerald-800/60",
+      cardBg: "bg-linear-to-br from-emerald-950/40 via-teal-950/40 to-emerald-950/40",
+      borderColor: "border-emerald-800/60",
       iconBg: "bg-linear-to-br from-emerald-500 to-teal-600",
       iconColor: "text-white",
       glowColor: "bg-emerald-400/40",
@@ -58,8 +58,8 @@ export default function ReviewsStats({ stats }: ReviewsStatsProps) {
       value: stats.averageRating.toFixed(1),
       icon: Star,
       gradient: "from-purple-500/30 via-violet-500/30 to-purple-500/30",
-      cardBg: "bg-linear-to-br from-purple-50 via-violet-50 to-purple-50 dark:from-purple-950/40 dark:via-violet-950/40 dark:to-purple-950/40",
-      borderColor: "border-purple-200/60 dark:border-purple-800/60",
+      cardBg: "bg-linear-to-br from-purple-950/40 via-violet-950/40 to-purple-950/40",
+      borderColor: "border-purple-800/60",
       iconBg: "bg-linear-to-br from-purple-500 to-violet-600",
       iconColor: "text-white",
       glowColor: "bg-purple-400/40",
@@ -93,10 +93,10 @@ export default function ReviewsStats({ stats }: ReviewsStatsProps) {
               {/* Header */}
               <div className="flex items-start justify-between">
                 <div className="space-y-1">
-                  <p className="text-[10px] font-semibold uppercase tracking-[0.35em] text-slate-600 dark:text-slate-300">
+                  <p className="text-[10px] font-semibold uppercase tracking-[0.35em] text-slate-300">
                     {stat.title}
                   </p>
-                  <p className="text-xs font-medium text-slate-500 dark:text-slate-400">
+                  <p className="text-xs font-medium text-slate-400">
                     {stat.description}
                   </p>
                 </div>
@@ -108,13 +108,13 @@ export default function ReviewsStats({ stats }: ReviewsStatsProps) {
               {/* Value */}
               <div className="space-y-2">
                 <div className="flex items-baseline gap-3">
-                  <span className="text-4xl font-bold tracking-tight text-slate-900 dark:text-slate-100">
+                  <span className="text-4xl font-bold tracking-tight text-slate-100">
                     {stat.value}
                   </span>
                   {stat.title === "Rating Promedio" && (
                     <div className="flex items-center gap-1">
-                      <TrendingUp className="h-4 w-4 text-purple-500 dark:text-purple-400" />
-                      <span className="text-sm font-medium text-slate-600 dark:text-slate-400">
+                      <TrendingUp className="h-4 w-4 text-purple-400" />
+                      <span className="text-sm font-medium text-slate-400">
                         de 5.0
                       </span>
                     </div>
@@ -130,7 +130,7 @@ export default function ReviewsStats({ stats }: ReviewsStatsProps) {
                         className={`h-4 w-4 transition-all duration-300 ${
                           i < Math.floor(stats.averageRating)
                             ? "fill-amber-400 text-amber-400 scale-100"
-                            : "text-slate-300 dark:text-slate-700 scale-90"
+                            : "text-slate-700 scale-90"
                         }`}
                       />
                     ))}
@@ -140,7 +140,7 @@ export default function ReviewsStats({ stats }: ReviewsStatsProps) {
                 {/* Progress bar for percentage */}
                 {stat.title !== "Rating Promedio" && stats.total > 0 && (
                   <div className="space-y-1.5">
-                    <div className="h-1.5 w-full overflow-hidden rounded-full bg-slate-200 dark:bg-slate-800">
+                    <div className="h-1.5 w-full overflow-hidden rounded-full bg-slate-800">
                       <div
                         className={`h-full rounded-full bg-linear-to-r ${stat.gradient.replace('/20', '')} transition-all duration-500`}
                         style={{
@@ -148,7 +148,7 @@ export default function ReviewsStats({ stats }: ReviewsStatsProps) {
                         }}
                       />
                     </div>
-                    <p className="text-xs font-medium text-slate-500 dark:text-slate-400">
+                    <p className="text-xs font-medium text-slate-400">
                       {(((stat.value as number) / stats.total) * 100).toFixed(1)}% del total
                     </p>
                   </div>

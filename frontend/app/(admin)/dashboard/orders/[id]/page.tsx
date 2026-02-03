@@ -6,7 +6,6 @@ import { formatDate } from "@/lib/date-utils";
 import PageTitle from "@/app/(admin)/components/shared/PageTitle";
 import Typography from "@/app/(admin)/components/ui/typography";
 import { Card } from "@/app/(admin)/components/ui/card";
-import { Separator } from "@/app/(admin)/components/ui/separator";
 import {
   Table,
   TableBody,
@@ -38,7 +37,7 @@ export async function generateMetadata({
     const { id } = await params;
     const { order } = await fetchOrderDetails({ id });
 
-    return { title: `Pedido #${order.invoice_no} - NEO$ALE` };
+    return { title: `Pedido #${order.id} - NEO$ALE` };
   } catch {
     return { title: "Pedido no encontrado - NEO$ALE" };
   }
@@ -191,13 +190,13 @@ export default async function Order({ params }: PageParams) {
                 <Typography
                   variant="p"
                   component="h4"
-                  className="font-bold uppercase text-xs tracking-wide bg-gradient-to-r from-blue-700 to-slate-600 dark:from-blue-300 dark:to-slate-300 bg-clip-text text-transparent mb-3 print:text-black"
+                  className="font-bold uppercase text-xs tracking-wide bg-gradient-to-r from-blue-300 to-slate-300 bg-clip-text text-transparent mb-3 print:text-black"
                 >
                   fecha emisión
                 </Typography>
 
-                <Typography className="text-lg font-semibold text-gray-900 dark:text-gray-100 leading-relaxed">
-                  {formatDate.long(order.order_time)}
+                <Typography className="text-lg font-semibold text-gray-100 leading-relaxed">
+                  {formatDate.long(order.created_at)}
                 </Typography>
               </div>
             </div>
@@ -208,13 +207,13 @@ export default async function Order({ params }: PageParams) {
                 <Typography
                   variant="p"
                   component="h4"
-                  className="font-bold uppercase text-xs tracking-wide bg-gradient-to-r from-blue-700 to-slate-600 dark:from-blue-300 dark:to-slate-300 bg-clip-text text-transparent mb-3 print:text-black"
+                  className="font-bold uppercase text-xs tracking-wide bg-gradient-to-r from-blue-300 to-slate-300 bg-clip-text text-transparent mb-3 print:text-black"
                 >
                   número factura
                 </Typography>
 
-                <Typography className="text-lg font-semibold text-gray-900 dark:text-gray-100 leading-relaxed">
-                  #{order.invoice_no}
+                <Typography className="text-lg font-semibold text-gray-100 leading-relaxed">
+                  #{order.id}
                 </Typography>
               </div>
             </div>
@@ -225,26 +224,26 @@ export default async function Order({ params }: PageParams) {
                 <Typography
                   variant="p"
                   component="h4"
-                  className="font-bold uppercase text-xs tracking-wide bg-gradient-to-r from-blue-700 to-slate-600 dark:from-blue-300 dark:to-slate-300 bg-clip-text text-transparent mb-3 print:text-black"
+                  className="font-bold uppercase text-xs tracking-wide bg-gradient-to-r from-blue-300 to-slate-300 bg-clip-text text-transparent mb-3 print:text-black"
                 >
                   cliente facturación
                 </Typography>
 
                 <div className="space-y-2">
                   <Typography component="p" className="text-lg font-semibold text-gray-100">
-                    {order.customers.name}
+                    {order.User.name}
                   </Typography>
                   <Typography component="p" className="text-sm text-gray-400 font-medium break-words">
-                    {order.customers.email}
+                    {order.User.email}
                   </Typography>
-                  {order.customers.phone && (
+                  {order.User.phoneNumber && (
                     <Typography component="p" className="text-sm text-gray-400 font-medium">
-                      {order.customers.phone}
+                      {order.User.phoneNumber}
                     </Typography>
                   )}
-                  {order.customers.address && (
+                  {order.addresses.street && (
                     <Typography component="p" className="text-sm text-gray-400 font-medium max-w-full">
-                      {order.customers.address}
+                      {order.addresses.street}, {order.addresses.city}, {order.addresses.zip_code}
                     </Typography>
                   )}
                 </div>
@@ -290,10 +289,10 @@ export default async function Order({ params }: PageParams) {
                       {orderItem.quantity}
                     </TableCell>
                     <TableCell className="font-semibold py-4 text-center text-slate-custom print:font-normal print:text-black">
-                      ${orderItem.unit_price.toFixed(2)}
+                      ${orderItem.price.toFixed(2)}
                     </TableCell>
                     <TableCell className="font-bold py-4 text-gradient-primary text-right print:text-black">
-                      ${(orderItem.quantity * orderItem.unit_price).toFixed(2)}
+                      ${(orderItem.quantity * orderItem.price).toFixed(2)}
                     </TableCell>
                   </TableRow>
                 ))}
@@ -302,12 +301,12 @@ export default async function Order({ params }: PageParams) {
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-8 print:flex-row print:justify-between print:mb-0 print:p-0 print:px-2 print:bg-white">
-            <div className="relative glass-summary-card p-5 transition-all duration-300 hover:shadow-lg border border-blue-200/50 dark:border-blue-700/50 rounded-lg overflow-hidden">
+            <div className="relative glass-summary-card p-5 transition-all duration-300 hover:shadow-lg border border-blue-700/50 rounded-lg overflow-hidden">
               <div className="absolute inset-0 bg-gradient-to-br from-blue-950/40 via-blue-900/20 to-transparent"></div>
               <div className="relative z-10">
                 <Typography
                   component="h4"
-                  className="font-semibold text-xs uppercase tracking-wide bg-gradient-to-r from-blue-700 to-slate-600 dark:from-blue-300 dark:to-slate-300 bg-clip-text text-transparent mb-3 print:text-black"
+                  className="font-semibold text-xs uppercase tracking-wide bg-gradient-to-r from-blue-300 to-slate-300 bg-clip-text text-transparent mb-3 print:text-black"
                 >
                   método de pago
                 </Typography>
@@ -318,35 +317,35 @@ export default async function Order({ params }: PageParams) {
               </div>
             </div>
 
-            <div className="relative glass-summary-card p-5 transition-all duration-300 hover:shadow-lg border border-blue-200/50 dark:border-blue-700/50 rounded-lg overflow-hidden">
+            <div className="relative glass-summary-card p-5 transition-all duration-300 hover:shadow-lg border border-blue-700/50 rounded-lg overflow-hidden">
               <div className="absolute inset-0 bg-gradient-to-br from-slate-950/30 via-blue-950/20 to-transparent"></div>
               <div className="relative z-10">
                 <Typography
                   component="h4"
-                  className="font-semibold text-xs uppercase tracking-wide bg-gradient-to-r from-blue-700 to-slate-600 dark:from-blue-300 dark:to-slate-300 bg-clip-text text-transparent mb-3 print:text-black"
+                  className="font-semibold text-xs uppercase tracking-wide bg-gradient-to-r from-blue-300 to-slate-300 bg-clip-text text-transparent mb-3 print:text-black"
                 >
                   coste envío
                 </Typography>
 
-                <Typography className="text-lg font-bold text-gray-900 dark:text-gray-100 print:text-black">
+                <Typography className="text-lg font-bold text-gray-100 print:text-black">
                   ${order.shipping_cost.toFixed(2)}
                 </Typography>
               </div>
             </div>
 
-            <div className="relative glass-summary-card p-5 transition-all duration-300 hover:shadow-lg border border-green-200/60 dark:border-green-700/50 rounded-lg overflow-hidden">
-              <div className="absolute inset-0 bg-gradient-to-br from-green-50/60 via-emerald-50/30 to-transparent dark:from-green-950/40 dark:via-emerald-950/20 dark:to-transparent"></div>
+            <div className="relative glass-summary-card p-5 transition-all duration-300 hover:shadow-lg border border-green-700/50 rounded-lg overflow-hidden">
+              <div className="absolute inset-0 bg-gradient-to-br from-green-950/40 via-emerald-950/20 to-transparent"></div>
               <div className="relative z-10">
                 <Typography
                   component="h4"
-                  className="font-semibold text-xs uppercase tracking-wide bg-gradient-to-r from-green-700 to-emerald-600 dark:from-green-300 dark:to-emerald-300 bg-clip-text text-transparent mb-3 print:text-black"
+                  className="font-semibold text-xs uppercase tracking-wide bg-gradient-to-r from-green-300 to-emerald-300 bg-clip-text text-transparent mb-3 print:text-black"
                 >
                   descuento
                 </Typography>
 
-                <Typography className="text-lg font-bold text-green-600 dark:text-green-400 print:text-black">
+                <Typography className="text-lg font-bold text-green-400 print:text-black">
                   ${getDiscount({
-                    totalAmount: order.total_amount,
+                    totalAmount: order.total,
                     shippingCost: order.shipping_cost,
                     coupon: order.coupons,
                   })}
@@ -355,22 +354,22 @@ export default async function Order({ params }: PageParams) {
             </div>
 
             <div className="sm:col-span-2 lg:col-span-1">
-              <div className="relative glass-total-card p-6 transition-all duration-300 hover:shadow-xl border-2 border-blue-300/70 dark:border-blue-600/70 rounded-xl overflow-hidden">
-                <div className="absolute inset-0 bg-gradient-to-br from-blue-100/80 via-blue-50/50 to-slate-100/40 dark:from-blue-900/60 dark:via-blue-950/40 dark:to-slate-900/30"></div>
-                <div className="absolute top-0 right-0 w-24 h-24 bg-gradient-to-br from-blue-200/40 to-transparent dark:from-blue-700/30 dark:to-transparent rounded-bl-full"></div>
+              <div className="relative glass-total-card p-6 transition-all duration-300 hover:shadow-xl border-2 border-blue-600/70 rounded-xl overflow-hidden">
+                <div className="absolute inset-0 bg-gradient-to-br from-blue-900/60 via-blue-950/40 to-slate-900/30"></div>
+                <div className="absolute top-0 right-0 w-24 h-24 bg-gradient-to-br from-blue-700/30 to-transparent rounded-bl-full"></div>
                 <div className="relative z-10">
                   <Typography
                     component="h4"
-                    className="font-bold text-sm uppercase tracking-wide bg-gradient-to-r from-blue-800 to-blue-600 dark:from-blue-200 dark:to-blue-400 bg-clip-text text-transparent mb-2 print:text-black"
+                    className="font-bold text-sm uppercase tracking-wide bg-gradient-to-r from-blue-200 to-blue-400 bg-clip-text text-transparent mb-2 print:text-black"
                   >
                     total final
                   </Typography>
 
-                  <Typography className="text-3xl font-black text-blue-900 dark:text-blue-100 print:text-black mb-2">
-                    ${order.total_amount.toFixed(2)}
+                  <Typography className="text-3xl font-black text-blue-100 print:text-black mb-2">
+                    ${order.total.toFixed(2)}
                   </Typography>
                   
-                  <div className="text-xs text-blue-700 dark:text-blue-300 font-medium uppercase tracking-wide">
+                  <div className="text-xs text-blue-300 font-medium uppercase tracking-wide">
                     Impuestos incluidos
                   </div>
                 </div>

@@ -352,15 +352,15 @@ export default function OrderFilters() {
         </div>
 
         <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
-          <div className="relative overflow-hidden rounded-3xl border border-slate-200/80 bg-white/92 p-5 shadow-sm dark:border-slate-800 dark:bg-slate-900/70">
-            <div className="pointer-events-none absolute -right-10 top-6 h-24 w-24 rounded-full bg-purple-200/50 blur-3xl dark:bg-purple-500/30" aria-hidden="true" />
+          <div className="relative overflow-hidden rounded-3xl border border-slate-800 bg-slate-900/70 p-5 shadow-sm">
+            <div className="pointer-events-none absolute -right-10 top-6 h-24 w-24 rounded-full bg-purple-500/30 blur-3xl" aria-hidden="true" />
             <div className="relative space-y-4">
               <div className="flex items-start justify-between">
                 <div>
-                  <p className="text-[10px] font-semibold uppercase tracking-[0.35em] text-slate-500 dark:text-slate-400">Estados</p>
-                  <p className="mt-1 text-sm text-slate-600 dark:text-slate-300">Prioriza la etapa de fulfillment que necesita atención.</p>
+                  <p className="text-[10px] font-semibold uppercase tracking-[0.35em] text-slate-400">Estados</p>
+                  <p className="mt-1 text-sm text-slate-300">Prioriza la etapa de fulfillment que necesita atención.</p>
                 </div>
-                <span className="rounded-2xl bg-purple-100/80 p-2 text-purple-600 dark:bg-purple-900/40 dark:text-purple-200">
+                <span className="rounded-2xl bg-purple-900/40 p-2 text-purple-200">
                   <Tag className="h-4 w-4" />
                 </span>
               </div>
@@ -380,15 +380,15 @@ export default function OrderFilters() {
             </div>
           </div>
 
-          <div className="relative overflow-hidden rounded-3xl border border-slate-200/80 bg-white/92 p-5 shadow-sm dark:border-slate-800 dark:bg-slate-900/70">
-            <div className="pointer-events-none absolute -left-6 bottom-0 h-24 w-24 rounded-full bg-emerald-200/50 blur-3xl dark:bg-emerald-400/30" aria-hidden="true" />
+          <div className="relative overflow-hidden rounded-3xl border border-slate-800 bg-slate-900/70 p-5 shadow-sm">
+            <div className="pointer-events-none absolute -left-6 bottom-0 h-24 w-24 rounded-full bg-emerald-400/30 blur-3xl" aria-hidden="true" />
             <div className="relative space-y-4">
               <div className="flex items-start justify-between">
                 <div>
-                  <p className="text-[10px] font-semibold uppercase tracking-[0.35em] text-slate-500 dark:text-slate-400">Métodos</p>
-                  <p className="mt-1 text-sm text-slate-600 dark:text-slate-300">Detecta tendencias de pago y ajusta tus campañas.</p>
+                  <p className="text-[10px] font-semibold uppercase tracking-[0.35em] text-slate-400">Métodos</p>
+                  <p className="mt-1 text-sm text-slate-300">Detecta tendencias de pago y ajusta tus campañas.</p>
                 </div>
-                <span className="rounded-2xl bg-emerald-100/80 p-2 text-emerald-600 dark:bg-emerald-900/40 dark:text-emerald-200">
+                <span className="rounded-2xl bg-emerald-900/40 p-2 text-emerald-200">
                   <TrendingUp className="h-4 w-4" />
                 </span>
               </div>
@@ -408,22 +408,22 @@ export default function OrderFilters() {
             </div>
           </div>
 
-          <div className="relative overflow-hidden rounded-3xl border border-slate-200/80 bg-white/92 p-5 shadow-sm dark:border-slate-800 dark:bg-slate-900/70">
-            <div className="pointer-events-none absolute right-0 top-0 h-16 w-16 rounded-full bg-amber-200/60 blur-2xl dark:bg-amber-400/30" aria-hidden="true" />
+          <div className="relative overflow-hidden rounded-3xl border border-slate-800 bg-slate-900/70 p-5 shadow-sm">
+            <div className="pointer-events-none absolute right-0 top-0 h-16 w-16 rounded-full bg-amber-400/30 blur-2xl" aria-hidden="true" />
           <div className="space-y-5">
-              <div className="rounded-2xl  shadow-sm dark:border-slate-800 dark:bg-slate-900/60">
+              <div className="rounded-2xl  shadow-sm bg-slate-900/60">
                 <div className="flex items-start justify-between">
                   <div>
                     <p className={FILTER_LABEL_CLASS}>Ticket objetivo</p>
-                    <p className="mt-1 text-sm text-slate-600 dark:text-slate-300">Define el rango económico ideal para tu análisis.</p>
+                    <p className="mt-1 text-sm text-slate-300">Define el rango económico ideal para tu análisis.</p>
                   </div>
-                  <span className="rounded-2xl bg-emerald-100/80 p-2 text-emerald-600 dark:bg-emerald-900/40 dark:text-emerald-200">
+                  <span className="rounded-2xl bg-emerald-900/40 p-2 text-emerald-200">
                     <DollarSign className="h-4 w-4" />
                   </span>
                 </div>
                 <div className="mt-4 grid gap-3 sm:grid-cols-2">
                   <div className="space-y-2.5">
-                    <Label className="text-sm font-semibold text-slate-900 dark:text-slate-100">Monto mínimo $</Label>
+                    <Label className="text-sm font-semibold text-slate-100">Monto mínimo $</Label>
                     <Input
                       type="number"
                       placeholder="0"
@@ -434,7 +434,7 @@ export default function OrderFilters() {
                     />
                   </div>
                   <div className="space-y-2.5">
-                    <Label className="text-sm font-semibold text-slate-900 dark:text-slate-100">Monto máximo $</Label>
+                    <Label className="text-sm font-semibold text-slate-100">Monto máximo $</Label>
                     <Input
                       type="number"
                       placeholder="1000000"
@@ -452,12 +452,12 @@ export default function OrderFilters() {
           </div>
         </div>
 
-        <div className="rounded-3xl border border-slate-200/70 bg-linear-to-br from-white via-slate-50 to-slate-100 p-5 shadow-sm dark:border-slate-900 dark:from-slate-950/50 dark:via-slate-900/40 dark:to-slate-950/30">
+        <div className="rounded-3xl border border-slate-900 bg-linear-to-br from-slate-950/50 via-slate-900/40 to-slate-950/30 p-5 shadow-sm">
           <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
             <div className="flex flex-1 flex-col gap-2">
-              <Label className="flex items-center gap-2 text-sm font-semibold text-slate-900 dark:text-slate-100">
-                <div className="rounded-xl bg-blue-100/70 p-1.5 dark:bg-blue-900/30">
-                  <Search className="h-3.5 w-3.5 text-blue-600 dark:text-blue-400" />
+              <Label className="flex items-center gap-2 text-sm font-semibold text-slate-100">
+                <div className="rounded-xl bg-blue-900/30 p-1.5">
+                  <Search className="h-3.5 w-3.5 text-blue-400" />
                 </div>
                 Búsqueda avanzada
               </Label>
@@ -473,7 +473,7 @@ export default function OrderFilters() {
                 {searchValue && (
                   <button
                     onClick={() => handleSearchChange("")}
-                    className="absolute right-4 top-1/2 -translate-y-1/2 rounded-full bg-slate-100 p-1 text-slate-500 transition-all hover:bg-slate-200 hover:text-slate-700 dark:bg-slate-700 dark:text-slate-400 dark:hover:bg-slate-600 dark:hover:text-slate-100"
+                    className="absolute right-4 top-1/2 -translate-y-1/2 rounded-full bg-slate-700 p-1 text-slate-400 transition-all hover:bg-slate-600 hover:text-slate-100"
                   >
                     <X className="h-4 w-4" />
                   </button>
@@ -481,11 +481,11 @@ export default function OrderFilters() {
               </div>
             </div>
 
-            <div className="flex flex-1 flex-col gap-3 rounded-2xl  bg-white/90 p-4  dark:border-slate-800 dark:bg-slate-900/60 md:flex-row md:items-end md:gap-4">
+            <div className="flex flex-1 flex-col gap-3 rounded-2xl  bg-slate-900/60 p-4  md:flex-row md:items-end md:gap-4">
               <div className="space-y-2 flex-1">
-                <Label className="flex items-center gap-2 text-sm font-semibold text-slate-900 dark:text-slate-100">
-                  <div className="rounded-xl bg-orange-100/70 p-1.5 dark:bg-orange-900/30">
-                    <Calendar className="h-3.5 w-3.5 text-orange-600 dark:text-orange-400" />
+                <Label className="flex items-center gap-2 text-sm font-semibold text-slate-100">
+                  <div className="rounded-xl bg-orange-900/30 p-1.5">
+                    <Calendar className="h-3.5 w-3.5 text-orange-400" />
                   </div>
                   Inicio
                 </Label>
@@ -493,9 +493,9 @@ export default function OrderFilters() {
               </div>
 
               <div className="space-y-2 flex-1">
-                <Label className="flex items-center gap-2 text-sm font-semibold text-slate-900 dark:text-slate-100">
-                  <div className="rounded-xl bg-orange-100/70 p-1.5 dark:bg-orange-900/30">
-                    <Calendar className="h-3.5 w-3.5 text-orange-600 dark:text-orange-400" />
+                <Label className="flex items-center gap-2 text-sm font-semibold text-slate-100">
+                  <div className="rounded-xl bg-orange-900/30 p-1.5">
+                    <Calendar className="h-3.5 w-3.5 text-orange-400" />
                   </div>
                   Fin
                 </Label>
@@ -506,21 +506,21 @@ export default function OrderFilters() {
         </div>
 
         {hasActiveFilters && (
-          <div className="rounded-3xl border border-slate-200/80 bg-linear-to-r from-slate-50 via-white to-slate-100 p-5 shadow-sm dark:border-slate-900 dark:from-slate-900/70 dark:via-slate-900/40 dark:to-slate-900/20">
+          <div className="rounded-3xl border border-slate-900 bg-linear-to-r from-slate-900/70 via-slate-900/40 to-slate-900/20 p-5 shadow-sm">
             <div className="flex flex-wrap items-center gap-3">
-              <span className="flex items-center gap-2 rounded-2xl bg-slate-900 px-4 py-2 text-[10px] font-semibold uppercase tracking-[0.35em] text-white dark:bg-white/10">
+              <span className="flex items-center gap-2 rounded-2xl bg-white/10 px-4 py-2 text-[10px] font-semibold uppercase tracking-[0.35em] text-white">
                 <div className="h-2 w-2 animate-pulse rounded-full bg-emerald-400" />
                 Filtros activos
               </span>
               {currentFilters.search && (
                 <Badge
                   variant="secondary"
-                  className={`${FILTER_ACTIVE_BADGE_CLASS} border-blue-200/70 text-blue-700 dark:border-blue-900/50 dark:text-blue-200`}
+                  className={`${FILTER_ACTIVE_BADGE_CLASS} border-blue-900/50 text-blue-200`}
                   onClick={() => handleSearchChange("")}
                 >
                   <Search className="h-3.5 w-3.5" />
                   <span className="font-medium">{currentFilters.search}</span>
-                  <div className="rounded-sm bg-transparent p-0.5 transition-colors group-hover:bg-blue-100/70 dark:group-hover:bg-blue-900/40">
+                  <div className="rounded-sm bg-transparent p-0.5 transition-colors group-hover:bg-blue-900/40">
                     <X className="h-3 w-3" />
                   </div>
                 </Badge>
@@ -528,12 +528,12 @@ export default function OrderFilters() {
               {currentFilters.status !== "all" && (
                 <Badge
                   variant="secondary"
-                  className={`${FILTER_ACTIVE_BADGE_CLASS} border-purple-200/70 text-purple-700 dark:border-purple-900/50 dark:text-purple-200`}
+                  className={`${FILTER_ACTIVE_BADGE_CLASS} border-purple-900/50 text-purple-200`}
                   onClick={() => handleStatusChange("all")}
                 >
                   <Tag className="h-3.5 w-3.5" />
                   <span className="font-medium">{STATUS_LABELS[currentFilters.status] || currentFilters.status}</span>
-                  <div className="rounded-sm bg-transparent p-0.5 transition-colors group-hover:bg-purple-100/70 dark:group-hover:bg-purple-900/40">
+                  <div className="rounded-sm bg-transparent p-0.5 transition-colors group-hover:bg-purple-900/40">
                     <X className="h-3 w-3" />
                   </div>
                 </Badge>
@@ -541,12 +541,12 @@ export default function OrderFilters() {
               {currentFilters.method !== "all" && (
                 <Badge
                   variant="secondary"
-                  className={`${FILTER_ACTIVE_BADGE_CLASS} border-green-200/70 text-green-700 dark:border-green-900/50 dark:text-green-200`}
+                  className={`${FILTER_ACTIVE_BADGE_CLASS} border-green-900/50 text-green-200`}
                   onClick={() => handleMethodChange("all")}
                 >
                   <TrendingUp className="h-3.5 w-3.5" />
                   <span className="font-medium">{METHOD_LABELS[currentFilters.method] || currentFilters.method}</span>
-                  <div className="rounded-sm bg-transparent p-0.5 transition-colors group-hover:bg-green-100/70 dark:group-hover:bg-green-900/40">
+                  <div className="rounded-sm bg-transparent p-0.5 transition-colors group-hover:bg-green-900/40">
                     <X className="h-3 w-3" />
                   </div>
                 </Badge>
@@ -554,7 +554,7 @@ export default function OrderFilters() {
               {(currentFilters.startDate || currentFilters.endDate) && (
                 <Badge
                   variant="secondary"
-                  className={`${FILTER_ACTIVE_BADGE_CLASS} border-orange-200/70 text-orange-700 dark:border-orange-900/50 dark:text-orange-100`}
+                  className={`${FILTER_ACTIVE_BADGE_CLASS} border-orange-900/50 text-orange-100`}
                   onClick={() => {
                     handleSetStartDate("");
                     handleSetEndDate("");
@@ -562,7 +562,7 @@ export default function OrderFilters() {
                 >
                   <Calendar className="h-3.5 w-3.5" />
                   <span className="font-medium">Rango de Fechas</span>
-                  <div className="ml-1 rounded-sm p-0.5 transition-colors group-hover:bg-orange-100/80 dark:group-hover:bg-orange-900/40">
+                  <div className="ml-1 rounded-sm p-0.5 transition-colors group-hover:bg-orange-900/40">
                     <X className="h-3 w-3" />
                   </div>
                 </Badge>
@@ -570,12 +570,12 @@ export default function OrderFilters() {
               {currentFilters.minAmount && (
                 <Badge
                   variant="secondary"
-                  className={`${FILTER_ACTIVE_BADGE_CLASS} border-green-200/70 text-green-700 dark:border-green-900/50 dark:text-green-200`}
+                  className={`${FILTER_ACTIVE_BADGE_CLASS} border-green-900/50 text-green-200`}
                   onClick={() => handleMinAmountChange("")}
                 >
                   <DollarSign className="h-3.5 w-3.5" />
                   <span className="font-medium">Min: {formatCurrency(currentFilters.minAmount)}</span>
-                  <div className="ml-1 rounded-sm p-0.5 transition-colors group-hover:bg-green-100/80 dark:group-hover:bg-green-900/40">
+                  <div className="ml-1 rounded-sm p-0.5 transition-colors group-hover:bg-green-900/40">
                     <X className="h-3 w-3" />
                   </div>
                 </Badge>
@@ -583,12 +583,12 @@ export default function OrderFilters() {
               {currentFilters.maxAmount && (
                 <Badge
                   variant="secondary"
-                  className={`${FILTER_ACTIVE_BADGE_CLASS} border-green-200/70 text-green-700 dark:border-green-900/50 dark:text-green-200`}
+                  className={`${FILTER_ACTIVE_BADGE_CLASS} border-green-900/50 text-green-200`}
                   onClick={() => handleMaxAmountChange("")}
                 >
                   <DollarSign className="h-3.5 w-3.5" />
                   <span className="font-medium">Max: {formatCurrency(currentFilters.maxAmount)}</span>
-                  <div className="ml-1 rounded-sm p-0.5 transition-colors group-hover:bg-green-100/80 dark:group-hover:bg-green-900/40">
+                  <div className="ml-1 rounded-sm p-0.5 transition-colors group-hover:bg-green-900/40">
                     <X className="h-3 w-3" />
                   </div>
                 </Badge>

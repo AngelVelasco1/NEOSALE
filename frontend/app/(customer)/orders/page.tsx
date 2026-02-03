@@ -521,15 +521,15 @@ export default function OrdersPage() {
                 >
                   <Card className="bg-slate-950/70 backdrop-blur-2xl border border-blue-500/20 hover:border-blue-400/40 shadow-[0_25px_80px_-15px_rgba(59,130,246,0.25)] hover:shadow-[0_35px_100px_-15px_rgba(59,130,246,0.35)] transition-all duration-500 rounded-3xl overflow-hidden group relative">
                     {/* Dashboard-style Background effects */}
-                    <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_left,rgba(59,130,246,0.08),transparent_50%)]" />
-                    <div className="absolute inset-0 bg-[radial-gradient(circle_at_bottom_right,rgba(37,99,235,0.06),transparent_50%)]" />
-                    <div className="absolute inset-0 bg-[linear-gradient(135deg,rgba(59,130,246,0.03)_1px,transparent_1px)] bg-size-[40px_40px] opacity-20" />
-                    <div className="absolute -top-40 left-10 h-80 w-80 rounded-full bg-blue-500/8 blur-[100px]" />
-                    <div className="absolute -bottom-40 right-10 h-80 w-80 rounded-full bg-cyan-500/6 blur-[100px]" />
+                    <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_top_left,rgba(59,130,246,0.08),transparent_50%)]" />
+                    <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_bottom_right,rgba(37,99,235,0.06),transparent_50%)]" />
+                    <div className="pointer-events-none absolute inset-0 bg-[linear-gradient(135deg,rgba(59,130,246,0.03)_1px,transparent_1px)] bg-size-[40px_40px] opacity-20" />
+                    <div className="pointer-events-none absolute -top-40 left-10 h-80 w-80 rounded-full bg-blue-500/8 blur-[100px]" />
+                    <div className="pointer-events-none absolute -bottom-40 right-10 h-80 w-80 rounded-full bg-cyan-500/6 blur-[100px]" />
 
                     {/* Enhanced Card Header */}
                     <CardHeader className="pb-6 bg-slate-950/50 border-b border-blue-500/20 relative">
-                      <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(59,130,246,0.05),transparent_50%)]" />
+                      <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(59,130,246,0.05),transparent_50%)]" />
                       <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-6 relative">
                         <div className="flex items-start gap-5">
                           <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-blue-600 via-cyan-600 to-indigo-700 flex items-center justify-center shadow-xl shadow-blue-500/40 flex-shrink-0 border border-white/20 group-hover:shadow-blue-500/50 transition-shadow duration-300">
@@ -652,35 +652,7 @@ export default function OrdersPage() {
                         </div>
                       </div>
 
-                      {/* Enhanced Additional Info */}
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pt-6 border-t border-blue-500/20">
-                        <div className="flex items-center gap-4 p-5 bg-slate-900/50 backdrop-blur-sm rounded-2xl border border-blue-500/20 hover:border-blue-400/40 transition-all duration-300 group/info">
-                          <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-blue-500/25 to-cyan-500/25 shadow-xl flex items-center justify-center flex-shrink-0 border border-white/20 group-hover/info:shadow-blue-500/30 transition-shadow duration-300">
-                            <MapPin className="w-6 h-6 text-blue-300" />
-                          </div>
-                          <div>
-                            <p className="text-xs text-slate-400 mb-1 font-semibold uppercase tracking-wide">
-                              ID de orden
-                            </p>
-                            <p className="font-bold text-white text-lg">
-                              #{order.id}
-                            </p>
-                          </div>
-                        </div>                        <div className="flex items-center gap-4 p-5 bg-slate-900/50 backdrop-blur-sm rounded-2xl border border-cyan-500/20 hover:border-cyan-400/40 transition-all duration-300 group/info">
-                          <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-cyan-500/25 to-blue-500/25 shadow-xl flex items-center justify-center flex-shrink-0 border border-white/20 group-hover/info:shadow-cyan-500/30 transition-shadow duration-300">
-                            <CreditCard className="w-6 h-6 text-cyan-300" />
-                          </div>
-                          <div>
-                            <p className="text-xs text-slate-400 mb-1 font-semibold uppercase tracking-wide">
-                              Método de pago
-                            </p>
-                            <p className="font-bold text-white text-lg">
-                              {order.payment?.payment_method ||
-                                "No especificado"}
-                            </p>
-                          </div>
-                        </div>
-                      </div>
+                      
 
                       {/* Enhanced Actions */}
                       <div className="flex flex-wrap gap-4 pt-4">
