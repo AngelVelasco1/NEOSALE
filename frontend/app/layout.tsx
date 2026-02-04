@@ -40,10 +40,11 @@ export default function RootLayout({
     <html lang="es" suppressHydrationWarning>
       <body
         className={`${userFont.variable} ${adminFont.variable} font-montserrat antialiased @container min-h-screen`}
+        suppressHydrationWarning
       >
         <RootProviders>
-            {children}
-          </RootProviders>
+          {children}
+        </RootProviders>
       </body>
     </html>
   );

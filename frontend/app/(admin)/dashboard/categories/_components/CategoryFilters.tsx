@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useState, useMemo } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { Search, Tag, ToggleLeft, X } from "lucide-react";
 import { cn } from "@/lib/utils";
@@ -28,82 +28,91 @@ const STATUS_OPTIONS = [
 ];
 
 export default function CategoryFilters() {
-    const router = useRouter();
-    const searchParams = useSearchParams();
+  const router = useRouter();
+  const searchParams = useSearchParams();
 
-    const [searchValue, setSearchValue] = useState(searchParams.get("search") || "");
-
-    const currentFilters = {
+  // Estado sincronizado con URL - memoizado
+  const currentFilters = useMemo(
+    () => ({
       search: searchParams.get("search") || "",
       status: searchParams.get("status") || "all",
-    };
+    }),
+    [searchParams]
+  );
 
-    const applyFilters = useCallback(
-      (newFilters: Record<string, string>) => {
-        const params = new URLSearchParams();
+  // Estado local para inputs con debounce
+  const [searchValue, setSearchValue] = useState(currentFilters.search);
 
-        if (newFilters.search) {
-          params.set("search", newFilters.search);
-        }
+  // Sincronizar estado local cuando los filtros cambian (ej: reset)
+  useEffect(() => {
+    setSearchValue(currentFilters.search);
+  }, [currentFilters.search]);
 
-        if (newFilters.status && newFilters.status !== "all") {
-          params.set("status", newFilters.status);
-        }
+  // Aplicar filtros - memoizado para evitar recreación
+  const applyFilters = useCallback(
+    (newFilters: Record<string, string>) => {
+      const params = new URLSearchParams();
 
-        const sortBy = searchParams.get("sortBy");
-        const sortOrder = searchParams.get("sortOrder");
-        if (sortBy) params.set("sortBy", sortBy);
-        if (sortOrder) params.set("sortOrder", sortOrder);
+      if (newFilters.search) {
+        params.set("search", newFilters.search);
+      }
 
-        params.set("page", "1");
+      if (newFilters.status && newFilters.status !== "all") {
+        params.set("status", newFilters.status);
+      }
 
-        router.push(`?${params.toString()}`, { scroll: false });
-      },
-      [router, searchParams]
-    );
+      const sortBy = searchParams.get("sortBy");
+      const sortOrder = searchParams.get("sortOrder");
+      if (sortBy) params.set("sortBy", sortBy);
+      if (sortOrder) params.set("sortOrder", sortOrder);
 
-    const handleStatusChange = (value: string) => {
+      params.set("page", "1");
+
+      router.push(`?${params.toString()}`, { scroll: false });
+    },
+    [router, searchParams]
+  );
+
+  // Handlers optimizados con useCallback
+  const handleStatusChange = useCallback(
+    (value: string) => {
       applyFilters({ ...currentFilters, status: value });
-    };
+    },
+    [currentFilters, applyFilters]
+  );
 
-    const handleSearchChange = (value: string) => {
-      setSearchValue(value);
-    };
+  const handleSearchChange = useCallback((value: string) => {
+    setSearchValue(value);
+  }, []);
 
-    const handleResetFilters = () => {
-      setSearchValue("");
+  const handleResetFilters = useCallback(() => {
+    setSearchValue("");
+    applyFilters({
+      search: "",
+      status: "all",
+    });
+  }, [applyFilters]);
 
-      applyFilters({
-        search: "",
-        status: "all",
-      });
-    };
+  // Consolidar debounce en un único efecto
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      // Solo aplicar filtros si hay cambios reales
+      if (searchValue !== currentFilters.search) {
+        applyFilters({ ...currentFilters, search: searchValue });
+      }
+    }, 600); // Reducido de 800ms a 600ms para mejor UX
 
-    const chipClass = (isActive: boolean) =>
-      isActive
-        ? cn(
-            FILTER_CHIP_CLASS,
-            FILTER_CHIP_ACTIVE_CLASS,
-            "border-transparent bg-[linear-gradient(120deg,rgba(168,85,247,0.9),rgba(139,92,246,0.95))] text-white shadow-[0_12px_30px_-12px_rgba(139,92,246,0.65)]"
-          )
-        : cn(
-            FILTER_CHIP_CLASS,
-            "border-white/15 bg-white/5 text-slate-100 backdrop-blur hover:border-purple-200/40 hover:text-white"
-          );
+    return () => clearTimeout(timer);
+  }, [searchValue, currentFilters, applyFilters]);
 
-    useEffect(() => {
-      const timer = setTimeout(() => {
-        if (searchValue !== currentFilters.search) {
-          applyFilters({ ...currentFilters, search: searchValue });
-        }
-      }, 800);
+  // Memoizar valores calculados solo cuando sea necesario
+  const hasActiveFilters = useMemo(
+    () => currentFilters.search || currentFilters.status !== "all",
+    [currentFilters.search, currentFilters.status]
+  );
 
-      return () => clearTimeout(timer);
-    }, [searchValue, currentFilters.search, currentFilters.status, applyFilters]);
-
-    const hasActiveFilters = currentFilters.search || currentFilters.status !== "all";
-
-    const heroHighlights = [
+  const heroHighlights = useMemo(
+    () => [
       {
         label: "Estado",
         value:
@@ -117,7 +126,25 @@ export default function CategoryFilters() {
         label: "Búsqueda",
         value: currentFilters.search ? currentFilters.search : "Libre",
       },
-    ];
+    ],
+    [currentFilters.status, currentFilters.search]
+  );
+
+  // Memoizar clase de chip para evitar cálculos repetidos
+  const chipClass = useCallback(
+    (isActive: boolean) =>
+      isActive
+        ? cn(
+            FILTER_CHIP_CLASS,
+            FILTER_CHIP_ACTIVE_CLASS,
+            "border-transparent bg-[linear-gradient(120deg,rgba(168,85,247,0.9),rgba(139,92,246,0.95))] text-white shadow-[0_12px_30px_-12px_rgba(139,92,246,0.65)]"
+          )
+        : cn(
+            FILTER_CHIP_CLASS,
+            "border-white/15 bg-white/5 text-slate-100 backdrop-blur hover:border-purple-200/40 hover:text-white"
+          ),
+    []
+  );
 
     return (
       <Card className={FILTER_CARD_CLASS}>

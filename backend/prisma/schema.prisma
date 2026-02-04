@@ -173,6 +173,13 @@ model orders {
   tracking_number              String?            @db.VarChar(100)
   carrier                      String?            @db.VarChar(50)
   estimated_delivery_date      DateTime?          @db.Date
+  envioclick_guide_number      String?            @db.VarChar(100)
+  envioclick_shipment_id       String?            @db.VarChar(100)
+  envioclick_status            String?            @db.VarChar(50)
+  envioclick_tracking_url      String?            @db.VarChar(500)
+  envioclick_label_url         String?            @db.VarChar(500)
+  last_tracking_update         DateTime?          @db.Timestamp(6)
+  tracking_history             Json?              @default("[]")
   created_at                   DateTime           @default(now()) @db.Timestamp(6)
   updated_at                   DateTime?          @db.Timestamp(6)
   shipped_at                   DateTime?          @db.Timestamp(6)

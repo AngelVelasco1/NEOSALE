@@ -11,12 +11,14 @@ import { MessageSquare } from "lucide-react";
 export default async function ReviewsPage({
   searchParams,
 }: {
-  searchParams: { 
-    status?: string; 
-    rating?: string; 
+  searchParams: Promise<{
+    status?: string;
+    rating?: string;
     search?: string;
-  };
+  }>;
 }) {
+  const resolvedParams = await searchParams;
+
   return (
     <div className="min-h-screen p-3">
       <div className="mx-auto max-w-7xl space-y-8">
@@ -35,7 +37,7 @@ export default async function ReviewsPage({
           <StatsSection />
         </Suspense>
             <Suspense fallback={<TableLoading />}>
-              <ReviewsTableSection searchParams={searchParams} />
+              <ReviewsTableSection searchParams={resolvedParams} />
             </Suspense>
           </CardContent>
         </Card>

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useCallback, useTransition } from "react";
+import { useState, useEffect, useCallback, useMemo, useTransition } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 
 
@@ -8,13 +8,6 @@ import { DownloadCloud, Loader2, Search, X, Tag, TrendingUp, Calendar, DollarSig
 
 import { cn } from "@/lib/utils";
 
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 
 import { toast } from "sonner";
 import { Card } from "@/components/ui/card";
@@ -81,6 +74,15 @@ const METHOD_LABELS: Record<string, string> = {
   NEQUI: "Nequi",
 };
 
+// Memoizar constantes de etiquetas para evitar recreaciones
+const LABELS_MEMO = {
+  STATUS_LABELS,
+  METHOD_LABELS,
+  STATUS_QUICK_FILTERS,
+  METHOD_QUICK_FILTERS,
+  AMOUNT_QUICK_FILTERS,
+};
+
 const formatCurrency = (value: string) => {
   if (!value) return "";
   const parsed = Number(value);
@@ -95,34 +97,184 @@ export default function OrderFilters() {
   const searchParams = useSearchParams();
   const [isPending, startTransition] = useTransition();
 
+  // Estado sincronizado con URL - memoizado
+  const currentFilters = useMemo(
+    () => ({
+      search: searchParams.get("search") || "",
+      status: searchParams.get("status") || "all",
+      method: searchParams.get("method") || "all",
+      startDate: searchParams.get("start-date") || "",
+      endDate: searchParams.get("end-date") || "",
+      minAmount: searchParams.get("minAmount") || "",
+      maxAmount: searchParams.get("maxAmount") || "",
+    }),
+    [searchParams]
+  );
+
   // Estado local para inputs con debounce
-  const [searchValue, setSearchValue] = useState(searchParams.get("search") || "");
-  const [minAmountValue, setMinAmountValue] = useState(searchParams.get("minAmount") || "");
-  const [maxAmountValue, setMaxAmountValue] = useState(searchParams.get("maxAmount") || "");
-    const handleStatusChange = (value: string) => {
-    applyFilters({ ...currentFilters, status: value });
-  };
+  const [searchValue, setSearchValue] = useState(currentFilters.search);
+  const [minAmountValue, setMinAmountValue] = useState(currentFilters.minAmount);
+  const [maxAmountValue, setMaxAmountValue] = useState(currentFilters.maxAmount);
 
-  const handleMethodChange = (value: string) => {
-    applyFilters({ ...currentFilters, method: value });
-  };
+  // Sincronizar estado local cuando los filtros cambian (ej: reset)
+  useEffect(() => {
+    setSearchValue(currentFilters.search);
+    setMinAmountValue(currentFilters.minAmount);
+    setMaxAmountValue(currentFilters.maxAmount);
+  }, [currentFilters.search, currentFilters.minAmount, currentFilters.maxAmount]);
 
-  const handleSetStartDate = (date: string) => {
-    applyFilters({ ...currentFilters, startDate: date });
-  };
+  // Aplicar filtros - memoizado para evitar recreación
+  const applyFilters = useCallback(
+    (newFilters: FilterState) => {
+      const params = new URLSearchParams(searchParams.toString());
 
-  // Estado sincronizado con URL
-  const currentFilters = {
-    search: searchParams.get("search") || "",
-    status: searchParams.get("status") || "all",
-    method: searchParams.get("method") || "all",
-    startDate: searchParams.get("start-date") || "",
-    endDate: searchParams.get("end-date") || "",
-    minAmount: searchParams.get("minAmount") || "",
-    maxAmount: searchParams.get("maxAmount") || "",
-  };
+      if (newFilters.search) params.set("search", newFilters.search);
+      else params.delete("search");
 
-  const ticketNarrative = (() => {
+      if (newFilters.status && newFilters.status !== "all") params.set("status", newFilters.status);
+      else params.delete("status");
+
+      if (newFilters.method && newFilters.method !== "all") params.set("method", newFilters.method);
+      else params.delete("method");
+
+      if (newFilters.startDate) params.set("start-date", newFilters.startDate);
+      else params.delete("start-date");
+
+      if (newFilters.endDate) params.set("end-date", newFilters.endDate);
+      else params.delete("end-date");
+
+      if (newFilters.minAmount) params.set("minAmount", newFilters.minAmount);
+      else params.delete("minAmount");
+
+      if (newFilters.maxAmount) params.set("maxAmount", newFilters.maxAmount);
+      else params.delete("maxAmount");
+
+      params.set("page", "1");
+      router.push(`?${params.toString()}`, { scroll: false });
+    },
+    [router, searchParams]
+  );
+
+  // Handlers optimizados con useCallback
+  const handleSearchChange = useCallback((value: string) => {
+    setSearchValue(value);
+  }, []);
+
+  const handleMinAmountChange = useCallback((value: string) => {
+    setMinAmountValue(value);
+  }, []);
+
+  const handleMaxAmountChange = useCallback((value: string) => {
+    setMaxAmountValue(value);
+  }, []);
+
+  const handleStatusChange = useCallback(
+    (value: string) => {
+      applyFilters({ ...currentFilters, status: value });
+    },
+    [currentFilters, applyFilters]
+  );
+
+  const handleMethodChange = useCallback(
+    (value: string) => {
+      applyFilters({ ...currentFilters, method: value });
+    },
+    [currentFilters, applyFilters]
+  );
+
+  const handleSetStartDate = useCallback(
+    (date: string) => {
+      applyFilters({ ...currentFilters, startDate: date });
+    },
+    [currentFilters, applyFilters]
+  );
+
+  const handleSetEndDate = useCallback(
+    (date: string) => {
+      applyFilters({ ...currentFilters, endDate: date });
+    },
+    [currentFilters, applyFilters]
+  );
+
+  const handleQuickStatus = useCallback(
+    (value: string) => {
+      const nextValue = currentFilters.status === value ? "all" : value;
+      handleStatusChange(nextValue);
+    },
+    [currentFilters.status, handleStatusChange]
+  );
+
+  const handleQuickMethod = useCallback(
+    (value: string) => {
+      const nextValue = currentFilters.method === value ? "all" : value;
+      handleMethodChange(nextValue);
+    },
+    [currentFilters.method, handleMethodChange]
+  );
+
+  const handleQuickAmount = useCallback(
+    (min?: string, max?: string) => {
+      setMinAmountValue(min || "");
+      setMaxAmountValue(max || "");
+      applyFilters({
+        ...currentFilters,
+        minAmount: min || "",
+        maxAmount: max || "",
+      });
+    },
+    [currentFilters, applyFilters]
+  );
+
+  const handleResetFilters = useCallback(() => {
+    setSearchValue("");
+    setMinAmountValue("");
+    setMaxAmountValue("");
+    applyFilters({
+      search: "",
+      status: "all",
+      method: "all",
+      startDate: "",
+      endDate: "",
+      minAmount: "",
+      maxAmount: "",
+    });
+  }, [applyFilters]);
+
+  const handleOrdersDownload = useCallback(() => {
+    toast.info(`Downloading orders...`);
+    startTransition(async () => {
+      const result = await exportOrders();
+      if (result.error) {
+        toast.error(result.error);
+      } else if (result.data) {
+        exportAsCSV(result.data, "Orders");
+      }
+    });
+  }, []);
+
+  // Consolidar debounce en un único efecto para búsqueda y montos
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      // Solo aplicar filtros si hay cambios reales
+      if (
+        searchValue !== currentFilters.search ||
+        minAmountValue !== currentFilters.minAmount ||
+        maxAmountValue !== currentFilters.maxAmount
+      ) {
+        applyFilters({
+          ...currentFilters,
+          search: searchValue,
+          minAmount: minAmountValue,
+          maxAmount: maxAmountValue,
+        });
+      }
+    }, 600); // Reducido de 800ms a 600ms para mejor UX
+
+    return () => clearTimeout(timer);
+  }, [searchValue, minAmountValue, maxAmountValue, currentFilters, applyFilters]);
+
+  // Calcular valores memoizados solo cuando sea necesario
+  const ticketNarrative = useMemo(() => {
     if (currentFilters.minAmount && currentFilters.maxAmount) {
       return `${formatCurrency(currentFilters.minAmount)} - ${formatCurrency(currentFilters.maxAmount)}`;
     }
@@ -133,169 +285,67 @@ export default function OrderFilters() {
       return `Hasta ${formatCurrency(currentFilters.maxAmount)}`;
     }
     return "Ticket libre";
-  })();
+  }, [currentFilters.minAmount, currentFilters.maxAmount]);
 
-  const heroHighlights = [
-    {
-      label: "Estado",
-      value:
-        currentFilters.status === "all"
-          ? "Estados mixtos"
-          : STATUS_LABELS[currentFilters.status] || currentFilters.status,
-    },
-    {
-      label: "Método",
-      value:
-        currentFilters.method === "all"
-          ? "Método flexible"
-          : METHOD_LABELS[currentFilters.method] || currentFilters.method,
-    },
-    {
-      label: "Ticket",
-      value: ticketNarrative,
-    },
-  ];
-
-  const handleOrdersDownload = () => {
-    toast.info(`Downloading orders...`);
-
-    startTransition(async () => {
-      const result = await exportOrders();
-
-      if (result.error) {
-        toast.error(result.error);
-      } else if (result.data) {
-        exportAsCSV(result.data, "Orders");
-      }
-    });
-  };
-
-  const applyFilters = useCallback(
-    (newFilters: FilterState) => {
-      const params = new URLSearchParams(searchParams.toString());
-
-      if (newFilters.search) params.set("search", newFilters.search); else params.delete("search");
-      if (newFilters.status && newFilters.status !== "all") params.set("status", newFilters.status); else params.delete("status");
-      if (newFilters.method && newFilters.method !== "all") params.set("method", newFilters.method); else params.delete("method");
-      if (newFilters.startDate) params.set("start-date", newFilters.startDate); else params.delete("start-date");
-      if (newFilters.endDate) params.set("end-date", newFilters.endDate); else params.delete("end-date");
-      if (newFilters.minAmount) params.set("minAmount", newFilters.minAmount); else params.delete("minAmount");
-      if (newFilters.maxAmount) params.set("maxAmount", newFilters.maxAmount); else params.delete("maxAmount");
-
-      params.set("page", "1");
-
-      router.push(`?${params.toString()}`, { scroll: false });
-    },
-    [router, searchParams]
+  const heroHighlights = useMemo(
+    () => [
+      {
+        label: "Estado",
+        value:
+          currentFilters.status === "all"
+            ? "Estados mixtos"
+            : STATUS_LABELS[currentFilters.status] || currentFilters.status,
+      },
+      {
+        label: "Método",
+        value:
+          currentFilters.method === "all"
+            ? "Método flexible"
+            : METHOD_LABELS[currentFilters.method] || currentFilters.method,
+      },
+      {
+        label: "Ticket",
+        value: ticketNarrative,
+      },
+    ],
+    [currentFilters.status, currentFilters.method, ticketNarrative]
   );
-  const handleSetEndDate = (date: string) => {
-    applyFilters({ ...currentFilters, endDate: date });
-  };
 
-  // Handler para búsqueda con debounce
-  const handleSearchChange = (value: string) => {
-    setSearchValue(value);
-  };
+  const hasActiveFilters = useMemo(
+    () =>
+      currentFilters.search ||
+      currentFilters.status !== "all" ||
+      currentFilters.method !== "all" ||
+      currentFilters.startDate ||
+      currentFilters.endDate ||
+      currentFilters.minAmount ||
+      currentFilters.maxAmount,
+    [
+      currentFilters.search,
+      currentFilters.status,
+      currentFilters.method,
+      currentFilters.startDate,
+      currentFilters.endDate,
+      currentFilters.minAmount,
+      currentFilters.maxAmount,
+    ]
+  );
 
-  // Handlers para rangos con debounce
-  const handleMinAmountChange = (value: string) => {
-    setMinAmountValue(value);
-  };
-
-  const handleQuickStatus = (value: string) => {
-    const nextValue = currentFilters.status === value ? "all" : value;
-    handleStatusChange(nextValue);
-  };
-
-  const handleQuickMethod = (value: string) => {
-    const nextValue = currentFilters.method === value ? "all" : value;
-    handleMethodChange(nextValue);
-  };
-
-  const handleQuickAmount = (min?: string, max?: string) => {
-    setMinAmountValue(min || "");
-    setMaxAmountValue(max || "");
-
-    applyFilters({
-      ...currentFilters,
-      minAmount: min || "",
-      maxAmount: max || "",
-    });
-  };
-
-  const handleResetFilters = () => {
-    setSearchValue("");
-    setMinAmountValue("");
-    setMaxAmountValue("");
-
-    applyFilters({
-      search: "",
-      status: "all",
-      method: "all",
-      startDate: "",
-      endDate: "",
-      minAmount: "",
-      maxAmount: "",
-    });
-  };
-
-  const chipClass = (isActive: boolean) =>
-    isActive
-      ? cn(
-          FILTER_CHIP_CLASS,
-          FILTER_CHIP_ACTIVE_CLASS,
-          "bg-linear-to-r from-emerald-500 via-teal-500 to-cyan-400 text-white border-transparent shadow-lg shadow-emerald-900/35"
-        )
-      : cn(
-          FILTER_CHIP_CLASS,
-          "border-emerald-900/45 bg-slate-900/60 text-slate-200 hover:border-emerald-400/70 hover:text-white"
-        );
-
-  const handleMaxAmountChange = (value: string) => {
-    setMaxAmountValue(value);
-  };
-
-  // Debounce para búsqueda
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      if (searchValue !== currentFilters.search) {
-        applyFilters({ ...currentFilters, search: searchValue });
-      }
-    }, 800);
-
-    return () => clearTimeout(timer);
-  }, [searchValue]);
-
-  // Debounce para monto mínimo
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      if (minAmountValue !== currentFilters.minAmount) {
-        applyFilters({ ...currentFilters, minAmount: minAmountValue });
-      }
-    }, 800);
-
-    return () => clearTimeout(timer);
-  }, [minAmountValue]);
-
-  // Debounce para monto máximo
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      if (maxAmountValue !== currentFilters.maxAmount) {
-        applyFilters({ ...currentFilters, maxAmount: maxAmountValue });
-      }
-    }, 800);
-
-    return () => clearTimeout(timer);
-  }, [maxAmountValue]);
-
-  const hasActiveFilters =
-    currentFilters.search ||
-    currentFilters.status !== "all" ||
-    currentFilters.method !== "all" ||
-    currentFilters.startDate ||
-    currentFilters.endDate ||
-    currentFilters.minAmount ||
-    currentFilters.maxAmount;
+  // Memoizar clase de chip para evitar cálculos repetidos
+  const chipClass = useCallback(
+    (isActive: boolean) =>
+      isActive
+        ? cn(
+            FILTER_CHIP_CLASS,
+            FILTER_CHIP_ACTIVE_CLASS,
+            "bg-linear-to-r from-emerald-500 via-teal-500 to-cyan-400 text-white border-transparent shadow-lg shadow-emerald-900/35"
+          )
+        : cn(
+            FILTER_CHIP_CLASS,
+            "border-emerald-900/45 bg-slate-900/60 text-slate-200 hover:border-emerald-400/70 hover:text-white"
+          ),
+    []
+  );
 
   return (
     <Card className={FILTER_CARD_CLASS}>

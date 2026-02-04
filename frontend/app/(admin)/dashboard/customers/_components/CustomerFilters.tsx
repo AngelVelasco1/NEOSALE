@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useState, useMemo } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { Search, X, DollarSign, ShieldCheck, ShoppingBag } from "lucide-react";
 import { cn } from "@/lib/utils";
@@ -46,14 +46,27 @@ export default function CustomerFilters() {
   const [minSpentValue, setMinSpentValue] = useState(searchParams.get("minSpent") || "");
   const [maxSpentValue, setMaxSpentValue] = useState(searchParams.get("maxSpent") || "");
 
-  const currentFilters = {
-    search: searchParams.get("search") || "",
-    status: searchParams.get("status") || "all",
-    minOrders: searchParams.get("minOrders") || "",
-    maxOrders: searchParams.get("maxOrders") || "",
-    minSpent: searchParams.get("minSpent") || "",
-    maxSpent: searchParams.get("maxSpent") || "",
-  };
+  // Memoized current filters from URL
+  const currentFilters = useMemo(
+    () => ({
+      search: searchParams.get("search") || "",
+      status: searchParams.get("status") || "all",
+      minOrders: searchParams.get("minOrders") || "",
+      maxOrders: searchParams.get("maxOrders") || "",
+      minSpent: searchParams.get("minSpent") || "",
+      maxSpent: searchParams.get("maxSpent") || "",
+    }),
+    [searchParams]
+  );
+
+  // Sync local state with URL params
+  useEffect(() => {
+    setSearchValue(searchParams.get("search") || "");
+    setMinOrdersValue(searchParams.get("minOrders") || "");
+    setMaxOrdersValue(searchParams.get("maxOrders") || "");
+    setMinSpentValue(searchParams.get("minSpent") || "");
+    setMaxSpentValue(searchParams.get("maxSpent") || "");
+  }, [searchParams]);
 
   const applyFilters = useCallback(
     (newFilters: Record<string, string>) => {
@@ -78,36 +91,46 @@ export default function CustomerFilters() {
     [router, searchParams]
   );
 
-  const handleStatusChange = (value: string) => {
-    applyFilters({ ...currentFilters, status: value });
-  };
+  const handleStatusChange = useCallback(
+    (value: string) => {
+      applyFilters({ ...currentFilters, status: value });
+    },
+    [currentFilters, applyFilters]
+  );
 
-  const handleSearchChange = (value: string) => setSearchValue(value);
-  const handleMinOrdersChange = (value: string) => setMinOrdersValue(value);
-  const handleMaxOrdersChange = (value: string) => setMaxOrdersValue(value);
-  const handleMinSpentChange = (value: string) => setMinSpentValue(value);
-  const handleMaxSpentChange = (value: string) => setMaxSpentValue(value);
+  const handleSearchChange = useCallback((value: string) => setSearchValue(value), []);
+  const handleMinOrdersChange = useCallback((value: string) => setMinOrdersValue(value), []);
+  const handleMaxOrdersChange = useCallback((value: string) => setMaxOrdersValue(value), []);
+  const handleMinSpentChange = useCallback((value: string) => setMinSpentValue(value), []);
+  const handleMaxSpentChange = useCallback((value: string) => setMaxSpentValue(value), []);
 
-  const handleQuickStatus = (value: string) => {
-    const next = currentFilters.status === value ? "all" : value;
-    handleStatusChange(next);
-  };
+  const handleQuickStatus = useCallback(
+    (value: string) => {
+      const next = currentFilters.status === value ? "all" : value;
+      handleStatusChange(next);
+    },
+    [currentFilters, handleStatusChange]
+  );
 
-  const handleQuickOrders = (min?: string, max?: string) => {
-    setMinOrdersValue(min || "");
-    setMaxOrdersValue(max || "");
+  const handleQuickOrders = useCallback(
+    (min?: string, max?: string) => {
+      setMinOrdersValue(min || "");
+      setMaxOrdersValue(max || "");
+      applyFilters({ ...currentFilters, minOrders: min || "", maxOrders: max || "" });
+    },
+    [currentFilters, applyFilters]
+  );
 
-    applyFilters({ ...currentFilters, minOrders: min || "", maxOrders: max || "" });
-  };
+  const handleQuickSpent = useCallback(
+    (min?: string, max?: string) => {
+      setMinSpentValue(min || "");
+      setMaxSpentValue(max || "");
+      applyFilters({ ...currentFilters, minSpent: min || "", maxSpent: max || "" });
+    },
+    [currentFilters, applyFilters]
+  );
 
-  const handleQuickSpent = (min?: string, max?: string) => {
-    setMinSpentValue(min || "");
-    setMaxSpentValue(max || "");
-
-    applyFilters({ ...currentFilters, minSpent: min || "", maxSpent: max || "" });
-  };
-
-  const handleResetFilters = () => {
+  const handleResetFilters = useCallback(() => {
     setSearchValue("");
     setMinOrdersValue("");
     setMaxOrdersValue("");
@@ -122,98 +145,82 @@ export default function CustomerFilters() {
       minSpent: "",
       maxSpent: "",
     });
-  };
+  }, [applyFilters]);
 
-  const chipClass = (isActive: boolean) =>
-    isActive
-      ? cn(
-          FILTER_CHIP_CLASS,
-          FILTER_CHIP_ACTIVE_CLASS,
-          "border-transparent bg-[linear-gradient(120deg,rgba(236,72,153,0.9),rgba(232,121,249,0.95))] text-white shadow-[0_12px_30px_-12px_rgba(236,72,153,0.65)]"
-        )
-      : cn(
-          FILTER_CHIP_CLASS,
-          "border-white/15 bg-white/5 text-slate-100 backdrop-blur hover:border-pink-200/40 hover:text-white"
-        );
+  const chipClass = useCallback(
+    (isActive: boolean) =>
+      isActive
+        ? cn(
+            FILTER_CHIP_CLASS,
+            FILTER_CHIP_ACTIVE_CLASS,
+            "border-transparent bg-[linear-gradient(120deg,rgba(236,72,153,0.9),rgba(232,121,249,0.95))] text-white shadow-[0_12px_30px_-12px_rgba(236,72,153,0.65)]"
+          )
+        : cn(
+            FILTER_CHIP_CLASS,
+            "border-white/15 bg-white/5 text-slate-100 backdrop-blur hover:border-pink-200/40 hover:text-white"
+          ),
+    []
+  );
 
+  // Consolidated debounce for all input changes (600ms)
   useEffect(() => {
     const timer = setTimeout(() => {
-      if (searchValue !== currentFilters.search) {
-        applyFilters({ ...currentFilters, search: searchValue });
+      const changed =
+        searchValue !== currentFilters.search ||
+        minOrdersValue !== currentFilters.minOrders ||
+        maxOrdersValue !== currentFilters.maxOrders ||
+        minSpentValue !== currentFilters.minSpent ||
+        maxSpentValue !== currentFilters.maxSpent;
+
+      if (changed) {
+        applyFilters({
+          ...currentFilters,
+          search: searchValue,
+          minOrders: minOrdersValue,
+          maxOrders: maxOrdersValue,
+          minSpent: minSpentValue,
+          maxSpent: maxSpentValue,
+        });
       }
-    }, 800);
+    }, 600);
 
     return () => clearTimeout(timer);
-  }, [searchValue, currentFilters, applyFilters]);
+  }, [searchValue, minOrdersValue, maxOrdersValue, minSpentValue, maxSpentValue, currentFilters, applyFilters]);
 
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      if (minOrdersValue !== currentFilters.minOrders) {
-        applyFilters({ ...currentFilters, minOrders: minOrdersValue });
-      }
-    }, 800);
+  const hasActiveFilters = useMemo(
+    () =>
+      currentFilters.search ||
+      currentFilters.status !== "all" ||
+      currentFilters.minOrders ||
+      currentFilters.maxOrders ||
+      currentFilters.minSpent ||
+      currentFilters.maxSpent,
+    [currentFilters]
+  );
 
-    return () => clearTimeout(timer);
-  }, [minOrdersValue, currentFilters, applyFilters]);
-
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      if (maxOrdersValue !== currentFilters.maxOrders) {
-        applyFilters({ ...currentFilters, maxOrders: maxOrdersValue });
-      }
-    }, 800);
-
-    return () => clearTimeout(timer);
-  }, [maxOrdersValue, currentFilters, applyFilters]);
-
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      if (minSpentValue !== currentFilters.minSpent) {
-        applyFilters({ ...currentFilters, minSpent: minSpentValue });
-      }
-    }, 800);
-
-    return () => clearTimeout(timer);
-  }, [minSpentValue, currentFilters, applyFilters]);
-
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      if (maxSpentValue !== currentFilters.maxSpent) {
-        applyFilters({ ...currentFilters, maxSpent: maxSpentValue });
-      }
-    }, 800);
-
-    return () => clearTimeout(timer);
-  }, [maxSpentValue, currentFilters, applyFilters]);
-
-  const hasActiveFilters =
-    currentFilters.search ||
-    currentFilters.status !== "all" ||
-    currentFilters.minOrders ||
-    currentFilters.maxOrders ||
-    currentFilters.minSpent ||
-    currentFilters.maxSpent;
-
-  const heroHighlights = [
-    {
-      label: "Estado",
-      value: currentFilters.status === "all" ? "Estados mixtos" : currentFilters.status === "true" ? "Activos" : "Inactivos",
-    },
-    {
-      label: "Órdenes",
-      value:
-        currentFilters.minOrders || currentFilters.maxOrders
-          ? `${currentFilters.minOrders || "0"} - ${currentFilters.maxOrders || "∞"}`
-          : "Rango libre",
-    },
-    {
-      label: "Ticket",
-      value:
-        currentFilters.minSpent || currentFilters.maxSpent
-          ? `$${currentFilters.minSpent || "0"} - $${currentFilters.maxSpent || "∞"}`
-          : "Sin límite",
-    },
-  ];
+  const heroHighlights = useMemo(
+    () => [
+      {
+        label: "Estado",
+        value: currentFilters.status === "all" ? "Estados mixtos" : currentFilters.status === "true" ? "Activos" : "Inactivos",
+      },
+      {
+        label: "Órdenes",
+        value:
+          currentFilters.minOrders || currentFilters.maxOrders
+            ? `${currentFilters.minOrders || "0"} - ${currentFilters.maxOrders || "∞"}`
+            : "Rango libre",
+      },
+      {
+        label: "Ticket",
+        value:
+          currentFilters.minSpent || currentFilters.maxSpent
+            ? `$${currentFilters.minSpent || "0"} - $${currentFilters.maxSpent || "∞"}`
+            : "Sin límite",
+      },
+    ],
+    [currentFilters]
+  );
 
   return (
     <Card className={FILTER_CARD_CLASS}>

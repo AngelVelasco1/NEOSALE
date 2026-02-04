@@ -20,6 +20,7 @@ import { getDiscount } from "@/app/(admin)/helpers/getDiscount";
 import { OrderBadgeVariants } from "@/app/(admin)/constants/badge";
 import { fetchOrderDetails } from "@/app/(admin)/services/orders";
 import { InvoiceActions } from "./_components/InvoiceActions";
+import { ShippingManagement } from "./_components/ShippingManagement";
 
 // Importar estilos específicos para el PDF
 import "./invoice-pdf.css";
@@ -377,6 +378,14 @@ export default async function Order({ params }: PageParams) {
             </div>
           </div>
         </Card>
+
+        <ShippingManagement
+          orderId={order.id}
+          orderStatus={order.status}
+          hasGuide={!!order.envioclick_guide_number}
+          guideNumber={order.envioclick_guide_number || undefined}
+          trackingUrl={order.envioclick_tracking_url || undefined}
+        />
 
         <InvoiceActions order={order} />
       </section>

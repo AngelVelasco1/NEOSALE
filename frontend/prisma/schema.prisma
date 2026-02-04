@@ -40,8 +40,8 @@ model categories {
   active               Boolean                @default(true)
   deleted_at           DateTime?              @db.Timestamp(6)
   deleted_by           Int?
-  User                 User?                  @relation(fields: [deleted_by], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_category_deleted_by")
   subcategory          subcategories?         @relation(fields: [id_subcategory], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  User                 User?                  @relation(fields: [deleted_by], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_category_deleted_by")
   category_subcategory category_subcategory[]
   products             products[]
 }
@@ -104,9 +104,9 @@ model products {
   images           images[]
   order_items      order_items[]
   product_variants product_variants[]
+  User             User?              @relation(fields: [deleted_by], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_product_deleted_by")
   brands           brands             @relation(fields: [brand_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
   categories       categories         @relation(fields: [category_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
-  User             User?              @relation(fields: [deleted_by], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_product_deleted_by")
   reviews          reviews[]
 }
 
@@ -141,20 +141,8 @@ model User {
   products                       products[]
   reviews                        reviews[]
   subcategories                  subcategories[]
-  passwordResetTokens            PasswordResetToken[]
 
   @@map("User")
-}
-
-model PasswordResetToken {
-  id        Int      @id @default(autoincrement())
-  token     String   @unique @db.VarChar(255)
-  userId    Int      @map("user_id")
-  expires   DateTime @db.Timestamp(6)
-  createdAt DateTime @default(now()) @map("created_at") @db.Timestamp(6)
-  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: NoAction)
-
-  @@map("password_reset_tokens")
 }
 
 model subcategories {
@@ -317,6 +305,13 @@ model orders {
   cancelled_at                 DateTime?          @db.Timestamp(6)
   user_id                      Int
   updated_by                   Int
+  envioclick_guide_number      String?            @db.VarChar(100)
+  envioclick_label_url         String?            @db.VarChar(500)
+  envioclick_shipment_id       String?            @db.VarChar(100)
+  envioclick_status            String?            @db.VarChar(50)
+  envioclick_tracking_url      String?            @db.VarChar(500)
+  last_tracking_update         DateTime?          @db.Timestamp(6)
+  tracking_history             Json?              @default("[]")
   order_items                  order_items[]
   order_logs                   order_logs[]
   coupons                      coupons?           @relation(fields: [coupon_id], references: [id], onUpdate: NoAction)
@@ -413,7 +408,7 @@ model verificationToken {
 model StoreSettings {
   id                  Int       @id @default(autoincrement())
   store_name          String    @default("NeoSale") @db.VarChar(255)
-  store_description   String?   @db.Text
+  store_description   String?
   contact_email       String    @default("info@neosale.com") @db.VarChar(255)
   contact_phone       String    @default("+57 300 123 4567") @db.VarChar(50)
   whatsapp_number     String?   @db.VarChar(50)
@@ -429,21 +424,21 @@ model StoreSettings {
   favicon_url         String?   @db.VarChar(255)
   primary_color       String    @default("#3B82F6") @db.VarChar(20)
   secondary_color     String    @default("#6366F1") @db.VarChar(20)
-  accent_color        String    @default("#D946EF") @db.VarChar(20)
-  footer_text         String?   @db.Text
+  footer_text         String?
   newsletter_enabled  Boolean   @default(true)
   show_whatsapp_chat  Boolean   @default(true)
-  business_hours      Json?     @default("{\"monday\":\"8:00 AM - 6:00 PM\",\"tuesday\":\"8:00 AM - 6:00 PM\",\"wednesday\":\"8:00 AM - 6:00 PM\",\"thursday\":\"8:00 AM - 6:00 PM\",\"friday\":\"8:00 AM - 6:00 PM\",\"saturday\":\"9:00 AM - 2:00 PM\",\"sunday\":\"Closed\"}")
-  shipping_info       Json?     @default("{\"free_shipping_minimum\":150000,\"standard_shipping_cost\":10000}")
+  business_hours      Json?     @default("{\"friday\": \"8:00 AM - 6:00 PM\", \"monday\": \"8:00 AM - 6:00 PM\", \"sunday\": \"Closed\", \"tuesday\": \"8:00 AM - 6:00 PM\", \"saturday\": \"9:00 AM - 2:00 PM\", \"thursday\": \"8:00 AM - 6:00 PM\", \"wednesday\": \"8:00 AM - 6:00 PM\"}")
+  shipping_info       Json?     @default("{\"free_shipping_minimum\": 150000, \"standard_shipping_cost\": 10000}")
   seo_title           String?   @db.VarChar(255)
   seo_description     String?   @db.VarChar(500)
-  seo_keywords        String?   @db.Text
+  seo_keywords        String?
   google_analytics_id String?   @db.VarChar(50)
   facebook_pixel_id   String?   @db.VarChar(50)
   active              Boolean   @default(true)
   created_at          DateTime  @default(now()) @db.Timestamp(6)
   updated_at          DateTime? @db.Timestamp(6)
   updated_by          Int?
+  accent_color        String    @default("#D946EF") @db.VarChar(20)
 
   @@map("store_settings")
 }

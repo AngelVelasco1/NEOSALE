@@ -346,10 +346,18 @@ CREATE TABLE orders (
     user_note VARCHAR(500),
     admin_notes TEXT, -- Cupones (opcional)
     coupon_id INTEGER REFERENCES coupons(id) ON DELETE SET NULL,
-    coupon_discount INTEGER DEFAULT 0, -- Logística
+    coupon_discount INTEGER DEFAULT 0, -- Logística y EnvioClick
     tracking_number VARCHAR(100),
     carrier VARCHAR(50),
-    estimated_delivery_date DATE, -- Timestamps de estados
+    estimated_delivery_date DATE,
+    envioclick_guide_number VARCHAR(100), -- Número de guía de EnvioClick
+    envioclick_shipment_id VARCHAR(100), -- ID del envío en EnvioClick
+    envioclick_status VARCHAR(50), -- Estado según EnvioClick
+    envioclick_tracking_url VARCHAR(500), -- URL de rastreo público
+    envioclick_label_url VARCHAR(500), -- URL de la etiqueta de envío
+    last_tracking_update TIMESTAMP(6), -- Última actualización de rastreo
+    tracking_history JSONB DEFAULT '[]', -- Historial de tracking events
+    -- Timestamps de estados
     created_at TIMESTAMP(6) DEFAULT CURRENT_TIMESTAMP NOT NULL, -- Cuando se aprobó el pago
     updated_at TIMESTAMP(6),
     shipped_at TIMESTAMP(6),

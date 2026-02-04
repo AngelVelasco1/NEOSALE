@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useState, useMemo } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { Search, X, Star, CheckCircle, Clock } from "lucide-react";
 import { cn } from "@/lib/utils";
@@ -39,11 +39,20 @@ export default function ReviewsFilters() {
 
   const [searchValue, setSearchValue] = useState(searchParams.get("search") || "");
 
-  const currentFilters = {
-    search: searchParams.get("search") || "",
-    status: searchParams.get("status") || "all",
-    rating: searchParams.get("rating") || "all",
-  };
+  // Memoized current filters from URL
+  const currentFilters = useMemo(
+    () => ({
+      search: searchParams.get("search") || "",
+      status: searchParams.get("status") || "all",
+      rating: searchParams.get("rating") || "all",
+    }),
+    [searchParams]
+  );
+
+  // Sync local state with URL params
+  useEffect(() => {
+    setSearchValue(searchParams.get("search") || "");
+  }, [searchParams]);
 
   const applyFilters = useCallback(
     (newFilters: Record<string, string>) => {
@@ -65,61 +74,80 @@ export default function ReviewsFilters() {
     [router, searchParams]
   );
 
-  const handleStatusChange = (value: string) => {
-    applyFilters({ ...currentFilters, status: value });
-  };
+  const handleStatusChange = useCallback(
+    (value: string) => {
+      applyFilters({ ...currentFilters, status: value });
+    },
+    [currentFilters, applyFilters]
+  );
 
-  const handleRatingChange = (value: string) => {
-    applyFilters({ ...currentFilters, rating: value });
-  };
+  const handleRatingChange = useCallback(
+    (value: string) => {
+      applyFilters({ ...currentFilters, rating: value });
+    },
+    [currentFilters, applyFilters]
+  );
 
-  const handleSearchChange = (value: string) => setSearchValue(value);
+  const handleSearchChange = useCallback((value: string) => setSearchValue(value), []);
 
-  const handleQuickStatus = (value: string) => {
-    const next = currentFilters.status === value ? "all" : value;
-    handleStatusChange(next);
-  };
+  const handleQuickStatus = useCallback(
+    (value: string) => {
+      const next = currentFilters.status === value ? "all" : value;
+      handleStatusChange(next);
+    },
+    [currentFilters, handleStatusChange]
+  );
 
-  const handleQuickRating = (value: string) => {
-    const next = currentFilters.rating === value ? "all" : value;
-    handleRatingChange(next);
-  };
+  const handleQuickRating = useCallback(
+    (value: string) => {
+      const next = currentFilters.rating === value ? "all" : value;
+      handleRatingChange(next);
+    },
+    [currentFilters, handleRatingChange]
+  );
 
-  const handleResetFilters = () => {
+  const handleResetFilters = useCallback(() => {
     setSearchValue("");
     applyFilters({
       search: "",
       status: "all",
       rating: "all",
     });
-  };
+  }, [applyFilters]);
 
-  const chipClass = (isActive: boolean) =>
-    isActive
-      ? cn(
-          FILTER_CHIP_CLASS,
-          FILTER_CHIP_ACTIVE_CLASS,
-          "border-transparent bg-[linear-gradient(120deg,rgba(249,115,22,0.9),rgba(251,146,60,0.95))] text-white shadow-[0_12px_30px_-12px_rgba(249,115,22,0.65)]"
-        )
-      : cn(
-          FILTER_CHIP_CLASS,
-          "border-white/15 bg-white/5 text-slate-100 backdrop-blur hover:border-orange-200/40 hover:text-white"
-        );
+  const chipClass = useCallback(
+    (isActive: boolean) =>
+      isActive
+        ? cn(
+            FILTER_CHIP_CLASS,
+            FILTER_CHIP_ACTIVE_CLASS,
+            "border-transparent bg-[linear-gradient(120deg,rgba(249,115,22,0.9),rgba(251,146,60,0.95))] text-white shadow-[0_12px_30px_-12px_rgba(249,115,22,0.65)]"
+          )
+        : cn(
+            FILTER_CHIP_CLASS,
+            "border-white/15 bg-white/5 text-slate-100 backdrop-blur hover:border-orange-200/40 hover:text-white"
+          ),
+    []
+  );
 
+  // Consolidated debounce for search changes (600ms)
   useEffect(() => {
     const timer = setTimeout(() => {
       if (searchValue !== currentFilters.search) {
         applyFilters({ ...currentFilters, search: searchValue });
       }
-    }, 800);
+    }, 600);
 
     return () => clearTimeout(timer);
   }, [searchValue, currentFilters, applyFilters]);
 
-  const hasActiveFilters =
-    currentFilters.search ||
-    currentFilters.status !== "all" ||
-    currentFilters.rating !== "all";
+  const hasActiveFilters = useMemo(
+    () =>
+      currentFilters.search ||
+      currentFilters.status !== "all" ||
+      currentFilters.rating !== "all",
+    [currentFilters]
+  );
 
   return (
     <Card className={FILTER_CARD_CLASS}>

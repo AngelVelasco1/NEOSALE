@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useState, useMemo } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { Search, X, ToggleLeft, Percent, DollarSign, TrendingUp, Star } from "lucide-react";
 import { cn } from "@/lib/utils";
@@ -44,14 +44,25 @@ export default function CouponFilters() {
   const [minDiscountValue, setMinDiscountValue] = useState(searchParams.get("minDiscount") || "");
   const [maxDiscountValue, setMaxDiscountValue] = useState(searchParams.get("maxDiscount") || "");
 
-  const currentFilters = {
-    search: searchParams.get("search") || "",
-    status: searchParams.get("status") || "all",
-    discountType: searchParams.get("discountType") || "all",
-    featured: searchParams.get("featured") || "all",
-    minDiscount: searchParams.get("minDiscount") || "",
-    maxDiscount: searchParams.get("maxDiscount") || "",
-  };
+  // Memoized current filters from URL
+  const currentFilters = useMemo(
+    () => ({
+      search: searchParams.get("search") || "",
+      status: searchParams.get("status") || "all",
+      discountType: searchParams.get("discountType") || "all",
+      featured: searchParams.get("featured") || "all",
+      minDiscount: searchParams.get("minDiscount") || "",
+      maxDiscount: searchParams.get("maxDiscount") || "",
+    }),
+    [searchParams]
+  );
+
+  // Sync local state with URL params
+  useEffect(() => {
+    setSearchValue(searchParams.get("search") || "");
+    setMinDiscountValue(searchParams.get("minDiscount") || "");
+    setMaxDiscountValue(searchParams.get("maxDiscount") || "");
+  }, [searchParams]);
 
   const applyFilters = useCallback(
     (newFilters: Record<string, string>) => {
@@ -77,23 +88,32 @@ export default function CouponFilters() {
     [router, searchParams]
   );
 
-  const handleStatusChange = (value: string) => {
-    applyFilters({ ...currentFilters, status: value });
-  };
+  const handleStatusChange = useCallback(
+    (value: string) => {
+      applyFilters({ ...currentFilters, status: value });
+    },
+    [currentFilters, applyFilters]
+  );
 
-  const handleTypeChange = (value: string) => {
-    applyFilters({ ...currentFilters, discountType: value });
-  };
+  const handleTypeChange = useCallback(
+    (value: string) => {
+      applyFilters({ ...currentFilters, discountType: value });
+    },
+    [currentFilters, applyFilters]
+  );
 
-  const handleFeaturedChange = (value: string) => {
-    applyFilters({ ...currentFilters, featured: value });
-  };
+  const handleFeaturedChange = useCallback(
+    (value: string) => {
+      applyFilters({ ...currentFilters, featured: value });
+    },
+    [currentFilters, applyFilters]
+  );
 
-  const handleSearchChange = (value: string) => setSearchValue(value);
-  const handleMinDiscountChange = (value: string) => setMinDiscountValue(value);
-  const handleMaxDiscountChange = (value: string) => setMaxDiscountValue(value);
+  const handleSearchChange = useCallback((value: string) => setSearchValue(value), []);
+  const handleMinDiscountChange = useCallback((value: string) => setMinDiscountValue(value), []);
+  const handleMaxDiscountChange = useCallback((value: string) => setMaxDiscountValue(value), []);
 
-  const handleResetFilters = () => {
+  const handleResetFilters = useCallback(() => {
     setSearchValue("");
     setMinDiscountValue("");
     setMaxDiscountValue("");
@@ -106,27 +126,32 @@ export default function CouponFilters() {
       minDiscount: "",
       maxDiscount: "",
     });
-  };
+  }, [applyFilters]);
 
-  const chipClass = (isActive: boolean) =>
-    isActive
-      ? cn(
-          FILTER_CHIP_CLASS,
-          FILTER_CHIP_ACTIVE_CLASS,
-          "border-transparent bg-[linear-gradient(120deg,rgba(37,99,235,0.9),rgba(59,130,246,0.95))] text-white shadow-[0_12px_30px_-12px_rgba(37,99,235,0.65)]"
-        )
-      : cn(
-          FILTER_CHIP_CLASS,
-          "border-white/15 bg-white/5 text-slate-100 backdrop-blur hover:border-blue-200/40 hover:text-white"
-        );
+  const chipClass = useCallback(
+    (isActive: boolean) =>
+      isActive
+        ? cn(
+            FILTER_CHIP_CLASS,
+            FILTER_CHIP_ACTIVE_CLASS,
+            "border-transparent bg-[linear-gradient(120deg,rgba(37,99,235,0.9),rgba(59,130,246,0.95))] text-white shadow-[0_12px_30px_-12px_rgba(37,99,235,0.65)]"
+          )
+        : cn(
+            FILTER_CHIP_CLASS,
+            "border-white/15 bg-white/5 text-slate-100 backdrop-blur hover:border-blue-200/40 hover:text-white"
+          ),
+    []
+  );
 
+  // Consolidated debounce for all input changes (600ms)
   useEffect(() => {
     const timer = setTimeout(() => {
-      if (
+      const changed =
         searchValue !== currentFilters.search ||
         minDiscountValue !== currentFilters.minDiscount ||
-        maxDiscountValue !== currentFilters.maxDiscount
-      ) {
+        maxDiscountValue !== currentFilters.maxDiscount;
+
+      if (changed) {
         applyFilters({
           ...currentFilters,
           search: searchValue,
@@ -134,38 +159,44 @@ export default function CouponFilters() {
           maxDiscount: maxDiscountValue,
         });
       }
-    }, 800);
+    }, 600);
 
     return () => clearTimeout(timer);
   }, [searchValue, minDiscountValue, maxDiscountValue, currentFilters, applyFilters]);
 
-  const hasActiveFilters =
-    currentFilters.search ||
-    currentFilters.status !== "all" ||
-    currentFilters.discountType !== "all" ||
-    currentFilters.featured !== "all" ||
-    currentFilters.minDiscount ||
-    currentFilters.maxDiscount;
+  const hasActiveFilters = useMemo(
+    () =>
+      currentFilters.search ||
+      currentFilters.status !== "all" ||
+      currentFilters.discountType !== "all" ||
+      currentFilters.featured !== "all" ||
+      currentFilters.minDiscount ||
+      currentFilters.maxDiscount,
+    [currentFilters]
+  );
 
-  const heroHighlights = [
-    {
-      label: "Estado",
-      value: currentFilters.status === "all" ? "Estados mixtos" : currentFilters.status === "active" ? "Activos" : "Expirados",
-    },
-    {
-      label: "Tipo",
-      value:
-        currentFilters.discountType === "all"
-          ? "Tipos mixtos"
-          : currentFilters.discountType === "percentage"
-            ? "Porcentaje"
-            : "Fijo",
-    },
-    {
-      label: "Destacados",
-      value: currentFilters.featured === "all" ? "Todos" : currentFilters.featured === "true" ? "Solo destacados" : "Ocultos",
-    },
-  ];
+  const heroHighlights = useMemo(
+    () => [
+      {
+        label: "Estado",
+        value: currentFilters.status === "all" ? "Estados mixtos" : currentFilters.status === "active" ? "Activos" : "Expirados",
+      },
+      {
+        label: "Tipo",
+        value:
+          currentFilters.discountType === "all"
+            ? "Tipos mixtos"
+            : currentFilters.discountType === "percentage"
+              ? "Porcentaje"
+              : "Fijo",
+      },
+      {
+        label: "Destacados",
+        value: currentFilters.featured === "all" ? "Todos" : currentFilters.featured === "true" ? "Solo destacados" : "Ocultos",
+      },
+    ],
+    [currentFilters]
+  );
 
   return (
     <Card className={FILTER_CARD_CLASS}>
