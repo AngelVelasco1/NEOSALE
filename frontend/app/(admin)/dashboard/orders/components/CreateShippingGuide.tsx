@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { Truck, Package, AlertCircle, ExternalLink, RefreshCw } from "lucide-react";
+import { Truck, Package, AlertCircle, ExternalLink, RefreshCw, Printer } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -44,6 +44,7 @@ export function CreateShippingGuide({
   const [loading, setLoading] = useState(false);
   const [paymentType, setPaymentType] = useState<"PAID" | "COLLECT">("PAID");
   const [result, setResult] = useState<any>(null);
+  const [showSandboxGuide, setShowSandboxGuide] = useState(false);
 
   const handleCreateGuide = async () => {
     setLoading(true);
@@ -190,12 +191,28 @@ export function CreateShippingGuide({
                 <Button
                   variant="outline"
                   className="flex-1"
-                  onClick={() => window.open(result.labelUrl, "_blank")}
+                  onClick={() => {
+                    if (result.labelUrl?.includes('sandbox')) {
+                      setShowSandboxGuide(true);
+                    } else {
+                      window.open(result.labelUrl, "_blank");
+                    }
+                  }}
                 >
                   <Package className="w-4 h-4 mr-2" />
-                  Descargar Etiqueta
+                  {result.labelUrl?.includes('sandbox') ? 'Ver Guía (Sandbox)' : 'Descargar Etiqueta'}
                 </Button>
               </div>
+
+              {result.labelUrl?.includes('sandbox') && (
+                <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-3 text-sm text-yellow-800">
+                  <p className="font-medium">⚠️ Modo Sandbox - Guía de Prueba</p>
+                  <p className="text-xs mt-1">
+                    Esta es una guía ficticia. No se generará envío real ni se cobrará.
+                    Para guías reales, cambia a modo producción.
+                  </p>
+                </div>
+              )}
 
               {result.estimatedDeliveryDate && (
                 <p className="text-sm text-gray-600 text-center">
@@ -225,6 +242,114 @@ export function CreateShippingGuide({
           </div>
         )}
       </DialogContent>
-    </Dialog>
-  );
-}
+
+      {/* Modal para mostrar guía sandbox */}
+      <Dialog open={showSandboxGuide} onOpenChange={setShowSandboxGuide}>
+        <DialogContent className="max-w-2xl">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <Package className="w-5 h-5" />
+              Guía de Envío - Modo Sandbox
+            </DialogTitle>
+            <DialogDescription>
+              Esta es una guía de prueba. No es válida para envíos reales.
+            </DialogDescription>
+          </DialogHeader>
+
+          <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 space-y-4 bg-gray-50">
+            {/* Header */}
+            <div className="flex justify-between items-start">
+              <div>
+                <h3 className="font-bold text-xl">NEOSALE</h3>
+                <p className="text-sm text-gray-600">Guía de Envío</p>
+              </div>
+              <div className="text-right">
+                <Badge variant="secondary" className="bg-yellow-100 text-yellow-800 border-yellow-300">
+                  SANDBOX
+                </Badge>
+                <p className="text-xs text-gray-500 mt-1">Orden #{orderId}</p>
+              </div>
+            </div>
+
+            {/* Barcode simulado */}
+            <div className="bg-white p-4 rounded border border-gray-300 text-center">
+              <div className="font-mono text-2xl font-bold tracking-wider">
+                {result?.guideNumber || 'SANDBOX123456789'}
+              </div>
+              <div className="mt-2 flex justify-center gap-0.5">
+                {Array.from({length: 40}).map((_, i) => (
+                  <div
+                    key={i}
+                    className="w-1 bg-black"
+                    style={{height: Math.random() > 0.5 ? '40px' : '30px'}}
+                  />
+                ))}
+              </div>
+            </div>
+
+            {/* Información del envío */}
+            <div className="grid grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <div className="bg-white p-3 rounded border border-gray-300">
+                  <p className="text-xs text-gray-500 font-semibold mb-1">REMITENTE</p>
+                  <p className="font-semibold">NEOSALE</p>
+                  <p className="text-sm">Calle 123 #45-67</p>
+                  <p className="text-sm">Bogotá, Colombia</p>
+                  <p className="text-sm">Tel: 300-123-4567</p>
+                </div>
+              </div>
+
+              <div className="space-y-2">
+                <div className="bg-white p-3 rounded border border-gray-300">
+                  <p className="text-xs text-gray-500 font-semibold mb-1">DESTINATARIO</p>
+                  <p className="font-semibold">Cliente de Prueba</p>
+                  <p className="text-sm">Dirección de ejemplo</p>
+                  <p className="text-sm">Ciudad, Colombia</p>
+                  <p className="text-sm">Tel: 300-000-0000</p>
+                </div>
+              </div>
+            </div>
+
+            {/* Información de transportadora */}
+            <div className="bg-white p-3 rounded border border-gray-300">
+              <div className="flex justify-between items-center">
+                <div>
+                  <p className="text-xs text-gray-500 font-semibold">TRANSPORTADORA</p>
+                  <p className="font-bold text-lg">ENVIA</p>
+                </div>
+                <div className="text-right">
+                  <p className="text-xs text-gray-500 font-semibold">PESO</p>
+                  <p className="font-semibold">1.0 kg</p>
+                </div>
+              </div>
+            </div>
+
+            {/* Advertencia */}
+            <Alert className="bg-yellow-50 border-yellow-200">
+              <AlertCircle className="h-4 w-4 text-yellow-600" />
+              <AlertDescription className="text-yellow-800 text-xs">
+                <strong>Modo Sandbox:</strong> Esta guía es solo para pruebas. No es válida para envíos reales.
+                Para generar guías reales, configura NODE_ENV=production en el backend.
+              </AlertDescription>
+            </Alert>
+          </div>
+
+          <div className="flex gap-2">
+            <Button
+              variant="outline"
+              className="flex-1"
+              onClick={() => window.print()}
+            >
+              <Printer className="w-4 h-4 mr-2" />
+              Imprimir
+            </Button>
+            <Button
+              variant="default"
+              className="flex-1"
+              onClick={() => setShowSandboxGuide(false)}
+            >
+              Cerrar
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>

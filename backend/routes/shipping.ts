@@ -1,5 +1,6 @@
 import { Router } from "express";
 import {
+  getShippingQuote,
   createShippingGuide,
   updateTracking,
   getTrackingInfo,
@@ -9,7 +10,10 @@ import {
 
 export const shippingRoutes = () =>
   Router()
-    // Generar guía de envío
+    // Obtener cotización de envío
+    .get("/quote/:orderId", getShippingQuote)
+    
+    // Generar guía de envío (requiere idRate de la cotización)
     .post("/create/:orderId", createShippingGuide)
     
     // Actualizar tracking manualmente

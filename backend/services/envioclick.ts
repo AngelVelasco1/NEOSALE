@@ -2,39 +2,46 @@ import { ENVIOCLICK_CONFIG } from "../config/credentials";
 
 interface ShipmentData {
   orderId: number;
-  senderName: string;
+  senderCompany: string;
+  senderFirstName: string;
+  senderLastName: string;
+  senderEmail: string;
   senderPhone: string;
   senderAddress: string;
-  senderCity: string;
-  receiverName: string;
+  senderSuburb: string;
+  senderCrossStreet: string;
+  senderReference: string;
+  senderDaneCode: string;
+  receiverCompany: string;
+  receiverFirstName: string;
+  receiverLastName: string;
+  receiverEmail: string;
   receiverPhone: string;
   receiverAddress: string;
-  receiverCity: string;
-  receiverDepartment: string;
-  packageWeight: number; // en gramos
-  packageValue: number; // valor declarado
-  paymentType: "PAID" | "COLLECT"; // Pago anticipado o contraentrega
-  observations?: string;
+  receiverSuburb: string;
+  receiverCrossStreet: string;
+  receiverReference: string;
+  receiverDaneCode: string;
+  packageWeight: number;
+  packageHeight: number;
+  packageWidth: number;
+  packageLength: number;
+  description: string;
+  contentValue: number;
+  codValue?: number;
+  includeGuideCost?: boolean;
+  codPaymentMethod?: "cash" | "data_phone";
+  idRate: number;
+  requestPickup: boolean;
+  pickupDate: string;
+  insurance: boolean;
 }
 
 interface EnvioClickResponse {
   success: boolean;
-  data?: {
-    guideNumber: string;
-    shipmentId: string;
-    trackingUrl: string;
-    labelUrl: string;
-    estimatedDeliveryDate?: string;
-  };
+  data?: any;
   error?: string;
   message?: string;
-}
-
-interface TrackingEvent {
-  date: string;
-  status: string;
-  description: string;
-  location?: string;
 }
 
 interface TrackingResponse {
@@ -42,44 +49,118 @@ interface TrackingResponse {
   data?: {
     guideNumber: string;
     status: string;
-    currentLocation?: string;
-    estimatedDelivery?: string;
-    events: TrackingEvent[];
+    statusDetail: string;
+    arrivalDate: string | null;
+    realPickupDate?: string | null;
+    realDeliveryDate?: string | null;
+    receivedBy?: string | null;
   };
   error?: string;
 }
 
-/**
- * Servicio de integración con EnvioClick Pro
- * Documentación: https://apidoc.envioclickpro.com.co/
- */
+interface QuotationRequest {
+  packages: Array<{
+    weight: number;
+    height: number;
+    width: number;
+    length: number;
+  }>;
+  description: string;
+  contentValue: number;
+  codValue?: number;
+  includeGuideCost?: boolean;
+  codPaymentMethod?: "cash" | "data_phone";
+  origin: {
+    daneCode: string;
+    address: string;
+  };
+  destination: {
+    daneCode: string;
+    address: string;
+  };
+}
+
+interface QuotationResponse {
+  success: boolean;
+  data?: {
+    rates: Array<{
+      idRate: number;
+      idProduct: number;
+      product: string;
+      idCarrier: number;
+      carrier: string;
+      flete: number;
+      minimumInsurance: number;
+      extraInsurance: number;
+      deliveryDays: number;
+      quotationType: string;
+      cod: boolean;
+      codDetails: any;
+    }>;
+  };
+  error?: string;
+}
+
 class EnvioClickService {
   private apiKey: string;
   private apiUrl: string;
+  private environment: "sandbox" | "production";
 
   constructor() {
     this.apiKey = ENVIOCLICK_CONFIG.apiKey;
     this.apiUrl = ENVIOCLICK_CONFIG.apiUrl;
+    this.environment = process.env.NODE_ENV === "production" ? "production" : "sandbox";
 
     if (!this.apiKey) {
-      console.warn("⚠️ ENVIOCLICK_API_KEY no configurada en variables de entorno");
+      console.warn("ENVIOCLICK_API_KEY no configurada");
     }
+    
+    console.log(`EnvioClick iniciado en modo: ${this.environment}`);
   }
 
-  /**
-   * Headers comunes para todas las peticiones
-   */
   private getHeaders(): HeadersInit {
     return {
       "Content-Type": "application/json",
-      "Authorization": `Bearer ${this.apiKey}`,
-      "Accept": "application/json",
+      "Authorization": this.apiKey,
     };
   }
 
-  /**
-   * Crear una guía de envío
-   */
+  async getShippingQuote(params: QuotationRequest): Promise<QuotationResponse> {
+    try {
+      if (!this.apiKey) {
+        throw new Error("API Key de EnvioClick no configurada");
+      }
+
+      const response = await fetch(`${this.apiUrl}/api/v2/quotation`, {
+        method: "POST",
+        headers: this.getHeaders(),
+        body: JSON.stringify(params),
+      });
+
+      const result = await response.json();
+
+      if (result.status !== "OK") {
+        return {
+          success: false,
+          error: JSON.stringify(result.status_messages) || "Error al obtener cotización",
+        };
+      }
+
+      return {
+        success: true,
+        data: {
+          rates: result.data.rates,
+        },
+      };
+    } catch (error) {
+      console.error("Error en getShippingQuote:", error);
+      return {
+        success: false,
+        error: error instanceof Error ? error.message : "Error desconocido",
+      };
+    }
+  }
+
   async createShipment(data: ShipmentData): Promise<EnvioClickResponse> {
     try {
       if (!this.apiKey) {
@@ -87,29 +168,61 @@ class EnvioClickService {
       }
 
       const payload = {
-        order_reference: `NEOSALE_${data.orderId}`,
-        sender: {
-          name: data.senderName,
+        idRate: data.idRate,
+        myShipmentReference: `NEOSALE_${data.orderId}`,
+        external_order_id: data.orderId.toString(),
+        requestPickup: data.requestPickup,
+        pickupDate: data.pickupDate,
+        insurance: data.insurance,
+        description: data.description,
+        contentValue: data.contentValue,
+        ...(data.codValue && {
+          codValue: data.codValue,
+          includeGuideCost: data.includeGuideCost || false,
+          codPaymentMethod: data.codPaymentMethod || "cash",
+        }),
+        packages: [
+          {
+            weight: data.packageWeight,
+            height: data.packageHeight,
+            width: data.packageWidth,
+            length: data.packageLength,
+          },
+        ],
+        origin: {
+          company: data.senderCompany,
+          firstName: data.senderFirstName,
+          lastName: data.senderLastName,
+          email: data.senderEmail,
           phone: data.senderPhone,
           address: data.senderAddress,
-          city: data.senderCity,
+          suburb: data.senderSuburb,
+          crossStreet: data.senderCrossStreet,
+          reference: data.senderReference,
+          daneCode: data.senderDaneCode,
         },
-        receiver: {
-          name: data.receiverName,
+        destination: {
+          company: data.receiverCompany,
+          firstName: data.receiverFirstName,
+          lastName: data.receiverLastName,
+          email: data.receiverEmail,
           phone: data.receiverPhone,
           address: data.receiverAddress,
-          city: data.receiverCity,
-          department: data.receiverDepartment,
+          suburb: data.receiverSuburb,
+          crossStreet: data.receiverCrossStreet,
+          reference: data.receiverReference,
+          daneCode: data.receiverDaneCode,
         },
-        package: {
-          weight: data.packageWeight,
-          declared_value: data.packageValue,
-        },
-        payment_type: data.paymentType,
-        observations: data.observations || "",
       };
 
-      const response = await fetch(`${this.apiUrl}/v1/shipments`, {
+      // Usar endpoint sandbox en desarrollo, producción en producción
+      const endpoint = this.environment === "sandbox" 
+        ? `${this.apiUrl}/api/v2/shipment_sandbox`
+        : `${this.apiUrl}/api/v2/shipment`;
+
+      console.log(`Creando guía en ${this.environment}:`, endpoint);
+
+      const response = await fetch(endpoint, {
         method: "POST",
         headers: this.getHeaders(),
         body: JSON.stringify(payload),
@@ -117,21 +230,21 @@ class EnvioClickService {
 
       const result = await response.json();
 
-      if (!response.ok) {
+      if (result.status !== "OK") {
         return {
           success: false,
-          error: result.message || "Error al crear guía de envío",
+          error: JSON.stringify(result.status_messages) || "Error al crear guía de envío",
         };
       }
 
       return {
         success: true,
         data: {
-          guideNumber: result.guide_number,
-          shipmentId: result.shipment_id,
-          trackingUrl: result.tracking_url,
-          labelUrl: result.label_url,
-          estimatedDeliveryDate: result.estimated_delivery,
+          guideNumber: result.data.tracker,
+          shipmentId: result.data.idOrder.toString(),
+          trackingUrl: `https://www.envioclick.com/track/${result.data.tracker}`,
+          labelUrl: result.data.url,
+          idOrder: result.data.idOrder,
         },
       };
     } catch (error) {
@@ -143,45 +256,34 @@ class EnvioClickService {
     }
   }
 
-  /**
-   * Consultar estado de un envío
-   */
-  async trackShipment(guideNumber: string): Promise<TrackingResponse> {
+  async trackShipment(trackingCode: string): Promise<TrackingResponse> {
     try {
       if (!this.apiKey) {
         throw new Error("API Key de EnvioClick no configurada");
       }
 
-      const response = await fetch(
-        `${this.apiUrl}/v1/tracking/${guideNumber}`,
-        {
-          method: "GET",
-          headers: this.getHeaders(),
-        }
-      );
+      const response = await fetch(`${this.apiUrl}/api/v2/track`, {
+        method: "POST",
+        headers: this.getHeaders(),
+        body: JSON.stringify({ trackingCode }),
+      });
 
       const result = await response.json();
 
-      if (!response.ok) {
+      if (result.status !== "OK") {
         return {
           success: false,
-          error: result.message || "Error al consultar tracking",
+          error: JSON.stringify(result.status_messages) || "Error al consultar tracking",
         };
       }
 
       return {
         success: true,
         data: {
-          guideNumber: result.guide_number,
-          status: result.status,
-          currentLocation: result.current_location,
-          estimatedDelivery: result.estimated_delivery,
-          events: result.events.map((event: any) => ({
-            date: event.date,
-            status: event.status,
-            description: event.description,
-            location: event.location,
-          })),
+          guideNumber: trackingCode,
+          status: result.data.status,
+          statusDetail: result.data.statusDetail,
+          arrivalDate: result.data.arrivalDate,
         },
       };
     } catch (error) {
@@ -193,68 +295,14 @@ class EnvioClickService {
     }
   }
 
-  /**
-   * Cancelar un envío
-   */
-  async cancelShipment(guideNumber: string): Promise<EnvioClickResponse> {
+  async trackShipmentByOrderId(idOrder: number): Promise<TrackingResponse> {
     try {
       if (!this.apiKey) {
         throw new Error("API Key de EnvioClick no configurada");
       }
 
       const response = await fetch(
-        `${this.apiUrl}/v1/shipments/${guideNumber}/cancel`,
-        {
-          method: "POST",
-          headers: this.getHeaders(),
-        }
-      );
-
-      const result = await response.json();
-
-      if (!response.ok) {
-        return {
-          success: false,
-          error: result.message || "Error al cancelar envío",
-        };
-      }
-
-      return {
-        success: true,
-        data: result,
-      };
-    } catch (error) {
-      console.error("Error en cancelShipment:", error);
-      return {
-        success: false,
-        error: error instanceof Error ? error.message : "Error desconocido",
-      };
-    }
-  }
-
-  /**
-   * Obtener cotización de envío
-   */
-  async getShippingQuote(
-    originCity: string,
-    destinationCity: string,
-    weight: number,
-    declaredValue: number
-  ): Promise<EnvioClickResponse> {
-    try {
-      if (!this.apiKey) {
-        throw new Error("API Key de EnvioClick no configurada");
-      }
-
-      const params = new URLSearchParams({
-        origin: originCity,
-        destination: destinationCity,
-        weight: weight.toString(),
-        declared_value: declaredValue.toString(),
-      });
-
-      const response = await fetch(
-        `${this.apiUrl}/v1/quotes?${params.toString()}`,
+        `${this.apiUrl}/api/v2/track-by-orders/${idOrder}`,
         {
           method: "GET",
           headers: this.getHeaders(),
@@ -263,19 +311,27 @@ class EnvioClickService {
 
       const result = await response.json();
 
-      if (!response.ok) {
+      if (result.status !== "OK") {
         return {
           success: false,
-          error: result.message || "Error al obtener cotización",
+          error: typeof result.data === "string" ? result.data : "Error al consultar tracking",
         };
       }
 
       return {
         success: true,
-        data: result,
+        data: {
+          guideNumber: "",
+          status: result.data.status,
+          statusDetail: result.data.statusDetail,
+          arrivalDate: result.data.arrivalDate,
+          realPickupDate: result.data.realPickupDate,
+          realDeliveryDate: result.data.realDeliveryDate,
+          receivedBy: result.data.receivedBy,
+        },
       };
     } catch (error) {
-      console.error("Error en getShippingQuote:", error);
+      console.error("Error en trackShipmentByOrderId:", error);
       return {
         success: false,
         error: error instanceof Error ? error.message : "Error desconocido",
@@ -283,20 +339,54 @@ class EnvioClickService {
     }
   }
 
-  /**
-   * Mapear estado de EnvioClick a estado de orden
-   */
+  async cancelShipments(idOrders: number[]): Promise<EnvioClickResponse> {
+    try {
+      if (!this.apiKey) {
+        throw new Error("API Key de EnvioClick no configurada");
+      }
+
+      const response = await fetch(
+        `${this.apiUrl}/api/v2/cancellation/batch/order`,
+        {
+          method: "POST",
+          headers: this.getHeaders(),
+          body: JSON.stringify({ idOrders }),
+        }
+      );
+
+      const result = await response.json();
+
+      if (result.status !== "OK") {
+        return {
+          success: false,
+          error: JSON.stringify(result.status_messages) || "Error al cancelar envío",
+        };
+      }
+
+      return {
+        success: true,
+        data: result.data,
+      };
+    } catch (error) {
+      console.error("Error en cancelShipments:", error);
+      return {
+        success: false,
+        error: error instanceof Error ? error.message : "Error desconocido",
+      };
+    }
+  }
+
   mapEnvioClickStatusToOrderStatus(
     envioClickStatus: string
-  ): "pending" | "paid" | "processing" | "shipped" | "delivered" {
-    const statusMap: Record<string, "pending" | "paid" | "processing" | "shipped" | "delivered"> = {
-      "CREATED": "processing",
-      "PICKED_UP": "shipped",
-      "IN_TRANSIT": "shipped",
-      "OUT_FOR_DELIVERY": "shipped",
-      "DELIVERED": "delivered",
-      "RETURNED": "processing",
-      "CANCELLED": "processing",
+  ): "pending" | "paid" | "processing" | "shipped" | "delivered" | "cancelled" {
+    const statusMap: Record<string, "pending" | "paid" | "processing" | "shipped" | "delivered" | "cancelled"> = {
+      "Pendiente de Recolección": "processing",
+      "Recolectado": "shipped",
+      "En Tránsito": "shipped",
+      "En Reparto": "shipped",
+      "Entregado": "delivered",
+      "Devuelto": "cancelled",
+      "Cancelado": "cancelled",
     };
 
     return statusMap[envioClickStatus] || "processing";
@@ -304,4 +394,10 @@ class EnvioClickService {
 }
 
 export const envioClickService = new EnvioClickService();
-export type { ShipmentData, EnvioClickResponse, TrackingEvent, TrackingResponse };
+export type { 
+  ShipmentData, 
+  EnvioClickResponse, 
+  TrackingResponse,
+  QuotationRequest,
+  QuotationResponse
+};

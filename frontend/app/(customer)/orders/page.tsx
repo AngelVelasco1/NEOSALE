@@ -73,7 +73,12 @@ export default function OrdersPage() {
   }, [session, status, router]);
 
   const getStatusBadge = (status: Order["status"]) => {
-    const statusConfig = {
+    const statusConfig: Record<string, {
+      label: string;
+      className: string;
+      icon: any;
+      bgIcon: string;
+    }> = {
       pending: {
         label: "Pendiente",
         className: "bg-gradient-to-r from-amber-500/20 to-orange-500/20 text-amber-200 border border-amber-500/40 shadow-lg shadow-amber-500/10",
@@ -85,6 +90,12 @@ export default function OrdersPage() {
         className: "bg-gradient-to-r from-blue-500/20 to-cyan-500/20 text-blue-200 border border-blue-500/40 shadow-lg shadow-blue-500/10",
         icon: CreditCard,
         bgIcon: "from-blue-500/30 to-cyan-500/30",
+      },
+      processing: {
+        label: "Procesando",
+        className: "bg-gradient-to-r from-indigo-500/20 to-purple-500/20 text-indigo-200 border border-indigo-500/40 shadow-lg shadow-indigo-500/10",
+        icon: Package,
+        bgIcon: "from-indigo-500/30 to-purple-500/30",
       },
       confirmed: {
         label: "Confirmado",
@@ -112,7 +123,7 @@ export default function OrdersPage() {
       },
     };
 
-    const config = status ? statusConfig[status] : statusConfig.pending;
+    const config = (status && statusConfig[status]) ? statusConfig[status] : statusConfig.pending;
     const StatusIcon = config.icon;
 
     return (

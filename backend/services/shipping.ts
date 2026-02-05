@@ -1,23 +1,119 @@
 import { prisma } from "../lib/prisma";
-import { envioClickService, ShipmentData } from "./envioclick";
+import { envioClickService, ShipmentData, QuotationRequest } from "./envioclick";
 import { NotFoundError } from "../errors/errorsClass";
 
 /**
+ * Obtener cotización de envío para una orden
+ */
+export const getShippingQuoteService = async (orderId: number) => {
+  try {
+    const order = await prisma.orders.findUnique({
+      where: { id: orderId },
+      include: {
+        addresses: {
+          select: {
+            address: true,
+            city: true,
+            department: true,
+          },
+        },
+        order_items: {
+          include: {
+            products: {
+              select: {
+                weight_grams: true,
+              },
+            },
+          },
+        },
+      },
+    });
+
+    if (!order) {
+      throw new NotFoundError("Orden no encontrada");
+    }
+
+    // Calcular peso total en KG
+    const totalWeightGrams = order.order_items.reduce(
+      (acc, item) => acc + (item.products.weight_grams * item.quantity),
+      0
+    );
+    const totalWeightKg = Math.max(totalWeightGrams / 1000, 1); // Mínimo 1 kg
+
+    // Dimensiones estimadas del paquete (puedes ajustar según tu lógica)
+    const packageDimensions = {
+      height: 10, // cm
+      width: 15,  // cm
+      length: 20, // cm
+    };
+
+    // Códigos DANE (debes tener una tabla o servicio para mapear ciudades a códigos DANE)
+    // Bogotá: 11001000
+    const originDaneCode = process.env.STORE_DANE_CODE || "11001000";
+    const destinationDaneCode = "11001000"; // Debes implementar un mapeo real
+
+    const quotationRequest: QuotationRequest = {
+      packages: [
+        {
+          weight: totalWeightKg,
+          height: packageDimensions.height,
+          width: packageDimensions.width,
+          length: packageDimensions.length,
+        },
+      ],
+      description: "Productos NeoSale",
+      contentValue: order.subtotal,
+      origin: {
+        daneCode: originDaneCode,
+        address: process.env.STORE_ADDRESS || "Calle 123 #45-67",
+      },
+      destination: {
+        daneCode: destinationDaneCode,
+        address: order.addresses.address,
+      },
+    };
+
+    const result = await envioClickService.getShippingQuote(quotationRequest);
+
+    if (!result.success || !result.data) {
+      return {
+        success: false,
+        message: result.error || "Error al obtener cotización",
+      };
+    }
+
+    return {
+      success: true,
+      data: result.data.rates,
+    };
+  } catch (error) {
+    console.error("Error en getShippingQuoteService:", error);
+    return {
+      success: false,
+      message: error instanceof Error ? error.message : "Error desconocido",
+    };
+  }
+};
+
+/**
  * Crear guía de envío para una orden
+ * Requiere un idRate obtenido de una cotización previa
  */
 export const createShippingGuideService = async (
   orderId: number,
-  paymentType: "PAID" | "COLLECT" = "PAID"
+  idRate: number,
+  requestPickup: boolean = false,
+  insurance: boolean = true
 ) => {
   try {
     // Obtener información de la orden
     const order = await prisma.orders.findUnique({
       where: { id: orderId },
       include: {
-        User_orders_user_idToUser: {
+        users: {
           select: {
             name: true,
-            phone_number: true,
+            phoneNumber: true,
             email: true,
           },
         },
@@ -54,34 +150,80 @@ export const createShippingGuideService = async (
       };
     }
 
-    // Calcular peso total
-    const totalWeight = order.order_items.reduce(
+    // Calcular peso total en KG
+    const totalWeightGrams = order.order_items.reduce(
       (acc, item) => acc + (item.products.weight_grams * item.quantity),
       0
     );
+    const totalWeightKg = Math.max(totalWeightGrams / 1000, 1);
 
-    // Datos de remitente (tu tienda)
-    const senderName = process.env.STORE_NAME || "NeoSale";
-    const senderPhone = process.env.STORE_PHONE || "3001234567";
-    const senderAddress = process.env.STORE_ADDRESS || "Calle 123 #45-67";
-    const senderCity = process.env.STORE_CITY || "Bogotá";
+    // Dimensiones del paquete
+    const packageDimensions = {
+      height: 10,
+      width: 15,
+      length: 20,
+    };
 
-    // Preparar datos del envío
+    // Dividir nombre del cliente
+    const fullName = order.users.name || "Cliente";
+    const nameParts = fullName.trim().split(" ");
+    const receiverFirstName = nameParts[0] || "Cliente";
+    const receiverLastName = nameParts.slice(1).join(" ") || "N/A";
+
+    // Datos de remitente
+    const storeName = process.env.STORE_NAME || "NeoSale";
+    const storeNameParts = storeName.split(" ");
+    const senderFirstName = storeNameParts[0] || "Neo";
+    const senderLastName = storeNameParts.slice(1).join(" ") || "Sale";
+
+    // Fecha de recolección (mañana)
+    const tomorrow = new Date();
+    tomorrow.setDate(tomorrow.getDate() + 1);
+    const pickupDate = tomorrow.toISOString().split("T")[0]; // YYYY-MM-DD
+
+    // Códigos DANE
+    const originDaneCode = process.env.STORE_DANE_CODE || "11001000";
+    const destinationDaneCode = "11001000"; // Implementar mapeo real
+
+    // Preparar datos del envío según la API de EnvioClick
     const shipmentData: ShipmentData = {
       orderId: order.id,
-      senderName,
-      senderPhone,
-      senderAddress,
-      senderCity,
-      receiverName: order.User_orders_user_idToUser.name || "Cliente",
-      receiverPhone: order.User_orders_user_idToUser.phone_number || "",
+      idRate: idRate,
+      requestPickup: requestPickup,
+      pickupDate: pickupDate,
+      insurance: insurance,
+      description: "Productos NeoSale",
+      contentValue: order.subtotal,
+      
+      // Dimensiones del paquete
+      packageWeight: totalWeightKg,
+      packageHeight: packageDimensions.height,
+      packageWidth: packageDimensions.width,
+      packageLength: packageDimensions.length,
+      
+      // Datos del remitente (origen)
+      senderCompany: process.env.STORE_NAME || "NeoSale",
+      senderFirstName: senderFirstName,
+      senderLastName: senderLastName,
+      senderEmail: process.env.STORE_EMAIL || "contacto@neosale.com",
+      senderPhone: (process.env.STORE_PHONE || "3001234567").slice(-10),
+      senderAddress: process.env.STORE_ADDRESS || "Calle 123 #45-67",
+      senderSuburb: process.env.STORE_SUBURB || "Centro",
+      senderCrossStreet: process.env.STORE_CROSS_STREET || "N/A",
+      senderReference: process.env.STORE_REFERENCE || "Edificio principal",
+      senderDaneCode: originDaneCode,
+      
+      // Datos del destinatario
+      receiverCompany: "N/A",
+      receiverFirstName: receiverFirstName,
+      receiverLastName: receiverLastName,
+      receiverEmail: order.users.email || "cliente@example.com",
+      receiverPhone: (order.users.phoneNumber || "3000000000").slice(-10),
       receiverAddress: order.addresses.address,
-      receiverCity: order.addresses.city,
-      receiverDepartment: order.addresses.department,
-      packageWeight: totalWeight,
-      packageValue: order.total,
-      paymentType,
-      observations: order.user_note || undefined,
+      receiverSuburb: "N/A",
+      receiverCrossStreet: "N/A",
+      receiverReference: "N/A",
+      receiverDaneCode: destinationDaneCode,
     };
 
     // Crear guía en EnvioClick
@@ -102,7 +244,7 @@ export const createShippingGuideService = async (
         envioclick_shipment_id: result.data.shipmentId,
         envioclick_tracking_url: result.data.trackingUrl,
         envioclick_label_url: result.data.labelUrl,
-        envioclick_status: "CREATED",
+        envioclick_status: "Pendiente de Recolección",
         tracking_number: result.data.guideNumber,
         carrier: "EnvioClick",
         status: "processing",
@@ -133,18 +275,29 @@ export const updateTrackingService = async (orderId: number) => {
       where: { id: orderId },
       select: {
         envioclick_guide_number: true,
-        tracking_history: true,
+        envioclick_shipment_id: true,
+        envioclick_status: true,
       },
     });
 
-    if (!order || !order.envioclick_guide_number) {
-      throw new NotFoundError("Orden sin guía de envío");
+    if (!order) {
+      throw new NotFoundError("Orden no encontrada");
     }
 
-    // Consultar tracking en EnvioClick
-    const trackingResult = await envioClickService.trackShipment(
-      order.envioclick_guide_number
-    );
+    // Intentar rastrear por número de orden de EnvioClick si existe
+    let trackingResult;
+    if (order.envioclick_shipment_id) {
+      trackingResult = await envioClickService.trackShipmentByOrderId(
+        parseInt(order.envioclick_shipment_id)
+      );
+    } else if (order.envioclick_guide_number) {
+      // Si no existe shipment_id, intentar por número de guía
+      trackingResult = await envioClickService.trackShipment(
+        order.envioclick_guide_number
+      );
+    } else {
+      throw new NotFoundError("Orden sin información de envío");
+    }
 
     if (!trackingResult.success || !trackingResult.data) {
       return {
@@ -153,7 +306,7 @@ export const updateTrackingService = async (orderId: number) => {
       };
     }
 
-    const { status, currentLocation, estimatedDelivery, events } =
+    const { status, statusDetail, arrivalDate, realPickupDate, realDeliveryDate, receivedBy } =
       trackingResult.data;
 
     // Mapear estado de EnvioClick a estado de orden
@@ -165,21 +318,17 @@ export const updateTrackingService = async (orderId: number) => {
       envioclick_status: status,
       status: orderStatus,
       last_tracking_update: new Date(),
-      tracking_history: events,
       updated_at: new Date(),
     };
 
     // Si fue entregado, actualizar delivered_at
-    if (status === "DELIVERED" && !order.tracking_history) {
-      updateData.delivered_at = new Date();
+    if (status === "Entregado") {
+      updateData.delivered_at = realDeliveryDate ? new Date(realDeliveryDate) : new Date();
     }
 
-    // Si fue enviado y no tiene shipped_at
-    if (
-      ["IN_TRANSIT", "OUT_FOR_DELIVERY"].includes(status) &&
-      orderStatus === "shipped"
-    ) {
-      updateData.shipped_at = new Date();
+    // Si fue recolectado y no tiene shipped_at
+    if (status === "Recolectado" || status === "En Tránsito") {
+      updateData.shipped_at = realPickupDate ? new Date(realPickupDate) : new Date();
     }
 
     await prisma.orders.update({
@@ -192,9 +341,11 @@ export const updateTrackingService = async (orderId: number) => {
       message: "Tracking actualizado",
       data: {
         status,
-        currentLocation,
-        estimatedDelivery,
-        events,
+        statusDetail,
+        arrivalDate,
+        realPickupDate,
+        realDeliveryDate,
+        receivedBy,
       },
     };
   } catch (error) {
@@ -210,39 +361,31 @@ export const updateTrackingService = async (orderId: number) => {
  * Obtener información de tracking
  */
 export const getTrackingInfoService = async (orderId: number) => {
-  try {
-    const order = await prisma.orders.findUnique({
-      where: { id: orderId },
-      select: {
-        id: true,
-        status: true,
-        envioclick_guide_number: true,
-        envioclick_tracking_url: true,
-        envioclick_status: true,
-        tracking_number: true,
-        carrier: true,
-        tracking_history: true,
-        last_tracking_update: true,
-        shipped_at: true,
-        delivered_at: true,
-      },
-    });
+  const order = await prisma.orders.findUnique({
+    where: { id: orderId },
+    select: {
+      id: true,
+      status: true,
+      envioclick_guide_number: true,
+      envioclick_tracking_url: true,
+      envioclick_status: true,
+      tracking_number: true,
+      carrier: true,
+      tracking_history: true,
+      last_tracking_update: true,
+      shipped_at: true,
+      delivered_at: true,
+    },
+  });
 
-    if (!order) {
-      throw new NotFoundError("Orden no encontrada");
-    }
-
-    return {
-      success: true,
-      data: order,
-    };
-  } catch (error) {
-    console.error("Error en getTrackingInfoService:", error);
-    return {
-      success: false,
-      message: error instanceof Error ? error.message : "Error desconocido",
-    };
+  if (!order) {
+    throw new NotFoundError("Orden no encontrada");
   }
+
+  return {
+    success: true,
+    data: order,
+  };
 };
 
 /**
@@ -254,11 +397,12 @@ export const cancelShippingService = async (orderId: number) => {
       where: { id: orderId },
       select: {
         envioclick_guide_number: true,
+        envioclick_shipment_id: true,
         status: true,
       },
     });
 
-    if (!order || !order.envioclick_guide_number) {
+    if (!order || !order.envioclick_shipment_id) {
       throw new NotFoundError("Orden sin guía de envío");
     }
 
@@ -269,10 +413,10 @@ export const cancelShippingService = async (orderId: number) => {
       };
     }
 
-    // Cancelar en EnvioClick
-    const result = await envioClickService.cancelShipment(
-      order.envioclick_guide_number
-    );
+    // Cancelar en EnvioClick (requiere el idOrder de EnvioClick)
+    const result = await envioClickService.cancelShipments([
+      parseInt(order.envioclick_shipment_id)
+    ]);
 
     if (!result.success) {
       return {
@@ -285,7 +429,8 @@ export const cancelShippingService = async (orderId: number) => {
     await prisma.orders.update({
       where: { id: orderId },
       data: {
-        envioclick_status: "CANCELLED",
+        envioclick_status: "Cancelado",
+        status: "cancelled",
         cancelled_at: new Date(),
         updated_at: new Date(),
       },
@@ -294,6 +439,7 @@ export const cancelShippingService = async (orderId: number) => {
     return {
       success: true,
       message: "Envío cancelado exitosamente",
+      data: result.data,
     };
   } catch (error) {
     console.error("Error en cancelShippingService:", error);

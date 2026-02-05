@@ -1,10 +1,18 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { Package, MapPin, Clock, CheckCircle, Truck, XCircle } from "lucide-react";
+import { Package, MapPin, Clock, CheckCircle, Truck, XCircle, FileText, ExternalLink, Printer, AlertCircle } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import { Alert, AlertDescription } from "@/components/ui/alert";
 import {
   getTrackingInfo,
   startTrackingPolling,
@@ -16,6 +24,7 @@ interface TrackingTimelineProps {
   orderId: number;
   autoUpdate?: boolean;
   updateInterval?: number;
+  orderData?: any;
 }
 
 const statusIcons: Record<string, any> = {
@@ -52,10 +61,12 @@ export function TrackingTimeline({
   orderId,
   autoUpdate = false,
   updateInterval = 60000,
+  orderData,
 }: TrackingTimelineProps) {
   const [loading, setLoading] = useState(true);
   const [trackingData, setTrackingData] = useState<any>(null);
   const [error, setError] = useState<string | null>(null);
+  const [showSandboxGuide, setShowSandboxGuide] = useState(false);
 
   useEffect(() => {
     loadTracking();
@@ -124,6 +135,7 @@ export function TrackingTimeline({
   const {
     envioclick_guide_number,
     envioclick_tracking_url,
+    envioclick_label_url,
     envioclick_status,
     tracking_history = [],
     carrier,
@@ -151,28 +163,55 @@ export function TrackingTimeline({
       </CardHeader>
       <CardContent className="space-y-6">
         {/* Información de Guía */}
-        {envioclick_guide_number && (
-          <div className="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
-            <div>
-              <p className="text-sm text-gray-600">Número de Guía</p>
-              <p className="font-mono font-semibold">{envioclick_guide_number}</p>
-              {carrier && (
-                <p className="text-xs text-gray-500 mt-1">
-                  Transportadora: {carrier}
-                </p>
-              )}
-            </div>
-            {envioclick_tracking_url && (
+        <div className="p-4 bg-gray-50 rounded-lg space-y-3">
+          {envioclick_guide_number ? (
+            <>
+              <div>
+                <p className="text-sm text-gray-600">Número de Guía</p>
+                <p className="font-mono font-semibold">{envioclick_guide_number}</p>
+                {carrier && (
+                  <p className="text-xs text-gray-500 mt-1">
+                    Transportadora: {carrier}
+                  </p>
+                )}
+              </div>
+              
+              <Button
+                variant="default"
+                size="sm"
+                className="w-full"
+                onClick={() => {
+                  if (envioclick_label_url?.includes('sandbox')) {
+                    setShowSandboxGuide(true);
+                  } else if (envioclick_label_url) {
+                    window.open(envioclick_label_url, "_blank");
+                  }
+                }}
+              >
+                <FileText className="w-4 h-4 mr-2" />
+                Ver Guía de Envío
+              </Button>
+            </>
+          ) : (
+            <div className="text-center py-4">
+              <Package className="w-10 h-10 mx-auto text-gray-400 mb-2" />
+              <p className="text-sm text-gray-600 mb-3">
+                Aún no se ha generado la guía de envío
+              </p>
               <Button
                 variant="outline"
                 size="sm"
-                onClick={() => window.open(envioclick_tracking_url, "_blank")}
+                onClick={() => {
+                  console.log("Abriendo modal de guía");
+                  setShowSandboxGuide(true);
+                }}
               >
-                Ver en {carrier || "EnvioClick"}
+                <FileText className="w-4 h-4 mr-2" />
+                Vista Previa de Guía
               </Button>
-            )}
-          </div>
-        )}
+            </div>
+          )}
+        </div>
 
         {/* Timeline de Eventos */}
         {events.length > 0 ? (
@@ -237,6 +276,123 @@ export function TrackingTimeline({
           </div>
         )}
       </CardContent>
-    </Card>
+
+      {/* Modal para mostrar guía sandbox */}
+      <Dialog open={showSandboxGuide} onOpenChange={setShowSandboxGuide}>
+        <DialogContent className="max-w-2xl">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <Package className="w-5 h-5" />
+              Guía de Envío
+            </DialogTitle>
+            <DialogDescription>
+              Información de tu guía de envío
+            </DialogDescription>
+          </DialogHeader>
+
+          <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 space-y-4 bg-gray-50">
+            {/* Header */}
+            <div className="flex justify-between items-start">
+              <div>
+                <h3 className="font-bold text-xl">NEOSALE</h3>
+                <p className="text-sm text-gray-600">Guía de Envío</p>
+              </div>
+              <div className="text-right">
+                {envioclick_label_url?.includes('sandbox') && (
+                  <Badge variant="secondary" className="bg-yellow-100 text-yellow-800 border-yellow-300">
+                    MODO PRUEBA
+                  </Badge>
+                )}
+                <p className="text-xs text-gray-500 mt-1">Orden #{orderId}</p>
+              </div>
+            </div>
+
+            {/* Barcode simulado */}
+            <div className="bg-white p-4 rounded border border-gray-300 text-center">
+              <div className="font-mono text-2xl font-bold tracking-wider">
+                {envioclick_guide_number || 'SANDBOX123456789'}
+              </div>
+              <div className="mt-2 flex justify-center gap-0.5">
+                {Array.from({length: 40}).map((_, i) => (
+                  <div
+                    key={i}
+                    className="w-1 bg-black"
+                    style={{height: Math.random() > 0.5 ? '40px' : '30px'}}
+                  />
+                ))}
+              </div>
+            </div>
+
+            {/* Información del envío */}
+            <div className="grid grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <div className="bg-white p-3 rounded border border-gray-300">
+                  <p className="text-xs text-gray-500 font-semibold mb-1">REMITENTE</p>
+                  <p className="font-semibold">NEOSALE</p>
+                  <p className="text-sm">Calle 123 #45-67</p>
+                  <p className="text-sm">Bogotá, Colombia</p>
+                  <p className="text-sm">Tel: 300-123-4567</p>
+                </div>
+              </div>
+
+              <div className="space-y-2">
+                <div className="bg-white p-3 rounded border border-gray-300">
+                  <p className="text-xs text-gray-500 font-semibold mb-1">DESTINATARIO</p>
+                  <p className="font-semibold">{orderData?.shipping_address?.name || 'Nombre no disponible'}</p>
+                  <p className="text-sm">{orderData?.shipping_address?.address1}</p>
+                  {orderData?.shipping_address?.address2 && (
+                    <p className="text-sm">{orderData?.shipping_address?.address2}</p>
+                  )}
+                  <p className="text-sm">{orderData?.shipping_address?.city}, {orderData?.shipping_address?.state}</p>
+                  <p className="text-sm">Tel: {orderData?.shipping_address?.phone}</p>
+                </div>
+              </div>
+            </div>
+
+            {/* Información de transportadora */}
+            <div className="bg-white p-3 rounded border border-gray-300">
+              <div className="flex justify-between items-center">
+                <div>
+                  <p className="text-xs text-gray-500 font-semibold">TRANSPORTADORA</p>
+                  <p className="font-bold text-lg">{carrier || 'ENVIA'}</p>
+                </div>
+                <div className="text-right">
+                  <p className="text-xs text-gray-500 font-semibold">PESO</p>
+                  <p className="font-semibold">1.0 kg</p>
+                </div>
+              </div>
+            </div>
+
+            {/* Advertencia sandbox */}
+            {envioclick_label_url?.includes('sandbox') && (
+              <Alert className="bg-yellow-50 border-yellow-200">
+                <AlertCircle className="h-4 w-4 text-yellow-600" />
+                <AlertDescription className="text-yellow-800 text-xs">
+                  <strong>Modo Sandbox:</strong> Esta guía es solo para pruebas. No es válida para envíos reales.
+                </AlertDescription>
+              </Alert>
+            )}
+          </div>
+
+          <div className="flex gap-2">
+            <Button
+              variant="outline"
+              className="flex-1"
+              onClick={() => window.print()}
+            >
+              <Printer className="w-4 h-4 mr-2" />
+              Imprimir
+            </Button>
+            <Button
+              variant="default"
+              className="flex-1"
+              onClick={() => setShowSandboxGuide(false)}
+            >
+              Cerrar
+            </Button>
+      </div>
+    </DialogContent>
+  </Dialog>
+</Card>
   );
 }

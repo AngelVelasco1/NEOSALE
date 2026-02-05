@@ -733,7 +733,11 @@ export default function OrderDetailPage() {
 
             {/* Tracking Timeline Component */}
             <motion.div variants={fadeIn}>
-              <TrackingTimeline orderId={parseInt(orderId)} autoUpdate={true} />
+              <TrackingTimeline 
+                orderId={parseInt(orderId)} 
+                autoUpdate={true}
+                orderData={order}
+              />
             </motion.div>
 
             {/* Help Card */}

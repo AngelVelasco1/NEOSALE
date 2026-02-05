@@ -424,6 +424,7 @@ model StoreSettings {
   favicon_url         String?   @db.VarChar(255)
   primary_color       String    @default("#3B82F6") @db.VarChar(20)
   secondary_color     String    @default("#6366F1") @db.VarChar(20)
+  accent_color        String    @default("#D946EF") @db.VarChar(20)
   footer_text         String?
   newsletter_enabled  Boolean   @default(true)
   show_whatsapp_chat  Boolean   @default(true)
@@ -438,7 +439,6 @@ model StoreSettings {
   created_at          DateTime  @default(now()) @db.Timestamp(6)
   updated_at          DateTime? @db.Timestamp(6)
   updated_by          Int?
-  accent_color        String    @default("#D946EF") @db.VarChar(20)
 
   @@map("store_settings")
 }
