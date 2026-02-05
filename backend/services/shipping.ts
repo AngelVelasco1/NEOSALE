@@ -533,3 +533,69 @@ export const processWebhookService = async (webhookData: any) => {
     };
   }
 };
+
+/**
+ * Crear guía de envío automáticamente para una orden
+ * Se usa cuando el pago es aprobado
+ */
+export const createShippingGuideAutomaticService = async (
+  orderId: number,
+  paymentType: "PAID" | "COLLECT" = "PAID"
+) => {
+  try {
+    // 1. Obtener cotización de envío
+    const quoteResult = await getShippingQuoteService(orderId);
+
+    if (!quoteResult.success || !quoteResult.data || quoteResult.data.length === 0) {
+      console.warn(
+        `[AUTO-GUIDE] No se obtuvieron cotizaciones para orden ${orderId}`
+      );
+      return {
+        success: false,
+        message: "No hay cotizaciones disponibles para crear guía automática",
+      };
+    }
+
+    // 2. Seleccionar la primera tarifa disponible (más económica o predeterminada)
+    const selectedRate = quoteResult.data[0];
+    const idRate = selectedRate.idRate;
+
+    // 3. Crear la guía automáticamente
+    const guideResult = await createShippingGuideService(
+      orderId,
+      idRate,
+      false, // requestPickup
+      true   // insurance
+    );
+
+    if (guideResult.success) {
+      console.log(
+        `✅ [AUTO-GUIDE] Guía creada automáticamente para orden ${orderId}: ${guideResult.guideNumber}`
+      );
+      return {
+        success: true,
+        message: "Guía de envío creada automáticamente",
+        guideNumber: guideResult.guideNumber,
+      };
+    } else {
+      console.warn(
+        `[AUTO-GUIDE] Error creando guía para orden ${orderId}: ${guideResult.message}`
+      );
+      return {
+        success: false,
+        message: guideResult.message || "Error al crear guía automáticamente",
+      };
+    }
+  } catch (error) {
+    console.error(
+      `[AUTO-GUIDE] Error en createShippingGuideAutomaticService para orden ${orderId}:`,
+      error
+    );
+    return {
+      success: false,
+      message:
+        error instanceof Error ? error.message : "Error desconocido",
+    };
+  }
+};
+

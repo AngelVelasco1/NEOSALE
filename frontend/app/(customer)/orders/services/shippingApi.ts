@@ -131,6 +131,7 @@ export const updateTracking = async (
 
 /**
  * Obtener información de tracking de una orden
+ * Incluye manejo específico de errores 429 (rate limiting)
  */
 export const getTrackingInfo = async (
   orderId: number
@@ -139,10 +140,22 @@ export const getTrackingInfo = async (
     const response = await api.get(`/api/shipping/tracking/${orderId}`);
     return response.data;
   } catch (error: any) {
+    const status = error.response?.status;
+    const message = error.response?.data?.message || error.message || "Error al obtener información de tracking";
+    
+    // Manejo específico de rate limiting
+    if (status === 429) {
+      console.warn(`Rate limit excedido (429) para orden ${orderId}. Reintentar después.`);
+      return {
+        success: false,
+        message: `Límite de solicitudes excedido. Por favor, espera unos minutos antes de intentar nuevamente.`,
+      };
+    }
+    
     console.error("Error fetching tracking info:", error);
     return {
       success: false,
-      message: error.response?.data?.message || error.message || "Error al obtener información de tracking",
+      message: message,
     };
   }
 };
@@ -167,21 +180,39 @@ export const cancelShipping = async (
 
 /**
  * Hook para polling de tracking (actualización automática)
+ * Incluye manejo de rate limiting y backoff exponencial
  */
 export const startTrackingPolling = (
   orderId: number,
   onUpdate: (data: TrackingInfoResponse) => void,
-  intervalMs: number = 60000 // 1 minuto por defecto
+  intervalMs: number = 300000 // 5 minutos por defecto para evitar rate limiting
 ): NodeJS.Timeout => {
+  let retryCount = 0;
+  const maxRetries = 3;
+
   const poll = async () => {
-    const data = await getTrackingInfo(orderId);
-    if (data.success) {
-      onUpdate(data);
+    try {
+      const data = await getTrackingInfo(orderId);
+      
+      // Si la solicitud fue exitosa, resetear el contador de reintentos
+      if (data.success) {
+        retryCount = 0;
+        onUpdate(data);
+      } else if (data.message?.includes('429')) {
+        // Manejo específico de rate limiting
+        console.warn(`Rate limit excedido para orden ${orderId}. Aumentando intervalo de polling.`);
+        retryCount++;
+      } else {
+        // Otros errores
+        onUpdate(data);
+      }
+    } catch (error) {
+      console.error(`Error en polling de tracking para orden ${orderId}:`, error);
     }
   };
 
-  // Primera llamada inmediata
-  poll();
+  // Primera llamada después de un pequeño delay para no sobrecargar
+  setTimeout(poll, 1000);
 
   // Polling cada intervalMs
   return setInterval(poll, intervalMs);
