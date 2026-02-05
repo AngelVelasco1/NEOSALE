@@ -21,6 +21,12 @@ export async function sendPasswordResetEmail({
   expiresInMinutes,
 }: SendPasswordResetEmailParams) {
   try {
+    // 🚫 Verificar si los emails están desactivados en desarrollo
+    if (process.env.DISABLE_EMAILS === 'true') {
+      console.log('📧 [DEV] Email de reset desactivado. Email:', email);
+      return { success: true, message: 'Email desactivado en desarrollo' };
+    }
+
     const baseUrl = getAppBaseUrl();
     const resetUrl = `${baseUrl}/update-password?token=${token}`;
 

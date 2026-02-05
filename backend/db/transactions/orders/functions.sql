@@ -205,41 +205,7 @@ BEGIN
         RETURN;
     END IF;
 
-    FOR v_cart_item IN
-        SELECT
-            (item->>'product_id')::INTEGER as product_id,
-            (item->>'quantity')::INTEGER as quantity,
-            COALESCE(item->>'color_code', '') as color_code,
-            COALESCE(item->>'size', '') as size
-        FROM jsonb_array_elements(v_payment.cart_data) as item
-    LOOP
-        -- Intentar actualizar product_variants primero (solo el stock)
-        IF v_cart_item.color_code != '' AND v_cart_item.size != '' THEN
-            UPDATE product_variants 
-            SET 
-                stock = stock - v_cart_item.quantity,
-                updated_at = NOW()
-            WHERE product_id = v_cart_item.product_id 
-            AND color_code = v_cart_item.color_code 
-            AND size = v_cart_item.size;
-            
-            -- Si no se encontró en variants, actualizar products
-            IF NOT FOUND THEN
-                UPDATE products 
-                SET 
-                    stock = stock - v_cart_item.quantity,
-                    updated_at = NOW()
-                WHERE id = v_cart_item.product_id;
-            END IF;
-        ELSE
-            -- Solo actualizar stock en products
-            UPDATE products 
-            SET 
-                stock = stock - v_cart_item.quantity,
-                updated_at = NOW()
-            WHERE id = v_cart_item.product_id;
-        END IF;
-    END LOOP;
+    -- ✅ Stock ya fue actualizado en fn_create_order_items, no duplicar aquí
 
     -- Limpiar carrito del usuario si existe
     DELETE FROM cart_items 
@@ -285,6 +251,8 @@ AS $$
 DECLARE
     v_cart_item RECORD;
     v_items_count INTEGER := 0;
+    v_current_stock INTEGER;
+    v_variant_found BOOLEAN;
 BEGIN
     -- Crear order_items desde cart_data
     FOR v_cart_item IN
@@ -296,6 +264,59 @@ BEGIN
             COALESCE(item->>'size', '') as size
         FROM jsonb_array_elements(p_cart_data) as item
     LOOP
+        -- ✅ Verificar y actualizar stock en product_variants si aplica
+        v_variant_found := FALSE;
+        
+        IF v_cart_item.color_code != '' AND v_cart_item.size != '' THEN
+            -- Intentar obtener stock de la variante
+            SELECT stock INTO v_current_stock 
+            FROM product_variants 
+            WHERE product_id = v_cart_item.product_id 
+            AND color_code = v_cart_item.color_code 
+            AND size = v_cart_item.size;
+            
+            IF FOUND THEN
+                v_variant_found := TRUE;
+                
+                IF v_current_stock < v_cart_item.quantity THEN
+                    RAISE EXCEPTION 'Stock insuficiente para producto ID % (variante %, talla %). Disponible: %, Solicitado: %', 
+                        v_cart_item.product_id, v_cart_item.color_code, v_cart_item.size, 
+                        v_current_stock, v_cart_item.quantity;
+                END IF;
+                
+                -- Decrementar stock en product_variants
+                UPDATE product_variants 
+                SET stock = stock - v_cart_item.quantity,
+                    updated_at = NOW()
+                WHERE product_id = v_cart_item.product_id 
+                AND color_code = v_cart_item.color_code 
+                AND size = v_cart_item.size;
+            END IF;
+        END IF;
+        
+        -- Si no hay variante o no se encontró, usar stock de products
+        IF NOT v_variant_found THEN
+            SELECT stock INTO v_current_stock 
+            FROM products 
+            WHERE id = v_cart_item.product_id;
+
+            IF v_current_stock IS NULL THEN
+                RAISE EXCEPTION 'Producto ID % no existe', v_cart_item.product_id;
+            END IF;
+
+            IF v_current_stock < v_cart_item.quantity THEN
+                RAISE EXCEPTION 'Stock insuficiente para producto ID %. Disponible: %, Solicitado: %', 
+                    v_cart_item.product_id, v_current_stock, v_cart_item.quantity;
+            END IF;
+            
+            -- Decrementar stock en products
+            UPDATE products
+            SET stock = stock - v_cart_item.quantity,
+                updated_at = NOW()
+            WHERE id = v_cart_item.product_id;
+        END IF;
+
+        -- Crear order item
         INSERT INTO order_items (
             order_id,
             product_id,
@@ -319,7 +340,7 @@ BEGIN
         v_items_count := v_items_count + 1;
     END LOOP;
 
-    RETURN QUERY SELECT v_items_count, TRUE, 'Order items creados correctamente'::TEXT;
+    RETURN QUERY SELECT v_items_count, TRUE, 'Order items creados correctamente y stock actualizado'::TEXT;
 
 EXCEPTION
     WHEN OTHERS THEN

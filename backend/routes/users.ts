@@ -11,15 +11,14 @@ import {
   getUserFavorites,
   getUsers,
 } from "../controllers/users";
-import { authLimiter, passwordRecoveryLimiter } from "../middlewares/rateLimiter";
 
 export const usersRoutes = () =>
   Router()
-    .post("/register", authLimiter, registerUser)
+    .post("/register", registerUser)
     .get("/getUsers", getUsers)
     .get("/getUser", getUserById)
     .put("/updateUser", updateUser)
-    .put("/updatePassword", passwordRecoveryLimiter, updatePassword)
+    .put("/updatePassword", updatePassword)
     .put("/updateUserImage", updateUserImage)
     .post("/addFavorite", addFavorite)
     .delete("/removeFavorite", removeFavorite)

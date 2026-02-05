@@ -740,27 +740,7 @@ export default function OrderDetailPage() {
               />
             </motion.div>
 
-            {/* Help Card */}
-            <motion.div variants={fadeIn}>
-              <Card className="bg-gradient-to-br from-slate-900/80 to-slate-800/50 border-blue-800/30 shadow-xl shadow-slate-950/40 hover:shadow-2xl hover:shadow-blue-500/10 transition-all duration-500">
-                <CardContent className="p-6">
-                  <div className="flex items-start gap-4">
-                    <div className="w-10 h-10 rounded-full bg-gradient-to-br from-blue-500 to-cyan-500 flex items-center justify-center mt-0.5 shadow-md shadow-blue-500/30 ring-1 ring-blue-400/30 flex-shrink-0">
-                      <CircleDot className="w-5 h-5 text-white font-semibold" />
-                    </div>
-                    <div>
-                      <p className="text-base font-semibold text-slate-100">
-                        Seguimiento en tiempo real
-                      </p>
-                      <p className="text-sm text-slate-300 mt-2 leading-relaxed font-medium">
-                        Recibirás actualizaciones por correo electrónico sobre
-                        el estado de tu pedido.
-                      </p>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-            </motion.div>
+   
           </div>
         </div>
       </motion.main>

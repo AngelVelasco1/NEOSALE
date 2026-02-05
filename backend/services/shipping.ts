@@ -1,6 +1,6 @@
-import { prisma } from "../lib/prisma";
-import { envioClickService, ShipmentData, QuotationRequest } from "./envioclick";
-import { NotFoundError } from "../errors/errorsClass";
+import { prisma } from "../lib/prisma.js";
+import { envioClickService, ShipmentData, QuotationRequest } from "./envioclick.js";
+import { NotFoundError } from "../errors/errorsClass.js";
 
 /**
  * Obtener cotización de envío para una orden
@@ -430,7 +430,7 @@ export const cancelShippingService = async (orderId: number) => {
       where: { id: orderId },
       data: {
         envioclick_status: "Cancelado",
-        status: "cancelled",
+        status: "pending",
         cancelled_at: new Date(),
         updated_at: new Date(),
       },

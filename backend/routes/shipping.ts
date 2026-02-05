@@ -25,5 +25,5 @@ export const shippingRoutes = () =>
     // Cancelar envío
     .post("/cancel/:orderId", cancelShipping)
     
-    // Webhook de EnvioClick (sin rate limit para no perder actualizaciones)
+    // Webhook de EnvioClick
     .post("/webhook", handleWebhook);

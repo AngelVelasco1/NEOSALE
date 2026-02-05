@@ -1,6 +1,3 @@
-
-
-
 CREATE OR REPLACE FUNCTION fn_update_payment (
     p_transaction_id VARCHAR(255),
     p_new_status payment_status_enum,

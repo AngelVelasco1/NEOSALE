@@ -66,27 +66,44 @@ export async function POST(request: NextRequest) {
       minute: '2-digit',
     });
 
-    // Enviar email de confirmación
-    const result = await sendOrderConfirmationEmail({
-      customerEmail: session.user.email,
-      customerName: session.user.name || 'Cliente',
-      orderId: orderId.toString(),
-      orderDate,
-      items,
-      subtotal: subtotal || 0,
-      shipping: shipping || 0,
-      taxes: taxes || 0,
-      discount: discount || 0,
-      total,
-      shippingAddress,
-      trackingUrl,
-    });
+    // Enviar email de confirmación (no crítico, si falla no detiene el proceso)
+    let emailResult;
+    try {
+      emailResult = await sendOrderConfirmationEmail({
+        customerEmail: session.user.email,
+        customerName: session.user.name || 'Cliente',
+        orderId: orderId.toString(),
+        orderDate,
+        items,
+        subtotal: subtotal || 0,
+        shipping: shipping || 0,
+        taxes: taxes || 0,
+        discount: discount || 0,
+        total,
+        shippingAddress,
+        trackingUrl: trackingUrl || undefined,
+      });
 
-    return NextResponse.json({
-      success: true,
-      message: 'Email de confirmación enviado exitosamente',
-      data: result.data,
-    });
+      return NextResponse.json({
+        success: true,
+        message: 'Email de confirmación enviado exitosamente',
+        data: emailResult.data,
+      });
+    } catch (emailError: any) {
+      console.warn('⚠️ Email no pudo ser enviado pero orden fue creada:', emailError.message);
+      
+      // Email falló pero orden fue creada exitosamente
+      return NextResponse.json({
+        success: true,
+        message: 'Orden procesada exitosamente',
+        warning: 'Email de confirmación no pudo ser enviado (posible límite de cuenta trial)',
+        data: {
+          orderId,
+          emailSent: false,
+          emailError: emailError.message,
+        },
+      });
+    }
   } catch (error: any) {
     console.error('❌ Error en /api/orders/send-confirmation:', error);
 

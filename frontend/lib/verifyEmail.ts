@@ -20,6 +20,13 @@ const buildVerificationUrl = (token: string): string => {
 
 export async function sendVerificationEmail({ email, token, name }: SendVerificationEmailParams) {
   try {
+    // 🚫 Verificar si los emails están desactivados en desarrollo
+    if (process.env.DISABLE_EMAILS === 'true') {
+      console.log('📧 [DEV] Email de verificación desactivado. Email:', email);
+      console.log('🔗 [DEV] Token de verificación:', token);
+      return { success: true, message: 'Email desactivado en desarrollo. Token: ' + token };
+    }
+
     const verificationUrl = buildVerificationUrl(token);
     
     const htmlContent = await render(VerifyEmailTemplate({ name, verificationUrl }));

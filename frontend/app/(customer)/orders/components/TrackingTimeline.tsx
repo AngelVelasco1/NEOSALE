@@ -111,7 +111,7 @@ const getSyncedTrackingStatus = (
 export function TrackingTimeline({
   orderId,
   autoUpdate = false,
-  updateInterval = 300000, // 5 minutos por defecto (300000ms) para evitar rate limiting
+  updateInterval = 300000, // 5 minutos por defecto
   orderData,
 }: TrackingTimelineProps) {
   const [loading, setLoading] = useState(true);
@@ -120,8 +120,6 @@ export function TrackingTimeline({
   const [showSandboxGuide, setShowSandboxGuide] = useState(false);
   const [copiedGuide, setCopiedGuide] = useState(false);
   const [isRefreshing, setIsRefreshing] = useState(false);
-  const [isRateLimited, setIsRateLimited] = useState(false);
-  const [nextRetryTime, setNextRetryTime] = useState<Date | null>(null);
 
   useEffect(() => {
     loadTracking();
@@ -145,35 +143,12 @@ export function TrackingTimeline({
     setLoading(true);
     setError(null);
     
-    // Si está en rate limit, no intentar cargar
-    if (isRateLimited && nextRetryTime && new Date() < nextRetryTime) {
-      const minutosRestantes = Math.ceil(
-        (nextRetryTime.getTime() - new Date().getTime()) / 1000 / 60
-      );
-      setError(
-        `Límite de solicitudes alcanzado. Por favor espera ${minutosRestantes} minuto${minutosRestantes > 1 ? 's' : ''}.`
-      );
-      setLoading(false);
-      return;
-    }
-    
     const result = await getTrackingInfo(orderId);
     
     if (result.success && result.data) {
       setTrackingData(result.data);
-      setIsRateLimited(false);
-      setNextRetryTime(null);
     } else {
-      // Verificar si es un error de rate limiting
-      if (result.message?.includes('Límite de solicitudes')) {
-        setIsRateLimited(true);
-        const retryTime = new Date(Date.now() + 5 * 60 * 1000); // 5 minutos
-        setNextRetryTime(retryTime);
-        setError(result.message);
-      } else {
-        setError(result.message || "No se pudo cargar el tracking");
-        setIsRateLimited(false);
-      }
+      setError(result.message || "No se pudo cargar el tracking");
     }
     setLoading(false);
   };
@@ -206,8 +181,6 @@ export function TrackingTimeline({
   }
 
   if (error || !trackingData) {
-    const isRateLimitError = error?.includes('Límite de solicitudes');
-    
     return (
       <Card className="border-slate-700/50 bg-gradient-to-br from-slate-900 to-slate-800">
         <CardHeader className="border-b border-slate-700/50">
@@ -216,50 +189,33 @@ export function TrackingTimeline({
         <CardContent>
           <div className="text-center py-12">
             <div className="mb-4 flex justify-center">
-              {isRateLimitError ? (
-                <div className="rounded-full bg-yellow-500/20 p-4">
-                  <Clock className="w-12 h-12 text-yellow-400" />
-                </div>
-              ) : (
-                <div className="rounded-full bg-slate-700/50 p-4">
-                  <Package className="w-12 h-12 text-slate-400" />
-                </div>
-              )}
+              <div className="rounded-full bg-slate-700/50 p-4">
+                <Package className="w-12 h-12 text-slate-400" />
+              </div>
             </div>
             
-            {isRateLimitError ? (
-              <>
-                <h3 className="text-white font-semibold mb-2">Límite de solicitudes alcanzado</h3>
-                <p className="text-yellow-300 mb-4">
-                  {error}
-                </p>
-                <p className="text-slate-400 text-sm mb-6">
-                  Esto es normal para proteger nuestros servidores. El tracking se actualizará automáticamente cuando sea posible.
-                </p>
-                <div className="space-y-2">
-                  <p className="text-xs text-slate-500">⏳ Próximo intento disponible en:</p>
-                  {nextRetryTime && (
-                    <p className="font-mono text-cyan-400">
-                      {nextRetryTime.toLocaleTimeString("es-CO")}
-                    </p>
-                  )}
-                </div>
-              </>
-            ) : (
-              <>
-                <p className="text-slate-300 mb-4">
-                  {error || "No hay información de envío disponible"}
-                </p>
-                <Button 
-                  onClick={handleRefresh}
-                  disabled={isRefreshing}
-                  className="bg-gradient-to-r from-blue-600 to-cyan-600 hover:from-blue-700 hover:to-cyan-700"
-                >
+            <h3 className="text-white font-semibold mb-2">No hay información de tracking disponible</h3>
+            <p className="text-slate-400 mb-6">
+              {error || "El tracking no está disponible en este momento."}
+            </p>
+            
+            <Button
+              onClick={handleRefresh}
+              disabled={isRefreshing}
+              className="bg-gradient-to-r from-blue-600 to-blue-500 hover:from-blue-700 hover:to-blue-600"
+            >
+              {isRefreshing ? (
+                <>
+                  <RefreshCw className="w-4 h-4 mr-2 animate-spin" />
+                  Actualizando...
+                </>
+              ) : (
+                <>
                   <RefreshCw className="w-4 h-4 mr-2" />
-                  {isRefreshing ? "Actualizando..." : "Reintentar"}
-                </Button>
-              </>
-            )}
+                  Reintentar
+                </>
+              )}
+            </Button>
           </div>
         </CardContent>
       </Card>

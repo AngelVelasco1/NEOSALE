@@ -57,6 +57,18 @@ export async function sendOrderConfirmationEmail({
   trackingUrl,
 }: SendOrderConfirmationEmailParams) {
   try {
+    // 🚫 Verificar si los emails están desactivados en desarrollo
+    if (process.env.DISABLE_EMAILS === 'true') {
+      console.log('📧 [DEV] Email desactivado. Orden:', orderId, 'Email:', customerEmail);
+      return {
+        success: false,
+        data: {
+          messageId: null,
+          orderId,
+          warning: 'Emails desactivados en desarrollo (DISABLE_EMAILS=true)',
+        },
+      };
+    }
     // Generar URL de seguimiento si no se proporciona
     const finalTrackingUrl = trackingUrl || `${getAppBaseUrl()}/orders/${orderId}`;
 
@@ -119,8 +131,18 @@ Equipo NEOSALE
 
     // Enviar email usando MailerSend
     const mailerSend = getMailerSend();
+    
+    console.log('📧 Enviando email a:', customerEmail);
+    console.log('📋 Orden ID:', orderId);
+    
     const response = await mailerSend.email.send(emailParams);
 
+    console.log('✅ Email enviado exitosamente');
+    console.log('📨 Response:', JSON.stringify({
+      statusCode: response.statusCode,
+      messageId: response.body?.message_id,
+      headers: response.headers
+    }, null, 2));
 
     return {
       success: true,
@@ -130,7 +152,34 @@ Equipo NEOSALE
       },
     };
   } catch (error: any) {
-    console.error('❌ Error al enviar email de confirmación de orden:', error);
+    console.error('❌ Error al enviar email de confirmación de orden:');
+    console.error('📋 Error completo:', JSON.stringify({
+      statusCode: error?.statusCode,
+      body: error?.body,
+      message: error?.message,
+      headers: error?.headers
+    }, null, 2));
+    
+    // Si es error de límite de cuenta trial de MailerSend, no fallar
+    const errorMessage = error?.body?.message || error?.message || '';
+    if (errorMessage.includes('trial account') || errorMessage.includes('unique recipients limit') || errorMessage.includes('MS42225')) {
+      console.warn('⚠️ Límite de MailerSend alcanzado (cuenta trial). Email no enviado pero orden creada exitosamente.');
+      return {
+        success: false,
+        data: {
+          messageId: null,
+          orderId,
+          warning: 'Email no enviado por límite de cuenta trial de MailerSend',
+        },
+      };
+    }
+    
+    // Si es error 422 pero no es límite de trial, mostrar el error real
+    if (error?.statusCode === 422) {
+      console.error('❌ Error 422 de validación:', error?.body);
+      console.error('💡 Verifica que el email del destinatario sea válido');
+    }
+    
     throw new Error(`Error al enviar email de confirmación: ${error.message || 'Error desconocido'}`);
   }
 }
@@ -187,6 +236,6 @@ Equipo NEOSALE
     };
   } catch (error: any) {
     console.error('❌ Error al enviar email simple de confirmación:', error);
-    throw new Error(`Error al enviar email: ${error.message || 'Error desconocido'}`);
+    throw new Error(`Error al enviar email: ${error.message.errors || 'Error desconocido'}`);
   }
 }

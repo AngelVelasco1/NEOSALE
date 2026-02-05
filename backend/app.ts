@@ -6,7 +6,6 @@ import cookieParser from "cookie-parser";
 import { prisma } from "./lib/prisma.js";
 import compression from "compression";
 import { errorsHandler } from "./middlewares/errorsHandler.js";
-import { apiLimiter, writeLimiter } from "./middlewares/rateLimiter.js";
 
 
 
@@ -33,9 +32,6 @@ app.use(
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
-
-app.use("/api", apiLimiter); 
-app.use("/api", writeLimiter); 
 
 // Prevenir directory listing y exposición de información
 app.use((req, res, next) => {

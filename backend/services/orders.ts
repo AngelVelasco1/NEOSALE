@@ -797,23 +797,6 @@ export const processWompiOrderWebhook = async (
           couponId: undefined,
         });
 
-        // 🚀 Si la orden se creó exitosamente, crear la guía automáticamente
-        if (orderResult.success && orderResult.order_id) {
-          const { createShippingGuideAutomaticService } = await import(
-            "./shipping.js"
-          );
-          setTimeout(async () => {
-            const guideResult = await createShippingGuideAutomaticService(
-              orderResult.order_id!,
-              "PAID"
-            );
-            console.log(
-              `[AUTO-SHIPPING] Intento de crear guía para orden ${orderResult.order_id}:`,
-              guideResult.success ? "✅ Exitoso" : "⚠️ " + guideResult.message
-            );
-          }, 2000); // Esperar 2 segundos para asegurar que la orden esté completamente creada
-        }
-
         return {
           orderId: orderResult.order_id,
           success: orderResult.success,
@@ -840,30 +823,7 @@ export const processWompiOrderWebhook = async (
       switch (paymentStatus) {
         case "APPROVED":
           newOrderStatus = "paid";
-          
-          // 🚀 Crear guía automáticamente para orden existente
-          try {
-            const { createShippingGuideAutomaticService } = await import(
-              "./shipping.js"
-            );
-            setTimeout(async () => {
-              const guideResult = await createShippingGuideAutomaticService(
-                payment.order_id!,
-                "PAID"
-              );
-              console.log(
-                `[AUTO-SHIPPING] Intento de crear guía para orden ${payment.order_id}:`,
-                guideResult.success ? "✅ Exitoso" : "⚠️ " + guideResult.message
-              );
-            }, 2000);
-          } catch (error) {
-            console.warn(
-              `[AUTO-SHIPPING] Error importando servicio de shipping:`,
-              error
-            );
-          }
           break;
-          
         case "DECLINED":
         case "ERROR":
         case "VOIDED":
