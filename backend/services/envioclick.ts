@@ -113,10 +113,7 @@ class EnvioClickService {
 
     if (!this.apiKey) {
       console.warn("ENVIOCLICK_API_KEY no configurada");
-    }
-    
-    console.log(`EnvioClick iniciado en modo: ${this.environment}`);
-  }
+    }  }
 
   private getHeaders(): HeadersInit {
     return {

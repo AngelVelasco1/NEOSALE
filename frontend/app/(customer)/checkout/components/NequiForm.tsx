@@ -12,6 +12,7 @@ import {
 } from "../services/paymentsApi";
 import { useCart } from "../../(cart)/hooks/useCart";
 import { CartProductsInfo } from "../../types";
+import type { Address } from "../../(addresses)/services/addressesApi";
 
 interface NequiFormProps {
     amount: number;
@@ -21,6 +22,7 @@ interface NequiFormProps {
     disabled?: boolean;
     userId: number;
     acceptanceTokens: { [key: string]: string };
+    selectedAddress?: Address | null;
 }
 
 export default function NequiForm({
@@ -31,6 +33,7 @@ export default function NequiForm({
     disabled,
     userId,
     acceptanceTokens,
+    selectedAddress,
 }: NequiFormProps) {
     const { cartProducts } = useCart();
     const [loading, setLoading] = useState(false);

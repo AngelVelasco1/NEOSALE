@@ -1,14 +1,29 @@
 "use client";
 
-import { Footer } from "../components/FooterDynamic";
 import { UserProviders } from "@/app/providers/UserProviders";
 import { Navbar } from "../components/Navbar";
 import { useMounted } from "@/app/(auth)/hooks/useMounted";
-import CouponBanner from "./components/CouponBanner";
-import { EmailVerificationBanner } from "../components/EmailVerificationBanner";
-import { CookieConsent } from "../components/CookieConsent";
 import { useSession } from "next-auth/react";
 import React from "react";
+import dynamic from "next/dynamic";
+
+// Dynamic imports para reducir bundle inicial
+const Footer = dynamic(() => import("../components/FooterDynamic").then(mod => ({ default: mod.Footer })), {
+  ssr: true,
+});
+
+const CouponBanner = dynamic(() => import("./components/CouponBanner"), {
+  ssr: false,
+  loading: () => null,
+});
+
+const EmailVerificationBanner = dynamic(() => import("../components/EmailVerificationBanner").then(mod => ({ default: mod.EmailVerificationBanner })), {
+  ssr: false,
+});
+
+const CookieConsent = dynamic(() => import("../components/CookieConsent").then(mod => ({ default: mod.CookieConsent })), {
+  ssr: false,
+});
 
 export default function UserLayout({
   children,

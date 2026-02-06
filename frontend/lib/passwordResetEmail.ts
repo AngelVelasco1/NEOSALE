@@ -1,7 +1,4 @@
-import { render } from "@react-email/render";
-import { EmailParams, Recipient, Sender } from "mailersend";
-import { PasswordResetTemplate } from "@/app/components/PasswordResetTemplate";
-import { getMailerSend } from "./mailersend";
+import { api } from '@/config/api';
 
 interface SendPasswordResetEmailParams {
   email: string;
@@ -30,32 +27,14 @@ export async function sendPasswordResetEmail({
     const baseUrl = getAppBaseUrl();
     const resetUrl = `${baseUrl}/update-password?token=${token}`;
 
-    const htmlContent = await render(
-      PasswordResetTemplate({ name, resetUrl, expiresInMinutes })
-    );
-    const textContent = [
-      `Hola ${name},`,
-      "Recibimos una solicitud para restablecer tu contraseña en NEOSALE.",
-      `Abre este enlace para continuar: ${resetUrl}`,
-      `El enlace caduca en ${expiresInMinutes} minutos.`,
-      "Si no hiciste esta solicitud, puedes ignorar este mensaje.",
-    ].join("\n\n");
+    const response = await api.post('api/emails/password-reset', {
+      email,
+      name,
+      resetUrl,
+      expiresInMinutes,
+    });
 
-    const sentFrom = new Sender(
-      "noreply@test-r9084zv1368gw63d.mlsender.net",
-      "NEOSALE"
-    );
-    const recipients = [new Recipient(email, name)];
-
-    const emailParams = new EmailParams()
-      .setFrom(sentFrom)
-      .setTo(recipients)
-      .setSubject("Restablece tu contraseña - NEOSALE")
-      .setText(textContent)
-      .setHtml(htmlContent);
-
-    const mailerSend = getMailerSend();
-    await mailerSend.email.send(emailParams);
+    return response.data;
   } catch (error) {
     console.error("Failed to send password reset email:", error);
     throw new Error("No pudimos enviar el correo de restablecimiento");

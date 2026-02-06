@@ -53,7 +53,15 @@ export default async function middleware(request: NextRequest) {
     }
   }
 
-  return NextResponse.next();
+  // ✅ Optimización: Headers de performance
+  const response = NextResponse.next();
+  
+  // Habilitar back/forward cache para páginas públicas
+  if (!pathname.startsWith("/api") && !pathname.startsWith("/dashboard")) {
+    response.headers.set("Cache-Control", "public, max-age=0, must-revalidate");
+  }
+  
+  return response;
 }
 
 export const config = {

@@ -10,6 +10,8 @@ import WompiCardForm from "./CardForm";
 import WompiPSEForm from "./PseForm";
 import NequiForm from "./NequiForm";
 
+import type { Address } from "../../(addresses)/services/addressesApi";
+
 interface PaymentMethodsProps {
   amount: number;
   description: string;
@@ -17,6 +19,7 @@ interface PaymentMethodsProps {
   onPaymentSuccess: (paymentId: string, paymentMethod: string) => void;
   onPaymentError: (error: Error) => void;
   disabled?: boolean;
+  selectedAddress?: Address | null;
 }
 
 type PaymentMethod = "credit_card" | "pse" | "nequi";
@@ -28,6 +31,7 @@ export const PaymentMethods = ({
   onPaymentError,
   disabled,
   userId,
+  selectedAddress,
 }: PaymentMethodsProps) => {
   const [selectedPaymentMethod, setSelectedPaymentMethod] =
     useState<PaymentMethod>("credit_card");
@@ -87,6 +91,7 @@ export const PaymentMethods = ({
             disabled={disabled || !contractsAccepted}
             userId={userId || 0}
             acceptanceTokens={acceptanceTokens}
+            selectedAddress={selectedAddress}
           />
         );
 
@@ -100,6 +105,7 @@ export const PaymentMethods = ({
             disabled={disabled || !contractsAccepted}
             userId={userId || 0}
             acceptanceTokens={acceptanceTokens}
+            selectedAddress={selectedAddress}
           />
         );
       case "nequi":
@@ -112,6 +118,7 @@ export const PaymentMethods = ({
             disabled={disabled || !contractsAccepted}
             userId={userId || 0}
             acceptanceTokens={acceptanceTokens}
+            selectedAddress={selectedAddress}
           />
         );
 

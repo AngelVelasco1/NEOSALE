@@ -17,7 +17,6 @@ export async function addCategory(
       .extend({
         subcategories: z.string().optional(),
       })
-      .omit({ image: true })
       .safeParse({
         name: formData.get("name"),
         description: formData.get("description"),
@@ -88,7 +87,10 @@ export async function addCategory(
 
     revalidatePath("/dashboard/categories");
 
-    return { success: true, category: newCategory };
+    return { 
+      success: true, 
+      category: { ...newCategory, subcategory: null } 
+    };
   } catch (error) {
     // Manejar errores de unique constraint de Prisma
     if (error instanceof Prisma.PrismaClientKnownRequestError) {

@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { RefreshCw, XCircle } from "lucide-react";
-import { Button } from "@/components/ui/button";
+import { Button } from "@/app/(admin)/components/ui/button";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -13,7 +13,7 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
   AlertDialogTrigger,
-} from "@/components/ui/alert-dialog";
+} from "@/app/(admin)/components/ui/alert-dialog";
 import { updateTrackingAdmin, cancelShippingAdmin } from "../services/shippingApi";
 import { toast } from "sonner";
 

@@ -2,8 +2,8 @@
 
 import { useState } from "react";
 import { TrackingTimeline } from "@/app/(customer)/orders/components/TrackingTimeline";
-import { CreateShippingGuide } from "../components/CreateShippingGuide";
-import { ShippingActions } from "../components/ShippingActions";
+import { CreateShippingGuide } from "../../components/CreateShippingGuide";
+import { ShippingActions } from "../../components/ShippingActions";
 import { Card, CardContent, CardHeader, CardTitle } from "@/app/(admin)/components/ui/card";
 import { Package } from "lucide-react";
 

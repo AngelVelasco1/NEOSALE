@@ -1,16 +1,32 @@
 "use client";
-import { Banner } from "../components/Banner";
 import { ProductCard } from "./(products)/components/ProductCard";
 import React, { useEffect, useState } from "react";
 import { getLatestProducts } from "./(products)/services/api";
 import { IProduct } from "./types";
-
 import { useRouter } from "next/navigation";
-import { Testimonials } from "../components/Testimonials";
-import { BenefitsList } from "../components/BenefitsList";
 import { ArrowRight } from "lucide-react";
-import { Pricing } from "../components/Pricing";
+import dynamic from "next/dynamic";
 import { motion } from "framer-motion";
+
+// Dynamic imports para componentes pesados
+const Banner = dynamic(() => import("../components/Banner").then(mod => ({ default: mod.Banner })), {
+  ssr: false,
+  loading: () => (
+    <div className="w-full h-[500px] bg-gradient-to-r from-slate-900 to-slate-800 animate-pulse" />
+  ),
+});
+
+const Testimonials = dynamic(() => import("../components/Testimonials").then(mod => ({ default: mod.Testimonials })), {
+  ssr: false,
+});
+
+const BenefitsList = dynamic(() => import("../components/BenefitsList").then(mod => ({ default: mod.BenefitsList })), {
+  ssr: false,
+});
+
+const Pricing = dynamic(() => import("../components/Pricing").then(mod => ({ default: mod.Pricing })), {
+  ssr: false,
+});
 
 export default function Home() {
   const [products, setProducts] = useState<IProduct[]>([]);

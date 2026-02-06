@@ -19,6 +19,7 @@ import {
   type WompiPublicConfig,
   type WompiTransactionResponse,
 } from "../services/paymentsApi"
+import type { Address } from "../../(addresses)/services/addressesApi";
 
 interface WompiCardFormProps {
   amount: number
@@ -31,6 +32,7 @@ interface WompiCardFormProps {
     termsAndConditions: string
     personalDataAuth: string
   }
+  selectedAddress?: Address | null
 }
 
 const cardFormSchema = z.object({
@@ -89,6 +91,7 @@ export const WompiCardForm: React.FC<WompiCardFormProps> = ({
   disabled = false,
   userId,
   acceptanceTokens,
+  selectedAddress,
 }) => {
   const [isProcessing, setIsProcessing] = useState(false)
   const [wompiConfig, setWompiConfig] = useState<WompiPublicConfig | null>(null)
@@ -140,6 +143,17 @@ export const WompiCardForm: React.FC<WompiCardFormProps> = ({
 
     loadWompiConfig()
   }, [])
+
+  // Autocompletar dirección cuando se selecciona
+  useEffect(() => {
+    if (selectedAddress) {
+      form.setValue("shippingLine1", selectedAddress.address || "")
+      form.setValue("shippingCity", selectedAddress.city || "")
+      form.setValue("shippingState", selectedAddress.department || "")
+      form.setValue("shippingCountry", selectedAddress.country === "Colombia" ? "CO" : "CO")
+      form.setValue("shippingPostalCode", "000000") // Código postal por defecto
+    }
+  }, [selectedAddress, form])
 
   const onSubmit = async (data: CardFormData) => {
     if (!wompiConfig) {

@@ -3,10 +3,11 @@ import React from "react";
 import { getProduct } from "@/app/(customer)/(products)/services/api";
 import { notFound } from "next/navigation";
  
-type idParam = {
+type idParam = Promise<{
     productId: string
-}
-export const Product = async ({params}: {params : idParam}) => {
+}>
+
+async function Product({params}: {params : idParam}) {
     const { productId } = await params;
     
     // Verificar si productId es un número válido

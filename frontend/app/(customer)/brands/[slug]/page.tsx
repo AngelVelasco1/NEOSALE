@@ -8,13 +8,14 @@ import { Package2, ArrowLeft } from "lucide-react";
 import { ProductCard } from "./components/ProductCard";
 
 interface BrandPageProps {
-  params: {
+  params: Promise<{
     slug: string;
-  };
+  }>;
 }
 
 export async function generateMetadata({ params }: BrandPageProps): Promise<Metadata> {
-  const brand = await getBrandBySlug(params.slug);
+  const { slug } = await params;
+  const brand = await getBrandBySlug(slug);
   
   if (!brand) {
     return {
@@ -29,7 +30,8 @@ export async function generateMetadata({ params }: BrandPageProps): Promise<Meta
 }
 
 export default async function BrandDetailPage({ params }: BrandPageProps) {
-  const brand = await getBrandBySlug(params.slug);
+  const { slug } = await params;
+  const brand = await getBrandBySlug(slug);
 
   if (!brand) {
     notFound();

@@ -10,6 +10,7 @@ import { categoriesRoutes } from "./categories";
 import couponsRoutes from "./coupons";
 import notificationsRoutes from "./notifications";
 import { shippingRoutes } from "./shipping";
+import emailsRoutes from "./emails";
 
 export const initRoutes = () => {
   const app = Router();
@@ -24,6 +25,7 @@ export const initRoutes = () => {
   app.use("/coupons", couponsRoutes);
   app.use("/notifications", notificationsRoutes);
   app.use("/shipping", shippingRoutes());
+  app.use("/emails", emailsRoutes);
 
   return app;
 };

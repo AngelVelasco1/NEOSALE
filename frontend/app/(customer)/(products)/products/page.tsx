@@ -7,7 +7,7 @@ import { getProducts } from "../services/api";
 import { ProductCard } from "../components/ProductCard";
 import { ProductFilter } from "../components/Filters";
 
-export const ProductsPage = () => {
+function ProductsPage() {
   const [products, setProducts] = useState<IProduct[]>([]);
   const [filteredProducts, setFilteredProducts] = useState<IProduct[]>([]);
   const searchParams = useSearchParams();
@@ -92,6 +92,6 @@ export const ProductsPage = () => {
       </div>
     </div>
   );
-};
+}
 
 export default ProductsPage;

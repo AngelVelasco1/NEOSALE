@@ -353,3 +353,6 @@ export function CreateShippingGuide({
           </div>
         </DialogContent>
       </Dialog>
+    </Dialog>
+  );
+}

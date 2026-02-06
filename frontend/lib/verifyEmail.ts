@@ -1,7 +1,4 @@
-import { render } from '@react-email/render';
-import { EmailParams, Recipient, Sender } from 'mailersend';
-import { VerifyEmailTemplate } from '@/app/components/VerifyEmailTemplate';
-import { getMailerSend } from './mailersend';
+import { api } from '@/config/api';
 
 interface SendVerificationEmailParams {
   email: string;
@@ -29,29 +26,13 @@ export async function sendVerificationEmail({ email, token, name }: SendVerifica
 
     const verificationUrl = buildVerificationUrl(token);
     
-    const htmlContent = await render(VerifyEmailTemplate({ name, verificationUrl }));
-    const textContent = `Hola ${name}, verifica tu email haciendo clic en este enlace: ${verificationUrl}`;
+    const response = await api.post('api/emails/verification', {
+      email,
+      name,
+      verificationUrl,
+    });
     
-    const sentFrom = new Sender('noreply@test-r9084zv1368gw63d.mlsender.net', 'NEOSALE');
-    const recipients = [new Recipient(email, name)];
-    
-    const emailParams = new EmailParams()
-      .setFrom(sentFrom)
-      .setTo(recipients)
-      .setSubject('Verifica tu correo electrónico - NEOSALE')
-      .setText(textContent)
-      .setHtml(htmlContent);
-
-    // Enviar email usando la instancia singleton
-    const mailerSend = getMailerSend();
-    const response = await mailerSend.email.send(emailParams);
-    
-    return { 
-      success: true, 
-      data: { 
-        messageId: response.body.message_id || response.headers?.['x-message-id'] 
-      } 
-    };
+    return response.data;
   } catch (error: any) {
     console.error('Failed to send verification email:', error);
     throw new Error('Error al enviar correo de verificación');

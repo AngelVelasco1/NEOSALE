@@ -95,17 +95,38 @@ BEGIN
         -- Verificar stock
         v_available_stock := NULL;
 
-        -- Intentar obtener stock de product_variants primero
-        IF v_cart_item.color_code != '' AND v_cart_item.size != '' THEN
-            SELECT stock INTO v_available_stock
-            FROM product_variants
-            WHERE product_id = v_cart_item.product_id
-            AND color_code = v_cart_item.color_code
-            AND size = v_cart_item.size;
-        END IF;
-
-        -- Si no hay variants o no se encontró, usar products
-        IF v_available_stock IS NULL THEN
+        -- Si el producto tiene variantes, validar stock de la variante específica
+        IF EXISTS(
+            SELECT 1 FROM product_variants 
+            WHERE product_id = v_cart_item.product_id 
+            AND active = TRUE 
+            AND deleted_at IS NULL
+        ) THEN
+            -- El producto tiene variantes, debe especificar color y talla
+            IF v_cart_item.color_code != '' AND v_cart_item.size != '' THEN
+                SELECT stock INTO v_available_stock
+                FROM product_variants
+                WHERE product_id = v_cart_item.product_id
+                AND color_code = v_cart_item.color_code
+                AND size = v_cart_item.size
+                AND active = TRUE
+                AND deleted_at IS NULL;
+                
+                IF v_available_stock IS NULL THEN
+                    RETURN QUERY SELECT
+                        NULL::INTEGER, p_payment_id, 0,
+                        FALSE, ('Variante no encontrada para producto ID ' || v_cart_item.product_id || 
+                                ' (color: ' || v_cart_item.color_code || ', talla: ' || v_cart_item.size || ')')::TEXT;
+                    RETURN;
+                END IF;
+            ELSE
+                RETURN QUERY SELECT
+                    NULL::INTEGER, p_payment_id, 0,
+                    FALSE, ('El producto ID ' || v_cart_item.product_id || ' tiene variantes, debe especificar color y talla')::TEXT;
+                RETURN;
+            END IF;
+        ELSE
+            -- El producto NO tiene variantes, usar stock directo del producto
             SELECT stock INTO v_available_stock
             FROM products
             WHERE id = v_cart_item.product_id;
@@ -205,7 +226,6 @@ BEGIN
         RETURN;
     END IF;
 
-    -- ✅ Stock ya fue actualizado en fn_create_order_items, no duplicar aquí
 
     -- Limpiar carrito del usuario si existe
     DELETE FROM cart_items 
@@ -253,6 +273,8 @@ DECLARE
     v_items_count INTEGER := 0;
     v_current_stock INTEGER;
     v_variant_found BOOLEAN;
+    v_product_has_variants BOOLEAN;
+    v_new_total_stock INTEGER;
 BEGIN
     -- Crear order_items desde cart_data
     FOR v_cart_item IN
@@ -264,38 +286,68 @@ BEGIN
             COALESCE(item->>'size', '') as size
         FROM jsonb_array_elements(p_cart_data) as item
     LOOP
-        -- ✅ Verificar y actualizar stock en product_variants si aplica
+        -- Verificar si el producto tiene variantes
+        SELECT EXISTS(
+            SELECT 1 FROM product_variants 
+            WHERE product_id = v_cart_item.product_id 
+            AND active = TRUE 
+            AND deleted_at IS NULL
+        ) INTO v_product_has_variants;
+        
         v_variant_found := FALSE;
         
-        IF v_cart_item.color_code != '' AND v_cart_item.size != '' THEN
-            -- Intentar obtener stock de la variante
-            SELECT stock INTO v_current_stock 
-            FROM product_variants 
-            WHERE product_id = v_cart_item.product_id 
-            AND color_code = v_cart_item.color_code 
-            AND size = v_cart_item.size;
-            
-            IF FOUND THEN
-                v_variant_found := TRUE;
-                
-                IF v_current_stock < v_cart_item.quantity THEN
-                    RAISE EXCEPTION 'Stock insuficiente para producto ID % (variante %, talla %). Disponible: %, Solicitado: %', 
-                        v_cart_item.product_id, v_cart_item.color_code, v_cart_item.size, 
-                        v_current_stock, v_cart_item.quantity;
-                END IF;
-                
-                -- Decrementar stock en product_variants
-                UPDATE product_variants 
-                SET stock = stock - v_cart_item.quantity,
-                    updated_at = NOW()
+        -- Si el producto tiene variantes, trabajar con ellas
+        IF v_product_has_variants THEN
+            IF v_cart_item.color_code != '' AND v_cart_item.size != '' THEN
+                -- Obtener stock de la variante específica
+                SELECT stock INTO v_current_stock 
+                FROM product_variants 
                 WHERE product_id = v_cart_item.product_id 
                 AND color_code = v_cart_item.color_code 
-                AND size = v_cart_item.size;
+                AND size = v_cart_item.size
+                AND active = TRUE 
+                AND deleted_at IS NULL;
+                
+                IF FOUND THEN
+                    v_variant_found := TRUE;
+                    
+                    -- Verificar stock suficiente de la variante
+                    IF v_current_stock < v_cart_item.quantity THEN
+                        RAISE EXCEPTION 'Stock insuficiente para producto ID % (color %, talla %). Disponible: %, Solicitado: %', 
+                            v_cart_item.product_id, v_cart_item.color_code, v_cart_item.size, 
+                            v_current_stock, v_cart_item.quantity;
+                    END IF;
+                    
+                    -- 1. Decrementar stock en la variante específica
+                    UPDATE product_variants 
+                    SET stock = stock - v_cart_item.quantity,
+                        updated_at = NOW()
+                    WHERE product_id = v_cart_item.product_id 
+                    AND color_code = v_cart_item.color_code 
+                    AND size = v_cart_item.size;
+                    
+                    -- 2. Recalcular el stock total del producto sumando todas las variantes activas
+                    SELECT COALESCE(SUM(stock), 0) INTO v_new_total_stock
+                    FROM product_variants
+                    WHERE product_id = v_cart_item.product_id
+                    AND active = TRUE
+                    AND deleted_at IS NULL;
+                    
+                    -- 3. Actualizar el stock total del producto
+                    UPDATE products
+                    SET stock = v_new_total_stock,
+                        updated_at = NOW()
+                    WHERE id = v_cart_item.product_id;
+                ELSE
+                    RAISE EXCEPTION 'Variante no encontrada para producto ID % (color %, talla %)', 
+                        v_cart_item.product_id, v_cart_item.color_code, v_cart_item.size;
+                END IF;
+            ELSE
+                RAISE EXCEPTION 'El producto ID % tiene variantes pero no se especificó color/talla', 
+                    v_cart_item.product_id;
             END IF;
-        END IF;
-        
-        -- Si no hay variante o no se encontró, usar stock de products
-        IF NOT v_variant_found THEN
+        ELSE
+            -- Si el producto NO tiene variantes, trabajar directamente con el stock del producto
             SELECT stock INTO v_current_stock 
             FROM products 
             WHERE id = v_cart_item.product_id;
@@ -309,7 +361,7 @@ BEGIN
                     v_cart_item.product_id, v_current_stock, v_cart_item.quantity;
             END IF;
             
-            -- Decrementar stock en products
+            -- Decrementar stock directamente del producto (sin variantes)
             UPDATE products
             SET stock = stock - v_cart_item.quantity,
                 updated_at = NOW()

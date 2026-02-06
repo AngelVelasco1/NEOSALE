@@ -684,6 +684,7 @@ export default function CheckoutPage() {
                     onPaymentError={handlePaymentError}
                     disabled={!selectedAddress || isProcessingOrder}
                     userId={userProfile?.id ?? 0}
+                    selectedAddress={selectedAddress}
                   />
 
 

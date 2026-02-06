@@ -26,9 +26,9 @@ import { ShippingManagement } from "./_components/ShippingManagement";
 import "./invoice-pdf.css";
 
 type PageParams = {
-  params: {
+  params: Promise<{
     id: string;
-  };
+  }>;
 };
 
 export async function generateMetadata({

@@ -19,7 +19,8 @@ import {
 } from "@/components/ui/form";
 import Typography from "@/app/(admin)/components/ui/typography";
 import { Input } from "@/components/ui/input";
-import { FormSubmitButton } from "@/app/(admin)/components/shared/form/FormSubmitButton";
+import { Button } from "@/components/ui/button";
+import { Loader2 } from "lucide-react";
 
 import { passwordUpdateFields } from "./fields";
 import { passwordUpdateFormSchema } from "./schema";
@@ -134,12 +135,15 @@ export default function PasswordUpdateForm({ token }: PasswordUpdateFormProps) {
               />
             ))}
 
-            <FormSubmitButton
-              isPending={isPending}
+            <Button
+              disabled={isPending}
+              type="submit"
               className="w-full rounded-2xl bg-linear-to-r from-sky-500 via-indigo-500 to-fuchsia-500 text-base font-semibold text-white shadow-lg shadow-slate-900/40 hover:shadow-xl"
+              size="lg"
             >
+              {isPending && <Loader2 className="mr-2 size-4 animate-spin" />}
               {isPending ? "Guardando cambios..." : "Actualizar contraseña"}
-            </FormSubmitButton>
+            </Button>
           </form>
         </Form>
 

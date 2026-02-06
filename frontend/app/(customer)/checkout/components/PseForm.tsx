@@ -21,6 +21,7 @@ import {
 } from "../services/paymentsApi";
 import { useCart } from "../../(cart)/hooks/useCart";
 import { CartProductsInfo } from "../../types";
+import type { Address } from "../../(addresses)/services/addressesApi";
 
 interface PSEFormData {
     user_type: 0 | 1;
@@ -40,6 +41,7 @@ interface WompiPSEFormProps {
     disabled?: boolean;
     userId: number;
     acceptanceTokens: { [key: string]: string };
+    selectedAddress?: Address | null;
 }
 
 export default function WompiPSEForm({
@@ -50,6 +52,7 @@ export default function WompiPSEForm({
     disabled,
     userId,
     acceptanceTokens,
+    selectedAddress,
 }: WompiPSEFormProps) {
     const { cartProducts } = useCart();
     const [financialInstitutions, setFinancialInstitutions] = useState<PSEFinancialInstitution[]>([]);

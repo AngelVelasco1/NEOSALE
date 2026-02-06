@@ -59,12 +59,13 @@ async function StatsSection() {
 async function ReviewsTableSection({
   searchParams,
 }: {
-  searchParams: { status?: string; rating?: string; search?: string };
+  searchParams: Promise<{ status?: string; rating?: string; search?: string }>;
 }) {
+  const resolvedParams = await searchParams;
   const filters = {
-    status: searchParams.status as "pending" | "approved" | "all" | undefined,
-    rating: searchParams.rating ? parseInt(searchParams.rating) : undefined,
-    search: searchParams.search,
+    status: resolvedParams.status as "pending" | "approved" | "all" | undefined,
+    rating: resolvedParams.rating ? parseInt(resolvedParams.rating) : undefined,
+    search: resolvedParams.search,
   };
 
   const result = await getAllReviews(filters);

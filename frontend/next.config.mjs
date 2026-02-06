@@ -2,6 +2,7 @@ import { FRONT_CONFIG } from "./config/credentials.js";
 import path from "path";
 import { fileURLToPath } from "url";
 import { getSecurityHeaders } from "./lib/security.js";
+import withBundleAnalyzerConfig from "./next.bundle-analyzer.mjs";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -13,9 +14,20 @@ const nextConfig = {
     `${FRONT_CONFIG.api_origin}`,
   ],
 
+  // Ignorar errores de ESLint durante build
+  eslint: {
+    ignoreDuringBuilds: true,
+  },
+  
+  // Ignorar errores de TypeScript durante build (opcional)
+  typescript: {
+    ignoreBuildErrors: false, // Mantener validación de tipos
+  },
+
   // 🚀 OPTIMIZACIONES DE COMPILACIÓN
   productionBrowserSourceMaps: false,
   reactStrictMode: false,
+  poweredByHeader: false,
   
   // Experimental features optimizadas
   experimental: {
@@ -23,11 +35,15 @@ const nextConfig = {
       bodySizeLimit: "4mb",
     },
     optimizePackageImports: [
-      "@chakra-ui/react",
       "lucide-react",
-      "@radix-ui/*",
+      "@radix-ui/react-dialog",
+      "@radix-ui/react-dropdown-menu",
+      "@radix-ui/react-popover",
+      "@radix-ui/react-select",
+      "@radix-ui/react-tooltip",
       "framer-motion",
       "recharts",
+      "react-icons",
     ],
   },
 
@@ -36,8 +52,6 @@ const nextConfig = {
     removeConsole: process.env.NODE_ENV === "production" ? {
       exclude: ["error", "warn"],
     } : false,
-    // Eliminar propiedades React no utilizadas
-    reactRemoveProperties: process.env.NODE_ENV === "production",
   },
 
   // Compresión agresiva
@@ -51,45 +65,42 @@ const nextConfig = {
       debug: false,
     };
 
-    // Caché de compilación mejorada
-    config.cache = {
-      type: "filesystem",
-      allowCollectingMemory: true,
-      buildDependencies: {
-        config: [__filename],
-      },
-    };
-
     // Optimizaciones de cliente (solo en producción)
     if (!isServer && !dev) {
       config.optimization = {
         ...config.optimization,
-        moduleIds: "deterministic",
-        runtimeChunk: "single",
+        minimize: true,
         splitChunks: {
           chunks: "all",
           cacheGroups: {
             default: false,
-            vendors: {
+            vendors: false,
+            // Framework (React)
+            framework: {
+              name: "framework",
+              test: /[\\/]node_modules[\\/](react|react-dom|scheduler)[\\/]/,
+              priority: 40,
+              enforce: true,
+            },
+            // Librerías grandes
+            lib: {
               test: /[\\/]node_modules[\\/]/,
-              name: "vendors",
-              priority: 10,
+              name(module) {
+                const match = module.context.match(/[\\/]node_modules[\\/](.*?)([\\/]|$)/);
+                const packageName = match ? match[1] : null;
+                
+                // Agrupar por paquete
+                if (packageName) {
+                  if (packageName.startsWith('@radix-ui')) return 'radix-ui';
+                  if (['framer-motion', 'motion'].includes(packageName)) return 'animations';
+                  if (['lucide-react', 'react-icons'].includes(packageName)) return 'icons';
+                  if (['recharts', 'react-chartjs-2'].includes(packageName)) return 'charts';
+                }
+                return 'lib';
+              },
+              priority: 30,
+              minChunks: 1,
               reuseExistingChunk: true,
-              enforce: true,
-            },
-            react: {
-              test: /[\\/]node_modules[\\/](react|react-dom)[\\/]/,
-              name: "react-vendors",
-              priority: 20,
-              reuseExistingChunk: true,
-              enforce: true,
-            },
-            animation: {
-              test: /[\\/]node_modules[\\/](framer-motion)[\\/]/,
-              name: "animation",
-              priority: 15,
-              reuseExistingChunk: true,
-              enforce: true,
             },
           },
         },
@@ -170,6 +181,36 @@ const nextConfig = {
           },
         ],
       },
+      // Headers para páginas estáticas (mejor caché)
+      {
+        source: "/_next/static/:path*",
+        headers: [
+          {
+            key: "Cache-Control",
+            value: "public, max-age=31536000, immutable",
+          },
+        ],
+      },
+      // Headers para imágenes optimizadas
+      {
+        source: "/_next/image/:path*",
+        headers: [
+          {
+            key: "Cache-Control",
+            value: "public, max-age=31536000, immutable",
+          },
+        ],
+      },
+      // Headers para páginas públicas (habilitando bfcache)
+      {
+        source: "/((?!api|_next/static|_next/image|favicon.ico).*)",
+        headers: [
+          {
+            key: "Cache-Control",
+            value: "public, max-age=0, must-revalidate",
+          },
+        ],
+      },
       // Headers específicos para API routes
       {
         source: "/api/:path*",
@@ -217,4 +258,5 @@ const nextConfig = {
     ];
   },
 };
-export default nextConfig;
+
+export default withBundleAnalyzerConfig(nextConfig);

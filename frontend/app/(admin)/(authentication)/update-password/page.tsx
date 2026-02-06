@@ -80,13 +80,14 @@ export const metadata: Metadata = {
 };
 
 type PageProps = {
-  searchParams?: {
+  searchParams?: Promise<{
     token?: string;
-  };
+  }>;
 };
 
-export default function Page({ searchParams }: PageProps) {
-  const token = searchParams?.token;
+export default async function Page({ searchParams }: PageProps) {
+  const resolvedParams = await searchParams;
+  const token = resolvedParams?.token;
   const payload = token ? decodeResetToken(token) : null;
 
   if (!token || !payload) {
