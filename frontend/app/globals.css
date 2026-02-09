@@ -33,6 +33,11 @@
     font-family: var(--font-montserrat);
     min-height: 100%;
   }
+
+  html.select-viewport-lock,
+  html.select-viewport-lock body {
+    overflow: hidden;
+  }
   
   .font-montserrat {
     font-family: var(--font-montserrat);
@@ -40,60 +45,6 @@
   
   .font-inter {
     font-family: var(--font-inter);
-  }
-}
-
-@layer utilities {
-  /* Gradient animation for buttons */
-  @keyframes gradient {
-    0%, 100% {
-      background-position: 0% 50%;
-    }
-    50% {
-      background-position: 100% 50%;
-    }
-  }
-  
-  .animate-gradient {
-    animation: gradient 3s ease infinite;
-  }
-  
-  /* Custom scrollbar styles */
-  .scrollbar-thin::-webkit-scrollbar {
-    width: 6px;
-    .dark {
-      /* Dark mode - Sidebar colors */
-      --sidebar-bg: 222.2 84% 4.9%;
-      --sidebar-foreground: 210 40% 98%;
-      --sidebar-primary: 217.2 91.2% 59.8%;
-      --sidebar-primary-foreground: 222.2 47.4% 11.2%;
-      --sidebar-accent: 217.2 32.6% 17.5%;
-      --sidebar-accent-foreground: 210 40% 98%;
-      --sidebar-border: 217.2 32.6% 17.5%;
-      --sidebar-ring: 224.3 76.3% 48%;
-    }
-
-    html {
-      scrollbar-gutter: stable;
-    }
-
-    body {
-      font-family: var(--font-montserrat);
-      min-height: 100%;
-    }
-
-    html.select-viewport-lock,
-    html.select-viewport-lock body {
-      overflow: hidden;
-    }
-
-    .font-montserrat {
-      font-family: var(--font-montserrat);
-    }
-
-    .font-inter {
-      font-family: var(--font-inter);
-    }
   }
 }
 

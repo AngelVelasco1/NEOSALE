@@ -11,17 +11,16 @@ import PageTitle from "../components/shared/PageTitle";
 import SalesOverview from "./_components/SalesOverview";
 import StatusOverview from "./_components/StatusOverview";
 import DashboardCharts from "./_components/dashboard-charts";
-import RecentOrders from "./orders/_components/orders-table";
 import DashboardFilters from "./_components/DashboardFilters";
+import RecentOrders from "./orders/_components/orders-table";
 import { GOAL_PARAM_MAP, MetricGoalKey } from "./_components/goalPresets";
 
 export const metadata: Metadata = {
   title: "Dashboard",
 };
 
-// Disable caching for this page to ensure real-time updates
-export const dynamic = 'force-dynamic';
-export const revalidate = 0;
+// Allow short-lived caching to reduce load while keeping data fresh
+export const revalidate = 60;
 
 type GoalParamName = (typeof GOAL_PARAM_MAP)[MetricGoalKey];
 
@@ -138,7 +137,6 @@ export default async function DashboardPage({ searchParams }: DashboardPageProps
             </div>
           </div>
         </div>
-
         <RecentOrders />
       </section>
     </>

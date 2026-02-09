@@ -1,6 +1,7 @@
 generator client {
   provider      = "prisma-client-js"
   binaryTargets = ["native", "windows"]
+  engineType    = "binary"
 }
 
 datasource db {
@@ -29,18 +30,8 @@ model cart {
   expires_at    DateTime?    @db.Timestamp(6)
   users         User?        @relation(fields: [user_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
   cart_items    cart_items[]
-}
 
-model cart_items {
-  id         Int      @id @default(autoincrement())
-  cart_id    Int
-  product_id Int
-  quantity   Int
-  unit_price Int
-  color_code String   @db.VarChar(7)
-  size       String   @db.VarChar(25)
-  cart       cart     @relation(fields: [cart_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
-  products   products @relation(fields: [product_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  @@index([created_at], map: "idx_cart_created_at")
 }
 
 model categories {
@@ -51,8 +42,8 @@ model categories {
   active               Boolean                @default(true)
   deleted_at           DateTime?              @db.Timestamp(6)
   deleted_by           Int?
-  User                 User?                  @relation(fields: [deleted_by], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_category_deleted_by")
   subcategory          subcategories?         @relation(fields: [id_subcategory], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  User                 User?                  @relation(fields: [deleted_by], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_category_deleted_by")
   category_subcategory category_subcategory[]
   products             products[]
 }
@@ -115,10 +106,12 @@ model products {
   images           images[]
   order_items      order_items[]
   product_variants product_variants[]
+  User             User?              @relation(fields: [deleted_by], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_product_deleted_by")
   brands           brands             @relation(fields: [brand_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
   categories       categories         @relation(fields: [category_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
-  User             User?              @relation(fields: [deleted_by], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_product_deleted_by")
   reviews          reviews[]
+
+  @@index([category_id], map: "idx_products_category_id")
 }
 
 model User {
@@ -153,48 +146,11 @@ model User {
   reviews                        reviews[]
   subcategories                  subcategories[]
 
-  @@map("User")
-}
+  @@index([createdAt], map: "idx_user_created_at")
+  @@index([role, active], map: "idx_user_role_active")
+  @@index([createdAt, role], map: "idx_user_created_at_role")
 
-model orders {
-  id                           Int                @id @default(autoincrement())
-  payment_id                   Int
-  status                       orders_status_enum @default(pending)
-  subtotal                     Int
-  discount                     Int?               @default(0)
-  shipping_cost                Int
-  taxes                        Int
-  total                        Int
-  shipping_address_id          Int
-  user_note                    String?            @db.VarChar(500)
-  admin_notes                  String?
-  coupon_id                    Int?
-  coupon_discount              Int?               @default(0)
-  tracking_number              String?            @db.VarChar(100)
-  carrier                      String?            @db.VarChar(50)
-  estimated_delivery_date      DateTime?          @db.Date
-  envioclick_guide_number      String?            @db.VarChar(100)
-  envioclick_shipment_id       String?            @db.VarChar(100)
-  envioclick_status            String?            @db.VarChar(50)
-  envioclick_tracking_url      String?            @db.VarChar(500)
-  envioclick_label_url         String?            @db.VarChar(500)
-  last_tracking_update         DateTime?          @db.Timestamp(6)
-  tracking_history             Json?              @default("[]")
-  created_at                   DateTime           @default(now()) @db.Timestamp(6)
-  updated_at                   DateTime?          @db.Timestamp(6)
-  shipped_at                   DateTime?          @db.Timestamp(6)
-  delivered_at                 DateTime?          @db.Timestamp(6)
-  cancelled_at                 DateTime?          @db.Timestamp(6)
-  user_id                      Int
-  updated_by                   Int
-  order_items                  order_items[]
-  order_logs                   order_logs[]
-  coupons                      coupons?           @relation(fields: [coupon_id], references: [id], onUpdate: NoAction)
-  payments                     payments           @relation(fields: [payment_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
-  addresses                    addresses          @relation(fields: [shipping_address_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
-  User_orders_updated_byToUser User               @relation("orders_updated_byToUser", fields: [updated_by], references: [id], onDelete: NoAction, onUpdate: NoAction)
-  users                        User               @relation(fields: [user_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
-  reviews                      reviews[]
+  @@map("User")
 }
 
 model subcategories {
@@ -252,7 +208,6 @@ model Account {
   @@map("account")
 }
 
-
 model addresses {
   id         Int      @id @default(autoincrement())
   address    String   @db.VarChar(255)
@@ -264,6 +219,19 @@ model addresses {
   created_at DateTime @default(now()) @db.Timestamp(6)
   User       User     @relation(fields: [user_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
   orders     orders[]
+}
+
+/// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
+model cart_items {
+  id         Int      @id @default(autoincrement())
+  cart_id    Int
+  product_id Int
+  quantity   Int
+  unit_price Int
+  color_code String   @db.VarChar(7)
+  size       String   @db.VarChar(25)
+  cart       cart     @relation(fields: [cart_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  products   products @relation(fields: [product_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
 }
 
 model favorites {
@@ -289,6 +257,7 @@ model images {
   product_variants product_variants? @relation(fields: [variant_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
 }
 
+/// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
 model order_items {
   id         Int       @id @default(autoincrement())
   price      Int
@@ -302,6 +271,9 @@ model order_items {
   updated_at DateTime? @db.Timestamp(6)
   orders     orders    @relation(fields: [order_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
   products   products  @relation(fields: [product_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+
+  @@index([order_id], map: "idx_order_items_order_id")
+  @@index([product_id], map: "idx_order_items_product_id")
 }
 
 /// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
@@ -317,6 +289,52 @@ model order_logs {
   user_type       String?            @default("admin") @db.VarChar(20)
   orders          orders             @relation(fields: [order_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
   User            User               @relation(fields: [updated_by], references: [id], onDelete: NoAction, onUpdate: NoAction)
+}
+
+/// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
+model orders {
+  id                           Int                @id @default(autoincrement())
+  payment_id                   Int
+  status                       orders_status_enum @default(pending)
+  subtotal                     Int
+  discount                     Int?               @default(0)
+  shipping_cost                Int
+  taxes                        Int
+  total                        Int
+  shipping_address_id          Int
+  user_note                    String?            @db.VarChar(500)
+  admin_notes                  String?
+  coupon_id                    Int?
+  coupon_discount              Int?               @default(0)
+  tracking_number              String?            @db.VarChar(100)
+  carrier                      String?            @db.VarChar(50)
+  estimated_delivery_date      DateTime?          @db.Date
+  created_at                   DateTime           @default(now()) @db.Timestamp(6)
+  updated_at                   DateTime?          @db.Timestamp(6)
+  shipped_at                   DateTime?          @db.Timestamp(6)
+  delivered_at                 DateTime?          @db.Timestamp(6)
+  cancelled_at                 DateTime?          @db.Timestamp(6)
+  user_id                      Int
+  updated_by                   Int
+  envioclick_guide_number      String?            @db.VarChar(100)
+  envioclick_label_url         String?            @db.VarChar(500)
+  envioclick_shipment_id       String?            @db.VarChar(100)
+  envioclick_status            String?            @db.VarChar(50)
+  envioclick_tracking_url      String?            @db.VarChar(500)
+  last_tracking_update         DateTime?          @db.Timestamp(6)
+  tracking_history             Json?              @default("[]")
+  order_items                  order_items[]
+  order_logs                   order_logs[]
+  coupons                      coupons?           @relation(fields: [coupon_id], references: [id], onUpdate: NoAction)
+  payments                     payments           @relation(fields: [payment_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+  addresses                    addresses          @relation(fields: [shipping_address_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  User_orders_updated_byToUser User               @relation("orders_updated_byToUser", fields: [updated_by], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  User                         User               @relation(fields: [user_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  reviews                      reviews[]
+
+  @@index([created_at], map: "idx_orders_created_at")
+  @@index([status], map: "idx_orders_status")
+  @@index([created_at, status], map: "idx_orders_created_at_status")
 }
 
 model review_images {
@@ -405,7 +423,7 @@ model verificationToken {
 model StoreSettings {
   id                  Int       @id @default(autoincrement())
   store_name          String    @default("NeoSale") @db.VarChar(255)
-  store_description   String?   @db.Text
+  store_description   String?
   contact_email       String    @default("info@neosale.com") @db.VarChar(255)
   contact_phone       String    @default("+57 300 123 4567") @db.VarChar(50)
   whatsapp_number     String?   @db.VarChar(50)
@@ -422,22 +440,22 @@ model StoreSettings {
   primary_color       String    @default("#3B82F6") @db.VarChar(20)
   secondary_color     String    @default("#6366F1") @db.VarChar(20)
   accent_color        String    @default("#D946EF") @db.VarChar(20)
-  footer_text         String?   @db.Text
+  footer_text         String?
   newsletter_enabled  Boolean   @default(true)
   show_whatsapp_chat  Boolean   @default(true)
-  business_hours      Json?     @default("{\"monday\":\"8:00 AM - 6:00 PM\",\"tuesday\":\"8:00 AM - 6:00 PM\",\"wednesday\":\"8:00 AM - 6:00 PM\",\"thursday\":\"8:00 AM - 6:00 PM\",\"friday\":\"8:00 AM - 6:00 PM\",\"saturday\":\"9:00 AM - 2:00 PM\",\"sunday\":\"Closed\"}")
-  shipping_info       Json?     @default("{\"free_shipping_minimum\":150000,\"standard_shipping_cost\":10000}")
+  business_hours      Json?     @default("{\"friday\": \"8:00 AM - 6:00 PM\", \"monday\": \"8:00 AM - 6:00 PM\", \"sunday\": \"Closed\", \"tuesday\": \"8:00 AM - 6:00 PM\", \"saturday\": \"9:00 AM - 2:00 PM\", \"thursday\": \"8:00 AM - 6:00 PM\", \"wednesday\": \"8:00 AM - 6:00 PM\"}")
+  shipping_info       Json?     @default("{\"free_shipping_minimum\": 150000, \"standard_shipping_cost\": 10000}")
   seo_title           String?   @db.VarChar(255)
   seo_description     String?   @db.VarChar(500)
-  seo_keywords        String?   @db.Text
+  seo_keywords        String?
   google_analytics_id String?   @db.VarChar(50)
   facebook_pixel_id   String?   @db.VarChar(50)
   active              Boolean   @default(true)
   created_at          DateTime  @default(now()) @db.Timestamp(6)
   updated_at          DateTime? @db.Timestamp(6)
   updated_by          Int?
-  @@map("store_settings")
 
+  @@map("store_settings")
 }
 
 enum orders_status_enum {

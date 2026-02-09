@@ -236,7 +236,7 @@ export function getAPISecurityHeaders() {
     // Cache control para APIs
     {
       key: "Cache-Control",
-      value: "no-store, max-age=0",
+      value: "private, max-age=0, must-revalidate",
     },
     // Prevenir MIME sniffing
     {

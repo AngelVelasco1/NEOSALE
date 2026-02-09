@@ -2,14 +2,13 @@
 
 import { useCallback, useEffect, useMemo, useRef, useState, useTransition } from "react";
 import { createPortal } from "react-dom";
+import dynamic from "next/dynamic";
 import { useRouter, useSearchParams } from "next/navigation";
-import { motion, type Variants } from "framer-motion";
 import { Calendar, ChevronDown, Clock, RotateCcw, Sparkles } from "lucide-react";
 
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { DatePickerWithRange } from "@/components/ui/date-range-picker";
 import { DateRange } from "react-day-picker";
 import { cn } from "@/lib/utils";
 import { DEFAULT_METRIC_GOALS, GOAL_PARAM_MAP, MetricGoalKey } from "./goalPresets";
@@ -126,26 +125,15 @@ const QUICK_GOAL_PRESETS = [
     { label: "x2", factor: 2 },
 ] as const;
 
-// Variantes de animación
-const ANIMATION_VARIANTS = {
-    hero: {
-        hidden: { opacity: 0, y: 16 },
-        visible: { opacity: 1, y: 0, transition: { duration: 0.45, ease: "easeOut" } },
-    },
-    stacked: {
-        hidden: { opacity: 0, y: 24 },
-        visible: { opacity: 1, y: 0, transition: { duration: 0.5, ease: [0.32, 0.72, 0, 1] } },
-    },
-    goalCard: {
-        hidden: { opacity: 0, y: 25, scale: 0.95 },
-        visible: (index: number) => ({
-            opacity: 1,
-            y: 0,
-            scale: 1,
-            transition: { delay: index * 0.06, duration: 0.5, ease: [0.34, 0.8, 0.22, 1] },
-        }),
-    },
-} as const satisfies Record<string, Variants>;
+const DatePickerWithRange = dynamic(
+    () => import("@/components/ui/date-range-picker").then((mod) => mod.DatePickerWithRange),
+    {
+        ssr: false,
+        loading: () => (
+            <div className="h-12 w-full rounded-xl border border-white/10 bg-slate-950/40" />
+        ),
+    }
+);
 
 // Formateadores (singleton)
 const FORMATTERS = {
@@ -486,12 +474,7 @@ export default function DashboardFilters() {
 
             <div className="relative z-10 space-y-3 p-5 py-2 md:p-8 md:py-4">
                 {/* Header */}
-                <motion.div
-                    variants={ANIMATION_VARIANTS.hero}
-                    initial="hidden"
-                    animate="visible"
-                    className="flex flex-col gap-5 md:flex-row md:items-center md:justify-between"
-                >
+                <div className="flex flex-col gap-5 md:flex-row md:items-center md:justify-between">
                     <div className="max-w-2xl space-y-2">
                         <div className="relative inline-block">
                             <h2 className="text-3xl font-black tracking-tight bg-linear-to-r from-white via-violet-200 to-fuchsia-200 bg-clip-text text-transparent drop-shadow-[0_0_30px_rgba(167,139,250,0.5)]">
@@ -511,16 +494,10 @@ export default function DashboardFilters() {
                             Panel activo
                         </span>
                     </div>
-                </motion.div>
+                </div>
 
                 {/* Date range controls */}
-                <motion.div
-                    variants={ANIMATION_VARIANTS.stacked}
-                    initial="hidden"
-                    whileInView="visible"
-                    viewport={{ once: true, amount: 0.4 }}
-                    className="flex flex-col gap-10 lg:flex-row lg:items-center"
-                >
+                <div className="flex flex-col gap-10 lg:flex-row lg:items-center">
                     <div className="flex-1">
                         <div className="flex flex-col gap-3 sm:flex-row">
                             <div className="min-w-60 flex-1">
@@ -550,7 +527,7 @@ export default function DashboardFilters() {
                             Restablecer
                         </span>
                     </Button>
-                </motion.div>
+                </div>
 
                 {/* Date range display */}
                 {dateRange?.from && (
@@ -595,13 +572,7 @@ function DateRangeDisplay({ dateRange, presetMeta, presetStyles, totalDays }: Da
         });
 
     return (
-        <motion.div
-            variants={ANIMATION_VARIANTS.stacked}
-            initial="hidden"
-            whileInView="visible"
-            viewport={{ once: true, amount: 0.4 }}
-            className="grid gap-4 lg:grid-cols-[2fr,1fr]"
-        >
+        <div className="grid gap-4 lg:grid-cols-[2fr,1fr]">
             {/* Period card */}
             <div className="relative overflow-hidden rounded-3xl border border-indigo-500/25 bg-linear-to-br from-slate-900 via-indigo-950/30 to-slate-900 p-5 shadow-md shadow-indigo-900/30">
                 <div className="absolute inset-0 bg-[radial-gradient(circle_at_top,rgba(99,102,241,0.2),transparent_65%)] opacity-70" />
@@ -662,7 +633,7 @@ function DateRangeDisplay({ dateRange, presetMeta, presetStyles, totalDays }: Da
                     </div>
                 </div>
             </div>
-        </motion.div>
+        </div>
     );
 }
 
@@ -678,13 +649,7 @@ function GoalsSection({ goalInputs, onInputChange, onCommit, onQuickGoal, onRese
     const metricKeys = useMemo(() => Object.keys(GOAL_PARAM_MAP) as MetricGoalKey[], []);
 
     return (
-        <motion.div
-            variants={ANIMATION_VARIANTS.stacked}
-            initial="hidden"
-            whileInView="visible"
-            viewport={{ once: true, amount: 0.4 }}
-            className="p-3"
-        >
+        <div className="p-3">
             <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
                 <div className="space-y-2">
                     <div className="relative inline-block">
@@ -711,11 +676,10 @@ function GoalsSection({ goalInputs, onInputChange, onCommit, onQuickGoal, onRese
             </div>
 
             <div className="mt-6 grid gap-4 md:grid-cols-2 xl:grid-cols-4">
-                {metricKeys.map((key, index) => (
+                {metricKeys.map((key) => (
                     <GoalCard
                         key={key}
                         metricKey={key}
-                        index={index}
                         inputValue={goalInputs[key] ?? ""}
                         onInputChange={onInputChange}
                         onCommit={onCommit}
@@ -723,13 +687,12 @@ function GoalsSection({ goalInputs, onInputChange, onCommit, onQuickGoal, onRese
                     />
                 ))}
             </div>
-        </motion.div>
+        </div>
     );
 }
 
 type GoalCardProps = {
     metricKey: MetricGoalKey;
-    index: number;
     inputValue: string;
     onInputChange: (key: MetricGoalKey, value: string) => void;
     onCommit: (key: MetricGoalKey, value?: string) => void;
@@ -738,7 +701,6 @@ type GoalCardProps = {
 
 const GoalCard = memo(function GoalCard({
     metricKey,
-    index,
     inputValue,
     onInputChange,
     onCommit,
@@ -762,15 +724,7 @@ const GoalCard = memo(function GoalCard({
     const friendlyBase = formatGoalValue(metricKey, base.value);
 
     return (
-        <motion.div
-            variants={ANIMATION_VARIANTS.goalCard}
-            initial="hidden"
-            whileInView="visible"
-            viewport={{ once: true, amount: 0.3 }}
-            custom={index}
-            whileHover={{ y: -7, scale: 1.02 }}
-            className="group relative overflow-hidden rounded-3xl border border-white/10 bg-linear-to-br from-slate-900/95 via-slate-800/90 to-slate-900/95 p-5 text-white shadow-[0_8px_32px_rgba(0,0,0,0.4)] backdrop-blur-sm transition-all duration-500 hover:border-white/20 hover:shadow-[0_16px_48px_rgba(0,0,0,0.5)]"
-        >
+        <div className="group relative overflow-hidden rounded-3xl border border-white/10 bg-linear-to-br from-slate-900/95 via-slate-800/90 to-slate-900/95 p-5 text-white shadow-[0_8px_32px_rgba(0,0,0,0.4)] backdrop-blur-sm transition-all duration-500 hover:border-white/20 hover:shadow-[0_16px_48px_rgba(0,0,0,0.5)]">
             <div className={cn("pointer-events-none absolute inset-0 bg-linear-to-br opacity-60 transition-opacity duration-500 group-hover:opacity-90", visuals.gradient)} />
             <div className={cn("pointer-events-none absolute -top-12 right-6 h-28 w-28 rounded-full opacity-40 blur-[80px] transition-all duration-500 group-hover:scale-110 group-hover:opacity-70", visuals.beam)} />
             <div className="absolute inset-0 bg-gradient-to-t from-slate-950/60 via-transparent to-transparent" />
@@ -841,21 +795,19 @@ const GoalCard = memo(function GoalCard({
 
                 <div className="grid grid-cols-3 gap-2.5">
                     {QUICK_GOAL_PRESETS.map((preset) => (
-                        <motion.button
+                        <button
                             key={preset.label}
                             type="button"
-                            whileHover={{ y: -3, scale: 1.05 }}
-                            whileTap={{ scale: 0.95 }}
                             onClick={() => onQuickGoal(metricKey, preset.factor)}
                             className="relative overflow-hidden rounded-xl border border-white/15 bg-linear-to-br from-white/10 to-white/5 px-3 py-2.5 text-xs font-bold text-white backdrop-blur-sm transition-all duration-300 hover:border-white/30 hover:from-white/20 hover:to-white/10 hover:shadow-lg hover:shadow-black/30 active:scale-95"
                         >
                             <span className="relative z-10">{preset.label}</span>
                             <div className="absolute inset-0 bg-linear-to-br from-white/0 to-white/5 opacity-0 transition-opacity duration-300 hover:opacity-100" />
-                        </motion.button>
+                        </button>
                     ))}
                 </div>
             </div>
-        </motion.div>
+        </div>
     );
 });
 

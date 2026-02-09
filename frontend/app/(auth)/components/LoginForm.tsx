@@ -139,7 +139,7 @@ export const LoginForm: React.FC = () => {
           method: "GET",
           headers: { "Content-Type": "application/json" },
           signal: controller.signal,
-          cache: "no-store",
+          cache: "no-cache",
         });
 
         if (!response.ok) {

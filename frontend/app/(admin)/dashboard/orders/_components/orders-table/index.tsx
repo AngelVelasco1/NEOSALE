@@ -71,8 +71,10 @@ export default function RecentOrders() {
     placeholderData: keepPreviousData,
     staleTime: STALE_TIME,
     gcTime: GC_TIME,
-    refetchOnWindowFocus: false,
-    refetchOnReconnect: false,
+    refetchOnWindowFocus: true,
+    refetchOnReconnect: true,
+    refetchInterval: 60_000,
+    refetchIntervalInBackground: false,
     retry: 1,
   });
 

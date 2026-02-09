@@ -9,6 +9,7 @@ import {
   useState,
   type ReactNode,
 } from "react";
+import dynamic from "next/dynamic";
 import {
   ArrowUpRight,
   Loader2,
@@ -26,8 +27,15 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import Profile from "@/app/(admin)/components/shared/header/Profile";
-import Notifications from "@/app/(admin)/components/shared/notifications/Notifications";
+const Profile = dynamic(
+  () => import("@/app/(admin)/components/shared/header/Profile"),
+  { ssr: false }
+);
+
+const Notifications = dynamic(
+  () => import("@/app/(admin)/components/shared/notifications/Notifications"),
+  { ssr: false }
+);
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import { cn } from "@/lib/utils";
@@ -295,7 +303,7 @@ export default function Header({ onToggleSidebar }: HeaderProps) {
 
       fetch(`/api/search?q=${encodeURIComponent(normalizedQuery)}&limit=5`, {
         signal: controller.signal,
-        cache: "no-store",
+        cache: "no-cache",
       })
         .then((response) => {
           if (!response.ok) {

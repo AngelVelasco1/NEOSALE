@@ -30,6 +30,8 @@ model cart {
   expires_at    DateTime?    @db.Timestamp(6)
   users         User?        @relation(fields: [user_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
   cart_items    cart_items[]
+
+  @@index([created_at], map: "idx_cart_created_at")
 }
 
 model categories {
@@ -108,6 +110,8 @@ model products {
   brands           brands             @relation(fields: [brand_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
   categories       categories         @relation(fields: [category_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
   reviews          reviews[]
+
+  @@index([category_id], map: "idx_products_category_id")
 }
 
 model User {
@@ -141,6 +145,10 @@ model User {
   products                       products[]
   reviews                        reviews[]
   subcategories                  subcategories[]
+
+  @@index([createdAt], map: "idx_user_created_at")
+  @@index([role, active], map: "idx_user_role_active")
+  @@index([createdAt, role], map: "idx_user_created_at_role")
 
   @@map("User")
 }
@@ -263,6 +271,9 @@ model order_items {
   updated_at DateTime? @db.Timestamp(6)
   orders     orders    @relation(fields: [order_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
   products   products  @relation(fields: [product_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+
+  @@index([order_id], map: "idx_order_items_order_id")
+  @@index([product_id], map: "idx_order_items_product_id")
 }
 
 /// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
@@ -320,6 +331,10 @@ model orders {
   User_orders_updated_byToUser User               @relation("orders_updated_byToUser", fields: [updated_by], references: [id], onDelete: NoAction, onUpdate: NoAction)
   User                         User               @relation(fields: [user_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
   reviews                      reviews[]
+
+  @@index([created_at], map: "idx_orders_created_at")
+  @@index([status], map: "idx_orders_status")
+  @@index([created_at, status], map: "idx_orders_created_at_status")
 }
 
 model review_images {

@@ -1,0 +1,36 @@
+npm warn config optional Use `--omit=optional` to exclude optional dependencies, or
+npm warn config `--include=optional` to include them.
+npm warn config
+npm warn config       Default value does install optional deps unless otherwise omitted.
+npm warn Unknown project config "supportedArchitectures.os". This will stop working in the next major version of npm.
+npm warn Unknown project config "supportedArchitectures.cpu". This will stop working in the next major version of npm.
+
+> neosale-frontend@1.0.0 build
+> next build
+
+   Ôû▓ Next.js 15.5.6
+   - Environments: .env.local, .env
+   - Experiments (use with caution):
+     ┬À serverActions
+     ┬À optimizePackageImports
+
+   Creating an optimized production build ...
+ Ô£ô Compiled successfully in 13.5s
+   Skipping linting
+   Checking validity of types ...
+Failed to compile.
+
+./app/(admin)/actions/products/addProduct.ts:307:7
+Type error: Type '{ brands: { name: string; id: number; description: string | null; active: boolean; image_url: string | null; deleted_at: Date | null; deleted_by: number | null; }; categories: { name: string; ... 5 more ...; id_subcategory: number | null; }; product_variants: ({ ...; } & { ...; })[]; images: { ...; }[]; } & { ...; }' is not assignable to type 'Product'.
+  Types of property 'deleted_at' are incompatible.
+    Type 'Date | null' is not assignable to type 'string | null'.
+      Type 'Date' is not assignable to type 'string'.
+
+  305 |     return {
+  306 |       success: true,
+> 307 |       product: newProduct!,
+      |       ^
+  308 |     };
+  309 |   } catch (error) {
+  310 |     // Manejar errores de Prisma
+Next.js build worker exited with code: 1 and signal: null

@@ -1,19 +1,19 @@
 import React from "react";
 import type { Metadata } from "next";
-import "./fonts.css";
 import "./globals.css";
 import { Montserrat, Poppins } from "next/font/google";
 import { RootProviders } from "./providers/RootProviders"; // Asegúrate de que la ruta sea correcta
+import Script from "next/script";
 
 export const userFont = Montserrat({
-  weight: ["300", "400", "500", "700", "800"],
+  weight: ["400", "600", "700"],
   subsets: ["latin"],
   variable: "--font-montserrat",
   display: "swap",
 });
 
 export const adminFont = Poppins({
-  weight: ["300", "400", "500", "600", "700", "800"],
+  weight: ["400", "600"],
   subsets: ["latin"],
   variable: "--font-inter",
   display: "swap",
@@ -38,10 +38,19 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="es" suppressHydrationWarning>
+      <head>
+        <link
+          rel="stylesheet"
+          href="/non-critical.css"
+          media="print"
+          data-non-critical="true"
+        />
+      </head>
       <body
         className={`${userFont.variable} ${adminFont.variable} font-montserrat antialiased @container min-h-screen`}
         suppressHydrationWarning
       >
+       
         <RootProviders>
           {children}
         </RootProviders>

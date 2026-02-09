@@ -201,6 +201,16 @@ const nextConfig = {
           },
         ],
       },
+      // Headers para dashboard (privado, pero sin no-store para bfcache)
+      {
+        source: "/dashboard/:path*",
+        headers: [
+          {
+            key: "Cache-Control",
+            value: "private, max-age=0, must-revalidate",
+          },
+        ],
+      },
       // Headers para páginas públicas (habilitando bfcache)
       {
         source: "/((?!api|_next/static|_next/image|favicon.ico).*)",
@@ -211,14 +221,43 @@ const nextConfig = {
           },
         ],
       },
-      // Headers específicos para API routes
+      // Headers específicos para API sensibles
+      {
+        source: "/api/auth/:path*",
+        headers: [
+          ...getSecurityHeaders(),
+          {
+            key: "Cache-Control",
+            value: "no-store, max-age=0",
+          },
+          {
+            key: "X-Robots-Tag",
+            value: "noindex, nofollow",
+          },
+        ],
+      },
+      {
+        source: "/api/payments/:path*",
+        headers: [
+          ...getSecurityHeaders(),
+          {
+            key: "Cache-Control",
+            value: "no-store, max-age=0",
+          },
+          {
+            key: "X-Robots-Tag",
+            value: "noindex, nofollow",
+          },
+        ],
+      },
+      // Headers específicos para API routes (sin no-store por defecto)
       {
         source: "/api/:path*",
         headers: [
           ...getSecurityHeaders(),
           {
             key: "Cache-Control",
-            value: "no-store, max-age=0",
+            value: "private, max-age=0, must-revalidate",
           },
           {
             key: "X-Robots-Tag",

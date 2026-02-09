@@ -22,7 +22,7 @@ export function ColorInitializer() {
     const loadColorsFromDB = async () => {
       try {
         const response = await fetch("/api/store-settings/colors", {
-          cache: "no-store",
+          cache: "no-cache",
         });
 
         if (response.ok) {

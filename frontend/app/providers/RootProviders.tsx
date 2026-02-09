@@ -2,11 +2,16 @@
 import { SessionProvider } from "next-auth/react";
 import { Session } from "next-auth";
 import React, { useEffect, useState } from "react";
-import { Toaster } from "sonner";
+import dynamic from "next/dynamic";
 import TanstackQueryProvider from "@/app/(admin)/lib/tanstack-query-provider";
 import { UserProvider } from "@/app/(auth)/context/UserContext";
 import { ThemeColorLoader } from "./ThemeColorLoader";
 import { ColorInitializer } from "./ColorInitializer";
+
+const Toaster = dynamic(
+  () => import("sonner").then((mod) => mod.Toaster),
+  { ssr: false }
+);
 
 interface ProvidersProps {
   children: React.ReactNode;

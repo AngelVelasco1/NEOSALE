@@ -1,9 +1,8 @@
 "use client";
 
-import { useEffect, useTransition } from "react";
 import Link from "next/link";
 import Image from "next/image";
-import { usePathname, useRouter } from "next/navigation";
+import { usePathname } from "next/navigation";
 import { X } from "lucide-react";
 
 import Typography from "@/app/(admin)/components/ui/typography";
@@ -18,19 +17,6 @@ interface AppSidebarProps {
 
 export default function AppSidebar({ isOpen, isMobile = false, onClose }: AppSidebarProps) {
   const pathname = usePathname();
-  const router = useRouter();
-  const [isPending, startTransition] = useTransition();
-
-  // Prefetch agresivo de todas las rutas en paralelo
-  useEffect(() => {
-    const prefetchAll = async () => {
-      const promises = navItems.map((item) => 
-        router.prefetch(item.url)
-      );
-      await Promise.allSettled(promises);
-    };
-    prefetchAll();
-  }, [router]);
 
   const handleLinkClick = () => {
     if (isMobile && onClose) {
@@ -105,7 +91,7 @@ export default function AppSidebar({ isOpen, isMobile = false, onClose }: AppSid
                 <li key={navItem.title} className="border-none">
                   <Link
                     href={navItem.url}
-                    prefetch={true}
+                    prefetch={false}
                     onClick={handleLinkClick}
                     aria-current={isActive ? "page" : undefined}
                     className={cn(

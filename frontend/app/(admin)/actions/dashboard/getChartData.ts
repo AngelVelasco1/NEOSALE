@@ -73,7 +73,7 @@ const dailyChartDataCache = unstable_cache(
         }>
       >`
         SELECT 
-          DATE(created_at) as date,
+          date_trunc('day', created_at) as date,
           COALESCE(SUM(total), 0) as sales,
           COUNT(*) as orders
         FROM orders
@@ -81,8 +81,8 @@ const dailyChartDataCache = unstable_cache(
           created_at >= ${startDate}
           AND created_at <= ${endDate}
           AND status IN ('paid', 'processing', 'shipped', 'delivered')
-        GROUP BY DATE(created_at)
-        ORDER BY date ASC
+        GROUP BY date_trunc('day', created_at)
+        ORDER BY date_trunc('day', created_at) ASC
       `;
 
       const formattedData = dailyData.map((item) => ({
@@ -91,12 +91,16 @@ const dailyChartDataCache = unstable_cache(
         orders: Number(item.orders),
       }));
 
+      const formattedMap = new Map(
+        formattedData.map((item) => [item.date, item])
+      );
+
       const allDates: DailyData[] = [];
       let currentDate = new Date(startDate);
 
       while (currentDate <= endDate) {
         const dateStr = format(currentDate, "dd MMM", { locale: es });
-        const existingData = formattedData.find((d) => d.date === dateStr);
+        const existingData = formattedMap.get(dateStr);
 
         allDates.push(
           existingData || {

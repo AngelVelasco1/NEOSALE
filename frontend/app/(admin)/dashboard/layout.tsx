@@ -1,12 +1,25 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
+import dynamic from "next/dynamic";
 
-import Header from "@/app/(admin)/components/shared/header";
 import Container from "@/app/(admin)/components/ui/container";
-import AppSidebar from "@/app/(admin)/components/shared/sidebar/AppSidebar";
-import { PageTransition } from "@/app/(admin)/components/shared/PageTransition";
 import { cn } from "@/lib/utils";
+
+const Header = dynamic(
+  () => import("@/app/(admin)/components/shared/header"),
+  {
+    loading: () => <div className="h-16" />,
+  }
+);
+
+const AppSidebar = dynamic(
+  () => import("@/app/(admin)/components/shared/sidebar/AppSidebar"),
+  {
+    loading: () => <div className="lg:w-64" />,
+  }
+);
+
 
 interface LayoutProviderProps {
   children: React.ReactNode;
@@ -75,9 +88,7 @@ function LayoutProvider({ children, defaultOpen = true }: LayoutProviderProps) {
         <main className="flex-1 overflow-x-hidden">
           <div className="py-6 print:!py-0">
             <Container>
-              <PageTransition>
-                {children}
-              </PageTransition>
+              {children}
             </Container>
           </div>
         </main>

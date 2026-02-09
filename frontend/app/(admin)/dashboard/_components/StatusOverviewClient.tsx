@@ -1,6 +1,5 @@
 "use client";
 
-import { motion, type Variants } from "framer-motion";
 import { ArrowRight, CheckCircle2, Clock, PackageCheck, Truck } from "lucide-react";
 import type { ComponentType } from "react";
 
@@ -39,25 +38,6 @@ const iconMap: Record<IconToken, ComponentType<{ className?: string }>> = {
   delivered: CheckCircle2,
 };
 
-const headerVariants: Variants = {
-  hidden: { opacity: 0, y: 10 },
-  visible: {
-    opacity: 1,
-    y: 0,
-    transition: { duration: 0.45, ease: "easeOut" },
-  },
-};
-
-const cardVariants: Variants = {
-  hidden: { opacity: 0, y: 25, scale: 0.98 },
-  visible: (index: number) => ({
-    opacity: 1,
-    y: 0,
-    scale: 1,
-    transition: { delay: 0.05 * index, duration: 0.4, ease: [0.6, 0.04, 0.28, 0.99] as const },
-  }),
-};
-
 interface StatusOverviewClientProps extends StatusOverviewPayload {}
 
 export default function StatusOverviewClient({
@@ -74,12 +54,7 @@ export default function StatusOverviewClient({
     
 
       <div className="relative z-10 space-y-6 p-2 md:p-3">
-        <motion.div
-          variants={headerVariants}
-          initial="hidden"
-          animate="visible"
-          className="flex flex-col gap-6 rounded-3xl border border-white/10 bg-linear-to-br from-white/5 via-white/2 to-transparent p-6 backdrop-blur-sm lg:flex-row lg:items-center lg:justify-between"
-        >
+        <div className="flex flex-col gap-6 rounded-3xl border border-white/10 bg-linear-to-br from-white/5 via-white/2 to-transparent p-6 backdrop-blur-sm lg:flex-row lg:items-center lg:justify-between">
           <div className="space-y-3 flex flex-col">
            
             <div className="relative">
@@ -96,30 +71,22 @@ export default function StatusOverviewClient({
             </Typography>
           </div>
 
-          <motion.a
-            whileHover={{ x: 6, scale: 1.02 }}
-            whileTap={{ scale: 0.98 }}
+          <a
             href={ctaHref}
             className="group relative inline-flex items-center gap-3 overflow-hidden rounded-2xl border border-violet-400/30 bg-linear-to-r from-violet-500/10 via-fuchsia-500/10 to-purple-500/10 px-6 py-3 text-sm font-bold text-white backdrop-blur-sm shadow-lg shadow-violet-500/20 transition-all duration-300 hover:border-violet-400/50 hover:shadow-xl hover:shadow-violet-500/30"
           >
             <span className="absolute inset-0 bg-linear-to-r from-violet-500/20 via-fuchsia-500/20 to-purple-500/20 opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
             <span className="relative z-10">{ctaLabel}</span>
             <ArrowRight className="relative z-10 h-4 w-4 transition-transform duration-300 group-hover:translate-x-1" />
-          </motion.a>
-        </motion.div>
+          </a>
+        </div>
 
         <div className="grid grid-cols-1 gap-6 md:grid-cols-2 xl:grid-cols-4">
-          {statuses.map((status, index) => {
+          {statuses.map((status) => {
             const Icon = iconMap[status.icon];
             return (
-              <motion.div
+              <div
                 key={status.id}
-                variants={cardVariants}
-                initial="hidden"
-                whileInView="visible"
-                viewport={{ once: true, amount: 0.4 }}
-                custom={index}
-                whileHover={{ y: -8, scale: 1.02 }}
                 className={cn(
                   "group relative overflow-hidden rounded-3xl border p-6 text-white shadow-[0_20px_60px_rgba(0,0,0,0.5)] backdrop-blur-sm transition-all duration-500 hover:shadow-[0_30px_80px_rgba(0,0,0,0.6)]",
                   status.border
@@ -175,7 +142,7 @@ export default function StatusOverviewClient({
                     <div className="absolute inset-0 rounded-full bg-linear-to-r from-transparent via-white/5 to-transparent opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
                   </div>
                 </div>
-              </motion.div>
+              </div>
             );
           })}
         </div>

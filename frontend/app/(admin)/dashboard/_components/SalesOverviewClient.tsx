@@ -1,11 +1,12 @@
 "use client";
 
-import { motion, type Variants } from "framer-motion";
 import {
   Activity,
   ArrowDownRight,
   ArrowUpRight,
+  DollarSign,
   Package,
+  ShoppingBag,
   TrendingUp,
   Users,
 } from "lucide-react";
@@ -16,16 +17,14 @@ import { cn } from "@/lib/utils";
 import type {
   MetricCardDescriptor,
   QuickStatDescriptor,
-  SalesHeroDescriptor,
   SalesOverviewPayload,
   IconToken,
 } from "./SalesOverview.types";
-import { BiDollar, BiShoppingBag } from "react-icons/bi";
 
 const iconMap: Record<IconToken, React.ComponentType<{ className?: string }>> = {
-  revenue: BiDollar,
+  revenue: DollarSign,
   orders: Package,
-  products: BiShoppingBag,
+  products: ShoppingBag,
   customers: Users,
   trend: TrendingUp,
   conversion: Activity,
@@ -41,34 +40,12 @@ const changeTone: Record<"increase" | "decrease" | "neutral", string> = {
 
 
 
-const cardVariants: Variants = {
-  hidden: { opacity: 0, y: 35, scale: 0.96 },
-  visible: (index: number) => ({
-    opacity: 1,
-    y: 0,
-    scale: 1,
-    transition: { delay: index * 0.08, duration: 0.5, ease: [0.33, 1, 0.68, 1] as const },
-  }),
-};
-
-const quickStatVariants: Variants = {
-  hidden: { opacity: 0, y: 20 },
-  visible: (index: number) => ({
-    opacity: 1,
-    y: 0,
-    transition: { delay: 0.2 + index * 0.06, duration: 0.45, ease: "easeOut" },
-  }),
-};
-
 function ChangeBadge({
   change,
   changeType,
 }: Pick<MetricCardDescriptor, "change" | "changeType">) {
   return (
-    <motion.span
-      initial={{ opacity: 0, y: 4 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.3 }}
+    <span
       className={cn(
         "inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-xs font-semibold",
         changeTone[changeType]
@@ -77,7 +54,7 @@ function ChangeBadge({
       {changeType === "increase" && <ArrowUpRight className="size-3" />}
       {changeType === "decrease" && <ArrowDownRight className="size-3" />}
       {change}
-    </motion.span>
+    </span>
   );
 }
 
@@ -92,7 +69,7 @@ interface MetricGridProps {
 function MetricGrid({ metrics }: MetricGridProps) {
   return (
     <div className="grid grid-cols-1 gap-6 md:grid-cols-2 xl:grid-cols-4">
-      {metrics.map((metric, index) => {
+      {metrics.map((metric) => {
         const Icon = iconMap[metric.icon];
         const rawProgress = Math.max(0, metric.progressValue ?? 0);
         const clampedProgress = Math.min(100, rawProgress);
@@ -106,14 +83,8 @@ function MetricGrid({ metrics }: MetricGridProps) {
               : `${Math.round(rawProgress)}%`;
 
         return (
-          <motion.div
+          <div
             key={metric.title}
-            variants={cardVariants}
-            initial="hidden"
-            whileInView="visible"
-            viewport={{ once: true, amount: 0.4 }}
-            custom={index}
-            whileHover={{ y: -6, scale: 1.01 }}
             className={cn(
               "relative overflow-hidden rounded-3xl border bg-slate-950/70 p-6 text-white shadow-[0_30px_80px_-35px_rgba(14,165,233,0.65)] transition-all",
               metric.border,
@@ -159,11 +130,8 @@ function MetricGrid({ metrics }: MetricGridProps) {
                   <span>{progressLabel}</span>
                 </div>
                 <div className="h-2.5 w-full rounded-full bg-white/10">
-                  <motion.div
-                    initial={{ width: 0 }}
-                    whileInView={{ width: `${animatedProgress}%` }}
-                    viewport={{ once: true }}
-                    transition={{ duration: 0.65, ease: [0.33, 1, 0.68, 1] }}
+                  <div
+                    style={{ width: `${animatedProgress}%` }}
                     className="h-full rounded-full bg-linear-to-r from-white via-sky-200 to-indigo-200 shadow-[0_0_25px_rgba(59,130,246,0.7)]"
                     aria-valuenow={clampedProgress}
                     aria-valuemin={0}
@@ -173,7 +141,7 @@ function MetricGrid({ metrics }: MetricGridProps) {
                 </div>
               </div>
             </div>
-          </motion.div>
+          </div>
         );
       })}
     </div>
@@ -187,17 +155,11 @@ interface QuickStatsProps {
 function QuickStatsGrid({ quickStats }: QuickStatsProps) {
   return (
     <div className="grid grid-cols-2 gap-4 md:grid-cols-4">
-      {quickStats.map((stat, index) => {
+      {quickStats.map((stat) => {
         const Icon = iconMap[stat.icon];
         return (
-          <motion.div
+          <div
             key={stat.title}
-            variants={quickStatVariants}
-            initial="hidden"
-            whileInView="visible"
-            viewport={{ once: true, amount: 0.3 }}
-            custom={index}
-            whileHover={{ y: -4 }}
             className={cn(
               "group relative overflow-hidden rounded-2xl border border-white/10 bg-slate-950/80 p-4 text-white shadow-[0_15px_40px_-25px_rgba(148,163,184,0.6)]",
               stat.border
@@ -225,7 +187,7 @@ function QuickStatsGrid({ quickStats }: QuickStatsProps) {
               </div>
             </div>
             <div className="mt-4 h-px w-full bg-linear-to-r from-transparent via-white/30 to-transparent" />
-          </motion.div>
+          </div>
         );
       })}
     </div>

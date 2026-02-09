@@ -76,7 +76,7 @@ export async function fetchOrderDetails(params: {
   const { id } = params;
 
   const response = await fetch(`${BACKEND_URL}/api/orders/${id}`, {
-    cache: "no-store",
+    cache: "no-cache",
     headers: {
       "Content-Type": "application/json",
     },
