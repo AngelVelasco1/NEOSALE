@@ -1,8 +1,9 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
-import { prisma } from "@/lib/prisma";
 import { z } from "zod";
+
+const BACKEND_URL = process.env.BACKEND_URL || 'http://localhost:8000';
 
 const storeSettingsSchema = z.object({
   store_name: z.string().min(1, "El nombre de la tienda es requerido"),
@@ -37,34 +38,22 @@ type StoreSettingsInput = z.infer<typeof storeSettingsSchema>;
 
 export async function getStoreSettings() {
   try {
-    // Obtener la primera configuración activa o crear una por defecto
-    let settings = await prisma.storeSettings.findFirst({
-      where: { active: true },
-      orderBy: { id: "asc" },
+    const response = await fetch(`${BACKEND_URL}/api/store-settings`, {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      cache: 'no-store',
     });
 
-    // Si no existe ninguna configuración, crear una por defecto
-    if (!settings) {
-      settings = await prisma.storeSettings.create({
-        data: {
-          store_name: "NeoSale",
-          store_description: "Tu tienda online de confianza",
-          contact_email: "info@neosale.com",
-          contact_phone: "+57 300 123 4567",
-          city: "Bogotá",
-          country: "Colombia",
-          primary_color: "#3B82F6",
-          secondary_color: "#6366F1",
-          newsletter_enabled: true,
-          show_whatsapp_chat: true,
-          active: true,
-        },
-      });
+    if (!response.ok) {
+      throw new Error(`Backend error: ${response.status}`);
     }
 
+    const data = await response.json();
     return {
       success: true,
-      data: settings,
+      data: data.data || data,
     };
   } catch (error) {
     console.error("Error fetching store settings:", error);
@@ -85,58 +74,19 @@ export async function updateStoreSettings(formData: StoreSettingsInput) {
       accent_color: formData.accent_color || "#D946EF",
     });
 
-    // Buscar la configuración existente
-    const existingSettings = await prisma.storeSettings.findFirst({
-      where: { active: true },
-      orderBy: { id: "asc" },
+    const response = await fetch(`${BACKEND_URL}/api/store-settings`, {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(validatedData),
     });
 
-    let settings;
-    
-    if (existingSettings) {
-      // Construir objeto de actualización con solo los campos válidos
-      const updateData: any = {
-        store_name: validatedData.store_name,
-        store_description: validatedData.store_description,
-        contact_email: validatedData.contact_email,
-        contact_phone: validatedData.contact_phone,
-        whatsapp_number: validatedData.whatsapp_number,
-        address: validatedData.address,
-        city: validatedData.city,
-        country: validatedData.country,
-        facebook_url: validatedData.facebook_url,
-        instagram_url: validatedData.instagram_url,
-        twitter_url: validatedData.twitter_url,
-        youtube_url: validatedData.youtube_url,
-        tiktok_url: validatedData.tiktok_url,
-        logo_url: validatedData.logo_url,
-        favicon_url: validatedData.favicon_url,
-        primary_color: validatedData.primary_color,
-        secondary_color: validatedData.secondary_color,
-        accent_color: validatedData.accent_color,
-        footer_text: validatedData.footer_text,
-        newsletter_enabled: validatedData.newsletter_enabled,
-        show_whatsapp_chat: validatedData.show_whatsapp_chat,
-        seo_title: validatedData.seo_title,
-        seo_description: validatedData.seo_description,
-        seo_keywords: validatedData.seo_keywords,
-        updated_at: new Date(),
-      };
-
-      // Actualizar la configuración existente
-      settings = await prisma.storeSettings.update({
-        where: { id: existingSettings.id },
-        data: updateData,
-      });
-    } else {
-      // Crear nueva configuración si no existe
-      settings = await prisma.storeSettings.create({
-        data: {
-          ...validatedData,
-          active: true,
-        },
-      });
+    if (!response.ok) {
+      throw new Error(`Backend error: ${response.status}`);
     }
+
+    const data = await response.json();
 
     // Revalidar la ruta para actualizar el caché
     revalidatePath("/dashboard/store-settings");
@@ -144,12 +94,12 @@ export async function updateStoreSettings(formData: StoreSettingsInput) {
 
     return {
       success: true,
-      data: settings,
+      data: data.data || data,
       message: "Configuración guardada exitosamente",
     };
   } catch (error) {
     console.error("Error updating store settings:", error);
-    
+
     if (error instanceof z.ZodError) {
       return {
         success: false,

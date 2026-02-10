@@ -108,6 +108,6 @@ export async function addCategory(
     }
 
     console.error("Database insert failed:", error);
-    return { dbError: "Something went wrong. Please try again later." };
+    return { success: false, error: "Something went wrong. Please try again later." };
   }
 }

@@ -18,6 +18,6 @@ export async function deleteCustomer(
     return { success: true };
   } catch (error) {
     console.error("Database delete failed:", error);
-    return { dbError: "Something went wrong. Could not delete the customer." };
+    return { success: false, error: "Something went wrong. Could not delete the customer." };
   }
 }

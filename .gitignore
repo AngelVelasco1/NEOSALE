@@ -11,12 +11,12 @@ npm-debug.log*
 yarn-debug.log*
 pnpm-debug.log*
 
-# Environment variables
-app/.env.local
-app/.env.development.local
-app/.env.test.local
-app/.env.production.local
-api/.env
+# Environment variables (local development - DO NOT COMMIT)
+.env.local
+.env.*.local
+frontend/.env.local
+backend/.env.local
+*.env.local
 
 # Next.js
 app/.next/

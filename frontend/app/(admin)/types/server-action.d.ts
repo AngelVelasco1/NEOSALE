@@ -1,63 +1,37 @@
-import { Product } from "@/app/(admin)/services/products/types";
-import { Category } from "@/app/(admin)/services/categories/types";
-import { Coupon } from "@/app/(admin)/services/coupons/types";
-import { Customer } from "@/app/(admin)/services/customers/types";
-import { Staff } from "@/app/(admin)/services/staff/types";
-
 type ValidationErrorsResponse = {
-  validationErrors: Record<string, string>;
+  validationErrors?: Record<string, string>;
+  validationError?: string;
+  [key: string]: any;
 };
 
 type DbErrorResponse = {
-  dbError: string;
+  success: false;
+  error?: string;
+  dbError?: string;
+  [key: string]: any;
 };
 
 type SuccessResponse = {
-  success: boolean;
+  success: true;
+  message?: string;
+  data?: any;
+  [key: string]: any;
 };
 
-export type ServerActionResponse = DbErrorResponse | SuccessResponse;
+export type ServerActionResponse = DbErrorResponse | SuccessResponse | { [key: string]: any };
 
 export type VServerActionResponse =
   | ValidationErrorsResponse
   | ServerActionResponse;
 
-export type ProductServerActionResponse =
-  | ValidationErrorsResponse
-  | DbErrorResponse
-  | (SuccessResponse & {
-      product: Product;
-    });
+export type ProductServerActionResponse = any;
 
-export type CategoryServerActionResponse =
-  | ValidationErrorsResponse
-  | DbErrorResponse
-  | (SuccessResponse & {
-      category: Category;
-    });
+export type CategoryServerActionResponse = any;
 
-export type CouponServerActionResponse =
-  | ValidationErrorsResponse
-  | DbErrorResponse
-  | (SuccessResponse & {
-      coupon: Coupon;
-    });
+export type CouponServerActionResponse = any;
 
-export type CustomerServerActionResponse =
-  | ValidationErrorsResponse
-  | DbErrorResponse
-  | (SuccessResponse & {
-      customer: Customer;
-    });
+export type CustomerServerActionResponse = any;
 
-export type StaffServerActionResponse =
-  | ValidationErrorsResponse
-  | DbErrorResponse
-  | (SuccessResponse & {
-      staff: Staff;
-    });
+export type StaffServerActionResponse = any;
 
-export type ProfileServerActionResponse =
-  | ValidationErrorsResponse
-  | DbErrorResponse
-  | SuccessResponse;
+export type ProfileServerActionResponse = any;

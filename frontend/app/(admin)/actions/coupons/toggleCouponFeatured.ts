@@ -26,7 +26,8 @@ export async function toggleCouponFeatured(
 
       if (featuredCount >= MAX_FEATURED_COUPONS) {
         return { 
-          dbError: `No se pueden destacar más de ${MAX_FEATURED_COUPONS} cupones. Desactiva uno primero.` 
+          success: false,
+          error: `No se pueden destacar más de ${MAX_FEATURED_COUPONS} cupones. Desactiva uno primero.` 
         };
       }
     }
@@ -41,6 +42,6 @@ export async function toggleCouponFeatured(
     return { success: true };
   } catch (error) {
     console.error("Database update failed:", error);
-    return { dbError: "Failed to update coupon featured status." };
+    return { success: false, error: "Failed to update coupon featured status." };
   }
 }

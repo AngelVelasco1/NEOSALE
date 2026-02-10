@@ -8,13 +8,13 @@ export const registerUser = async (userData: {
   phoneNumber?: string;
 }) => {
   const { data } = await api.post("/api/users/register", userData);
-  return data; 
+  return data.data; 
 }
 
 
 export const getUserById = async (userId: number) => {
   const { data } = await api.get(`/api/users/getUser?id=${userId}`);
-  return data;
+  return data.data;
 }
 
 export const updateUser = async (userData: {
@@ -26,7 +26,7 @@ export const updateUser = async (userData: {
   identification?: string;
 }) => {
   const { data } = await api.put("/api/users/updateUser", userData);
-  return data; 
+  return data.data; 
 }
 
 
@@ -36,13 +36,13 @@ export const updatePassword = async (userData: {
 }
 ) => {
   const { data } = await api.put("/api/users/updatePassword", userData);
-  return data;
+  return data.data;
 }
 
 // Address services
 export const getUserAddresses = async (userId: number) => {
   const { data } = await api.get(`/api/addresses/getUserAddresses?user_id=${userId}`);
-  return data;
+  return data.data;
 }
 
 export const createAddress = async (userId: number, addressData: {
@@ -53,7 +53,7 @@ export const createAddress = async (userId: number, addressData: {
   is_default?: boolean;
 }) => {
   const { data } = await api.post(`/api/addresses/createAddress?user_id=${userId}`, addressData);
-  return data;
+  return data.data;
 }
 
 export const updateAddress = async (userId: number, addressId: number, addressData: {
@@ -64,17 +64,17 @@ export const updateAddress = async (userId: number, addressId: number, addressDa
   is_default?: boolean;
 }) => {
   const { data } = await api.put(`/api/addresses/updateAddress/${addressId}?user_id=${userId}`, addressData);
-  return data;
+  return data.data;
 }
 
 export const deleteAddress = async (userId: number, addressId: number) => {
   const { data } = await api.delete(`/api/addresses/deleteAddress/${addressId}?user_id=${userId}`);
-  return data;
+  return data.data;
 }
 
 export const setDefaultAddress = async (userId: number, addressId: number) => {
   const { data } = await api.post(`/api/addresses/setDefaultAddress/${addressId}?user_id=${userId}`);
-  return data;
+  return data.data;
 }
 
 // Image upload service
@@ -94,5 +94,5 @@ export const uploadProfileImage = async (file: File) => {
 
 export const updateUserImage = async (userId: number, imageUrl: string) => {
   const { data } = await api.put("/api/users/updateUserImage", { id: userId, image: imageUrl });
-  return data;
+  return data.data;
 }

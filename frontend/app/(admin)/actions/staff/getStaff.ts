@@ -1,6 +1,6 @@
 "use server";
 
-import { prisma } from "@/lib/prisma";
+import { auth } from "@/app/(auth)/auth";
 
 export type GetStaffParams = {
   page?: number;
@@ -16,54 +16,32 @@ export async function getStaff({
   role,
 }: GetStaffParams = {}) {
   try {
-    const where: any = {};
+    const session = await auth();
 
-    if (search) {
-      where.OR = [
-        { name: { contains: search, mode: "insensitive" } },
-        { email: { contains: search, mode: "insensitive" } },
-        { phone_number: { contains: search, mode: "insensitive" } },
-      ];
+    if (!session?.user || session.user.role !== "admin") {
+      throw new Error("No autorizado");
     }
 
-    if (role && role !== "all") {
-      where.role = role;
+    const params = new URLSearchParams();
+    params.append("page", page.toString());
+    params.append("limit", limit.toString());
+    if (search) params.append("search", search);
+    if (role && role !== "all") params.append("role", role);
+
+    const response = await fetch(
+      `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/users/admin/staff?${params}`,
+      {
+        headers: {
+          Authorization: `Bearer ${session?.user?.id}`,
+        },
+      }
+    );
+
+    if (!response.ok) {
+      throw new Error("Error al obtener staff");
     }
 
-    const [data, total] = await Promise.all([
-      prisma.user.findMany({
-        where: {
-          ...where,
-          role: role || { in: ["admin"] }, // Solo usuarios con rol admin o específico
-        },
-        skip: (page - 1) * limit,
-        take: limit,
-        orderBy: {
-          created_at: "desc",
-        },
-        select: {
-          id: true,
-          name: true,
-          email: true,
-          phone_number: true,
-          role: true,
-          active: true,
-          created_at: true,
-          updated_at: true,
-        },
-      }),
-      prisma.user.count({ where }),
-    ]);
-
-    return {
-      data,
-      pagination: {
-        page,
-        limit,
-        total,
-        totalPages: Math.ceil(total / limit),
-      },
-    };
+    return await response.json();
   } catch (error) {
     console.error("Error fetching staff:", error);
     throw new Error("Failed to fetch staff");
@@ -72,7 +50,7 @@ export async function getStaff({
 
 export async function getStaffRolesDropdown() {
   try {
-    // Como usas un enum, retornamos los roles disponibles
+    // Roles disponibles
     const roles = [
       { name: "admin", display_name: "Administrator" },
       { name: "user", display_name: "User" },
@@ -87,27 +65,26 @@ export async function getStaffRolesDropdown() {
 
 export async function getStaffDetails(userId: number) {
   try {
-    const staff = await prisma.user.findUnique({
-      where: {
-        id: userId,
-      },
-      select: {
-        id: true,
-        name: true,
-        email: true,
-        phoneNumber: true,
-        identification: true,
-        identificationType: true,
-        role: true,
-        active: true,
-        emailNotifications: true,
-        createdAt: true,
-        updatedAt: true,
-        image: true,
-      },
-    });
+    const session = await auth();
 
-    return staff;
+    if (!session?.user || session.user.role !== "admin") {
+      throw new Error("No autorizado");
+    }
+
+    const response = await fetch(
+      `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/users/${userId}`,
+      {
+        headers: {
+          Authorization: `Bearer ${session?.user?.id}`,
+        },
+      }
+    );
+
+    if (!response.ok) {
+      throw new Error("Error al obtener detalles del staff");
+    }
+
+    return await response.json();
   } catch (error) {
     console.error("Error fetching staff details:", error);
     throw new Error("Failed to fetch staff details");

@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
-import { prisma } from "@/lib/prisma";
+
+const BACKEND_URL = process.env.BACKEND_URL || 'http://localhost:8000';
 
 export async function PATCH(
   request: NextRequest,
@@ -7,9 +8,8 @@ export async function PATCH(
 ) {
   try {
     const { id } = await params;
-    const variantId = parseInt(id);
 
-    if (isNaN(variantId)) {
+    if (!id || isNaN(parseInt(id))) {
       return NextResponse.json(
         { success: false, error: "ID de variante inválido" },
         { status: 400 }
@@ -17,51 +17,21 @@ export async function PATCH(
     }
 
     const body = await request.json();
-    const { stock, price } = body;
 
-    // Validar que al menos un campo esté presente
-    if (stock === undefined && price === undefined) {
-      return NextResponse.json(
-        { success: false, error: "Debe proporcionar stock o price" },
-        { status: 400 }
-      );
-    }
-
-    // Preparar datos de actualización
-    const updateData: any = {};
-
-    if (stock !== undefined) {
-      const stockNumber = Number(stock);
-      if (isNaN(stockNumber) || stockNumber < 0) {
-        return NextResponse.json(
-          { success: false, error: "Stock inválido" },
-          { status: 400 }
-        );
-      }
-      updateData.stock = stockNumber;
-    }
-
-    if (price !== undefined) {
-      const priceNumber = Number(price);
-      if (isNaN(priceNumber) || priceNumber < 0) {
-        return NextResponse.json(
-          { success: false, error: "Precio inválido" },
-          { status: 400 }
-        );
-      }
-      updateData.price = priceNumber;
-    }
-
-    // Actualizar la variante
-    const updatedVariant = await prisma.product_variants.update({
-      where: { id: variantId },
-      data: updateData,
+    const response = await fetch(`${BACKEND_URL}/api/products/variants/${id}`, {
+      method: 'PATCH',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(body),
     });
 
-    return NextResponse.json({
-      success: true,
-      variant: updatedVariant,
-    });
+    if (!response.ok) {
+      throw new Error(`Backend error: ${response.status}`);
+    }
+
+    const data = await response.json();
+    return NextResponse.json(data);
   } catch (error) {
     console.error("Error updating variant:", error);
     return NextResponse.json(

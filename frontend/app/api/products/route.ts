@@ -1,98 +1,31 @@
 import { NextRequest, NextResponse } from "next/server";
-import { prisma } from "@/lib/prisma";
+
+const BACKEND_URL = process.env.BACKEND_URL || 'http://localhost:8000';
 
 export async function GET(request: NextRequest) {
   try {
     const searchParams = request.nextUrl.searchParams;
-    const page = parseInt(searchParams.get("page") || "1");
-    const limit = parseInt(searchParams.get("limit") || "10");
-    const search = searchParams.get("search") || "";
-    const category = searchParams.get("category") || "";
-    const subcategory = searchParams.get("subcategory") || "";
-    const status = searchParams.get("status") || "";
-    const published = searchParams.get("published");
-
-    const skip = (page - 1) * limit;
-
-    // Construir filtros
-    const where: any = {};
-
-    if (search) {
-      where.OR = [
-        { name: { contains: search, mode: "insensitive" } },
-        { description: { contains: search, mode: "insensitive" } },
-      ];
-    }
-
-    if (category) {
-      // Si category viene como nombre (string), buscar por nombre de categoría
-      if (isNaN(parseInt(category))) {
-        where.categories = {
-          name: { equals: category, mode: "insensitive" },
-          active: true, // Solo categorías activas para el frontend público
-        };
-      } else {
-        // Si viene como ID numérico
-        where.category_id = parseInt(category);
-        where.categories = {
-          active: true, // Solo categorías activas para el frontend público
-        };
-      }
-    }
-
-    if (subcategory) {
-      // Buscar productos cuya categoría tenga la subcategoría especificada
-      where.categories = {
-        subcategory: {
-          name: { equals: subcategory, mode: "insensitive" },
-        },
-        active: true, // Solo categorías activas
-      };
-    }
-
-    if (status === "out-of-stock") {
-      where.stock = { lte: 0 };
-    } else if (status === "selling") {
-      where.stock = { gt: 0 };
-    }
-
-    if (published !== null && published !== undefined) {
-      where.active = published === "true";
-    }
-
-    // Obtener productos con paginación
-    const [products, total] = await Promise.all([
-      prisma.products.findMany({
-        where,
-        include: {
-          categories: {
-            select: {
-              name: true,
-            },
-          },
-          images: {
-            where: { is_primary: true },
-            take: 1,
-          },
-        },
-        skip,
-        take: limit,
-        orderBy: { created_at: "desc" },
-      }),
-      prisma.products.count({ where }),
-    ]);
-
-    const totalPages = Math.ceil(total / limit);
-
-    return NextResponse.json({
-      data: products,
-      pagination: {
-        page,
-        limit,
-        total,
-        totalPages,
-      },
+    
+    // Forward all query parameters to the backend
+    const params = new URLSearchParams();
+    searchParams.forEach((value, key) => {
+      params.append(key, value);
     });
+
+    const response = await fetch(`${BACKEND_URL}/api/products?${params.toString()}`, {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      cache: 'no-store',
+    });
+
+    if (!response.ok) {
+      throw new Error(`Backend error: ${response.status}`);
+    }
+
+    const data = await response.json();
+    return NextResponse.json(data);
   } catch (error) {
     console.error("Error fetching products:", error);
     return NextResponse.json(

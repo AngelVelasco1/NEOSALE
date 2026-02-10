@@ -6,6 +6,7 @@ import {
   getOffersService,
 } from "../services/products.js";
 import { Request, Response } from "express";
+import { prisma } from "../lib/prisma.js";
 
 export const getProducts = async (
   req: Request,
@@ -16,15 +17,25 @@ export const getProducts = async (
     const id = req.query.id ? Number(req.query.id) : undefined;
     const category = req.query.category as string | undefined;
     const subcategory = req.query.subcategory as string | undefined;
+    const page = req.query.page ? Number(req.query.page) : 1;
+    const limit = req.query.limit ? Number(req.query.limit) : 20;
 
-    const products = await getProductsService(id, category, subcategory);
+    const products = await getProductsService(id, category, subcategory, {
+      page,
+      limit,
+    });
 
-    res.status(200).json(products);
+    res.status(200).json({
+      success: true,
+      data: products,
+      pagination: { page, limit },
+    });
   } catch (err) {
     console.error("❌ Error en controller:", err);
     next(err);
   }
 };
+
 export const getLatestProducts = async (
   req: Request,
   res: Response,
@@ -32,7 +43,10 @@ export const getLatestProducts = async (
 ) => {
   try {
     const products = await getLatestProductsService();
-    res.status(200).json(products);
+    res.status(200).json({
+      success: true,
+      data: products,
+    });
   } catch (err) {
     next(err);
   }
@@ -55,7 +69,10 @@ export const getVariantStock = async (
     }
 
     const productVariant = await getVariantStockService(id, color_code, size);
-    res.status(200).json(productVariant);
+    res.status(200).json({
+      success: true,
+      data: productVariant,
+    });
   } catch (err) {
     next(err);
   }
@@ -67,10 +84,122 @@ export const getOffers = async (
   next: NextFunction
 ) => {
   try {
-    const offers = await getOffersService();
-    res.status(200).json(offers);
+    const page = req.query.page ? Number(req.query.page) : 1;
+    const limit = req.query.limit ? Number(req.query.limit) : 20;
+
+    const offers = await getOffersService({ page, limit });
+    res.status(200).json({
+      success: true,
+      data: offers,
+      pagination: { page, limit },
+    });
   } catch (err) {
     console.error("❌ Error en controller getOffers:", err);
+    next(err);
+  }
+};
+
+export const getTrustMetrics = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  try {
+    const [totalCustomers, totalProducts, totalReviews, positiveReviews] =
+      await Promise.all([
+        prisma.user.count({ where: { role: "user", active: true } }),
+        prisma.products.count({ where: { active: true, stock: { gt: 0 } } }),
+        prisma.reviews.count({ where: { active: true } }),
+        prisma.reviews.count({
+          where: { active: true, rating: { gte: 4 } },
+        }),
+      ]);
+
+    const positiveReviewRate =
+      totalReviews > 0
+        ? Math.round((positiveReviews / totalReviews) * 100)
+        : 0;
+
+    res.status(200).json({
+      success: true,
+      data: {
+        totalCustomers,
+        totalProducts,
+        positiveReviewRate,
+      },
+    });
+  } catch (err) {
+    console.error("❌ Error en controller getTrustMetrics:", err);
+    next(err);
+  }
+};
+
+export const updateVariant = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  try {
+    const { id } = req.params;
+    const variantId = parseInt(id);
+
+    if (isNaN(variantId)) {
+      res.status(400).json({
+        success: false,
+        error: "ID de variante inválido",
+      });
+      return;
+    }
+
+    const { stock, price } = req.body;
+
+    // Validate that at least one field is provided
+    if (stock === undefined && price === undefined) {
+      res.status(400).json({
+        success: false,
+        error: "Debe proporcionar stock o price",
+      });
+      return;
+    }
+
+    // Prepare update data
+    const updateData: any = {};
+
+    if (stock !== undefined) {
+      const stockNumber = Number(stock);
+      if (isNaN(stockNumber) || stockNumber < 0) {
+        res.status(400).json({
+          success: false,
+          error: "Stock inválido",
+        });
+        return;
+      }
+      updateData.stock = stockNumber;
+    }
+
+    if (price !== undefined) {
+      const priceNumber = Number(price);
+      if (isNaN(priceNumber) || priceNumber < 0) {
+        res.status(400).json({
+          success: false,
+          error: "Precio inválido",
+        });
+        return;
+      }
+      updateData.price = priceNumber;
+    }
+
+    const updatedVariant = await prisma.product_variants.update({
+      where: { id: variantId },
+      data: updateData,
+    });
+
+    res.status(200).json({
+      success: true,
+      data: updatedVariant,
+    });
+  } catch (err) {
+    console.error("❌ Error en controller updateVariant:", err);
     next(err);
   }
 };

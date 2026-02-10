@@ -1,26 +1,24 @@
 import { NextResponse } from "next/server";
 
-import { prisma } from "@/lib/prisma";
+const BACKEND_URL = process.env.BACKEND_URL || 'http://localhost:8000';
 
 export async function GET() {
   try {
-
-    const [totalCustomers, totalProducts, totalReviews, positiveReviews] = await Promise.all([
-      prisma.user.count({ where: { role: "user", active: true } }),
-      prisma.products.count({ where: { active: true, stock: {gt: 0} } } ),
-      prisma.reviews.count({ where: { active: true } }),
-      prisma.reviews.count({ where: { active: true, rating: { gte: 4 } } }),
-    ]);
-
-    const positiveReviewRate = totalReviews > 0 ? Math.round((positiveReviews / totalReviews) * 100) : 0;
-
-   
-
-    return NextResponse.json({
-      totalCustomers,
-      totalProducts,
-      positiveReviewRate,
+    const response = await fetch(`${BACKEND_URL}/api/products/trust-metrics`, {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      cache: 'default',
+      next: { revalidate: 3600 }, // Cache for 1 hour
     });
+
+    if (!response.ok) {
+      throw new Error(`Backend error: ${response.status}`);
+    }
+
+    const data = await response.json();
+    return NextResponse.json(data.data || data);
   } catch (error) {
     console.error("Trust metrics API error", error);
     return NextResponse.json({ error: "No se pudieron obtener las métricas" }, { status: 500 });

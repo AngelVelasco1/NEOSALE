@@ -15,6 +15,7 @@ import {
 export const usersRoutes = () =>
   Router()
     .post("/register", registerUser)
+    .get("/admin/staff", getUsers) // Admin: get all staff
     .get("/getUsers", getUsers)
     .get("/getUser", getUserById)
     .put("/updateUser", updateUser)

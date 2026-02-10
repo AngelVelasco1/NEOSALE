@@ -40,7 +40,7 @@ export async function editProfile(
 
   // Validar que el ID sea válido
   if (isNaN(userIdInt) || userIdInt <= 0) {
-    return { dbError: "Invalid user ID." };
+    return { success: false, error: "Invalid user ID." };
   }
 
   try {
@@ -51,7 +51,7 @@ export async function editProfile(
     });
 
     if (!currentUser) {
-      return { dbError: "User not found." };
+      return { success: false, error: "User not found." };
     }
 
     let imageUrl: string | undefined = currentUser.image || undefined;
@@ -80,7 +80,8 @@ export async function editProfile(
       } catch (uploadError) {
         console.error("Image upload failed:", uploadError);
         return {
-          dbError:
+          success: false,
+          error:
             "Failed to upload profile picture. Please try again or use a different image.",
         };
       }
@@ -140,14 +141,15 @@ export async function editProfile(
 
       // Registro no encontrado
       if (error.code === "P2025") {
-        return { dbError: "User not found." };
+        return { success: false, error: "User not found." };
       }
     }
 
     // Error genérico
     console.error("Database update failed:", error);
     return {
-      dbError:
+      success: false,
+      error:
         "Something went wrong while updating your profile. Please try again later.",
     };
   }

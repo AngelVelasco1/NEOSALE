@@ -1,10 +1,9 @@
 "use server";
 
-import { prisma } from "@/lib/prisma";
 import { auth } from "@/app/(auth)/auth";
 import { revalidatePath } from "next/cache";
 
-export async function toggleReviewStatus(reviewId: number) {
+export async function toggleReviewStatus(reviewId: number, active: boolean) {
   try {
     const session = await auth();
 
@@ -12,55 +11,30 @@ export async function toggleReviewStatus(reviewId: number) {
       throw new Error("No autorizado");
     }
 
-    // Obtener el estado actual de la reseña
-    const review = await prisma.reviews.findUnique({
-      where: { id: reviewId },
-      select: { active: true },
-    });
+    const response = await fetch(
+      `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/reviews/${reviewId}`,
+      {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${session?.user?.id}`,
+        },
+        body: JSON.stringify({ active }),
+      }
+    );
 
-    if (!review) {
-      throw new Error("Reseña no encontrada");
+    if (!response.ok) {
+      throw new Error("Error al actualizar reseña");
     }
 
-    // Cambiar el estado
-    const updatedReview = await prisma.reviews.update({
-      where: { id: reviewId },
-      data: {
-        active: !review.active,
-        updated_at: new Date(),
-      },
-      include: {
-        User: {
-          select: {
-            id: true,
-            name: true,
-            email: true,
-          },
-        },
-        products: {
-          select: {
-            id: true,
-            name: true,
-          },
-        },
-      },
-    });
-
     revalidatePath("/dashboard/reviews");
-    revalidatePath(`/products/${updatedReview.product_id}`);
 
     return {
       success: true,
-      message: updatedReview.active
-        ? "Reseña aprobada exitosamente"
-        : "Reseña desaprobada exitosamente",
-      review: updatedReview,
+      message: "Reseña actualizada exitosamente",
     };
   } catch (error: any) {
-    console.error("Error al cambiar estado de reseña:", error);
-    return {
-      success: false,
-      error: error.message || "Error al cambiar el estado de la reseña",
-    };
+    console.error("Error:", error);
+    throw error;
   }
 }

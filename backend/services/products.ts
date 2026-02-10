@@ -1,14 +1,93 @@
 import { prisma } from "../lib/prisma";
 
+interface PaginationParams {
+  page?: number;
+  limit?: number;
+}
+
+const DEFAULT_LIMIT = 20;
+const MAX_LIMIT = 100;
+
+const getPaginationParams = (page?: number, limit?: number) => {
+  const safeLimit = Math.min(limit || DEFAULT_LIMIT, MAX_LIMIT);
+  const safePage = Math.max(page || 1, 1);
+  return { skip: (safePage - 1) * safeLimit, take: safeLimit };
+};
+
+// Proyección optimizada para listados (sin includes anidados)
+const productListSelect = {
+  id: true,
+  name: true,
+  description: true,
+  price: true,
+  stock: true,
+  sizes: true,
+  base_discount: true,
+  images: {
+    select: {
+      image_url: true,
+      color_code: true,
+      color: true,
+    },
+    take: 1,
+  },
+  categories: {
+    select: {
+      name: true,
+    },
+  },
+};
+
+// Proyección completa para detalle
+const productDetailSelect = {
+  id: true,
+  name: true,
+  description: true,
+  price: true,
+  stock: true,
+  sizes: true,
+  base_discount: true,
+  in_offer: true,
+  offer_start_date: true,
+  offer_end_date: true,
+  offer_discount: true,
+  active: true,
+  images: true,
+  categories: {
+    select: {
+      id: true,
+      name: true,
+    },
+  },
+};
+
+const formatProductForList = (p: any) => ({
+  id: p.id,
+  name: p.name,
+  description: p.description,
+  price: p.price,
+  stock: p.stock,
+  sizes: p.sizes,
+  discount: p.base_discount,
+  image_url: p.images[0]?.image_url,
+  color_code: p.images[0]?.color_code,
+  color: p.images[0]?.color,
+  category: p.categories?.name,
+});
+
 export const getProductsService = async (
   id?: number,
   category?: string,
-  subcategory?: string
+  subcategory?: string,
+  paginationParams?: PaginationParams
 ) => {
+  const { skip, take } = getPaginationParams(paginationParams?.page, paginationParams?.limit);
+
   if (!id) {
     if (subcategory) {
       const products = await prisma.products.findMany({
         where: {
+          active: true,
           categories: {
             category_subcategory: {
               some: {
@@ -22,43 +101,17 @@ export const getProductsService = async (
             },
           },
         },
-        include: {
-          images: true,
-          categories: {
-            include: {
-              category_subcategory: {
-                include: {
-                  subcategories: true,
-                },
-              },
-            },
-          },
-        },
+        select: productListSelect,
+        skip,
+        take,
+        orderBy: { created_at: "desc" },
       });
 
-      console.log(
-        `📊 Productos por subcategoría encontrados: ${products.length}`
-      );
-      return products.map((p) => ({
-        id: p.id,
-        name: p.name,
-        description: p.description,
-        price: p.price,
-        stock: p.stock,
-        sizes: p.sizes,
-        image_url: p.images[0]?.image_url,
-        color_code: p.images[0]?.color_code,
-        color: p.images[0]?.color,
-        category: p.categories?.name,
-        subcategories:
-          p.categories?.category_subcategory?.map(
-            (cs) => cs.subcategories.name
-          ) || [],
-        images: p.images,
-      }));
+      return products.map(formatProductForList);
     } else if (category) {
       const products = await prisma.products.findMany({
         where: {
+          active: true,
           categories: {
             name: {
               equals: category,
@@ -66,112 +119,49 @@ export const getProductsService = async (
             },
           },
         },
-        include: {
-          images: true,
-          categories: {
-            include: {
-              category_subcategory: {
-                include: {
-                  subcategories: true,
-                },
-              },
-            },
-          },
-        },
+        select: productListSelect,
+        skip,
+        take,
+        orderBy: { created_at: "desc" },
       });
 
-      return products.map((p) => ({
-        id: p.id,
-        name: p.name,
-        description: p.description,
-        price: p.price,
-        stock: p.stock,
-        sizes: p.sizes,
-        image_url: p.images[0]?.image_url,
-        color_code: p.images[0]?.color_code,
-        color: p.images[0]?.color,
-        category: p.categories?.name,
-        subcategories:
-          p.categories?.category_subcategory?.map(
-            (cs) => cs.subcategories.name
-          ) || [],
-        images: p.images,
-      }));
+      return products.map(formatProductForList);
     }
 
-    // Fallback: devolver todos los productos
+    // Listado general con paginación
     const products = await prisma.products.findMany({
-      include: {
-        images: true,
-        categories: {
-          include: {
-            category_subcategory: {
-              include: {
-                subcategories: true,
-              },
-            },
-          },
-        },
-      },
+      where: { active: true },
+      select: productListSelect,
+      skip,
+      take,
+      orderBy: { created_at: "desc" },
     });
 
-    return products.map((p) => ({
-      id: p.id,
-      name: p.name,
-      description: p.description,
-      price: p.price,
-      stock: p.stock,
-      sizes: p.sizes,
-      image_url: p.images[0]?.image_url,
-      color_code: p.images[0]?.color_code,
-      color: p.images[0]?.color,
-      category: p.categories?.name,
-      subcategories:
-        p.categories?.category_subcategory?.map(
-          (cs) => cs.subcategories.name
-        ) || [],
-      images: p.images,
-    }));
+    return products.map(formatProductForList);
   }
 
+  // Detalle del producto
   const product = await prisma.products.findUnique({
     where: { id },
-    include: {
-      images: true,
-      categories: {
-        include: {
-          category_subcategory: {
-            include: {
-              subcategories: true,
-            },
-          },
-        },
-      },
-    },
+    select: productDetailSelect,
   });
+
+  if (!product) {
+    throw new Error("Producto no encontrado");
+  }
+
   return product;
 };
 
 export const getLatestProductsService = async () => {
   const products = await prisma.products.findMany({
-    orderBy: { id: "desc" },
-    take: 6,
-    include: {
-      images: {
-        take: 1,
-      },
-    },
+    where: { active: true },
+    select: productListSelect,
+    orderBy: { created_at: "desc" },
+    take: 8,
   });
-  return products.map((p) => ({
-    id: p.id,
-    name: p.name,
-    description: p.description,
-    price: p.price,
-    stock: p.stock,
-    image_url: p.images[0]?.image_url,
-    color_code: p.images[0]?.color_code,
-    color: p.images[0]?.color,
-  }));
+
+  return products.map(formatProductForList);
 };
 
 export const getVariantStockService = async (
@@ -195,6 +185,7 @@ export const getVariantStockService = async (
       sku: true,
     },
   });
+
   return {
     stock: variant?.stock || 0,
     sku: variant?.sku || null,
@@ -202,13 +193,14 @@ export const getVariantStockService = async (
   };
 };
 
-export const getOffersService = async () => {
+export const getOffersService = async (paginationParams?: PaginationParams) => {
+  const { skip, take } = getPaginationParams(paginationParams?.page, paginationParams?.limit);
   const currentDate = new Date();
-  
+
   const offers = await prisma.products.findMany({
     where: {
-      in_offer: true,
       active: true,
+      in_offer: true,
       offer_start_date: {
         lte: currentDate,
       },
@@ -216,41 +208,21 @@ export const getOffersService = async () => {
         gte: currentDate,
       },
     },
-    include: {
-      images: true,
-      categories: {
-        include: {
-          category_subcategory: {
-            include: {
-              subcategories: true,
-            },
-          },
-        },
-      },
+    select: {
+      ...productListSelect,
+      offer_discount: true,
+      offer_end_date: true,
     },
     orderBy: {
-      offer_discount: 'desc',
+      offer_discount: "desc",
     },
+    skip,
+    take,
   });
 
   return offers.map((p) => ({
-    id: p.id,
-    name: p.name,
-    description: p.description,
-    price: p.price,
-    stock: p.stock,
-    sizes: p.sizes,
-    base_discount: p.base_discount,
-    offer_discount: p.offer_discount,
-    offer_end_date: p.offer_end_date,
-    image_url: p.images[0]?.image_url,
-    color_code: p.images[0]?.color_code,
-    color: p.images[0]?.color,
-    category: p.categories?.name,
-    subcategories:
-      p.categories?.category_subcategory?.map(
-        (cs) => cs.subcategories.name
-      ) || [],
-    images: p.images,
+    ...formatProductForList(p),
+    discount: p.offer_discount,
+    endDate: p.offer_end_date,
   }));
 };

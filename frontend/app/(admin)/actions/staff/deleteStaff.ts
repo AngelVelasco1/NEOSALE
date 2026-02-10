@@ -1,29 +1,38 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
-
-import { prisma } from "@/lib/prisma";
+import { auth } from "@/app/(auth)/auth";
 import { ServerActionResponse } from "@/app/(admin)/types/server-action";
 
 export async function deleteStaff(
   staffId: string
 ): Promise<ServerActionResponse> {
   try {
-    // TODO: Si usas Cloudinary u otro servicio, elimina la imagen aquí
-    // const staff = await prisma.user.findUnique({
-    //   where: { id: parseInt(staffId) },
-    //   select: { image: true }
-    // });
+    const session = await auth();
 
-    await prisma.user.delete({
-      where: { id: parseInt(staffId), role: "admin" },
-    });
+    if (!session?.user || session.user.role !== "admin") {
+      return { success: false, error: "No autorizado" };
+    }
+
+    const response = await fetch(
+      `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/users/${staffId}`,
+      {
+        method: "DELETE",
+        headers: {
+          Authorization: `Bearer ${session?.user?.id}`,
+        },
+      }
+    );
+
+    if (!response.ok) {
+      return { success: false, error: "Something went wrong. Could not delete the staff." };
+    }
 
     revalidatePath("/staff");
 
     return { success: true };
   } catch (error) {
-    console.error("Database delete failed:", error);
-    return { dbError: "Something went wrong. Could not delete the staff." };
+    console.error("Delete failed:", error);
+    return { success: false, error: "Something went wrong. Could not delete the staff." };
   }
 }

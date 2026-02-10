@@ -2,24 +2,42 @@ import { api } from "@/config/api";
 
 export const getProducts = async () => {
   const { data } = await api.get("/api/products/getProducts");
-  return data;
+  return data.data;
 };
 
 export const getProduct = async (id: number) => {
   const { data } = await api.get(`/api/products/getProducts?id=${id}`);
-  return data;
+  return data.data;
 };
 
 export const getLatestProducts = async () => {
-  const { data } = await api.get(`/api/products/getLatestProducts`);
-  return data;
+  try {
+    const response = await api.get(`/api/products/getLatestProducts`);
+    const responseData = response.data;
+    
+    // Si es directo un array (debería venir envuelto)
+    if (Array.isArray(responseData)) {
+      return responseData;
+    }
+    
+    // Si viene { success: true, data: [...] }
+    if (responseData?.data && Array.isArray(responseData.data)) {
+      return responseData.data;
+    }
+    
+    // Fallback: retorna array vacío
+    return [];
+  } catch (error) {
+    console.error("Error fetching latest products:", error);
+    return [];
+  }
 };
 
 export const getProductsByCategory = async (categoryName: string) => {
   const { data } = await api.get(
     `/api/products/getProducts?category=${encodeURIComponent(categoryName)}`
   );
-  return data;
+  return data.data;
 };
 
 export const getProductsBySubcategory = async (subcategoryName: string) => {
@@ -28,7 +46,7 @@ export const getProductsBySubcategory = async (subcategoryName: string) => {
       subcategoryName
     )}`
   );
-  return data;
+  return data.data;
 };
 
 export const getProductVariantApi = async (productData: {
@@ -41,10 +59,10 @@ export const getProductVariantApi = async (productData: {
     color_code: productData.color_code,
     size: productData.size,
   });
-  return data;
+  return data.data;
 };
 
 export const getOffers = async () => {
   const { data } = await api.get("/api/products/getOffers");
-  return data;
+  return data.data;
 };

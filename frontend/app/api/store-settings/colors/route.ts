@@ -1,25 +1,23 @@
 import { NextResponse } from 'next/server';
-import { prisma } from '@/lib/prisma';
+
+const BACKEND_URL = process.env.BACKEND_URL || 'http://localhost:8000';
 
 export async function GET() {
   try {
-    const settings = await prisma.storeSettings.findFirst({
-      where: { active: true },
-      select: {
-        primary_color: true,
-        secondary_color: true,
-        accent_color: true,
+    const response = await fetch(`${BACKEND_URL}/api/store-settings/colors`, {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
       },
+      cache: 'no-store',
     });
 
-    return NextResponse.json(
-      {
-        primary_color: settings?.primary_color || '#3b82f6',
-        secondary_color: settings?.secondary_color || '#0ea5e9',
-        accent_color: settings?.accent_color || '#d946ef',
-      },
-      { status: 200 }
-    );
+    if (!response.ok) {
+      throw new Error(`Backend error: ${response.status}`);
+    }
+
+    const data = await response.json();
+    return NextResponse.json(data.data || data, { status: 200 });
   } catch (error) {
     console.error('Error fetching colors:', error);
     return NextResponse.json(

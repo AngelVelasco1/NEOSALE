@@ -15,6 +15,8 @@ import {
 
 export const reviewsRoutes = () =>
   Router()
+    .get("/admin/list", getReviews) // Admin: get all reviews with filters
+    .get("/admin/stats", getProductReviewStats) // Admin: review statistics
     .get("/getReviews", getReviews)
     .get("/reviewable/:userId", getReviewableProducts)
     .get("/can-review/:userId/:productId/:orderId", canUserReview)

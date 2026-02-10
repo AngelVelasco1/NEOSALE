@@ -7,18 +7,28 @@ import { prisma } from "./lib/prisma.js";
 import compression from "compression";
 import { errorsHandler } from "./middlewares/errorsHandler.js";
 
-
-
 const app = express();
 
 // Desactivar directory listing y X-Powered-By
 app.disable("x-powered-by");
 app.set("trust proxy", 1);
 
-// Desactivar el error handler HTML de Express y mostrar solo JSON
+// Optimizaciones JSON y rendering
 app.set("json spaces", 0);
+app.set("etag", false);
 
-app.use(compression());
+// Compresión con nivel 6 (balance entre CPU y tamaño)
+app.use(
+  compression({
+    level: 6,
+    filter: (req, res) => {
+      if (req.headers["x-no-compression"]) {
+        return false;
+      }
+      return compression.filter(req, res);
+    },
+  })
+);
 
 app.use(
   cors({
@@ -26,20 +36,23 @@ app.use(
     methods: ["GET", "POST", "PUT", "DELETE", "PATCH"],
     credentials: true,
     allowedHeaders: ["Content-Type", "Authorization", "X-User-ID"],
+    maxAge: 86400, // CORS preflight cache 24h
   })
 );
 
-app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
+// Parser middlewares optimizados
+app.use(express.json({ limit: "10mb" }));
+app.use(express.urlencoded({ extended: true, limit: "10mb" }));
 app.use(cookieParser());
 
-// Prevenir directory listing y exposición de información
+// Headers de seguridad y performance
 app.use((req, res, next) => {
   // Headers de seguridad
   res.setHeader("X-Content-Type-Options", "nosniff");
   res.setHeader("X-Frame-Options", "DENY");
+  res.setHeader("Cache-Control", "public, max-age=3600");
   
-  // Ocultar información de timing
+  // Remover headers de timing
   res.removeHeader("Date");
   res.removeHeader("Last-Modified");
   res.removeHeader("ETag");
@@ -54,37 +67,44 @@ app.get("/", (req, res) => {
     status: "online",
   });
 });
+
 app.use("/api", initRoutes());
 
-// Manejador 404 que previene exposición de rutas
+// Ruta 404 optimizada
 app.use((req, res, next) => {
-  // Si ya hay una respuesta enviada, no hacer nada
   if (res.headersSent) {
     return next();
   }
   
-  // Respuesta 404 sanitizada sin exponer rutas
   res.status(404).json({
     success: false,
     message: "Recurso no encontrado",
-    code: "NOT_FOUND"
+    code: "NOT_FOUND",
   });
 });
 
+// Error handler
 app.use((err: Error, req: express.Request, res: express.Response) => {
   if (!res.headersSent) {
     errorsHandler(err, req, res);
   }
 });
 
-app.listen(Number(BACK_CONFIG.port), "0.0.0.0", async () => {
+const server = app.listen(Number(BACK_CONFIG.port), "0.0.0.0", async () => {
   console.log(
     `Servidor corriendo en http://${BACK_CONFIG.host}:${BACK_CONFIG.port}`
   );
 });
 
+// Timeouts para long-running requests
+server.setTimeout(30000);
+
+// Graceful shutdown
 process.on("SIGINT", async () => {
-  await prisma.$disconnect();
-  console.log("Servidor cerrado correctamente");
-  process.exit();
+  console.log("Cerrando servidor...");
+  server.close(async () => {
+    await prisma.$disconnect();
+    console.log("Servidor cerrado correctamente");
+    process.exit(0);
+  });
 });

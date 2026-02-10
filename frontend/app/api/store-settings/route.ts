@@ -1,31 +1,24 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { prisma } from '@/lib/prisma';
+
+const BACKEND_URL = process.env.BACKEND_URL || 'http://localhost:8000';
 
 // GET - Obtener configuración de la tienda
 export async function GET() {
   try {
-    let settings = await prisma.storeSettings.findFirst({
-      where: { active: true },
+    const response = await fetch(`${BACKEND_URL}/api/store-settings`, {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      cache: 'no-store',
     });
 
-    // Si no existe configuración, crear una por defecto
-    if (!settings) {
-      settings = await prisma.storeSettings.create({
-        data: {
-          store_name: 'NeoSale',
-          store_description: 'Tu destino premium de moda y estilo en línea',
-          contact_email: 'info@neosale.com',
-          contact_phone: '+57 300 123 4567',
-          city: 'Bogotá',
-          country: 'Colombia',
-          primary_color: '#3B82F6',
-          secondary_color: '#6366F1',
-          active: true,
-        },
-      });
+    if (!response.ok) {
+      throw new Error(`Backend error: ${response.status}`);
     }
 
-    return NextResponse.json(settings, { status: 200 });
+    const data = await response.json();
+    return NextResponse.json(data.data || data, { status: 200 });
   } catch (error) {
     console.error('Error fetching store settings:', error);
     return NextResponse.json(
@@ -39,32 +32,21 @@ export async function GET() {
 export async function PUT(request: NextRequest) {
   try {
     const body = await request.json();
-    
-    // Buscar configuración existente
-    let settings = await prisma.storeSettings.findFirst({
-      where: { active: true },
+
+    const response = await fetch(`${BACKEND_URL}/api/store-settings`, {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(body),
     });
 
-    if (settings) {
-      // Actualizar configuración existente
-      settings = await prisma.storeSettings.update({
-        where: { id: settings.id },
-        data: {
-          ...body,
-          updated_at: new Date(),
-        },
-      });
-    } else {
-      // Crear nueva configuración
-      settings = await prisma.storeSettings.create({
-        data: {
-          ...body,
-          active: true,
-        },
-      });
+    if (!response.ok) {
+      throw new Error(`Backend error: ${response.status}`);
     }
 
-    return NextResponse.json(settings, { status: 200 });
+    const data = await response.json();
+    return NextResponse.json(data.data || data, { status: 200 });
   } catch (error) {
     console.error('Error updating store settings:', error);
     return NextResponse.json(

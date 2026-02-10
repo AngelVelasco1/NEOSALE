@@ -26,6 +26,6 @@ export async function deleteProducts(
     return { success: true };
   } catch (error) {
     console.error("Database bulk delete failed:", error);
-    return { dbError: "Something went wrong. Could not delete the products." };
+    return { success: false, error: "Something went wrong. Could not delete the products." };
   }
 }

@@ -22,6 +22,6 @@ export async function toggleCategoryPublishedStatus(
     return { success: true };
   } catch (error) {
     console.error("Database update failed:", error);
-    return { dbError: "Failed to update category status." };
+    return { success: false, error: "Failed to update category status." };
   }
 }

@@ -65,6 +65,6 @@ export async function editCoupon(
     }
 
     console.error("Database update failed:", error);
-    return { dbError: "Something went wrong. Please try again later." };
+    return { success: false, error: "Something went wrong. Please try again later." };
   }
 }

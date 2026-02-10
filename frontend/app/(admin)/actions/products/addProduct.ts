@@ -16,7 +16,7 @@ export async function addProduct(
   // Verificar autenticación
   const session = await auth();
   if (!session?.user?.id) {
-    return { dbError: "Unauthorized. Please log in." };
+    return { success: false, error: "Unauthorized. Please log in." };
   }
 
   const userId = parseInt(session.user.id);
@@ -28,11 +28,11 @@ export async function addProduct(
   });
 
   if (!user || !user.active) {
-    return { dbError: "User not found or inactive." };
+    return { success: false, error: "User not found or inactive." };
   }
 
   if (user.role !== "admin") {
-    return { dbError: "Unauthorized. Admin access required." };
+    return { success: false, error: "Unauthorized. Admin access required." };
   }
 
   const formDataObject = {
@@ -173,7 +173,8 @@ export async function addProduct(
     if (uploadedImages.length === 0) {
       console.log("[SERVER] All image uploads failed");
       return {
-        dbError: "Error al subir las imágenes a Cloudinary",
+        success: false,
+        error: "Error al subir las imágenes a Cloudinary",
       };
     }
 
@@ -353,6 +354,6 @@ export async function addProduct(
     }
 
     console.error("Database insert failed:", error);
-    return { dbError: "Something went wrong. Please try again later." };
+    return { success: false, error: "Something went wrong. Please try again later." };
   }
 }

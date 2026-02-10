@@ -15,22 +15,19 @@ npm warn Unknown project config "supportedArchitectures.cpu". This will stop wor
      ┬À optimizePackageImports
 
    Creating an optimized production build ...
- Ô£ô Compiled successfully in 13.5s
+ Ô£ô Compiled successfully in 33.0s
    Skipping linting
    Checking validity of types ...
 Failed to compile.
 
-./app/(admin)/actions/products/addProduct.ts:307:7
-Type error: Type '{ brands: { name: string; id: number; description: string | null; active: boolean; image_url: string | null; deleted_at: Date | null; deleted_by: number | null; }; categories: { name: string; ... 5 more ...; id_subcategory: number | null; }; product_variants: ({ ...; } & { ...; })[]; images: { ...; }[]; } & { ...; }' is not assignable to type 'Product'.
-  Types of property 'deleted_at' are incompatible.
-    Type 'Date | null' is not assignable to type 'string | null'.
-      Type 'Date' is not assignable to type 'string'.
+./app/(admin)/actions/categories/deleteCategory.ts:56:14
+Type error: Object literal may only specify known properties, and 'dbError' does not exist in type 'ServerActionResponse'.
 
-  305 |     return {
-  306 |       success: true,
-> 307 |       product: newProduct!,
-      |       ^
-  308 |     };
-  309 |   } catch (error) {
-  310 |     // Manejar errores de Prisma
+  54 |   } catch (error) {
+  55 |     console.error("Database delete failed:", error);
+> 56 |     return { dbError: "Something went wrong. Could not delete the category." };
+     |              ^
+  57 |   }
+  58 | }
+  59 |
 Next.js build worker exited with code: 1 and signal: null

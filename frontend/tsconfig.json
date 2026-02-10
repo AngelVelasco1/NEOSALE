@@ -28,13 +28,14 @@
     ]
   },
   "include": [
-    "api/**/*.ts",
     "next-env.d.ts",
     "**/*.ts",
     "**/*.tsx",
-    ".next/types/**/*.ts", "app/api/auth/[...nextauth]/prisma.ts", "../backend/lib/prisma.ts", "config/credentials.js", "lib/security.js", 
+    ".next/types/**/*.ts",
+    "config/credentials.js",
+    "lib/security.js"
   ],
-    "exclude": [
-      "node_modules"
-    ]
+  "exclude": [
+    "node_modules"
+  ]
 }

@@ -29,15 +29,24 @@ const Pricing = dynamic(() => import("../components/Pricing").then(mod => ({ def
 });
 
 export default function Home() {
-  const [products, setProducts] = useState<IProduct[]>([]);
+  const [products, setProducts] = useState<any>([]);
+  const [loading, setLoading] = useState(true);
   const router = useRouter();
 
   useEffect(() => {
     const fetchProducts = async () => {
-      const data = await getLatestProducts();
-      setProducts(data);
+      try {
+        setLoading(true);
+        const data = await getLatestProducts();
+        const safeProducts = Array.isArray(data) ? data : [];
+        setProducts(safeProducts);
+      } catch (error) {
+        console.error("Error:", error);
+        setProducts([]);
+      } finally {
+        setLoading(false);
+      }
     };
-
     fetchProducts();
   }, []);
 
@@ -79,19 +88,31 @@ export default function Home() {
             </div>
 
             {/* Products Grid */}
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8 max-w-7xl mx-auto mb-16">
-              {products.map((product, index) => (
-                <motion.div
-                  key={product.id}
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.6, delay: index * 0.1 }}
-                  className="group"
-                >
-                  <ProductCard data={product} />
-                </motion.div>
-              ))}
-            </div>
+            {loading ? (
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8 max-w-7xl mx-auto mb-16">
+                {[1, 2, 3, 4].map((i) => (
+                  <div key={i} className="h-64 bg-slate-800/50 rounded-lg animate-pulse" />
+                ))}
+              </div>
+            ) : products && products.length > 0 ? (
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8 max-w-7xl mx-auto mb-16">
+                {products.map((product: any, index: number) => (
+                  <motion.div
+                    key={product.id}
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.6, delay: index * 0.1 }}
+                    className="group"
+                  >
+                    <ProductCard data={product} />
+                  </motion.div>
+                ))}
+              </div>
+            ) : (
+              <div className="text-center py-12">
+                <p className="text-gray-400">No products available</p>
+              </div>
+            )}
 
             {/* CTA Button */}
             <div className="text-center">
