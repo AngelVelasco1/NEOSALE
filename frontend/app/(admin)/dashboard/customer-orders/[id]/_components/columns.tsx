@@ -10,6 +10,7 @@ import { SelectItem } from "@/components/ui/select";
 import Typography from "@/app/(admin)/components/ui/typography";
 import { TableSelect } from "@/app/(admin)/components/shared/table/TableSelect";
 import { OrderBadgeVariants } from "@/app/(admin)/constants/badge";
+import { OrderStatus } from "@/app/(admin)/services/orders/types";
 import { CustomerOrder } from "@/app/(admin)/services/customers/types";
 
 import { changeOrderStatus } from "@/app/(admin)/actions/orders/changeOrderStatus";
@@ -129,7 +130,7 @@ export const getColumns = ({
       id: "status",
       header: "Estado",
       cell: ({ row }) => {
-        const status = row.original.status;
+        const status = row.original.status as OrderStatus;
 
         return (
           <Badge
@@ -174,7 +175,7 @@ export const getColumns = ({
             toastSuccessMessage="Estado de la orden actualizado."
             queryKey="customer-orders"
             onValueChange={(value) =>
-              changeOrderStatus(row.original.id, value)
+              changeOrderStatus(row.original.id, value as OrderStatus)
             }
           >
             <SelectItem value="pending">Pendiente</SelectItem>

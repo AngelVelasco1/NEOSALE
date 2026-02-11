@@ -67,7 +67,7 @@ export default function CouponActions({
                   actionButtonText="Eliminar Cupones"
                   toastSuccessMessage="Cupones eliminados exitosamente"
                   queryKey="coupons"
-                  action={() => deleteCoupons(Object.keys(rowSelection))}
+                  action={() => deleteCoupons(Object.keys(rowSelection).map(Number))}
                   onSuccess={() => setRowSelection({})}
                 >
                   <Button

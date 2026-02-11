@@ -17,7 +17,7 @@ export default function CategoryTable({
     data,
     columns,
     getCoreRowModel: getCoreRowModel(),
-    getRowId: (row) => row.id,
+    getRowId: (row) => String(row.id),
     state: {
       rowSelection,
     },

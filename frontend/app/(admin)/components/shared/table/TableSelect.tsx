@@ -9,7 +9,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { toast } from "sonner";
-import { ServerActionResponse } from "@/types/server-action";
+import { ServerActionResponse } from "@/app/(admin)/types/server-action";
 
 type Props = {
   value: string;
@@ -34,7 +34,7 @@ export function TableSelect({
       const result = await onValueChange(newValue);
 
       if ("dbError" in result) {
-        toast.error(result.dbError);
+        toast.error(String(result.dbError));
       } else {
         toast.success(toastSuccessMessage, { position: "top-center" });
         queryClient.invalidateQueries({ queryKey: [queryKey] });

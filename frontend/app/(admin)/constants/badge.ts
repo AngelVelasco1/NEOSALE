@@ -17,7 +17,6 @@ export const OrderBadgeVariants: Record<OrderStatus, BadgeVariant> = {
   shipped: "secondary",
   delivered: "success",
   cancelled: "destructive",
-  refunded: "destructive",
 };
 
 export const ProductBadgeVariants: Record<ProductStatus, BadgeVariant> = {

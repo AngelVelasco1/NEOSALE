@@ -27,7 +27,7 @@ export default function NotificationItem({ notification }: Props) {
   } = useMutation({
     mutationFn: () =>
       deleteNotification({
-        notificationId: notification.id,
+        notificationId: String(notification.id),
       }),
     onSuccess: () => {
       toast.success("Notification deleted successfully");
@@ -48,13 +48,8 @@ export default function NotificationItem({ notification }: Props) {
   return (
     <div className="flex items-center justify-between p-3 border-t border-t-border first:border-t-0 sm:gap-x-2">
       <div className="flex items-center gap-x-3">
-        <Image
-          src={notification.image_url}
-          alt={notification.title}
-          width={30}
-          height={30}
-          className="size-[1.875rem] rounded-full flex-shrink-0 self-start mt-1.5 sm:mt-0 sm:self-center"
-        />
+        {/* TODO: Add image_url to Notification type if needed */}
+        {/* Image omitted - not in Notification type */}
 
         <div className="flex flex-col">
           <Typography
@@ -76,7 +71,7 @@ export default function NotificationItem({ notification }: Props) {
             )}
 
             <Typography component="p" className="text-xs md:text-xs">
-              {formatDate.compactDatetime(notification.created_at)}
+              {formatDate.datetime(notification.created_at)}
             </Typography>
           </div>
         </div>

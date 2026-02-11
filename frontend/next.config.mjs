@@ -14,11 +14,6 @@ const nextConfig = {
     `${FRONT_CONFIG.api_origin}`,
   ],
 
-  // Ignorar errores de ESLint durante build
-  eslint: {
-    ignoreDuringBuilds: true,
-  },
-  
   // Ignorar errores de TypeScript durante build (opcional)
   typescript: {
     ignoreBuildErrors: false, // Mantener validación de tipos

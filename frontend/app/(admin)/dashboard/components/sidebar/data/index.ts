@@ -1,4 +1,48 @@
-import * as Icons from "../icons";
+import {
+  Home,
+  Calendar,
+  Package,
+  Users,
+  User,
+  MessageSquare,
+  Tags,
+  Gift,
+  Settings,
+  LogOut,
+  ShoppingCart,
+  TrendingUp,
+  FileText,
+  ChevronDown,
+  Type,
+  Table,
+  PieChart,
+  LayoutGrid,
+  Lock,
+  type LucideIcon,
+} from "lucide-react";
+
+// Map icon names to lucide icons
+const Icons = {
+  HomeIcon: Home,
+  Calendar: Calendar,
+  Packages: Package,
+  Users: Users,
+  User: User,
+  MessageSquare: MessageSquare,
+  Tags: Tags,
+  Gift: Gift,
+  Settings: Settings,
+  LogOut: LogOut,
+  ShoppingCart: ShoppingCart,
+  TrendingUp: TrendingUp,
+  FileText: FileText,
+  ChevronDown: ChevronDown,
+  Alphabet: Type,
+  Table: Table,
+  PieChart: PieChart,
+  FourCircle: LayoutGrid,
+  Authentication: Lock,
+};
 
 export const NAV_DATA = [
   {

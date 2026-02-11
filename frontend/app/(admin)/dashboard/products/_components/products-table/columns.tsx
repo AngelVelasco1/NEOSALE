@@ -186,7 +186,7 @@ export const getColumns = ({
                   color: row.original.images?.[0]?.color || "",
                   color_code: row.original.images?.[0]?.color_code || "#000000",
                 }}
-                action={(formData) => editProduct(row.original.id, formData)}
+                action={(formData) => editProduct(String(row.original.id), formData)}
                 previewImage={row.original.image_url || '/placeholder.svg'}
               >
                 <SheetTooltip content="Edit Product">
@@ -203,7 +203,7 @@ export const getColumns = ({
                 actionButtonText="Delete Product"
                 toastSuccessMessage={`Product "${row.original.name}" deleted successfully!`}
                 queryKey="products"
-                action={() => deleteProduct(row.original.id)}
+                action={() => deleteProduct(String(row.original.id))}
               >
                 <Trash2 className="size-5" />
               </TableActionAlertDialog>

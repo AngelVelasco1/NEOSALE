@@ -61,7 +61,7 @@ export const getColumns = ({
             queryKey="categories"
             onCheckedChange={() =>
               toggleCategoryPublishedStatus(
-                row.original.id,
+                String(row.original.id),
                 row.original.active
               )
             }
@@ -117,7 +117,7 @@ export const getColumns = ({
                   name: row.original.name,
                   description: row.original.description ?? "",
                 }}
-                action={(formData) => editCategory(row.original.id, formData)}
+                action={(formData) => editCategory(String(row.original.id), formData)}
               >
                 <SheetTooltip content="Edit Category">
                   <PenSquare className="size-5" />
@@ -133,7 +133,7 @@ export const getColumns = ({
                 actionButtonText="Eliminar Categoría"
                 toastSuccessMessage={`Categoría "${row.original.name}" eliminada correctamente!`}
                 queryKey="categories"
-                action={() => deleteCategory(row.original.id)}
+                action={() => deleteCategory(String(row.original.id))}
               >
                 <Trash2 className="size-5" />
               </TableActionAlertDialog>

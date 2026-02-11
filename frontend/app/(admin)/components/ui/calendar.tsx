@@ -60,10 +60,11 @@ export function Calendar({ className, classNames, showOutsideDays = true, styles
         },
         ...styles,
       }}
-      components={{
-        IconLeft: ({ ...props }) => <ChevronLeft className="h-4 w-4" {...props} />,
-        IconRight: ({ ...props }) => <ChevronRight className="h-4 w-4" {...props} />,
-      }}
+      // TODO: Update custom icon components for react-day-picker v9
+      // components={{
+      //   IconLeft: ({ ...props }) => <ChevronLeft className="h-4 w-4" {...props} />,
+      //   IconRight: ({ ...props }) => <ChevronRight className="h-4 w-4" {...props} />,
+      // }}
       {...props}
     />
   );

@@ -19,7 +19,7 @@ export default function ProductsTable({
     data,
     columns,
     getCoreRowModel: getCoreRowModel(),
-    getRowId: (row) => row.id,
+    getRowId: (row) => String(row.id),
     state: {
       rowSelection,
     },
