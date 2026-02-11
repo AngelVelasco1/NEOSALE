@@ -1,9 +1,10 @@
 "use client";
 
-import { useTransition, useRef, useState } from "react";
+import { useTransition, useRef, useState, useEffect } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm, FieldErrors } from "react-hook-form";
 import { useQueryClient } from "@tanstack/react-query";
+import { useSession } from "next-auth/react";
 import {
   Upload,
   User,
@@ -40,6 +41,7 @@ import { profileFormSchema, ProfileFormData } from "./schema";
 import { objectToFormData } from "@/app/(admin)/helpers/objectToFormData";
 import { StaffProfile } from "@/app/(admin)/services/staff/types";
 import { editProfile } from "@/app/(admin)/actions/profile/editProfile";
+import { fetchStaffDetails } from "@/app/(admin)/services/staff";
 
 
 type Section = 'general' | 'personal' | 'security';
@@ -50,7 +52,10 @@ const navigationItems = [
   { id: 'security', label: 'Seguridad', icon: Lock, description: 'Cambiar contraseña' },
 ];
 
-export default function EditProfileForm({ profile }: { profile: StaffProfile }) {
+export default function EditProfileForm() {
+  const { data: session } = useSession();
+  const [profile, setProfile] = useState<StaffProfile | null>(null);
+  const [isLoadingProfile, setIsLoadingProfile] = useState(true);
   const queryClient = useQueryClient();
   const [isPending, startTransition] = useTransition();
   const imageDropzoneRef = useRef<HTMLDivElement>(null);
@@ -60,18 +65,61 @@ export default function EditProfileForm({ profile }: { profile: StaffProfile }) 
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [activeSection, setActiveSection] = useState<Section>('general');
 
+  // Fetch profile client-side
+  useEffect(() => {
+    if (!session?.user?.id) return;
+    
+    const loadProfile = async () => {
+      try {
+        setIsLoadingProfile(true);
+        const data = await fetchStaffDetails(parseInt(session.user.id));
+        setProfile(data);
+      } catch (error) {
+        console.error("Error loading profile:", error);
+        toast.error("Error al cargar el perfil");
+      } finally {
+        setIsLoadingProfile(false);
+      }
+    };
+    
+    loadProfile();
+  }, [session?.user?.id]);
+
   const form = useForm<ProfileFormData>({
     resolver: zodResolver(profileFormSchema),
     mode: "onChange",
     defaultValues: {
-      name: profile.name,
-      phone: profile.phone ?? "",
-      image: profile.image ?? "",
+      name: profile?.name ?? "",
+      phone: profile?.phone ?? "",
+      image: profile?.image ?? "",
       currentPassword: "",
       newPassword: "",
       confirmPassword: "",
     },
   });
+
+  // Update form when profile loads
+  useEffect(() => {
+    if (profile) {
+      form.reset({
+        name: profile.name,
+        phone: profile.phone ?? "",
+        image: profile.image ?? "",
+        currentPassword: "",
+        newPassword: "",
+        confirmPassword: "",
+      });
+    }
+  }, [profile, form]);
+
+  // Show loading state
+  if (isLoadingProfile || !profile) {
+    return (
+      <div className="flex items-center justify-center min-h-[400px]">
+        <Loader2 className="w-8 h-8 animate-spin text-primary" />
+      </div>
+    );
+  }
 
   const onSubmit = (data: ProfileFormData) => {
     const formData = objectToFormData(data);

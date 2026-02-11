@@ -650,7 +650,7 @@ export const getOrdersService = async ({
         skip,
         take: limit,
         include: {
-          users: {
+          User: {
             select: {
               id: true,
               name: true,

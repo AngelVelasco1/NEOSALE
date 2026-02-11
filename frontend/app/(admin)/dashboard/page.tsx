@@ -1,5 +1,6 @@
 import React from "react";
 import { Metadata } from "next";
+import { redirect } from "next/navigation";
 import {
   BarChart3,
   Clock,
@@ -7,7 +8,7 @@ import {
   ShieldCheck,
 } from "lucide-react";
 
-import PageTitle from "../components/shared/PageTitle";
+import { auth } from "@/app/(auth)/auth";
 import SalesOverview from "./_components/SalesOverview";
 import StatusOverview from "./_components/StatusOverview";
 import DashboardCharts from "./_components/dashboard-charts";
@@ -19,8 +20,8 @@ export const metadata: Metadata = {
   title: "Dashboard",
 };
 
-// Allow short-lived caching to reduce load while keeping data fresh
-export const revalidate = 60;
+// MIGRATED: Removed export const revalidate = 60 (incompatible with Cache Components)
+// TODO: Add "use cache" + cacheLife('minutes') for appropriate caching strategy
 
 type GoalParamName = (typeof GOAL_PARAM_MAP)[MetricGoalKey];
 
@@ -35,6 +36,11 @@ interface DashboardPageProps {
 }
 
 export default async function DashboardPage({ searchParams }: DashboardPageProps) {
+  // Auth validation: Handled by middleware.ts + client-side dashboard layout
+  // This page is only accessible if user is authenticated (middleware check)
+  // Role validation happens client-side to avoid blocking server render
+  
+  // Resolve searchParams (required for Promise<T> type)
   const params = await searchParams;
   
   let dateRange: { from: string; to: string };

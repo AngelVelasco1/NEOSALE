@@ -1,21 +1,14 @@
 "use client";
 
-import { useRouter } from "next/navigation";
-import { useEffect } from "react";
-import { NotificationBell } from "../../NotificationBell";
 import { useUserSafe } from "@/app/(auth)/hooks/useUserSafe";
+import { NotificationBell } from "../../NotificationBell";
 
 export default function Notifications() {
   const { userProfile, isLoading } = useUserSafe();
-  const router = useRouter();
   const staffId = userProfile?.id;
 
-  useEffect(() => {
-    if (!isLoading && !staffId) {
-      router.push("/login");
-    }
-  }, [isLoading, staffId, router]);
-
+  // Don't redirect here - auth is already handled by proxy.ts and RoleGuard
+  // This component can just return null while loading or if no user
   if (isLoading || !staffId) {
     return null;
   }

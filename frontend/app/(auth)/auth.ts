@@ -13,11 +13,14 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
   },
   session: {
     strategy: "jwt",
-        maxAge: 3600,
+    maxAge: 24 * 60 * 60, // 24 hours
+    updateAge: 24 * 60 * 60, // Only update session once per day
   },
   jwt: {
-    maxAge: 3600
+    maxAge: 24 * 60 * 60 // 24 hours
   },
+  // Reduce callback executions
+  useSecureCookies: process.env.NODE_ENV === 'production',
   events: {
     async createUser({ user }) {
       // Asegurar que el usuario creado con OAuth tenga el rol correcto
@@ -70,7 +73,8 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
       return true;
     },
 
-    async jwt({ token, user }) {
+    async jwt({ token, user, trigger }) {
+      // Only update token on sign in or explicit update
       if (user) {
         token.role = user.role;
       }
@@ -78,6 +82,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
     },
     
     async session({ session, token }) {
+      // Minimal session callback to reduce processing
       if (session.user) {
         session.user.id = token.sub!;
         session.user.role = token.role;

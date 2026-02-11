@@ -23,12 +23,23 @@ export function RootProviders({ children, session }: ProvidersProps) {
 
   // Esperar a que el cliente se hidrate completamente
   useEffect(() => {
+    console.log("[RootProviders] Hydrated");
     setIsHydrated(true);
   }, []);
 
+  console.log(`[RootProviders] Rendering. Hydrated: ${isHydrated}`);
+
   // suppressHydrationWarning para evitar warnings innecesarios
   return (
-    <SessionProvider session={session}>
+    <SessionProvider 
+      session={session} 
+      refetchInterval={0}
+      refetchOnWindowFocus={false}
+      refetchWhenOffline={false}
+      refetchOnMount={false}
+      refetchOnReconnect={false}
+      basePath="/api/auth"
+    >
       <UserProvider>
         <TanstackQueryProvider>
           <ColorInitializer />

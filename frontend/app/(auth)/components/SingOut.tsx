@@ -6,6 +6,11 @@ import { signOut } from "next-auth/react";
 
 export const SignOut = () => {
   const handleSignOut = async () => {
+    // Clear the login redirect flag
+    if (typeof window !== 'undefined') {
+      sessionStorage.removeItem('login-redirected');
+    }
+    
     await signOut({
       redirectTo: "/login",
     });

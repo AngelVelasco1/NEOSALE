@@ -1,5 +1,4 @@
 import React from "react";
-import { UserProvider } from "./context/UserContext";
 import { ConditionalClientLayout } from "./components/ConditionalClientLayout";
 
 export default function AuthLayout({
@@ -7,11 +6,10 @@ export default function AuthLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  // UserProvider is already in RootProviders - don't double-wrap
   return (
-    <UserProvider>
-      <ConditionalClientLayout>
-        {children}
-      </ConditionalClientLayout>
-    </UserProvider>
+    <ConditionalClientLayout>
+      {children}
+    </ConditionalClientLayout>
   );
 }

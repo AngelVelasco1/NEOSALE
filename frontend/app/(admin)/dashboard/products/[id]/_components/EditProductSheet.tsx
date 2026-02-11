@@ -1,11 +1,11 @@
 "use client";
 
 import { SheetTrigger } from "@/components/ui/sheet";
-import { editProduct } from "@/actions/products/editProduct";
+import { editProduct } from "@/app/(admin)/actions/products/editProduct";
 import { ProductDetails } from "@/app/(admin)/services/products/types";
 import ProductFormSheet from "../../_components/form/ProductFormSheet";
 
-import { useAuthorization } from "@/hooks/use-authorization";
+import { useAuthorization } from "@/app/(admin)/hooks/use-authorization";
 
 type Props = {
   product: ProductDetails;

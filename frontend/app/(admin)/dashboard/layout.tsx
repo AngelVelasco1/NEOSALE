@@ -5,6 +5,8 @@ import dynamic from "next/dynamic";
 
 import Container from "@/app/(admin)/components/ui/container";
 import { cn } from "@/lib/utils";
+import { RoleGuard } from "./components/RoleGuard";
+import { SessionDebugger } from "./components/SessionDebugger";
 
 const Header = dynamic(
   () => import("@/app/(admin)/components/shared/header"),
@@ -30,6 +32,9 @@ function LayoutProvider({ children, defaultOpen = true }: LayoutProviderProps) {
   const [sidebarOpen, setSidebarOpen] = useState(defaultOpen);
   const [isMobile, setIsMobile] = useState(false);
   const [isInitialized, setIsInitialized] = useState(false);
+
+  // Auth protection removed - now handled by middleware.ts
+  // This prevents client-side redirect loops
 
   useEffect(() => {
     const checkMobile = () => {
@@ -62,37 +67,40 @@ function LayoutProvider({ children, defaultOpen = true }: LayoutProviderProps) {
 
   return (
     <div className="flex min-h-screen bg-slate-900">
-      {/* Overlay for mobile */}
-      {isMobile && sidebarOpen && (
-        <div
-          className="fixed inset-0 bg-black/60 backdrop-blur-sm z-30 lg:hidden transition-opacity duration-300"
-          onClick={closeSidebar}
-          aria-hidden="true"
+      <SessionDebugger />
+      <RoleGuard allowedRoles={["admin"]}>
+        {/* Overlay for mobile */}
+        {isMobile && sidebarOpen && (
+          <div
+            className="fixed inset-0 bg-black/60 backdrop-blur-sm z-30 lg:hidden transition-opacity duration-300"
+            onClick={closeSidebar}
+            aria-hidden="true"
+          />
+        )}
+
+        {/* Sidebar */}
+        <AppSidebar 
+          isOpen={sidebarOpen} 
+          isMobile={isMobile}
+          onClose={closeSidebar}
         />
-      )}
 
-      {/* Sidebar */}
-      <AppSidebar 
-        isOpen={sidebarOpen} 
-        isMobile={isMobile}
-        onClose={closeSidebar}
-      />
+        {/* Main Content */}
+        <div className={cn(
+          "flex-1 flex flex-col min-w-0 transition-all duration-300",
+          !isMobile && sidebarOpen && "lg:ml-64"
+        )}>
+          <Header onToggleSidebar={toggleSidebar} isSidebarOpen={sidebarOpen} />
 
-      {/* Main Content */}
-      <div className={cn(
-        "flex-1 flex flex-col min-w-0 transition-all duration-300",
-        !isMobile && sidebarOpen && "lg:ml-64"
-      )}>
-        <Header onToggleSidebar={toggleSidebar} isSidebarOpen={sidebarOpen} />
-
-        <main className="flex-1 overflow-x-hidden">
-          <div className="py-6 print:!py-0">
-            <Container>
-              {children}
-            </Container>
-          </div>
-        </main>
-      </div>
+          <main className="flex-1 overflow-x-hidden">
+            <div className="py-6 print:!py-0">
+              <Container>
+                {children}
+              </Container>
+            </div>
+          </main>
+        </div>
+      </RoleGuard>
     </div>
   );
 }
@@ -102,6 +110,9 @@ export default function RootLayout({
 }: {
   children: React.ReactNode;
 }) {
+  // TEMPORARILY DISABLED RoleGuard for debugging
+  // Auth: middleware.ts checks session cookie
+  // Role: Will add back after identifying loop source
   return (
     <LayoutProvider defaultOpen={true}>
       {children}

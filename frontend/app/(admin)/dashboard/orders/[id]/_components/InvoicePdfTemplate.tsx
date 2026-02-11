@@ -35,9 +35,9 @@ const getBadgeStyles = (status: string): React.CSSProperties => {
 export default function InvoicePdfTemplate({ order }: { order: OrderDetails }) {
   return (
     <div
-      id={`invoice-${order.invoice_no}`}
-      style={{ 
-        width: "794px", 
+      id={`invoice-${order.id}`}
+      style={{
+        width: "794px",
         height: "1123px",
         fontFamily: "'Inter', 'Segoe UI', Arial, sans-serif",
         padding: "56px",
@@ -130,7 +130,7 @@ export default function InvoicePdfTemplate({ order }: { order: OrderDetails }) {
             fontWeight: "600", 
             margin: 0 
           }}>
-            {formatDate.long(order.order_time)}
+            {formatDate.long(order.created_at)}
           </p>
         </div>
 
@@ -151,7 +151,7 @@ export default function InvoicePdfTemplate({ order }: { order: OrderDetails }) {
             fontWeight: "600", 
             margin: 0 
           }}>
-            #{order.invoice_no}
+            #{`INV-${String(order.id).padStart(6, "0")}`}
           </p>
         </div>
 
@@ -173,7 +173,7 @@ export default function InvoicePdfTemplate({ order }: { order: OrderDetails }) {
             textTransform: "uppercase",
             margin: 0
           }}>
-            {order.payment_method}
+            {order.payments.payment_method}
           </p>
         </div>
       </div>
@@ -193,8 +193,7 @@ export default function InvoicePdfTemplate({ order }: { order: OrderDetails }) {
           fontWeight: "700",
           marginBottom: "12px",
           letterSpacing: "1px"
-        }}>
-          Facturado a:
+        }}>\n          Facturado a:
         </p>
         <p style={{ 
           fontSize: "17px", 
@@ -202,16 +201,16 @@ export default function InvoicePdfTemplate({ order }: { order: OrderDetails }) {
           fontWeight: "700",
           marginBottom: "8px"
         }}>
-          {order.customers.name}
+          {order.User.name}
         </p>
         <div style={{ 
           fontSize: "13px", 
           color: "#4B5563", 
           lineHeight: "1.8" 
         }}>
-          <p style={{ margin: "0 0 4px 0" }}>{order.customers.email}</p>
-          {order.customers.phone && <p style={{ margin: "0 0 4px 0" }}>{order.customers.phone}</p>}
-          {order.customers.address && <p style={{ margin: "0" }}>{order.customers.address}</p>}
+          <p style={{ margin: "0 0 4px 0" }}>{order.User.email}</p>
+          {order.User.phoneNumber && <p style={{ margin: "0 0 4px 0" }}>{order.User.phoneNumber}</p>}
+          {order.addresses && <p style={{ margin: "0" }}>{`${order.addresses.street}, ${order.addresses.city}, ${order.addresses.state} ${order.addresses.zip_code}`}</p>}
         </div>
       </div>
 
@@ -333,7 +332,7 @@ export default function InvoicePdfTemplate({ order }: { order: OrderDetails }) {
                   textAlign: "center",
                   fontWeight: "500"
                 }}>
-                  ${orderItem.unit_price.toFixed(2)}
+                  ${orderItem.price.toFixed(2)}
                 </td>
                 <td style={{ 
                   padding: "16px 20px",
@@ -342,7 +341,7 @@ export default function InvoicePdfTemplate({ order }: { order: OrderDetails }) {
                   fontWeight: "700",
                   textAlign: "right"
                 }}>
-                  ${(orderItem.quantity * orderItem.unit_price).toFixed(2)}
+                  ${(orderItem.quantity * orderItem.price).toFixed(2)}
                 </td>
               </tr>
             ))}
@@ -378,7 +377,7 @@ export default function InvoicePdfTemplate({ order }: { order: OrderDetails }) {
             textTransform: "capitalize",
             margin: 0
           }}>
-            {order.payment_method}
+            {order.payments.payment_method}
           </p>
         </div>
 
@@ -425,9 +424,9 @@ export default function InvoicePdfTemplate({ order }: { order: OrderDetails }) {
               ? order.coupons.discount_type === "fixed"
                 ? order.coupons.discount_value.toFixed(2)
                 : (
-                  ((order.total_amount - order.shipping_cost) * 100) /
+                  ((order.total - order.shipping_cost) * 100) /
                   (100 - order.coupons.discount_value) -
-                  (order.total_amount - order.shipping_cost)
+                  (order.total - order.shipping_cost)
                 ).toFixed(2)
               : "0.00"}
           </p>
@@ -454,7 +453,7 @@ export default function InvoicePdfTemplate({ order }: { order: OrderDetails }) {
             color: "#3B82F6",
             margin: 0
           }}>
-            ${order.total_amount.toFixed(2)}
+            ${order.total.toFixed(2)}
           </p>
         </div>
       </div>

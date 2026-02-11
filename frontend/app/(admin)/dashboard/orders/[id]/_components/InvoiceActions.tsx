@@ -1,6 +1,6 @@
 "use client";
 
-import { DownloadCloud, Printer, Loader2 } from "lucide-react";
+import { DownloadCloud, Loader2 } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { usePdfDownload } from "@/app/(admin)/hooks/use-pdf-download";
@@ -16,8 +16,8 @@ export function InvoiceActions({ order }: { order: OrderDetails }) {
 
   const downloadInvoice = () => {
     downloadTemplate({
-      htmlId: `invoice-${order.invoice_no}`,
-      pdfName: `Invoice-${order.invoice_no}`,
+      htmlId: `invoice-${order.id}`,
+      pdfName: `Invoice-${order.id}`,
     });
   };
 

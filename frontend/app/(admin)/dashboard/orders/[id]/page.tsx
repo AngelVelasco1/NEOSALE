@@ -138,10 +138,10 @@ export default async function Order({ params }: PageParams) {
                   <div className="inline-flex items-center justify-between gap-4 bg-gradient-to-r from-blue-950/50 via-indigo-950/40 to-sky-950/50 px-4 py-2 rounded-full border border-blue-900/70 shadow-lg">
                     <div className="flex items-center gap-2">
                       <div className={`w-2 h-2 rounded-full animate-pulse ${
-                        order.status === 'delivered' || order.status === 'entregado' ? 'bg-green-500' :
-                        order.status === 'pending' || order.status === 'pendiente' ? 'bg-yellow-500' :
-                        order.status === 'processing' || order.status === 'procesando' ? 'bg-blue-500' :
-                        order.status === 'cancelled' || order.status === 'cancelado' ? 'bg-red-500' :
+                        order.status === 'delivered' ? 'bg-green-500' :
+                        order.status === 'pending' ? 'bg-yellow-500' :
+                        order.status === 'processing' ? 'bg-blue-500' :
+                        order.status === 'cancelled' ? 'bg-red-500' :
                         'bg-indigo-500'
                       }`}></div>
                       <Typography className="uppercase font-medium text-xs bg-gradient-to-r from-blue-300 via-indigo-300 to-slate-300 bg-clip-text text-transparent tracking-wide print:text-black">
@@ -161,13 +161,13 @@ export default async function Order({ params }: PageParams) {
                         | "processing"
                       }
                       className={`px-3 py-1 text-xs font-semibold capitalize border shadow-md rounded-lg ${
-                        order.status === 'delivered' || order.status === 'entregado' ?
+                        order.status === 'delivered' ?
                         'bg-gradient-to-r from-green-900/60 to-emerald-900/60 border-green-600/60 text-green-200' :
-                        order.status === 'pending' || order.status === 'pendiente' ?
+                        order.status === 'pending' ?
                         'bg-gradient-to-r from-yellow-900/60 to-amber-900/60 border-yellow-600/60 text-yellow-200' :
-                        order.status === 'processing' || order.status === 'procesando' ?
+                        order.status === 'processing' ?
                         'bg-gradient-to-r from-blue-900/60 to-indigo-900/60 border-blue-600/60 text-blue-200' :
-                        order.status === 'cancelled' || order.status === 'cancelado' ?
+                        order.status === 'cancelled' ?
                         'bg-gradient-to-r from-red-900/60 to-rose-900/60 border-red-600/60 text-red-200' :
                         'bg-gradient-to-r from-indigo-900/60 to-slate-900/60 border-slate-600/60 text-slate-200'
                       }`}
@@ -313,7 +313,7 @@ export default async function Order({ params }: PageParams) {
                 </Typography>
 
                 <Typography className="text-lg font-bold text-gray-100 capitalize print:text-black">
-                  {order.payment_method}
+                  {order.payments.payment_method}
                 </Typography>
               </div>
             </div>
@@ -382,9 +382,9 @@ export default async function Order({ params }: PageParams) {
         <ShippingManagement
           orderId={order.id}
           orderStatus={order.status}
-          hasGuide={!!order.envioclick_guide_number}
-          guideNumber={order.envioclick_guide_number || undefined}
-          trackingUrl={order.envioclick_tracking_url || undefined}
+          hasGuide={false}
+          guideNumber={undefined}
+          trackingUrl={undefined}
         />
 
         <InvoiceActions order={order} />

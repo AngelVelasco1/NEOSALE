@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 
-export const runtime = 'nodejs';
+// MIGRATED: Removed export const runtime = 'nodejs' (incompatible with Cache Components - nodejs is default)
 
 export async function GET(
   request: Request,

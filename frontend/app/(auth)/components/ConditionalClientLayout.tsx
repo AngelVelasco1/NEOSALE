@@ -1,6 +1,6 @@
 "use client";
 
-import React, { ReactNode } from "react";
+import React, { ReactNode, useRef } from "react";
 import { Navbar } from "../../components/Navbar";
 import { CartProvider } from "../../(customer)/(cart)/hooks/useCart";
 import { FavoritesProvider } from "../../(customer)/favorites/context/useFavorites";
@@ -8,6 +8,10 @@ import { useUserSafe } from "../hooks/useUserSafe";
 
 export function ConditionalClientLayout({ children }: { children: ReactNode }) {
     const { userProfile, isLoading } = useUserSafe();
+    const renderCount = useRef(0);
+    renderCount.current++;
+    
+    console.log(`[ConditionalClientLayout] Render #${renderCount.current}, isLoading: ${isLoading}, role: ${userProfile?.role}`);
 
     // Mientras carga el usuario, mostrar children directamente para evitar delay
     if (isLoading) {
@@ -17,8 +21,6 @@ export function ConditionalClientLayout({ children }: { children: ReactNode }) {
     if (userProfile?.role === "admin") {
         return <>{children}</>;
     }
-
-
 
     return (
         <FavoritesProvider>

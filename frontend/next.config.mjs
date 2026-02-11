@@ -9,6 +9,9 @@ const __dirname = path.dirname(__filename);
 
 /** @type {import('next').NextConfig} */
 const nextConfig = {
+  // Cache Components (Next.js 16.1+)
+  cacheComponents: true,
+
   allowedDevOrigins: [
     `${FRONT_CONFIG.host}:${FRONT_CONFIG.front_port}`,
     `${FRONT_CONFIG.api_origin}`,
@@ -23,6 +26,13 @@ const nextConfig = {
   productionBrowserSourceMaps: false,
   reactStrictMode: false,
   poweredByHeader: false,
+  
+  // Optimizaciones específicas para Cache Components
+  onDemandEntries: {
+    // Reduce hot reloading agresivo
+    maxInactiveAge: 60000,
+    pagesBufferLength: 5,
+  },
   
   // Experimental features optimizadas
   experimental: {

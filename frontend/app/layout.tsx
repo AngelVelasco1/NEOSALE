@@ -2,7 +2,7 @@ import React from "react";
 import type { Metadata } from "next";
 import "./globals.css";
 import { Montserrat, Poppins } from "next/font/google";
-import { RootProviders } from "./providers/RootProviders"; // Asegúrate de que la ruta sea correcta
+import { RootProviders } from "./providers/RootProviders";
 import Script from "next/script";
 
 export const userFont = Montserrat({
@@ -36,6 +36,9 @@ export default function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  // REMOVED: await auth() - This blocks the entire app and causes Suspense warnings
+  // Auth checks should be done in individual protected pages/layouts, not root layout
+  
   return (
     <html lang="es" suppressHydrationWarning>
       <head>

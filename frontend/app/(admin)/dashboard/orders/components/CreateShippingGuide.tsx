@@ -51,7 +51,7 @@ export function CreateShippingGuide({
     setResult(null);
 
     try {
-      const response = await createShippingGuideAdmin(orderId, paymentType);
+      const response = await createShippingGuideAdmin(orderId, Number(paymentType));
 
       if (response.success && response.data) {
         setResult(response.data);

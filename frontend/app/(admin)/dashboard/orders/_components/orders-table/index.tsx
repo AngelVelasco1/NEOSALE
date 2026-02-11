@@ -93,7 +93,7 @@ export default function RecentOrders() {
     <OrdersTable
       columns={columns}
       data={orders.data}
-      pagination={orders.pagination}
+      pagination={orders.pagination as any}
     />
   );
 }

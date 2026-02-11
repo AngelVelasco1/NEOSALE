@@ -3,7 +3,7 @@ import { prisma } from '@/lib/prisma';
 import { nanoid } from 'nanoid';
 import { sendVerificationEmail } from '@/lib/verifyEmail';
 
-export const runtime = 'nodejs';
+// MIGRATED: Removed export const runtime = 'nodejs' (incompatible with Cache Components - nodejs is default)
 
 export async function POST(request: Request) {
   try {

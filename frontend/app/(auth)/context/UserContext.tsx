@@ -7,6 +7,7 @@ import React, {
   useEffect,
   ReactNode,
   useCallback,
+  useRef,
 } from "react";
 import { useSession } from "next-auth/react";
 import { getUserById } from "../services/api";
@@ -44,6 +45,7 @@ export const UserProvider = ({ children }: UserProviderProps) => {
   const [selectedAddress, setSelectedAddress] = useState<string>();
   const [isLoading, setIsLoading] = useState(true);
   const [mounted, setMounted] = useState(false);
+  const lastFetchedId = useRef<string | null>(null);
 
   useEffect(() => {
     setMounted(true);
@@ -51,38 +53,68 @@ export const UserProvider = ({ children }: UserProviderProps) => {
 
   const fetchUserProfile =
     useCallback(async (): Promise<UserProfile | null> => {
+      console.log(`[UserContext] fetchUserProfile called. Session:`, session, `Status: ${status}`);
+      
       try {
         setIsLoading(true);
 
         if (session?.user?.id) {
+          // Prevent redundant fetches
+          if (lastFetchedId.current === session.user.id) {
+            console.log(`[UserContext] Already fetched profile for user ${session.user.id}, skipping`);
+            setIsLoading(false);
+            return userProfile;
+          }
+          
+          console.log(`[UserContext] Fetching profile for user ${session.user.id}`);
           const data = await getUserById(Number(session.user.id));
+          console.log(`[UserContext] Profile fetched:`, data);
+          lastFetchedId.current = session.user.id;
           setUserProfile(data);
           return data;
         } else if (status !== 'loading') {
+          console.log(`[UserContext] No session user, status: ${status}`);
+          lastFetchedId.current = null;
           setUserProfile(null);
           return null;
         }
 
         return null;
       } catch (err) {
-        console.error("Error fetching user profile:", err);
+        console.error("[UserContext] Error fetching user profile:", err);
         setUserProfile(null);
         return null;
       } finally {
         setIsLoading(false);
       }
-    }, [session?.user?.id, status]);
+    }, [session?.user?.id, status, userProfile]);
 
   useEffect(() => {
+    console.log(`[UserContext] Effect triggered. Mounted: ${mounted}, Status: ${status}`);
+    
     if (!mounted) return;
 
     if (status === 'loading') {
+      console.log(`[UserContext] Status is loading, setting isLoading true`);
       setIsLoading(true);
       return;
     }
 
-    fetchUserProfile();
-  }, [mounted, fetchUserProfile, status]);
+    // Only fetch if we haven't fetched for this user yet
+    if (session?.user?.id && lastFetchedId.current !== session.user.id) {
+      console.log(`[UserContext] Calling fetchUserProfile`);
+      fetchUserProfile();
+    } else if (!session?.user?.id && lastFetchedId.current !== null) {
+      // User logged out
+      console.log(`[UserContext] User logged out, clearing profile`);
+      lastFetchedId.current = null;
+      setUserProfile(null);
+      setIsLoading(false);
+    } else {
+      console.log(`[UserContext] Profile already fetched or no user, skipping`);
+      setIsLoading(false);
+    }
+  }, [mounted, status, session?.user?.id, fetchUserProfile]);
 
   const defaultValue: UserContextType = {
     userProfile: null,

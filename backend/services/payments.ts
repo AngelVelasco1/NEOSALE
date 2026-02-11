@@ -1317,10 +1317,6 @@ export const updatePaymentStatusService = async (
       )
     `;
 
-    console.log(
-      "✅ Estado de payment actualizado con fn_update_payment:",
-      result
-    );
 
     return {
       success: true,
