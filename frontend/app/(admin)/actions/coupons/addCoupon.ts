@@ -64,7 +64,7 @@ export async function addCoupon(
       }
     }
 
-    console.error("Database insert failed:", error);
+    
     return { success: false, error: "Something went wrong. Please try again later." };
   }
 }

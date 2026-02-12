@@ -109,7 +109,7 @@ export default function CouponFormSheet({
   };
 
   const onInvalid = (errors: FieldErrors<CouponFormData>) => {
-    console.error("Form validation errors:", errors);
+    
   };
 
   return (

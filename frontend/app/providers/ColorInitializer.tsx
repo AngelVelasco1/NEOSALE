@@ -48,7 +48,7 @@ export function ColorInitializer() {
           window.dispatchEvent(new StorageEvent("storage"));
         }
       } catch (error) {
-        console.error("Error loading colors:", error);
+        
       } finally {
         hasInitializedRef.current = true;
         loadingRef.current = false;

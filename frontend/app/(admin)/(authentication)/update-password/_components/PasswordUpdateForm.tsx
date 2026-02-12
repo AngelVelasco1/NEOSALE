@@ -75,7 +75,7 @@ export default function PasswordUpdateForm({ token }: PasswordUpdateFormProps) {
           }
         }
       } else {
-        console.error(error);
+        
       }
     },
   });

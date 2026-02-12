@@ -50,7 +50,7 @@ export const ProductCard = ({
         const favorite = await checkIfFavoriteApi(userId, parseInt(data.id));
         setIsFavorite(favorite);
       } catch (error) {
-        console.error("Error checking favorite:", error);
+        
       } finally {
         setHasCheckedFavorite(true);
       }
@@ -89,7 +89,7 @@ export const ProductCard = ({
 
       await refreshFavoritesCount();
     } catch (error: any) {
-      console.error("Error al manejar favoritos:", error);
+      
 
       if (error.response?.status === 409) {
         if (!isFavorite) {
@@ -230,11 +230,15 @@ export const ProductCard = ({
             {data.image_url ? (
               <Image
                 src={data.image_url || "/placeholder.svg"}
-                alt="product"
+                alt={data.name || "product"}
                 fill
                 sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-                className="object-fit object-center group-hover:scale-110 transition-transform duration-700"
-                priority
+                className="object-cover object-center group-hover:scale-110 transition-transform duration-700"
+                unoptimized={data.image_url?.includes('via.placeholder.com') || data.image_url?.includes('static.nike.com')}
+                onError={(e) => {
+                  const target = e.target as HTMLImageElement;
+                  target.src = '/placeholder.svg';
+                }}
               />
             ) : (
               <Skeleton className="w-full h-full rounded-2xl bg-linear-to-br from-white/10 to-slate-50/30" />

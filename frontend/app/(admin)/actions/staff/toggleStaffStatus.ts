@@ -37,7 +37,7 @@ export async function toggleStaffPublishedStatus(
 
     return { success: true };
   } catch (error) {
-    console.error("Update failed:", error);
+    
     return { success: false, error: "Failed to update staff status." };
   }
 }

@@ -72,7 +72,7 @@ export default function CheckoutSuccessPage() {
           }),
         });
       } catch (updateError) {
-        console.warn("⚠️ Error actualizando estado en BD:", updateError);
+        
       }
     }
 
@@ -104,11 +104,11 @@ export default function CheckoutSuccessPage() {
 
         if (paymentData) {
           setPaymentInfo(paymentData as PaymentInfo);
-          console.log("Payment info actualizado:", paymentData);
+          
         }
       }
     } catch (dbError) {
-      console.warn("No se pudo consultar payment desde BD:", dbError);
+      
     }
   };
 
@@ -137,7 +137,7 @@ export default function CheckoutSuccessPage() {
           await fetchTransactionDetails(id);
         }
       } catch (error) {
-        console.error("❌ Error inicializando página:", error);
+        
         setError("Error cargando información de la transacción");
       } finally {
         setLoading(false);
@@ -165,14 +165,10 @@ export default function CheckoutSuccessPage() {
             reference: wompiData.reference || prev.reference,
           }));
 
-          console.log(" Estado de Wompi actualizado:", {
-            status: wompiData.status,
-            amount: wompiData.amount_in_cents,
-            reference: wompiData.reference,
-          });
+          
         }
       } catch (wompiError) {
-        console.warn("No se pudo consultar estado de Wompi:", wompiError);
+        
         // Continuar con consulta de BD local
       }
 
@@ -192,10 +188,10 @@ export default function CheckoutSuccessPage() {
           }
         }
       } catch (dbError) {
-        console.warn("⚠️ No se pudo consultar payment desde BD:", dbError);
+        
       }
     } catch (error) {
-      console.error("❌ Error consultando detalles de transacción:", error);
+      
       setError("Error consultando detalles de la transacción");
     }
   };

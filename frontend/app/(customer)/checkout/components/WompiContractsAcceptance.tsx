@@ -78,7 +78,7 @@ export const WompiContractsAcceptance: React.FC<
             tokens.presigned_personal_data_auth?.acceptance_token || "",
         });
       } catch (error) {
-        console.error("❌ Error obteniendo configuración de Wompi:", error);
+        
         ErrorsHandler.showError(
           "Error de configuración",
           "No se pudo cargar la información de pagos. Intenta recargar la página."

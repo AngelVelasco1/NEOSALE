@@ -44,7 +44,7 @@ export const getCartApi = async (
     );
     return data.items;
   } catch (error) {
-    console.error("Error fetching cart:", error);
+    
     return [];
   }
 };
@@ -57,7 +57,7 @@ export const addProductToCartApi = async (
     const { data } = await api.post(ENDPOINTS.addProduct, product);
     return data;
   } catch (error) {
-    console.error("Error adding product to cart:", error);
+    
     throw error;
   }
 };
@@ -78,7 +78,7 @@ export const updateQuantityApi = async (
     );
     return data;
   } catch (error) {
-    console.error("Error updating product quantity:", error);
+    
     throw error;
   }
 };
@@ -93,7 +93,7 @@ export const removeProductFromCartApi = async (
     });
     return data;
   } catch (error) {
-    console.error("Error removing product from cart:", error);
+    
     throw error;
   }
 };
@@ -106,7 +106,7 @@ export const clearCartApi = async (user_id: number): Promise<CartResponse> => {
     });
     return data;
   } catch (error) {
-    console.error("Error clearing cart:", error);
+    
     throw error;
   }
 };

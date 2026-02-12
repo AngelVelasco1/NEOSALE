@@ -19,7 +19,7 @@ export const getShippingQuoteAdmin = async (
     const response = await api.get(`/api/shipping/quote/${orderId}`);
     return response.data;
   } catch (error: any) {
-    console.error("Error fetching shipping quote:", error);
+    
     return {
       success: false,
       message: error.response?.data?.message || "Error al obtener cotización",
@@ -44,7 +44,7 @@ export const createShippingGuideAdmin = async (
     });
     return response.data;
   } catch (error: any) {
-    console.error("Error creating shipping guide:", error);
+    
     return {
       success: false,
       error: error.response?.data?.message || "Error al crear guía de envío",
@@ -62,7 +62,7 @@ export const updateTrackingAdmin = async (
     const response = await api.post(`/api/shipping/update-tracking/${orderId}`);
     return response.data;
   } catch (error: any) {
-    console.error("Error updating tracking:", error);
+    
     return {
       success: false,
       message: error.response?.data?.message || "Error al actualizar tracking",
@@ -80,7 +80,7 @@ export const cancelShippingAdmin = async (
     const response = await api.post(`/api/shipping/cancel/${orderId}`);
     return response.data;
   } catch (error: any) {
-    console.error("Error canceling shipping:", error);
+    
     return {
       success: false,
       message: error.response?.data?.message || "Error al cancelar envío",
@@ -98,7 +98,7 @@ export const getTrackingInfoAdmin = async (
     const response = await api.get(`/api/shipping/tracking/${orderId}`);
     return response.data;
   } catch (error: any) {
-    console.error("Error fetching tracking info:", error);
+    
     return {
       success: false,
       message: error.response?.data?.message || "Error al obtener tracking",

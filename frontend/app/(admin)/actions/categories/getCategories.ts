@@ -85,7 +85,7 @@ export async function getCategories({
       },
     };
   } catch (error) {
-    console.error("Error fetching categories:", error);
+    
     throw new Error("Failed to fetch categories");
   }
 }
@@ -107,7 +107,7 @@ export async function getCategoriesDropdown() {
 
     return categories;
   } catch (error) {
-    console.error("Error fetching categories dropdown:", error);
+    
     throw new Error("Failed to fetch categories dropdown");
   }
 }
@@ -131,7 +131,7 @@ export async function getSubcategoriesByCategory(categoryId: number) {
 
     return subcategories.map((cs) => cs.subcategories);
   } catch (error) {
-    console.error("Error fetching subcategories:", error);
+    
     throw new Error("Failed to fetch subcategories");
   }
 }
@@ -154,7 +154,7 @@ export async function getCategoryById(categoryId: number) {
 
     return category;
   } catch (error) {
-    console.error("Error fetching category:", error);
+    
     throw new Error("Failed to fetch category");
   }
 }
@@ -176,7 +176,7 @@ export async function getSubcategoriesDropdown() {
 
     return subcategories;
   } catch (error) {
-    console.error("Error fetching subcategories dropdown:", error);
+    
     throw new Error("Failed to fetch subcategories dropdown");
   }
 }
@@ -205,7 +205,7 @@ export async function getSubcategoriesByCategoryDropdown(categoryId?: number) {
 
     return subcategories.map((cs) => cs.subcategories);
   } catch (error) {
-    console.error("Error fetching subcategories by category dropdown:", error);
+    
     throw new Error("Failed to fetch subcategories by category dropdown");
   }
 }
@@ -246,7 +246,7 @@ export async function getCategoriesWithSubcategories() {
       ),
     }));
   } catch (error) {
-    console.error("Error fetching categories with subcategories:", error);
+    
     throw new Error("Failed to fetch categories with subcategories");
   }
 }

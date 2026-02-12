@@ -64,7 +64,7 @@ export async function editCoupon(
       }
     }
 
-    console.error("Database update failed:", error);
+    
     return { success: false, error: "Something went wrong. Please try again later." };
   }
 }

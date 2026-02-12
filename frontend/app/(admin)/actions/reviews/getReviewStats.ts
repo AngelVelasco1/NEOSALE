@@ -25,7 +25,7 @@ export async function getReviewStats() {
 
     return await response.json();
   } catch (error: any) {
-    console.error("Error:", error);
+    
     throw error;
   }
 }

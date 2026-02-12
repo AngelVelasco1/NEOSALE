@@ -74,7 +74,7 @@ const defaultTrustMetrics: TrustMetric[] = [
   { value: "--", label: "Clientes que nos califican 5★", helper: "Validando reseñas recientes" },
 ];
 
-export const LoginForm: React.FC = () => {
+export const LoginForm: React.FC = (): React.ReactNode => {
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [trustMetrics, setTrustMetrics] = useState<TrustMetric[]>(defaultTrustMetrics);
@@ -86,9 +86,7 @@ export const LoginForm: React.FC = () => {
   const hasRedirected = useRef(false);
 
   // Check if we already redirected (persists across component mounts)
-  const hasRedirectedSession = typeof window !== 'undefined' ? sessionStorage.getItem('login-redirected') : null;
-
-  console.log("[LoginForm] Rendered. Session:", session, "status:", status, "hasRedirected:", hasRedirected.current, "sessionStorage:", hasRedirectedSession, "pathname:", pathname);
+  const hasRedirectedSession: string | null = typeof window !== 'undefined' ? sessionStorage.getItem('login-redirected') : null;
 
   const form = useForm<loginFormValues>({
     resolver: zodResolver(loginSchema),
@@ -102,42 +100,32 @@ export const LoginForm: React.FC = () => {
   useEffect(() => {
     // CRITICAL: Only run this redirect if we're actually on the login page
     if (pathname !== "/login") {
-      console.log("[LoginForm] Not on /login path, skipping redirect check. Current path:", pathname);
       return;
     }
 
     // Check persistent redirect flag
     if (hasRedirectedSession === 'true') {
-      console.log("[LoginForm] Already redirected (from sessionStorage), skipping");
       return;
     }
     
     if (status === "loading") {
-      console.log("[LoginForm] Session loading, waiting...");
       return;
     }
 
     if (hasRedirected.current) {
-      console.log("[LoginForm] Already redirected (from ref), skipping");
       return;
     }
     
     if (session?.user) {
-      console.log("[LoginForm] ⚠️ User already authenticated ON /login page, redirecting...");
-      console.log("[LoginForm] User role:", session.user.role);
       hasRedirected.current = true;
       sessionStorage.setItem('login-redirected', 'true');
       
       // Redirect based on role
       if (session.user.role === "admin") {
-        console.log("[LoginForm] 🔄 Redirecting existing admin session to /dashboard");
         window.location.href = "/dashboard";
       } else {
-        console.log("[LoginForm] 🔄 Redirecting existing user session to /");
         window.location.href = "/";
       }
-    } else {
-      console.log("[LoginForm] No session yet on /login, showing form");
     }
   }, [session, status, pathname, hasRedirectedSession]);
 
@@ -210,7 +198,7 @@ export const LoginForm: React.FC = () => {
         ]);
       } catch (error) {
         if ((error as Error).name === "AbortError") return;
-        console.error("Failed to load trust metrics", error);
+        
       }
     };
 
@@ -265,7 +253,7 @@ export const LoginForm: React.FC = () => {
               return;
             }
           } catch (err) {
-            console.error("Error checking verification:", err);
+            
           }
 
           ErrorsHandler.showError("Email o contraseña incorrectos", "INVALID_CREDENTIALS");
@@ -290,8 +278,6 @@ export const LoginForm: React.FC = () => {
       }
 
       if (result?.ok) {
-        console.log("[LoginForm] ✅ Login successful, starting redirect...");
-        
         ErrorsHandler.showSuccess(
           "Sesión iniciada correctamente",
           "Bienvenido de vuelta"
@@ -300,10 +286,8 @@ export const LoginForm: React.FC = () => {
         // Mark that we're redirecting to prevent any useEffect from interfering
         hasRedirected.current = true;
         sessionStorage.setItem('login-redirected', 'true');
-        console.log("[LoginForm] Set redirect flags (ref + sessionStorage)");
         
         // Wait for NextAuth to fully establish the session
-        console.log("[LoginForm] Waiting for session to be established...");
         await new Promise(resolve => setTimeout(resolve, 500));
         
         // Fetch fresh session to get role information
@@ -312,23 +296,18 @@ export const LoginForm: React.FC = () => {
         });
         const sessionData = await sessionResponse.json();
         
-        console.log("[LoginForm] Session after login:", sessionData);
-        
         // Additional small delay to ensure cookies are fully written
         await new Promise(resolve => setTimeout(resolve, 200));
         
         // Hard redirect - proxy now validates full session, not just cookies
         if (sessionData?.user?.role === "admin") {
-          console.log("[LoginForm] 🚀 REDIRECTING ADMIN TO /dashboard");
           window.location.href = "/dashboard";
         } else {
-          console.log("[LoginForm] 🚀 REDIRECTING USER TO /");
           window.location.href = "/";
         }
       }
     } catch (error: unknown) {
       ErrorsHandler.showError("Error del servidor", "SERVER_ERROR");
-      console.error(`Error interno del servidor: ${error.message}`);
     } finally {
       setIsLoading(false);
     }

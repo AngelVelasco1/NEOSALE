@@ -32,7 +32,7 @@ export async function deleteStaff(
 
     return { success: true };
   } catch (error) {
-    console.error("Delete failed:", error);
+    
     return { success: false, error: "Something went wrong. Could not delete the staff." };
   }
 }

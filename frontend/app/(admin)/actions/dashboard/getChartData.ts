@@ -116,7 +116,7 @@ const dailyChartDataCache = unstable_cache(
 
       return allDates;
     } catch (error) {
-      console.error("Error fetching daily chart data:", error);
+      
       return [];
     }
   },
@@ -209,7 +209,7 @@ const categorySalesCache = unstable_cache(
 
       return response;
     } catch (error) {
-      console.error("Error fetching category sales data:", error);
+      
       const fallback: CategorySalesResponse = { data: [], totalOrders: 0 };
       return fallback;
     }
@@ -290,7 +290,7 @@ export async function getMonthlySalesData(): Promise<
 
     return formattedData;
   } catch (error) {
-    console.error("Error fetching monthly sales data:", error);
+    
     return [];
   }
 }

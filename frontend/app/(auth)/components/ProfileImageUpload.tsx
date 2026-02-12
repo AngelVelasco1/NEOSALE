@@ -67,7 +67,7 @@ export function ProfileImageUpload({ userId, currentImage, userName, onImageUpda
         setPreviewImage(null)
       }
     } catch (error) {
-      console.error("Error al subir la imagen:", error)
+      
       alert("Error al subir la imagen. Por favor intenta de nuevo.")
       setPreviewImage(null)
     } finally {

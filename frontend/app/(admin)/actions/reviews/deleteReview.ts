@@ -32,7 +32,7 @@ export async function deleteReview(reviewId: number) {
       message: "Reseña eliminada exitosamente",
     };
   } catch (error: any) {
-    console.error("Error:", error);
+    
     throw error;
   }
 }

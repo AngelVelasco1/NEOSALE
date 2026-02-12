@@ -205,7 +205,7 @@ export async function getProducts({
       },
     };
   } catch (error) {
-    console.error("Error fetching products:", error);
+    
     throw new Error("Failed to fetch products");
   }
 }
@@ -269,7 +269,7 @@ export async function getProductById(productId: number) {
 
     return serializedProduct;
   } catch (error) {
-    console.error("Error fetching product:", error);
+    
     throw new Error("Failed to fetch product");
   }
 }

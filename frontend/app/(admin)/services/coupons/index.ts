@@ -128,7 +128,7 @@ export async function fetchCoupons({
       },
     };
   } catch (error) {
-    console.error("Error fetching coupons:", error);
+    
     throw new Error("Failed to fetch coupons");
   }
 }

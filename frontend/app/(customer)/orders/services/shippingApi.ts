@@ -78,7 +78,7 @@ export const getShippingQuote = async (
     const response = await api.get(`/api/shipping/quote/${orderId}`);
     return response.data;
   } catch (error: any) {
-    console.error("Error fetching shipping quote:", error);
+    
     return {
       success: false,
       message: error.response?.data?.message || error.message || "Error al obtener cotización de envío",
@@ -103,7 +103,7 @@ export const createShippingGuide = async (
     });
     return response.data;
   } catch (error: any) {
-    console.error("Error creating shipping guide:", error);
+    
     return {
       success: false,
       error: error.response?.data?.message || error.message || "Error al crear guía de envío",
@@ -121,7 +121,7 @@ export const updateTracking = async (
     const response = await api.post(`/api/shipping/update-tracking/${orderId}`);
     return response.data;
   } catch (error: any) {
-    console.error("Error updating tracking:", error);
+    
     return {
       success: false,
       message: error.response?.data?.message || error.message || "Error al actualizar tracking",
@@ -141,7 +141,7 @@ export const getTrackingInfo = async (
   } catch (error: any) {
     const message = error.response?.data?.message || error.message || "Error al obtener información de tracking";
     
-    console.error("Error fetching tracking info:", error);
+    
     return {
       success: false,
       message: message,
@@ -159,7 +159,7 @@ export const cancelShipping = async (
     const response = await api.post(`/api/shipping/cancel/${orderId}`);
     return response.data;
   } catch (error: any) {
-    console.error("Error canceling shipping:", error);
+    
     return {
       success: false,
       message: error.response?.data?.message || error.message || "Error al cancelar envío",
@@ -180,7 +180,7 @@ export const startTrackingPolling = (
       const data = await getTrackingInfo(orderId);
       onUpdate(data);
     } catch (error) {
-      console.error(`Error en polling de tracking para orden ${orderId}:`, error);
+      
     }
   };
 

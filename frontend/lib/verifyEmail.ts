@@ -19,8 +19,6 @@ export async function sendVerificationEmail({ email, token, name }: SendVerifica
   try {
     // 🚫 Verificar si los emails están desactivados en desarrollo
     if (process.env.DISABLE_EMAILS === 'true') {
-      console.log('📧 [DEV] Email de verificación desactivado. Email:', email);
-      console.log('🔗 [DEV] Token de verificación:', token);
       return { success: true, message: 'Email desactivado en desarrollo. Token: ' + token };
     }
 
@@ -34,7 +32,6 @@ export async function sendVerificationEmail({ email, token, name }: SendVerifica
     
     return response.data;
   } catch (error: any) {
-    console.error('Failed to send verification email:', error);
     throw new Error('Error al enviar correo de verificación');
   }
 }

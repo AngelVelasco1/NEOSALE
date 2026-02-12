@@ -10,7 +10,7 @@ export async function exportCustomers() {
 
     return { data };
   } catch (error) {
-    console.error(`Error fetching customers:`, error);
+    
     return { error: `Failed to fetch data for customers.` };
   }
 }

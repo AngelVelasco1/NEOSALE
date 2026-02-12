@@ -14,7 +14,7 @@ export const registerUser = async (userData: {
 
 export const getUserById = async (userId: number) => {
   const { data } = await api.get(`/api/users/getUser?id=${userId}`);
-  return data.data;
+  return data;
 }
 
 export const updateUser = async (userData: {

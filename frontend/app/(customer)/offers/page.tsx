@@ -129,7 +129,7 @@ const OffersPage = () => {
         const data = await getOffers();
         setOffers(data);
       } catch (error) {
-        console.error("Error fetching offers:", error);
+        
       } finally {
         setLoading(false);
       }

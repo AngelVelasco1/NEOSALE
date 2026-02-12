@@ -65,7 +65,7 @@ export async function exportOrders() {
 
     return { data: serializedData };
   } catch (error) {
-    console.error(`Error fetching orders:`, error);
+    
     return { error: `Failed to fetch data for orders.` };
   }
 }

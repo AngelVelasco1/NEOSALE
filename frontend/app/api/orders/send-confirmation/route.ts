@@ -90,7 +90,7 @@ export async function POST(request: NextRequest) {
         data: emailResult.data,
       });
     } catch (emailError: any) {
-      console.warn('⚠️ Email no pudo ser enviado pero orden fue creada:', emailError.message);
+      
       
       // Email falló pero orden fue creada exitosamente
       return NextResponse.json({
@@ -105,7 +105,7 @@ export async function POST(request: NextRequest) {
       });
     }
   } catch (error: any) {
-    console.error('❌ Error en /api/orders/send-confirmation:', error);
+    
 
     return NextResponse.json(
       {

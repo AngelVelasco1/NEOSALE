@@ -31,7 +31,7 @@ export function EmailVerificationBanner() {
       toast.error('Error al enviar email', {
         description: 'Inténtalo de nuevo más tarde',
       });
-      console.error('Error resending email:', error);
+      
     } finally {
       setIsResending(false);
     }

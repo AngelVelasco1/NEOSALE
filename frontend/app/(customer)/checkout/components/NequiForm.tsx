@@ -140,16 +140,13 @@ export default function NequiForm({
                 throw new Error(response.error || "Error creando transacción Nequi");
             }
 
-            console.log("Transacción Nequi creada con paymentsApi:", {
-                id: response.data.transactionId,
-                status: response.data.status
-            });
+            
 
             // Nequi no redirige automáticamente, solo confirma la transacción
             onSuccess(response.data.transactionId);
 
         } catch (error) {
-            console.error("❌ Error en pago Nequi:", error);
+            
             setError(error instanceof Error ? error.message : "Error procesando pago Nequi");
             onError(error instanceof Error ? error : new Error("Error procesando pago Nequi"));
         } finally {

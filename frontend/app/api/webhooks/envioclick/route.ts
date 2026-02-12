@@ -15,7 +15,7 @@ export async function POST(request: Request) {
   try {
     const webhookData = await request.json();
     
-    console.log("📦 Webhook recibido en frontend:", webhookData);
+    
 
     // El webhook ya está siendo procesado por el backend
     // Este es solo un ejemplo si necesitas procesar algo adicional
@@ -28,7 +28,7 @@ export async function POST(request: Request) {
       timestamp: new Date().toISOString(),
     });
   } catch (error) {
-    console.error("Error procesando webhook en frontend:", error);
+    
     
     // Siempre devolver 200 para que EnvioClick no reintente
     return Response.json({

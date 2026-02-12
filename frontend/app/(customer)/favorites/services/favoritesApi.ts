@@ -51,7 +51,7 @@ export const getUserFavoritesApi = async (userId: number): Promise<Favorite[]> =
     const { data } = await api.get(`/api/users/getUserFavorites/${userId}`);
     return data;
   } catch (error: any) {
-    console.error('Error in getUserFavoritesApi:', error);
+    
     throw error;
   }
 };

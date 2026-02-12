@@ -41,7 +41,7 @@ export async function GET(request: Request) {
     const data = await response.json();
     return NextResponse.json(data);
   } catch (error) {
-    console.error("[api/search] Error while querying", error);
+    
     return NextResponse.json(
       {
         success: false,

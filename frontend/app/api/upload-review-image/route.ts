@@ -39,7 +39,7 @@ export async function POST(request: NextRequest) {
       success: true,
     });
   } catch (error: any) {
-    console.error("Error uploading review image:", error);
+    
     return NextResponse.json(
       { error: error.message || "Error al subir la imagen" },
       { status: 500 }

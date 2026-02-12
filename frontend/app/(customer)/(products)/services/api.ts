@@ -28,7 +28,7 @@ export const getLatestProducts = async () => {
     // Fallback: retorna array vacío
     return [];
   } catch (error) {
-    console.error("Error fetching latest products:", error);
+    
     return [];
   }
 };

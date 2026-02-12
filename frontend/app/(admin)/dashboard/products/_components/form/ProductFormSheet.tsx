@@ -168,8 +168,6 @@ export default function ProductFormSheet({
   }, [form]);
 
   const onSubmit = (data: ProductFormData) => {
-    console.log("[CLIENT] Form submitted, validating...");
-
     // Validar que haya al menos un color
     if (colors.length === 0) {
       toast.error("Debes agregar al menos un color");
@@ -214,13 +212,7 @@ export default function ProductFormSheet({
       try {
         const result = await action(formData);
 
-        console.log("[CLIENT] Server response:", result);
-
         if ("validationErrors" in result) {
-          console.log(
-            "[CLIENT] Validation errors from server:",
-            result.validationErrors
-          );
           Object.keys(result.validationErrors).forEach((key) => {
             form.setError(key as keyof ProductFormData, {
               message: result.validationErrors![key],
@@ -233,10 +225,8 @@ export default function ProductFormSheet({
 
           toast.error("Por favor corrige los errores en el formulario");
         } else if ("dbError" in result) {
-          console.log("[CLIENT] Database error:", result.dbError);
           toast.error(result.dbError);
         } else {
-          console.log("[CLIENT] Success! Product created:", result.product);
           form.reset({
             name: "",
             description: "",
@@ -264,7 +254,7 @@ export default function ProductFormSheet({
           setIsSheetOpen(false);
         }
       } catch (error) {
-        console.error("Error submitting form:", error);
+        
         toast.error("Error al crear el producto. Por favor intenta de nuevo.");
       }
     });

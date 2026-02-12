@@ -91,7 +91,7 @@ export const createOrderApi = async (
 
     return data.data;
   } catch (error: unknown) {
-    console.error("Error creating order:", error);
+    
 
     if (error && typeof error === "object" && "response" in error) {
       const apiError = error as {
@@ -144,10 +144,7 @@ export const getUserOrdersApi = async (): Promise<Order[]> => {
         errorData?.message ||
         `Error ${response.status}: ${response.statusText}`;
 
-      console.error("❌ Error obteniendo órdenes:", {
-        status: response.status,
-        message: errorMessage,
-      });
+      
 
       throw new Error(errorMessage);
     }
@@ -160,7 +157,7 @@ export const getUserOrdersApi = async (): Promise<Order[]> => {
 
     return result.data || [];
   } catch (error) {
-    console.error("❌ Error en getUserOrdersApi:", error);
+    
     throw error;
   }
 };
@@ -201,11 +198,7 @@ export const getOrderByIdApi = async (orderId: number): Promise<Order> => {
         errorData?.message ||
         `Error ${response.status}: ${response.statusText}`;
 
-      console.error("❌ Error obteniendo orden:", {
-        orderId,
-        status: response.status,
-        message: errorMessage,
-      });
+      
 
       throw new Error(errorMessage);
     }
@@ -218,7 +211,7 @@ export const getOrderByIdApi = async (orderId: number): Promise<Order> => {
 
     return result.data;
   } catch (error) {
-    console.error("❌ Error en getOrderByIdApi:", error);
+    
     throw error;
   }
 };

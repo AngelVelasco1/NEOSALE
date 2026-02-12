@@ -134,7 +134,7 @@ export const WompiCardForm: React.FC<WompiCardFormProps> = ({
           throw new Error(result.error || "Error obteniendo configuración")
         }
       } catch (error) {
-        console.error("Error cargando configuración de Wompi:", error)
+        
         ErrorsHandler.showError("Error de configuración", "No se pudo cargar la configuración de pagos")
       } finally {
         setConfigLoading(false)
@@ -224,11 +224,7 @@ export const WompiCardForm: React.FC<WompiCardFormProps> = ({
       )
 
       if (result.success && result.data) {
-        console.log("Transacción creada exitosamente:", {
-          transactionId: result.data.transactionId,
-          status: result.data.status,
-          reference: result.data.reference,
-        })
+        
 
         try {
           await new Promise((resolve) => setTimeout(resolve, 3000))
@@ -236,11 +232,7 @@ export const WompiCardForm: React.FC<WompiCardFormProps> = ({
           const transactionStatus = await getWompiTransactionStatusApi(result.data.transactionId)
 
           if (transactionStatus.success && transactionStatus.data) {
-            console.log("Estado real de la transacción:", {
-              transactionId: result.data.transactionId,
-              realStatus: transactionStatus.data.status,
-              amount: transactionStatus.data.amount_in_cents,
-            })
+            
 
             try {
               const updateResponse = await fetch(`/api/payments/update-status`, {
@@ -254,10 +246,10 @@ export const WompiCardForm: React.FC<WompiCardFormProps> = ({
               })
 
               if (updateResponse.ok) {
-                console.log("Estado de transacción actualizado en BD")
+                
               }
             } catch (updateError) {
-              console.warn("⚠️ Error actualizando estado en BD:", updateError)
+              
             }
 
             if (transactionStatus.data.status === "DECLINED" || transactionStatus.data.status === "ERROR") {
@@ -267,18 +259,18 @@ export const WompiCardForm: React.FC<WompiCardFormProps> = ({
               onSuccess(result.data.transactionId);
             }
           } else {
-            console.warn("⚠️ No se pudo consultar el estado real, redirigiendo con estado inicial")
+            
             window.location.href = `/checkout/success?transaction_id=${result.data.transactionId}`
           }
         } catch (statusError) {
-          console.warn("⚠️ Error consultando estado real:", statusError)
+          
           window.location.href = `/checkout/success?transaction_id=${result.data.transactionId}`
         }
       } else {
         throw new Error(result.error || "Error creando transacción")
       }
     } catch (error) {
-      console.error("❌ Error procesando pago:", error)
+      
 
       const errorMessage = error instanceof Error ? error.message : "Error desconocido procesando el pago"
 

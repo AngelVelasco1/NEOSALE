@@ -84,7 +84,7 @@ export default function PaymentResponsePage() {
 
       setTransactionData(result.data);
     } catch (err) {
-      console.error("Error consultando estado de transacción:", err);
+      
       setError(err instanceof Error ? err.message : "Error desconocido");
     } finally {
       setLoading(false);

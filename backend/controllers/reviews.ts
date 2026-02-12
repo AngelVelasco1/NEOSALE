@@ -42,15 +42,12 @@ export const getReviewById = async (
     const id = Number(req.params.id);
 
     if (!id || isNaN(id)) {
-      console.error('Invalid ID received:', req.params.id);
       return res.status(400).json({ error: "Invalid review ID" });
     }
 
     const review = await getReviewByIdService(id);
-    console.log('Review found:', review.id);
     res.status(200).json(review);
   } catch (err) {
-    console.error('Error in getReviewById:', err);
     next(err);
   }
 };
@@ -89,7 +86,6 @@ export const createReview = async (
     const review = await createReviewService(reviewData);
     res.status(201).json(review);
   } catch (err) {
-    console.error('❌ Error in createReview controller:', err);
     next(err);
   }
 };

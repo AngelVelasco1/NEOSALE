@@ -43,7 +43,7 @@ export async function getStaff({
 
     return await response.json();
   } catch (error) {
-    console.error("Error fetching staff:", error);
+    
     throw new Error("Failed to fetch staff");
   }
 }
@@ -58,7 +58,7 @@ export async function getStaffRolesDropdown() {
 
     return roles;
   } catch (error) {
-    console.error("Error fetching staff roles:", error);
+    
     throw new Error("Failed to fetch staff roles");
   }
 }
@@ -86,7 +86,7 @@ export async function getStaffDetails(userId: number) {
 
     return await response.json();
   } catch (error) {
-    console.error("Error fetching staff details:", error);
+    
     throw new Error("Failed to fetch staff details");
   }
 }

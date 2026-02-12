@@ -36,7 +36,7 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
       const stored = localStorage.getItem("cart");
       return stored ? JSON.parse(stored) : [];
     } catch (error) {
-      console.error("Error charging local cart:", error);
+      
       return [];
     }
   };
@@ -46,7 +46,7 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
     try {
       localStorage.setItem("cart", JSON.stringify(cart));
     } catch (error) {
-      console.error("Error saving local cart:", error);
+      
     }
   };
 
@@ -83,31 +83,27 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
           });
           successfulProducts.push(product.id);
         } catch (productError) {
-          console.error(
-            `Error sincronizando producto ${product.id}:`,
-            productError
-          );
+          
           failedProducts.push(product.id);
         }
       }
 
       if (failedProducts.length === 0) {
         clearLocalCart();
-        console.log("Carrito sincronizado exitosamente desde localStorage");
       } else if (successfulProducts.length > 0) {
 
         ErrorsHandler.showInfo(
           `${failedProducts.length} producto(s) no se pudo(ieron) sincronizar. Se intentará de nuevo.`
         );
       } else {
-        console.error("Sincronización completa fallida, manteniendo datos locales");
+        
         ErrorsHandler.showError(
           "Error de sincronización",
           "No pudimos sincronizar el carrito. Los datos se mantendrán y se intentará de nuevo."
         );
       }
     } catch (error) {
-      console.error("Error general en sincronización:", error);
+      
     }
   };
 
@@ -145,12 +141,12 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
       
       setCartProducts(Array.isArray(serverCart) ? serverCart : []);
     } catch (error) {
-      console.error("[CART] Error loading cart:", error);
+      
       
       // ✅ NUEVO: Fallback a localStorage en lugar de mostrar error
       const localCart = getLocalCart();
       if (localCart.length > 0) {
-        console.warn("[CART] Usando carrito local como fallback");
+        
         setCartProducts(Array.isArray(localCart) ? localCart : []);
         ErrorsHandler.showInfo(
           "Usando carrito guardado localmente. Se sincronizará cuando se restablezca la conexión."
@@ -237,7 +233,7 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
           });
         }
       } catch (error) {
-        console.error("Error adding product to cart:", error);
+        
         showError("Error", "No pudimos agregar el producto al carrito");
       }
     }, [userProfile]); 
@@ -292,7 +288,7 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
           setLocalCart(updatedCart);
         }
       } catch (error) {
-        console.error("Error updating quantity:", error);
+        
         showError("Error", "No pudimos actualizar la cantidad del producto");
       }
     }, [userProfile, cartProducts]); // ✅ Dependencias necesarias
@@ -331,7 +327,7 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
           setLocalCart(updatedCart);
         }
       } catch (error) {
-        console.error("Error removing product:", error);
+        
         showError("Error", "No pudimos eliminar el producto del carrito");
       }
     }, [userProfile, cartProducts]); // ✅ Dependencias necesarias
@@ -356,7 +352,7 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
       setCartProducts([]);
       clearLocalCart();
     } catch (error) {
-      console.error("Error clearing cart:", error);
+      
       ErrorsHandler.showError("Error:", "No se pudo limpiar el carrito");
     }
   }, [userProfile]);

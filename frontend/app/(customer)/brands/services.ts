@@ -37,7 +37,7 @@ export async function getAllBrands(): Promise<Brand[]> {
     const data = await response.json();
     return data.data || [];
   } catch (error) {
-    console.error("Error fetching brands:", error);
+    
     throw new Error("Failed to fetch brands");
   }
 }
@@ -56,7 +56,7 @@ export async function getBrandById(id: number): Promise<BrandWithProducts | null
     const data = await response.json();
     return data.data || null;
   } catch (error) {
-    console.error("Error fetching brand:", error);
+    
     throw new Error("Failed to fetch brand");
   }
 }
@@ -81,7 +81,7 @@ export async function getBrandBySlug(slug: string): Promise<BrandWithProducts | 
     const data = await response.json();
     return data.data || null;
   } catch (error) {
-    console.error("Error fetching brand by slug:", error);
+    
     throw new Error("Failed to fetch brand");
   }
 }

@@ -20,7 +20,7 @@ export const useCategories = () => {
         const categoriesWithIcons = mapCategoriesWithIcons(fetchedCategories);
         setCategories(categoriesWithIcons);
       } catch (err) {
-        console.error("Error al cargar categorías:", err);
+        
         setError("Error al cargar las categorías");
         // Mantener array vacío para que no rompa la UI
         setCategories([]);
@@ -45,7 +45,7 @@ export const useCategories = () => {
           const categoriesWithIcons = mapCategoriesWithIcons(fetchedCategories);
           setCategories(categoriesWithIcons);
         } catch (err) {
-          console.error("Error al cargar categorías:", err);
+          
           setError("Error al cargar las categorías");
           setCategories([]);
         } finally {

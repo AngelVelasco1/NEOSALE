@@ -138,7 +138,7 @@ export default function CheckoutPage() {
         setSelectedAddress(null);
       }
     } catch (err) {
-      console.error("Error loading checkout data:", err);
+      
       const errorMessage =
         err instanceof Error
           ? err.message
@@ -208,7 +208,7 @@ export default function CheckoutPage() {
             country: selectedAddress.country || 'Colombia',
           },
         }).catch((err) => {
-          console.warn('Email de confirmación no enviado:', err);
+          
         });
 
         setCurrentStep(3);
@@ -222,7 +222,7 @@ export default function CheckoutPage() {
           router.push(`/orders/${order.order_id || order.id}`);
         }, 3000);
       } catch (error) {
-        console.error("Error creating order:", error);
+        
         const errorMessage =
           error instanceof Error
             ? error.message
@@ -246,7 +246,7 @@ export default function CheckoutPage() {
   );
 
   const handlePaymentError = useCallback((error: Error) => {
-    console.error("Payment error:", error);
+    
     ErrorsHandler.showError(
       "Error de pago",
       "Hubo un problema procesando tu pago. Por favor intenta nuevamente."
@@ -261,7 +261,7 @@ export default function CheckoutPage() {
         setSelectedAddress(newAddress);
         ErrorsHandler.showSuccess("Éxito", "Dirección creada exitosamente");
       } catch (error) {
-        console.error("Error creating address:", error);
+        
         const errorMessage =
           error instanceof Error
             ? error.message

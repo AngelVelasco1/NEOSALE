@@ -56,7 +56,7 @@ export async function getStoreSettings() {
       data: data.data || data,
     };
   } catch (error) {
-    console.error("Error fetching store settings:", error);
+    
     return {
       success: false,
       error: "Error al obtener la configuración de la tienda",
@@ -98,7 +98,7 @@ export async function updateStoreSettings(formData: StoreSettingsInput) {
       message: "Configuración guardada exitosamente",
     };
   } catch (error) {
-    console.error("Error updating store settings:", error);
+    
 
     if (error instanceof z.ZodError) {
       return {

@@ -87,11 +87,11 @@ export const createAddressApi = async (
       dataWithUserId
     );
 
-    console.log("Respuesta del servidor:", data);
+    
     return data;
   } catch (error: any) {
-    console.error("❌ Error en createAddress:", error);
-    console.error("❌ Error response:", error.response?.data);
+    
+    
 
     return {
       success: false,
@@ -123,8 +123,8 @@ export const updateAddress = async (
 
     return data;
   } catch (error: any) {
-    console.error("❌ Error en updateAddress:", error);
-    console.error("❌ Error response:", error.response?.data);
+    
+    
 
     return {
       success: false,

@@ -61,7 +61,7 @@ export function CreateShippingGuide({
         toast.error(response.error || "Error al crear guía");
       }
     } catch (error) {
-      console.error("Error:", error);
+      
       toast.error("Error al crear guía de envío");
     } finally {
       setLoading(false);

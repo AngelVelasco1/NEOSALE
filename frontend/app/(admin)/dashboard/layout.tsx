@@ -6,7 +6,6 @@ import dynamic from "next/dynamic";
 import Container from "@/app/(admin)/components/ui/container";
 import { cn } from "@/lib/utils";
 import { RoleGuard } from "./components/RoleGuard";
-import { SessionDebugger } from "./components/SessionDebugger";
 
 const Header = dynamic(
   () => import("@/app/(admin)/components/shared/header"),
@@ -67,7 +66,6 @@ function LayoutProvider({ children, defaultOpen = true }: LayoutProviderProps) {
 
   return (
     <div className="flex min-h-screen bg-slate-900">
-      <SessionDebugger />
       <RoleGuard allowedRoles={["admin"]}>
         {/* Overlay for mobile */}
         {isMobile && sidebarOpen && (

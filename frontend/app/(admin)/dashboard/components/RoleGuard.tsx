@@ -15,22 +15,22 @@ export function RoleGuard({ children, allowedRoles }: RoleGuardProps) {
   const hasChecked = useRef(false);
   
   useEffect(() => {
-    console.log(`[RoleGuard] status: ${status}, session:`, session, `hasChecked: ${hasChecked.current}`);
     
     // Clear the login redirect flag since we're now on dashboard
     if (typeof window !== 'undefined') {
-      sessionStorage.removeItem('login-redirected');
+      const hadFlag = sessionStorage.getItem('login-redirected');
+      if (hadFlag) {
+        sessionStorage.removeItem('login-redirected');
+      }
     }
     
     // Only check role once session is loaded
     if (status === "loading") {
-      console.log("[RoleGuard] Status loading, waiting...");
       return;
     }
     
     // Prevent multiple redirects
     if (hasChecked.current) {
-      console.log("[RoleGuard] Already checked, skipping");
       return;
     }
     
@@ -43,7 +43,6 @@ export function RoleGuard({ children, allowedRoles }: RoleGuardProps) {
     // it means session is still loading or there's a brief race condition
     // Just wait for session to load properly
     if (status === "unauthenticated") {
-      console.log("[RoleGuard] Status unauthenticated (likely race condition), waiting for session to load...");
       // Don't mark as checked - let it retry
       return;
     }
@@ -51,17 +50,29 @@ export function RoleGuard({ children, allowedRoles }: RoleGuardProps) {
     // If user exists, check if they have the required role
     if (session?.user) {
       const userRole = session.user.role;
+      
       if (!allowedRoles.includes(userRole)) {
         hasChecked.current = true;
-        console.log(`[RoleGuard] User role '${userRole}' not in allowed roles [${allowedRoles.join(', ')}], redirecting to /`);
         router.replace("/");
       } else {
         hasChecked.current = true;
-        console.log(`[RoleGuard] Access granted ✅ (role: ${userRole})`);
       }
     }
   }, [session, status, router, allowedRoles]);
   
-  // Show content immediately (middleware already checked auth)
+  // Show loading while checking authentication
+  // This prevents flash of content before redirect
+  if (status === "loading") {
+    return (
+      <div className="flex min-h-screen items-center justify-center bg-slate-900">
+        <div className="text-center">
+          <div className="w-16 h-16 border-4 border-indigo-500 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+          <p className="text-slate-400">Verificando acceso...</p>
+        </div>
+      </div>
+    );
+  }
+  
+  // Show content immediately after authentication is confirmed
   return <>{children}</>;
 }

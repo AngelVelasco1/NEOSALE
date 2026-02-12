@@ -7,6 +7,11 @@ import {
 } from "../types/users";
 import { roles_enum } from "@prisma/client";
 import { ValidationError } from "../errors/errorsClass";
+import { 
+  validateRegisterInput, 
+  validateUpdateUserInput,
+  sanitizeHTML 
+} from "../lib/security";
 
 export const registerUserService = async ({
   name,
@@ -21,11 +26,28 @@ export const registerUserService = async ({
     throw new ValidationError("Nombre, email y contraseña son obligatorios");
   }
 
+  // Validar inputs para prevenir SQL injection y XSS
+  const validation = validateRegisterInput({
+    name,
+    email,
+    password,
+    phone_number: phone_number || undefined,
+    identification: identification || undefined,
+  });
+
+  if (!validation.isValid) {
+    throw new ValidationError(validation.errors.join(', '));
+  }
+
+  // Sanitizar nombre (remover cualquier HTML si lo hubiera)
+  const safeName = sanitizeHTML(name.trim());
+  const safeEmail = email.trim().toLowerCase();
+
   const hashedPassword = await bcrypt.hash(password, 12);
   await prisma.$executeRaw`
       CALL sp_create_user(
-        ${name}, 
-        ${email}, 
+        ${safeName}, 
+        ${safeEmail}, 
         ${email_verified ?? null}, 
         ${hashedPassword}, 
         ${phone_number ?? null}, 
@@ -33,7 +55,7 @@ export const registerUserService = async ({
         ${(role as roles_enum) ?? "user"})`;
 
   const newUser = await prisma.user.findUnique({
-    where: { email },
+    where: { email: safeEmail },
     select: {
       id: true,
       name: true,
@@ -261,8 +283,24 @@ export const updateUserService = async ({
   identification,
 }: updateUserParams) => {
   if (!id || !name || !email) {
-    throw new Error("Campos Obligatorios requeridos");
+    throw new ValidationError("Campos Obligatorios requeridos");
   }
+
+  // Validar inputs para prevenir SQL injection y XSS
+  const validation = validateUpdateUserInput({
+    name,
+    email,
+    phone_number: phone_number || undefined,
+    identification: identification || undefined,
+  });
+
+  if (!validation.isValid) {
+    throw new ValidationError(validation.errors.join(', '));
+  }
+
+  // Sanitizar inputs
+  const safeName = sanitizeHTML(name.trim());
+  const safeEmail = email.trim().toLowerCase();
 
   const idAsInt = Number(id);
   const nullIdentification =
@@ -276,8 +314,8 @@ export const updateUserService = async ({
 
   await prisma.$executeRaw` CALL sp_update_user(
     ${idAsInt}::int, 
-    ${name}::text, 
-    ${email}::text, 
+    ${safeName}::text, 
+    ${safeEmail}::text, 
     ${emailVerifiedString}::timestamp, 
     ${phone_number ?? null}::text, 
     ${nullIdentification}::text

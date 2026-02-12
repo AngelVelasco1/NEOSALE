@@ -22,7 +22,7 @@ export default function CouponPromo({ onCouponSelect }: CouponPromoProps) {
                 const activeCoupons = await getActiveCoupons();
                 setCoupons(activeCoupons.slice(0, 3));
             } catch (error) {
-                console.error("Error loading coupons:", error);
+                
             } finally {
                 setLoading(false);
             }

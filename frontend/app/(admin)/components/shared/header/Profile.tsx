@@ -12,7 +12,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Settings, LayoutGrid, ChevronDown, Store } from "lucide-react";
+import { Settings, ChevronDown, Store } from "lucide-react";
 import { useUserSafe } from "@/app/(auth)/hooks/useUserSafe";
 import { SignOut } from "@/app/(auth)/components/SingOut";
 

@@ -34,7 +34,7 @@ export async function toggleReviewStatus(reviewId: number, active: boolean) {
       message: "Reseña actualizada exitosamente",
     };
   } catch (error: any) {
-    console.error("Error:", error);
+    
     throw error;
   }
 }

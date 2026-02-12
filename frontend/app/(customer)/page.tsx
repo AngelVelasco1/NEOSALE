@@ -41,7 +41,7 @@ export default function Home() {
         const safeProducts = Array.isArray(data) ? data : [];
         setProducts(safeProducts);
       } catch (error) {
-        console.error("Error:", error);
+        
         setProducts([]);
       } finally {
         setLoading(false);

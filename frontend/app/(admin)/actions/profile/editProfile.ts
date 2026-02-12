@@ -72,13 +72,13 @@ export async function editProfile(
             await deleteImageFromCloudinary(currentUser.image);
           } catch (deleteError) {
             // Log pero no fallar si no se puede eliminar la imagen anterior
-            console.warn("Failed to delete old image:", deleteError);
+            
           }
         }
 
         imageUrl = newImageUrl;
       } catch (uploadError) {
-        console.error("Image upload failed:", uploadError);
+        
         return {
           success: false,
           error:
@@ -146,7 +146,7 @@ export async function editProfile(
     }
 
     // Error genérico
-    console.error("Database update failed:", error);
+    
     return {
       success: false,
       error:

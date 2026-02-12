@@ -101,7 +101,7 @@ export async function uploadImageToCloudinary(
         },
         (error, result) => {
           if (error) {
-            console.error("Cloudinary upload error:", error);
+            
             reject(new Error("Failed to upload image to Cloudinary"));
           } else if (result) {
             resolve(result.secure_url);
@@ -114,7 +114,7 @@ export async function uploadImageToCloudinary(
       uploadStream.end(buffer);
     });
   } catch (error) {
-    console.error("Error processing image:", error);
+    
     throw new Error("Failed to process image for upload");
   }
 }
@@ -138,7 +138,7 @@ export async function deleteImageFromCloudinary(
     const result = await cloudinary.uploader.destroy(fullPublicId);
     return result.result === "ok";
   } catch (error) {
-    console.error("Error deleting image from Cloudinary:", error);
+    
     return false;
   }
 }

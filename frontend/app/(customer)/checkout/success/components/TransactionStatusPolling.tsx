@@ -49,7 +49,7 @@ export default function TransactionStatusPolling({
       );
 
     if (!shouldPoll) {
-      console.log("Polling detenido - estado final:", currentStatus);
+      
       return;
     }
 
@@ -57,9 +57,7 @@ export default function TransactionStatusPolling({
       intervalRef.current = setInterval(async () => {
         try {
           pollingCountRef.current += 1;
-          console.log(
-            `Polling attempt ${pollingCountRef.current}/${maxPollingAttempts}`
-          );
+          
 
           // Verificar si hemos excedido el máximo de intentos
           if (pollingCountRef.current > maxPollingAttempts) {
@@ -75,11 +73,11 @@ export default function TransactionStatusPolling({
 
           if (result.success && result.data) {
             const newStatus = result.data.status;
-            console.log("Estado obtenido del polling:", newStatus);
+            
 
             // Si el estado cambió, notificar y detener polling para estados finales
             if (newStatus !== currentStatus) {
-              console.log("Estado cambió de", currentStatus, "a", newStatus);
+              
               onStatusUpdate(newStatus, result.data);
 
               // Detener polling si llegamos a un estado final
@@ -91,10 +89,7 @@ export default function TransactionStatusPolling({
                 "VOIDED",
               ];
               if (finalStates.includes(newStatus.toUpperCase())) {
-                console.log(
-                  "Estado final alcanzado, deteniendo polling:",
-                  newStatus
-                );
+                
                 if (intervalRef.current) {
                   clearInterval(intervalRef.current);
                   intervalRef.current = null;
@@ -102,10 +97,10 @@ export default function TransactionStatusPolling({
               }
             }
           } else {
-            console.warn("⚠️ Error en polling o respuesta vacía:", result);
+            
           }
         } catch (error) {
-          console.error("❌ Error durante polling:", error);
+          
           // Continuar con el polling a pesar del error
         }
       }, pollingInterval);

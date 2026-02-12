@@ -44,7 +44,7 @@ export function NotificationBell({ staffId }: NotificationBellProps) {
       setNotifications(notifs);
       setUnreadCount(count);
     } catch (error) {
-      console.error("Error loading notifications:", error);
+      
     } finally {
       setIsLoading(false);
     }

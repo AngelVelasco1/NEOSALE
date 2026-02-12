@@ -51,20 +51,15 @@ export async function addProduct(
     color_code: formData.get("color_code"),
   };
 
-  console.log("[SERVER] Received formData:", formDataObject);
-
   const parsedData = productFormSchema.safeParse(formDataObject);
 
   if (!parsedData.success) {
-    console.log("[SERVER] Validation failed:", parsedData.error.flatten().fieldErrors);
     return {
       validationErrors: formatValidationErrors(
         parsedData.error.flatten().fieldErrors
       ),
     };
   }
-
-  console.log("[SERVER] Validation passed!");
 
   const { image, ...productData } = parsedData.data;
 
@@ -76,14 +71,12 @@ export async function addProduct(
     try {
       if (colorsData) {
         colors = JSON.parse(colorsData as string);
-        console.log("[SERVER] Parsed colors:", colors);
       }
     } catch (error) {
-      console.error("[SERVER] Error parsing colors:", error);
+      
     }
 
     if (colors.length === 0) {
-      console.log("[SERVER] No colors provided");
       return {
         validationErrors: {
           color: "Debes agregar al menos un color",
@@ -92,7 +85,6 @@ export async function addProduct(
     }
 
     const sizesArray = productData.sizes.split(",").map(s => s.trim()).filter(Boolean);
-    console.log("[SERVER] Parsed sizes:", sizesArray);
 
     // Parsear variantStock
     const variantStockData = formData.get("variantStock");
@@ -101,11 +93,9 @@ export async function addProduct(
     try {
       if (variantStockData) {
         variantStock = JSON.parse(variantStockData as string);
-        console.log("[SERVER] Parsed variantStock:", variantStock);
-        console.log("[SERVER] Stock keys available:", Object.keys(variantStock));
       }
     } catch (error) {
-      console.error("[SERVER] Error parsing variantStock:", error);
+      
     }
 
     // Recopilar todas las imágenes por color
@@ -118,7 +108,7 @@ export async function addProduct(
         colorImagesData = JSON.parse(colorImagesInfo as string);
       }
     } catch (error) {
-      console.error("Error parsing colorImages:", error);
+      
     }
     
     // Buscar todas las imágenes en el FormData
@@ -137,11 +127,8 @@ export async function addProduct(
       }
     });
 
-    console.log("[SERVER] Collected", allColorImages.length, "images");
-
     // Validar que al menos haya una imagen
     if (allColorImages.length === 0) {
-      console.log("[SERVER] No images found");
       return {
         validationErrors: {
           image: "Debes subir al menos una imagen",
@@ -150,7 +137,6 @@ export async function addProduct(
     }
 
     // Subir todas las imágenes a Cloudinary ANTES de la transacción
-    console.log("[SERVER] Uploading", allColorImages.length, "images to Cloudinary...");
     const uploadedImages: { url: string; colorCode: string; colorName: string; isPrimary: boolean }[] = [];
     
     for (const img of allColorImages) {
@@ -163,22 +149,18 @@ export async function addProduct(
           colorName: colorInfo?.name || "Unknown",
           isPrimary: img.isPrimary
         });
-        console.log(`[SERVER] ✓ Uploaded image for ${colorInfo?.name}: ${imageUrl}`);
       } catch (error) {
-        console.error(`[SERVER] ✗ Failed to upload image for color ${img.colorCode}:`, error);
+        
       }
     }
 
     // Si no se subió ninguna imagen, retornar error
     if (uploadedImages.length === 0) {
-      console.log("[SERVER] All image uploads failed");
       return {
         success: false,
         error: "Error al subir las imágenes a Cloudinary",
       };
     }
-
-    console.log("[SERVER] Successfully uploaded", uploadedImages.length, "of", allColorImages.length, "images");
 
     // Asegurar que cada color tenga al menos una imagen primaria
     colors.forEach(color => {
@@ -189,12 +171,8 @@ export async function addProduct(
       }
     });
 
-    console.log("[SERVER] Images uploaded successfully, starting database transaction...");
-
     // Crear el producto con sus variantes e imágenes en una transacción
     const newProduct = await prisma.$transaction(async (tx) => {
-      console.log("[SERVER] Creating base product...");
-      
       // Crear el producto base
       const product = await tx.products.create({
         data: {
@@ -214,8 +192,6 @@ export async function addProduct(
         },
       });
 
-      console.log("[SERVER] Base product created with ID:", product.id);
-
       // Crear variantes para cada combinación de color + tamaño
       let totalStock = 0;
       let variantCount = 0;
@@ -230,8 +206,6 @@ export async function addProduct(
           const variantKey = `${size}-${color.code}`;
           const stock = variantStock[variantKey] || 0;
           totalStock += stock;
-
-          console.log(`[SERVER] Creating variant ${variantCount + 1}: ${color.name} - ${size} (stock: ${stock})`);
 
           const variant = await tx.product_variants.create({
             data: {
@@ -273,15 +247,11 @@ export async function addProduct(
         }
       }
 
-      console.log(`[SERVER] Created ${variantCount} variants with total stock: ${totalStock}`);
-
       // Actualizar el stock total del producto
       await tx.products.update({
         where: { id: product.id },
         data: { stock: totalStock },
       });
-
-      console.log("[SERVER] Transaction completed successfully!");
 
       // Retornar el producto con sus relaciones
       return await tx.products.findUnique({
@@ -353,7 +323,7 @@ export async function addProduct(
       }
     }
 
-    console.error("Database insert failed:", error);
+    
     return { success: false, error: "Something went wrong. Please try again later." };
   }
 }

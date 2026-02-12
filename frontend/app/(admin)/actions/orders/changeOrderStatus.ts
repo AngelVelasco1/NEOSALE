@@ -42,7 +42,7 @@ export async function changeOrderStatus(
 
     return { success: true };
   } catch (error) {
-    console.error("Error al actualizar estado de orden:", error);
+    
     return { 
       success: false,
       error: "No se pudo actualizar el estado de la orden. Por favor, inténtalo de nuevo." 

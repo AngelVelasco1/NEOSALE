@@ -59,7 +59,7 @@ export default function OrdersPage() {
         const userOrders = await getUserOrdersApi();
         setOrders(userOrders);
       } catch (err) {
-        console.error("Error loading orders:", err);
+        
         const errorMessage =
           err instanceof Error ? err.message : "Error al cargar las órdenes";
         setError(errorMessage);

@@ -33,7 +33,7 @@ export async function editProduct(
 
     return { success: true, product: updatedProduct };
   } catch (error) {
-    console.error("Database update failed:", error);
+    
     return { success: false, error: "Something went wrong. Please try again later." };
   }
 }

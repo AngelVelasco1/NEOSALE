@@ -24,7 +24,7 @@ export async function deleteCoupons(
 
     return { success: true };
   } catch (error) {
-    console.error("Database bulk delete failed:", error);
+    
     return { success: false, error: "Something went wrong. Could not delete the coupons." };
   }
 }

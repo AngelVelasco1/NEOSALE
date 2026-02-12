@@ -179,7 +179,7 @@ export default function StoreSettingsPage() {
         toast.error(result.error || "Error al cargar la configuración");
       }
     } catch (error) {
-      console.error("Error fetching settings:", error);
+      
       toast.error("Error al cargar la configuración");
     } finally {
       setFetching(false);
@@ -223,11 +223,11 @@ export default function StoreSettingsPage() {
           toast.error(result.error || "Error al guardar la configuración");
           
           if (result.details) {
-            console.error("Validation errors:", result.details);
+            
           }
         }
       } catch (error) {
-        console.error("Error saving settings:", error);
+        
         toast.error("Error al guardar la configuración");
       }
     });

@@ -84,7 +84,7 @@ export default function WompiPSEForm({
 
                 setFinancialInstitutions(response.data);
             } catch (error) {
-                console.error("Error cargando instituciones financieras:", error);
+                
                 setError(error instanceof Error ? error.message : "Error desconocido");
                 onError(error instanceof Error ? error : new Error("Error cargando bancos PSE"));
             } finally {
@@ -210,10 +210,7 @@ export default function WompiPSEForm({
                 throw new Error(response.error || "Error creando transacción PSE");
             }
 
-            console.log("Transacción PSE creada con paymentsApi:", {
-                id: response.data.transactionId,
-                payment_link: response.data.payment_link
-            });
+            
 
             if (response.data.payment_link) {
                 // Llamar onSuccess para crear la orden antes de redirigir
@@ -224,7 +221,7 @@ export default function WompiPSEForm({
             }
 
         } catch (error) {
-            console.error("❌ Error en pago PSE:", error);
+            
             setError(error instanceof Error ? error.message : "Error procesando pago PSE");
             onError(error instanceof Error ? error : new Error("Error procesando pago PSE"));
         } finally {

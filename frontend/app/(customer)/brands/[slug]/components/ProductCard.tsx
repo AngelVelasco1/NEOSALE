@@ -39,7 +39,13 @@ export function ProductCard({ product }: ProductCardProps) {
               src={primaryImage}
               alt={product.name}
               fill
+              sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
               className="object-cover group-hover:scale-110 transition-transform duration-500"
+              unoptimized={primaryImage.includes('via.placeholder.com') || primaryImage.includes('static.nike.com')}
+              onError={(e) => {
+                const target = e.target as HTMLImageElement;
+                target.style.display = 'none';
+              }}
             />
           ) : (
             <div className="absolute inset-0 flex items-center justify-center">

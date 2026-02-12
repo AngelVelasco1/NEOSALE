@@ -16,7 +16,7 @@ api.interceptors.request.use(
     return config;
   },
   (error) => {
-    console.error('Error en la petición:', error);
+    
     return Promise.reject(error);
   }
 );
@@ -24,7 +24,7 @@ api.interceptors.request.use(
 api.interceptors.response.use(
   (response) => {
     if (response.data?.success === false) {
-      console.log('El backend devolvió success false con status 200');
+      
       const error = {
         ...response.data,
         isHandledError: true,
@@ -35,25 +35,8 @@ api.interceptors.response.use(
   },
 
   async (error) => {
-    console.error("Error interceptado por Axios:", {
-      message: error.message,
-      code: error.code,
-      response: error.response ? {
-        status: error.response.status,
-        statusText: error.response.statusText,
-        data: error.response.data,
-        headers: error.response.headers
-      } : 'Sin respuesta',
-      request: error.request ? 'Petición enviada pero sin respuesta' : 'Sin petición',
-      config: {
-        url: error.config?.url,
-        method: error.config?.method,
-        baseURL: error.config?.baseURL
-      }
-    });
-
     if (!error.response) {
-      console.error('Error de red/conexión detectado');
+      
       
       // Verificar tipos específicos de errores de red
       if (error.code === 'ECONNREFUSED') {
@@ -92,23 +75,13 @@ api.interceptors.response.use(
 
     // Error con respuesta del servidor
     const { response } = error;
-    console.log(`El servidor respondió con error: ${response.status}`);
+    
     
     try {
       const errorData = response.data;
-      console.log('Datos del error del servidor:', {
-        status: response.status,
-        errorData: errorData,
-        hasCorrectFormat: errorData?.success === false && errorData?.message && errorData?.code,
-        rawData: JSON.stringify(errorData)
-      });
 
-   
       if (errorData?.success === false && errorData?.message && errorData?.code) {
-        console.log('Error con formato correcto detectado:', {
-          message: errorData.message,
-          code: errorData.code
-        });
+        
         
         // Marcar como manejado para evitar duplicados
         errorData.isHandledError = true;
@@ -119,11 +92,11 @@ api.interceptors.response.use(
       }
       
     } catch (parseError) {
-      console.error('No se pudo parsear la respuesta del error:', parseError);
+      
     }
 
     // ✅ Error genérico si no se pudo parsear o no tiene formato correcto
-    console.log('Error sin formato correcto', response.status);
+    
     
     const genericError = {
       success: false,
@@ -149,7 +122,7 @@ function getErrorMessage(status: number): string {
     case 404:
       return "Recurso no encontrado";
     case 409:
-      return "stentes";
+      return "Conflicto: Recurso ya existe";
     case 422:
       return "Datos no procesables";
     case 500:

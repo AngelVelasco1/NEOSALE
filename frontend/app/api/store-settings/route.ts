@@ -20,7 +20,7 @@ export async function GET() {
     const data = await response.json();
     return NextResponse.json(data.data || data, { status: 200 });
   } catch (error) {
-    console.error('Error fetching store settings:', error);
+    
     return NextResponse.json(
       { error: 'Error al obtener la configuración de la tienda' },
       { status: 500 }
@@ -48,7 +48,7 @@ export async function PUT(request: NextRequest) {
     const data = await response.json();
     return NextResponse.json(data.data || data, { status: 200 });
   } catch (error) {
-    console.error('Error updating store settings:', error);
+    
     return NextResponse.json(
       { error: 'Error al actualizar la configuración de la tienda' },
       { status: 500 }

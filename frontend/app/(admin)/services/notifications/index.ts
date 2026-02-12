@@ -12,7 +12,7 @@ export async function fetchNotifications({
     });
     return response.data;
   } catch (error) {
-    console.error("Error fetching notifications:", error);
+    
     return [];
   }
 }
@@ -25,7 +25,7 @@ export async function deleteNotification({
   try {
     await api.delete(`/api/notifications/${notificationId}`);
   } catch (error) {
-    console.error("Error deleting notification:", error);
+    
     throw new Error("No se pudo eliminar la notificación");
   }
 }
@@ -41,7 +41,7 @@ export async function fetchNotificationsCount({
     });
     return response.data.count ?? 0;
   } catch (error) {
-    console.error("Error fetching notification count:", error);
+    
     return 0;
   }
 }
@@ -54,7 +54,7 @@ export async function markNotificationAsRead({
   try {
     await api.patch(`/api/notifications/${notificationId}/read`);
   } catch (error) {
-    console.error("Error marking notification as read:", error);
+    
     throw new Error("No se pudo marcar la notificación como leída");
   }
 }
@@ -67,7 +67,7 @@ export async function markAllNotificationsAsRead({
   try {
     await api.patch("/api/notifications/read-all", { staffId });
   } catch (error) {
-    console.error("Error marking all notifications as read:", error);
+    
     throw new Error("No se pudieron marcar todas las notificaciones como leídas");
   }
 }

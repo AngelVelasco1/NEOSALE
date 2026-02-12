@@ -101,7 +101,7 @@ export async function POST(request: Request) {
       );
     }
   } catch (error) {
-    console.error('❌ Error sending verification email:', error);
+    
     return NextResponse.json(
       { error: 'Error al enviar email de verificación' },
       { status: 500 }

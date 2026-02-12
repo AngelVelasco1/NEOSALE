@@ -113,8 +113,13 @@ const ProductItem = React.memo<ProductItemProps>(({
             src={product.image_url || "/placeholder.svg"}
             alt={product.name || product.title || "Producto"}
             fill
-            className="object-fit"
+            className="object-cover"
             sizes="128px"
+            unoptimized={product.image_url?.includes('via.placeholder.com') || product.image_url?.includes('static.nike.com')}
+            onError={(e) => {
+              const target = e.target as HTMLImageElement;
+              target.src = '/placeholder.svg';
+            }}
           />
           {isStockLoading && (
             <div className="absolute inset-0 bg-slate-900/90 backdrop-blur-md flex items-center justify-center rounded-2xl">
@@ -329,7 +334,7 @@ export default function CartProducts() {
 
       return currentStock
     } catch (error) {
-      console.error(`Error fetching stock for variant ${variantKey}:`, error)
+      
       setVariantStocks(prev => ({
         ...prev,
         [variantKey]: {
@@ -366,7 +371,7 @@ export default function CartProducts() {
     try {
       localStorage.setItem(COUPON_STORAGE_KEY, JSON.stringify(coupon))
     } catch (error) {
-      console.error("Error saving coupon to localStorage:", error)
+      
     }
   }, [])
 
@@ -375,7 +380,7 @@ export default function CartProducts() {
     try {
       localStorage.removeItem(COUPON_STORAGE_KEY)
     } catch (error) {
-      console.error("Error removing coupon from localStorage:", error)
+      
     }
   }, [])
 
@@ -424,7 +429,7 @@ export default function CartProducts() {
         try {
           localStorage.setItem(COUPON_STORAGE_KEY, JSON.stringify(updatedCoupon))
         } catch (error) {
-          console.error("Error updating coupon in localStorage:", error)
+          
         }
       }
     }
@@ -493,7 +498,7 @@ export default function CartProducts() {
       try {
         localStorage.removeItem(COUPON_STORAGE_KEY)
       } catch (error) {
-        console.error("Error removing coupon from localStorage:", error)
+        
       }
     }
   }, [clearCart])

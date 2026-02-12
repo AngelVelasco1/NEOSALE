@@ -33,7 +33,7 @@ export function useCookieConsent() {
         try {
           setPreferences(JSON.parse(savedPreferences));
         } catch (e) {
-          console.error("Error parsing cookie preferences:", e);
+          
         }
       }
     } else if (consent === "false") {

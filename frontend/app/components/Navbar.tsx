@@ -316,7 +316,7 @@ export const Navbar = () => {
         );
       setSearchResults(filtered);
     } catch (error) {
-      console.error("Error searching products:", error);
+      
       setSearchResults([]);
     } finally {
       setIsSearching(false);

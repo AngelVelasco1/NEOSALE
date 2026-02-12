@@ -23,11 +23,8 @@ export function RootProviders({ children, session }: ProvidersProps) {
 
   // Esperar a que el cliente se hidrate completamente
   useEffect(() => {
-    console.log("[RootProviders] Hydrated");
     setIsHydrated(true);
   }, []);
-
-  console.log(`[RootProviders] Rendering. Hydrated: ${isHydrated}`);
 
   // suppressHydrationWarning para evitar warnings innecesarios
   return (
@@ -36,8 +33,6 @@ export function RootProviders({ children, session }: ProvidersProps) {
       refetchInterval={0}
       refetchOnWindowFocus={false}
       refetchWhenOffline={false}
-      refetchOnMount={false}
-      refetchOnReconnect={false}
       basePath="/api/auth"
     >
       <UserProvider>

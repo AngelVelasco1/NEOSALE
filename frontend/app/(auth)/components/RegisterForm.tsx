@@ -2,7 +2,7 @@
 import type React from "react";
 import { useState, useEffect, useMemo } from "react";
 import { useForm } from "react-hook-form";
-import { registerSchema } from "@/lib/zod.ts";
+import { registerSchema } from "@/lib/zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
@@ -98,8 +98,8 @@ export const RegisterForm: React.FC = () => {
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [success, setSuccess] = useState(false);
-  const successParticles = useMemo(() => generateParticleField(15), []);
-  const heroParticles = useMemo(() => generateParticleField(24), []);
+  const [successParticles] = useState(() => generateParticleField(15));
+  const [heroParticles] = useState(() => generateParticleField(24));
 
   const router = useRouter();
   const { data: session } = useSession();
@@ -209,7 +209,7 @@ export const RegisterForm: React.FC = () => {
           body: JSON.stringify({ email: values.email }),
         });
       } catch (emailError) {
-        console.error('Error sending verification email:', emailError);
+        
         // No bloquear el registro si falla el envío del email
       }
 
@@ -221,7 +221,7 @@ export const RegisterForm: React.FC = () => {
       // No intentar login automático - el usuario debe verificar primero
       setSuccess(true);
     } catch (error: unknown) {
-      if (!error.isHandledError) {
+      if (error && typeof error === 'object' && 'isHandledError' in error && !error.isHandledError) {
         await ErrorsHandler.handle(error);
       }
     } finally {

@@ -246,7 +246,7 @@ const dashboardStatsCache = unstable_cache(
       activeUsers: activeUsersCount,
     };
   } catch (error) {
-    console.error("Error fetching dashboard stats:", error);
+    
     throw new Error("Failed to fetch dashboard statistics");
   }
   },
@@ -341,7 +341,7 @@ const orderStatusStatsCache = unstable_cache(
 
       return stats;
     } catch (error) {
-      console.error("Error fetching order status stats:", error);
+      
       throw new Error("Failed to fetch order status statistics");
     }
   },

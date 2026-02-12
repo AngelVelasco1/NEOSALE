@@ -116,7 +116,7 @@ const FormBrandInput = forwardRef(function FormBrandInputRender<
           toast.error(result.error);
         }
       } catch (error) {
-        console.error("Error creating brand:", error);
+        
         toast.error("Error al crear la marca");
       }
     });

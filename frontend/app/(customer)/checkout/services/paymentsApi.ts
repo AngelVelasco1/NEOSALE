@@ -176,7 +176,7 @@ export const getWompiAcceptanceTokensApi = async (): Promise<
 
     return response;
   } catch (error: unknown) {
-    console.error("❌ Error en getWompiAcceptanceTokensApi:", error);
+    
 
     if (error && typeof error === "object" && "response" in error) {
       const apiError = error as {
@@ -213,7 +213,7 @@ export const getWompiPublicConfigApi = async (): Promise<
 
     return response;
   } catch (error: unknown) {
-    console.error("❌ Error en getWompiPublicConfigApi:", error);
+    
 
     if (error && typeof error === "object" && "response" in error) {
       const apiError = error as {
@@ -254,7 +254,7 @@ export const tokenizeCardApi = async (
 
     if (!wompiResponse.ok) {
       const errorData = await wompiResponse.json();
-      console.error("❌ Error tokenizando tarjeta:", errorData);
+      
 
       throw new Error(
         errorData.error?.reason ||
@@ -274,7 +274,7 @@ export const tokenizeCardApi = async (
       data: result.data,
     };
   } catch (error: unknown) {
-    console.error("❌ Error en tokenizeCardApi:", error);
+    
 
     return {
       success: false,
@@ -301,7 +301,7 @@ export const generateWompiIntegritySignatureApi = async (
 
     return response;
   } catch (error: unknown) {
-    console.error("❌ Error en generateWompiIntegritySignatureApi:", error);
+    
 
     if (error && typeof error === "object" && "response" in error) {
       const apiError = error as {
@@ -337,15 +337,11 @@ export const createWompiTransactionApi = async (
       throw new Error(response.error || "Error creando transacción");
     }
 
-    console.log("Transacción creada exitosamente:", {
-      transactionId: response.data?.transactionId,
-      status: response.data?.status,
-      reference: response.data?.reference,
-    });
+    
 
     return response;
   } catch (error: unknown) {
-    console.error("❌ Error en createWompiTransactionApi:", error);
+    
 
     if (error && typeof error === "object" && "response" in error) {
       const apiError = error as {
@@ -422,7 +418,7 @@ export const validateWompiDataApi = async (
 
     return response;
   } catch (error: unknown) {
-    console.error("❌ Error en validateWompiDataApi:", error);
+    
 
     if (error && typeof error === "object" && "response" in error) {
       const apiError = error as {
@@ -452,7 +448,7 @@ export const testWompiConnectionApi = async (): Promise<
 
     return response;
   } catch (error: unknown) {
-    console.error("Error probando conexión con Wompi:", error);
+    
 
     if (error && typeof error === "object" && "response" in error) {
       const apiError = error as {
@@ -586,7 +582,7 @@ export const processWompiPaymentFlow = async (
 
     return result;
   } catch (error) {
-    console.error("❌ Error en flujo completo de pago Wompi:", error);
+    
     throw error;
   }
 };
@@ -637,16 +633,11 @@ export const getWompiTransactionStatusApi = async (
       );
     }
 
-    console.log("Estado de transacción obtenido:", {
-      transactionId,
-      status: response.data?.status,
-      amount: response.data?.amount_in_cents,
-      reference: response.data?.reference,
-    });
+    
 
     return response;
   } catch (error: unknown) {
-    console.error("❌ Error en getWompiTransactionStatusApi:", error);
+    
 
     if (error && typeof error === "object" && "response" in error) {
       const apiError = error as {
@@ -683,7 +674,7 @@ export const getPaymentFromDatabaseApi = async (
 
     return response;
   } catch (error: unknown) {
-    console.error("❌ Error en getPaymentFromDatabaseApi:", error);
+    
 
     if (error && typeof error === "object" && "response" in error) {
       const apiError = error as {
@@ -732,11 +723,11 @@ export const createOrderFromPaymentApi = async (orderData: {
       throw new Error(response.error || "Error creando orden desde payment");
     }
 
-    console.log("Orden creada desde payment:", response.data);
+    
 
     return response;
   } catch (error: unknown) {
-    console.error("❌ Error en createOrderFromPaymentApi:", error);
+    
 
     if (error && typeof error === "object" && "response" in error) {
       const apiError = error as {
@@ -807,11 +798,7 @@ export const createNequiTransactionApi = async (
     );
 
     if (response.data?.success) {
-      console.log("Transacción Nequi creada exitosamente:", {
-        transactionId: response.data.data?.transactionId,
-        status: response.data.data?.status,
-        payment_method: response.data.data?.payment_method,
-      });
+      
 
       return {
         success: true,
@@ -823,7 +810,7 @@ export const createNequiTransactionApi = async (
       );
     }
   } catch (error) {
-    console.error("❌ Error en createNequiTransactionApi:", error);
+    
 
     const errorData =
       error && typeof error === "object" && "response" in error
@@ -918,7 +905,7 @@ export const processNequiPaymentFlow = async (
       throw new Error(result.error || "Error en el flujo de pago Nequi");
     }
   } catch (error) {
-    console.error("❌ Error en flujo completo de pago Nequi:", error);
+    
     return {
       success: false,
       error: error instanceof Error ? error.message : "Error en flujo Nequi",
@@ -996,7 +983,7 @@ export const validateNequiDataApi = async (
       },
     };
   } catch (error: unknown) {
-    console.error("❌ Error en validateNequiDataApi:", error);
+    
 
     return {
       success: false,
@@ -1069,7 +1056,7 @@ export const getPSEFinancialInstitutionsApi = async (): Promise<
 
     return response;
   } catch (error: unknown) {
-    console.error("❌ Error en getPSEFinancialInstitutionsApi:", error);
+    
 
     if (error && typeof error === "object" && "response" in error) {
       const apiError = error as {
@@ -1101,11 +1088,7 @@ export const createPSETransactionApi = async (
     );
 
     if (response.data?.success) {
-      console.log("Transacción PSE creada exitosamente:", {
-        transactionId: response.data.data?.transactionId,
-        async_payment_url: response.data.data?.async_payment_url,
-        payment_link: response.data.data?.payment_link_id,
-      });
+      
 
       return {
         success: true,
@@ -1117,7 +1100,7 @@ export const createPSETransactionApi = async (
       );
     }
   } catch (error) {
-    console.error("❌ Error en createPSETransactionApi:", error);
+    
 
     const errorData =
       error && typeof error === "object" && "response" in error
@@ -1215,7 +1198,7 @@ export const processPSEPaymentFlow = async (
       throw new Error(result.error || "Error en el flujo de pago PSE");
     }
   } catch (error) {
-    console.error("❌ Error en flujo completo de pago PSE:", error);
+    
     return {
       success: false,
       error: error instanceof Error ? error.message : "Error en flujo PSE",
@@ -1294,7 +1277,7 @@ export const validatePSEDataApi = async (
       },
     };
   } catch (error: unknown) {
-    console.error("❌ Error en validatePSEDataApi:", error);
+    
 
     return {
       success: false,

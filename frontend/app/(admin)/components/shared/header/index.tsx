@@ -356,7 +356,7 @@ export default function Header({ onToggleSidebar }: HeaderProps) {
           if ((error as Error).name === "AbortError") {
             return;
           }
-          console.error("Dashboard search request failed", error);
+          
           setRemoteError("No se pudo cargar resultados en vivo.");
           setRemoteResults([]);
         })

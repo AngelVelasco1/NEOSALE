@@ -44,7 +44,7 @@ export async function getAllReviews(filters: ReviewFilters = {}) {
 
     return await response.json();
   } catch (error) {
-    console.error("Error al obtener reseñas:", error);
+    
     throw error;
   }
 }

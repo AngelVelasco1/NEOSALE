@@ -77,7 +77,7 @@ export function useTrackingNotifications({
           lastEventCountRef.current = currentEventCount;
         }
       } catch (error) {
-        console.error("Error checking tracking updates:", error);
+        
       }
     };
 

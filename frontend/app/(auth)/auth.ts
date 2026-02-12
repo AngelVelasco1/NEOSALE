@@ -66,7 +66,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
             }
           }
         } catch (error) {
-          console.error(`Error en signIn callback (${account.provider}):`, error);
+          console.log('Error linking account:', error);
           return `/login?error=${encodeURIComponent('Error al vincular la cuenta')}`;
         }
       }

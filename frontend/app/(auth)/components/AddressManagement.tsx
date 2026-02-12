@@ -81,7 +81,7 @@ export function AddressManagement({ userId, addresses, onAddressChange }: Addres
       form.reset()
       onAddressChange()
     } catch (error) {
-      console.error("Error al guardar la dirección:", error)
+      
     }
   }
 
@@ -91,7 +91,7 @@ export function AddressManagement({ userId, addresses, onAddressChange }: Addres
       await deleteAddress(userId, addressId)
       onAddressChange()
     } catch (error) {
-      console.error("Error al eliminar la dirección:", error)
+      
     } finally {
       setIsDeleting(null)
     }
@@ -102,7 +102,7 @@ export function AddressManagement({ userId, addresses, onAddressChange }: Addres
       await setDefaultAddress(userId, addressId)
       onAddressChange()
     } catch (error) {
-      console.error("Error al establecer dirección por defecto:", error)
+      
     }
   }
 

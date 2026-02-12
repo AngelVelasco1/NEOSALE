@@ -42,7 +42,7 @@ export async function createBrand(
       try {
         imageUrl = await uploadImageToCloudinary(imageFile, "brands");
       } catch (error) {
-        console.error("Error uploading image:", error);
+        
         return { success: false, error: "Error al subir la imagen" };
       }
     }
@@ -69,7 +69,7 @@ export async function createBrand(
 
     return { success: true, brand };
   } catch (error) {
-    console.error("Error creating brand:", error);
+    
     return {
       success: false,
       error: "Error al crear la marca. Por favor intenta de nuevo.",

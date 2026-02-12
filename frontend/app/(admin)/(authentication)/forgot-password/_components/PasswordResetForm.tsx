@@ -96,7 +96,7 @@ export default function PasswordResetForm() {
           }
         }
       } else {
-        console.error(error);
+        
       }
     },
   });

@@ -39,7 +39,7 @@ function escapeCSVValue(value: unknown): string {
 
 export function exportAsJSON<T extends Record<string, unknown>>(data: T[], fileNamePrefix: string) {
   if (data.length === 0) {
-    console.warn('No data to export');
+    
     return;
   }
 
@@ -61,7 +61,7 @@ export function exportAsJSON<T extends Record<string, unknown>>(data: T[], fileN
 
 export function exportAsCSV<T extends Record<string, unknown>>(data: T[], fileNamePrefix: string) {
   if (data.length === 0) {
-    console.warn('No data to export');
+    
     return;
   }
 

@@ -20,7 +20,7 @@ export async function getBrandsDropdown() {
 
     return brands;
   } catch (error) {
-    console.error("Error fetching brands dropdown:", error);
+    
     throw new Error("Failed to fetch brands");
   }
 }

@@ -75,7 +75,7 @@ export default function EditProfileForm() {
         const data = await fetchStaffDetails(parseInt(session.user.id));
         setProfile(data);
       } catch (error) {
-        console.error("Error loading profile:", error);
+        
         toast.error("Error al cargar el perfil");
       } finally {
         setIsLoadingProfile(false);

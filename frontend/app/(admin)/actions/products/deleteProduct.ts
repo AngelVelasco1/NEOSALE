@@ -54,7 +54,7 @@ export async function deleteProduct(
 
     return { success: true };
   } catch (error) {
-    console.error("Failed to deactivate product:", error);
+    
     return {
       success: false,
       error: "Something went wrong. Could not deactivate the product.",

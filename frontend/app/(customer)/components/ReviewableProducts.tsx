@@ -42,7 +42,7 @@ export default function ReviewableProducts() {
             const data = await getReviewableProducts(userProfile.id);
             setProducts(data);
         } catch (error: unknown) {
-            console.error("Error loading reviewable products:", error);
+            
             ErrorsHandler.showError("Error", "No se pudieron cargar los productos para reseñar");
         } finally {
             setIsLoading(false);
@@ -114,7 +114,7 @@ export default function ReviewableProducts() {
                 const data = await response.json();
                 return data.secure_url;
             } catch (error) {
-                console.error('Error uploading image:', error);
+                
                 throw error;
             }
         });
@@ -136,7 +136,7 @@ export default function ReviewableProducts() {
                     imageUrls = await uploadImagesToCloudinary(selectedImages);
                 } catch (error) {
                     ErrorsHandler.showError("Error", "Error al subir las imágenes. La reseña se enviará sin imágenes.");
-                    console.error('Error uploading images:', error);
+                    
                 } finally {
                     setIsUploadingImages(false);
                 }

@@ -45,7 +45,7 @@ export const useAddresses = () => {
                 // ✅ Retornar la dirección completa del servidor
                 return result.data;
             } catch (error) {
-                console.error("Error creating address:", error);
+                
                 throw error;
             }
         },

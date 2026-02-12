@@ -19,7 +19,7 @@ export async function GET() {
     const data = await response.json();
     return NextResponse.json(data.data || data, { status: 200 });
   } catch (error) {
-    console.error('Error fetching colors:', error);
+    
     return NextResponse.json(
       {
         primary_color: '#3b82f6',

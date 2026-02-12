@@ -42,7 +42,7 @@ export async function POST(request: NextRequest) {
       message: "Imagen subida exitosamente",
     });
   } catch (error: any) {
-    console.error("Error uploading image:", error);
+    
     return NextResponse.json(
       { success: false, message: error.message || "Error al subir la imagen" },
       { status: 500 }

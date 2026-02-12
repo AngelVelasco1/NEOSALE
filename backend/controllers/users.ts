@@ -108,7 +108,7 @@ export const updateUser = async (
   next: NextFunction
 ) => {
   try {
-    const { id, name, email, email_verified, phone_number, identification } =
+    const { id, name, email, email_verified, phone_number, phoneNumber, identification } =
       req.body;
 
     const updatedUser = await updateUserService({
@@ -116,7 +116,7 @@ export const updateUser = async (
       name,
       email,
       email_verified,
-      phone_number,
+      phone_number: phone_number || phoneNumber, // Accept both formats
       identification,
     });
 

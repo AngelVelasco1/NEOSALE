@@ -18,7 +18,7 @@ export const UserPhone = () => {
             }
             })
             .catch((error) => {
-            console.error(error.message);
+            
             setPhone("Error al cargar teléfono");
       });
     }

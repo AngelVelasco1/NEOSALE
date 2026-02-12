@@ -21,7 +21,7 @@ export async function toggleProductPublishedStatus(
 
     return { success: true };
   } catch (error) {
-    console.error("Database update failed:", error);
+    
     return { success: false, error: "Failed to update product status." };
   }
 }

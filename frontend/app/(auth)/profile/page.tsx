@@ -45,16 +45,16 @@ export default function Profile() {
 
   const [currentSection, setCurrentSection] = useState<Section>('info');
 
-  // Verificar email verificad  o para editar perfil
+  // Verificar email verificado para editar perfil
   useEffect(() => {
-    if (session?.user && !userProfile?.email_verified && currentSection !== 'info') {
+    if (session?.user && !userProfile?.emailVerified && currentSection !== 'info') {
       toast.error('Debes verificar tu email antes de editar tu perfil', {
         description: 'Revisa tu bandeja de entrada y verifica tu email.',
         duration: 5000,
       });
       setCurrentSection('info');
     }
-  }, [session, currentSection]);
+  }, [session, currentSection, userProfile]);
 
   const [activeSection, setActiveSection] = useState<Section>('info')
   const [showCurrentPassword, setShowCurrentPassword] = useState(false)
@@ -73,7 +73,7 @@ export default function Profile() {
       const favoritesData = await getUserFavoritesApi(Number(session.user.id))
       setFavorites(favoritesData)
     } catch (error) {
-      console.error("Error al obtener favoritos:", error)
+      
     } finally {
       setLoadingFavorites(false)
     }
@@ -85,7 +85,7 @@ export default function Profile() {
       const ordersData = await getUserOrdersApi()
       setOrders(ordersData)
     } catch (error) {
-      console.error("Error al obtener órdenes:", error)
+      
     }
   }
 
@@ -98,7 +98,7 @@ export default function Profile() {
         setAddresses(response.data)
       }
     } catch (error) {
-      console.error("Error al obtener direcciones:", error)
+      
     }
   }
 
@@ -115,7 +115,7 @@ export default function Profile() {
     defaultValues: {
       name: session?.user?.name || "",
       email: session?.user?.email || "",
-      phone_number: userProfile?.phone_number || "",
+      phone_number: userProfile?.phoneNumber || "",
       address: "",
       identification: userProfile?.identification || "",
     },
@@ -123,7 +123,7 @@ export default function Profile() {
       id: Number(session?.user?.id),
       name: userProfile?.name || "",
       email: userProfile?.email || "",
-      phone_number: userProfile?.phone_number || "",
+      phone_number: userProfile?.phoneNumber || "",
       address: "",
       identification: userProfile?.identification || "",
     },
@@ -166,7 +166,7 @@ export default function Profile() {
       reFetchUserProfile()
       setActiveSection('info')
     } catch (err) {
-      console.error("Error al actualizar el usuario:", err)
+      
     }
   }
 
@@ -175,14 +175,14 @@ export default function Profile() {
       const isValid = await bcrypt.compare(values.currentPassword, userProfile?.password || "")
 
       if (!isValid) {
-        console.error("Contraseña actual incorrecta")
+        
         throw new Error("Contraseña actual incorrecta")
       }
       await updatePassword({ id: values.id, newPassword: values.newPassword })
       form2.reset()
       setActiveSection('info')
     } catch (err) {
-      console.error("Error al actualizar la contraseña:", err)
+      
     }
   }
 
@@ -215,7 +215,7 @@ export default function Profile() {
     {
       icon: Phone,
       label: "Teléfono",
-      value: userProfile?.phone_number || "No especificado",
+      value: userProfile?.phoneNumber || "No especificado",
       color: "text-cyan-400",
       bgColor: "bg-slate-800/50",
       borderColor: "border-slate-700/50",

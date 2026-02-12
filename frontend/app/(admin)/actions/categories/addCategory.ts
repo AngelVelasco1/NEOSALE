@@ -107,7 +107,7 @@ export async function addCategory(
       }
     }
 
-    console.error("Database insert failed:", error);
+    
     return { success: false, error: "Something went wrong. Please try again later." };
   }
 }

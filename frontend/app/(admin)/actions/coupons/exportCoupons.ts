@@ -8,7 +8,7 @@ export async function exportCoupons() {
 
     return { data };
   } catch (error) {
-    console.error(`Error fetching coupons:`, error);
+    
     return { error: `Failed to fetch data for coupons.` };
   }
 }

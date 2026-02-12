@@ -32,7 +32,7 @@ export default function Favorites() {
       // ✅ Actualizar contador cuando se cargan los favoritos
       await refreshFavoritesCount();
     } catch (error) {
-      console.error("Error fetching favorites:", error);
+      
       toast.error("Error al cargar favoritos");
     } finally {
       setIsLoading(false);
@@ -190,7 +190,7 @@ export default function Favorites() {
               {favorites
                 .map((favorite, index) => {
                   if (!favorite.products) {
-                    console.warn("Favorite without product:", favorite);
+                    
                     return null;
                   }
 

@@ -20,7 +20,7 @@ export async function sendPasswordResetEmail({
   try {
     // 🚫 Verificar si los emails están desactivados en desarrollo
     if (process.env.DISABLE_EMAILS === 'true') {
-      console.log('📧 [DEV] Email de reset desactivado. Email:', email);
+      
       return { success: true, message: 'Email desactivado en desarrollo' };
     }
 
@@ -36,7 +36,7 @@ export async function sendPasswordResetEmail({
 
     return response.data;
   } catch (error) {
-    console.error("Failed to send password reset email:", error);
+    
     throw new Error("No pudimos enviar el correo de restablecimiento");
   }
 }

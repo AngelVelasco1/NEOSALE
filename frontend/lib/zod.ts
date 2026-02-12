@@ -3,8 +3,63 @@ import { z } from "zod";
 const strongPasswordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]+$/;
 const strongPasswordMessage = "La contraseña debe contener al menos: 1 mayúscula, 1 minúscula, 1 número y 1 carácter especial (@$!%*?&)";
 
+// Patrones maliciosos para prevenir SQL injection y XSS
+const SQL_INJECTION_PATTERNS = [
+  /(\b(SELECT|INSERT|UPDATE|DELETE|DROP|CREATE|ALTER|EXEC|EXECUTE|UNION|SCRIPT|JAVASCRIPT|ONERROR|ONLOAD)\b)/i,
+  /(--|;|\/\*|\*\/|xp_|sp_)/i,
+  /(<script|<iframe|<object|<embed|javascript:|data:text\/html)/i,
+];
+
+const XSS_PATTERNS = [
+  /<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi,
+  /<iframe|<object|<embed/i,
+  /javascript:/i,
+  /on\w+\s*=/i, // onclick, onerror, etc
+];
+
+// Función para validar que no contenga patrones maliciosos
+const isSafeString = (value: string): boolean => {
+  if (!value) return true;
+  
+  // Verificar SQL injection
+  for (const pattern of SQL_INJECTION_PATTERNS) {
+    if (pattern.test(value)) {
+      return false;
+    }
+  }
+  
+  // Verificar XSS
+  for (const pattern of XSS_PATTERNS) {
+    if (pattern.test(value)) {
+      return false;
+    }
+  }
+  
+  return true;
+};
+
+// Validación personalizada para nombres seguros
+const safeNameValidation = z.string()
+  .trim()
+  .min(1, 'El nombre es requerido')
+  .min(2, 'El nombre debe tener al menos 2 caracteres')
+  .max(100, 'El nombre no debe exceder 100 caracteres')
+  .refine((val) => /^[a-zA-ZáéíóúÁÉÍÓÚñÑüÜ\s'-]+$/.test(val), {
+    message: 'El nombre solo puede contener letras, espacios, guiones y apóstrofes',
+  })
+  .refine(isSafeString, {
+    message: 'El nombre contiene caracteres no permitidos',
+  });
+
+
 export const loginSchema = z.object({
-  email: z.string().min(1, 'Email es requerido').email('Email formato invalido'),
+  email: z.string()
+    .min(1, 'Email es requerido')
+    .email('Email formato invalido')
+    .max(255, 'El email no debe exceder 255 caracteres')
+    .refine(isSafeString, {
+      message: 'El email contiene caracteres no permitidos',
+    }),
   password: z.string()
     .min(1, 'Contraseña es requerida')
     .min(8, 'La Contraseña debe ser minimo de 8 caracteres')
@@ -13,8 +68,15 @@ export const loginSchema = z.object({
 
 
 export const registerSchema = z.object({
-  name: z.string().trim().min(1, 'El nombre es requerido'),
-  email: z.string().trim().min(1, 'El Email es requerido').email('Email con un formato invalido'),
+  name: safeNameValidation,
+  email: z.string()
+    .trim()
+    .min(1, 'El Email es requerido')
+    .email('Email con un formato invalido')
+    .max(255, 'El email no debe exceder 255 caracteres')
+    .refine(isSafeString, {
+      message: 'El email contiene caracteres no permitidos',
+    }),
   emailVerified: z.date().optional(),
   password: z.string()
     .min(1, 'Contraseña es requerida')

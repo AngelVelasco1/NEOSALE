@@ -29,7 +29,7 @@ export async function POST(request: Request) {
       verified: !!user.emailVerified 
     });
   } catch (error) {
-    console.error('Error checking email verification:', error);
+    
     return NextResponse.json({ error: 'Error interno' }, { status: 500 });
   }
 }

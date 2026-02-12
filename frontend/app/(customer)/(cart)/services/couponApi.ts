@@ -25,7 +25,7 @@ export async function getActiveCoupons(): Promise<Coupon[]> {
     const data = await response.json();
     return data.coupons || [];
   } catch (error) {
-    console.error("Error fetching active coupons:", error);
+    
     return [];
   }
 }
@@ -62,7 +62,7 @@ export async function validateCoupon(
       discount_amount: data.discount_amount,
     };
   } catch (error) {
-    console.error("Error validating coupon:", error);
+    
     return {
       valid: false,
       error: "Error al validar el cupón",

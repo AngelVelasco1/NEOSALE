@@ -20,7 +20,7 @@ export async function GET() {
     const data = await response.json();
     return NextResponse.json(data.data || data);
   } catch (error) {
-    console.error("Trust metrics API error", error);
+    
     return NextResponse.json({ error: "No se pudieron obtener las métricas" }, { status: 500 });
   }
 }

@@ -8,7 +8,7 @@ export async function exportCategories() {
 
     return { data };
   } catch (error) {
-    console.error(`Error fetching categories:`, error);
+    
     return { error: `Failed to fetch data for categories.` };
   }
 }

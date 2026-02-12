@@ -56,7 +56,6 @@ export async function sendOrderConfirmationEmail({
   try {
     // 🚫 Verificar si los emails están desactivados en desarrollo
     if (process.env.DISABLE_EMAILS === 'true') {
-      console.log('📧 [DEV] Email desactivado. Orden:', orderId, 'Email:', customerEmail);
       return {
         success: false,
         data: {
@@ -69,9 +68,6 @@ export async function sendOrderConfirmationEmail({
     
     // Generar URL de seguimiento si no se proporciona
     const finalTrackingUrl = trackingUrl || `${getAppBaseUrl()}/orders/${orderId}`;
-
-    console.log('📧 Enviando email a:', customerEmail);
-    console.log('📋 Orden ID:', orderId);
     
     // Llamar al backend para enviar el email
     const response = await api.post('api/emails/order-confirmation', {
@@ -89,11 +85,8 @@ export async function sendOrderConfirmationEmail({
       trackingUrl: finalTrackingUrl,
     });
 
-    console.log('✅ Email enviado exitosamente');
-
     return response.data;
   } catch (error: any) {
-    console.error('❌ Error al enviar email de confirmación de orden:', error);
     
     return {
       success: false,
@@ -147,7 +140,7 @@ export async function sendSimpleOrderConfirmationEmail({
 
     return response.data;
   } catch (error: any) {
-    console.error('❌ Error al enviar email simple de confirmación:', error);
+    
     throw new Error(`Error al enviar email: ${error.message || 'Error desconocido'}`);
   }
 }

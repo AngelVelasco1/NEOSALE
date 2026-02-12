@@ -17,7 +17,7 @@ export function usePdfDownload() {
     const templateElement = document.getElementById(htmlId);
 
     if (!templateElement) {
-      console.error("Template element not found!");
+      
       return;
     }
 
@@ -56,7 +56,7 @@ export function usePdfDownload() {
       // Save PDF
       pdf.save(`${pdfName}.pdf`);
     } catch (error) {
-      console.error("Failed to download pdf:", error);
+      
     } finally {
       setIsLoading(false);
     }

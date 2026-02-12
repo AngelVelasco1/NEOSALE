@@ -55,7 +55,7 @@ export function ProductReviews({ productId }: ProductReviewsProps) {
             const data = await response.json();
             setReviews(data);
         } catch (error) {
-            console.error("Error loading reviews:", error);
+            
         } finally {
             setIsLoading(false);
         }

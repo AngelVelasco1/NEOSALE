@@ -146,7 +146,7 @@ export const ShippingAddressForm = ({
       setIsModalOpen(false);
       form.reset();
     } catch (error) {
-      console.error('❌ Error al guardar dirección:', error);
+      
       const errorMessage = error instanceof Error ? error.message : 'Error al guardar la dirección';
       ErrorsHandler.showError('Error', errorMessage);
     } finally {

@@ -65,7 +65,7 @@ export const decodeResetToken = (token: string): ResetTokenPayload | null => {
 
     return payload;
   } catch (error) {
-    console.error("Failed to decode reset token", error);
+    
     return null;
   }
 };

@@ -87,7 +87,7 @@ export function useSendOrderEmail() {
     } catch (err: any) {
       const errorMsg = err.message || 'Error desconocido al enviar email';
       setError(errorMsg);
-      console.error('❌ Error enviando email:', err);
+      
       throw err;
     } finally {
       setIsSending(false);
@@ -103,7 +103,7 @@ export function useSendOrderEmail() {
       await sendOrderEmail(params);
       return { success: true };
     } catch (err) {
-      console.warn('⚠️ Email no enviado (silent mode):', err);
+      :', err);
       return { success: false, error: err };
     }
   };

@@ -225,7 +225,7 @@ export async function fetchCustomerOrders({ id }: { id: string }): Promise<{
       orders: formattedOrders,
     };
   } catch (error) {
-    console.error("Error fetching customer orders:", error);
+    
     throw error;
   }
 }

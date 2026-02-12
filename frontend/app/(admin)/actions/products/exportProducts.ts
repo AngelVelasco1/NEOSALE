@@ -28,7 +28,7 @@ export async function exportProducts() {
 
     return { data: serialized };
   } catch (error) {
-    console.error(`Error fetching products:`, error);
+    
     return { error: `Failed to fetch data for products.` };
   }
 }

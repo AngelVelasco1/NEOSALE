@@ -52,7 +52,7 @@ export async function deleteCategory(
 
     return { success: true };
   } catch (error) {
-    console.error("Database delete failed:", error);
+    
     return { success: false, error: "Something went wrong. Could not delete the category." };
   }
 }

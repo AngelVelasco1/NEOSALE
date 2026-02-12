@@ -10,8 +10,6 @@ export function ConditionalClientLayout({ children }: { children: ReactNode }) {
     const { userProfile, isLoading } = useUserSafe();
     const renderCount = useRef(0);
     renderCount.current++;
-    
-    console.log(`[ConditionalClientLayout] Render #${renderCount.current}, isLoading: ${isLoading}, role: ${userProfile?.role}`);
 
     // Mientras carga el usuario, mostrar children directamente para evitar delay
     if (isLoading) {
