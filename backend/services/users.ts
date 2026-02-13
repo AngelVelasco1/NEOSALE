@@ -21,6 +21,8 @@ export const registerUserService = async ({
   phone_number,
   identification,
   role,
+  acceptTerms,
+  acceptPrivacy,
 }: createUserParams) => {
   if (!name || !email || !password) {
     throw new ValidationError("Nombre, email y contraseña son obligatorios");
@@ -44,27 +46,30 @@ export const registerUserService = async ({
   const safeEmail = email.trim().toLowerCase();
 
   const hashedPassword = await bcrypt.hash(password, 12);
-  await prisma.$executeRaw`
-      CALL sp_create_user(
-        ${safeName}, 
-        ${safeEmail}, 
-        ${email_verified ?? null}, 
-        ${hashedPassword}, 
-        ${phone_number ?? null}, 
-        ${identification ?? null}, 
-        ${(role as roles_enum) ?? "user"})`;
-
-  const newUser = await prisma.user.findUnique({
-    where: { email: safeEmail },
+  
+  // Crear usuario con los campos de aceptación
+  const newUser = await prisma.user.create({
+    data: {
+      name: safeName,
+      email: safeEmail,
+      emailVerified: email_verified || null,
+      password: hashedPassword,
+      phoneNumber: phone_number || null,
+      identification: identification || null,
+      role: (role as roles_enum) || "user",
+      termsAcceptedAt: acceptTerms ? new Date() : null,
+      privacyAcceptedAt: acceptPrivacy ? new Date() : null,
+    },
     select: {
       id: true,
       name: true,
       email: true,
       emailVerified: true,
-      password: true,
       phoneNumber: true,
       identification: true,
       role: true,
+      termsAcceptedAt: true,
+      privacyAcceptedAt: true,
     },
   });
 

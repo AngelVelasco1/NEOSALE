@@ -1,69 +1,13 @@
 import { NextFunction } from "express-serve-static-core";
 import {
-  createOrderService,
   getProductWithVariantsService,
   checkVariantAvailabilityService,
   getOrderByIdService,
-  getUserOrdersService,
   updateOrderStatusService,
-  getOrderWithPaymentService,
-  processWompiOrderWebhook,
   getUserOrdersWithPaymentsService,
   getOrdersService,
 } from "../services/orders";
 import { Request, Response } from "express";
-
-/* export const createOrder = async (
-  req: Request,
-  res: Response,
-  next: NextFunction
-) => {
-  try {
-    const { productId, quantity, colorCode, size, shippingAddressId } =
-      req.body;
-    const userId = req.user?.id;
-
-    if (!userId) {
-      res.status(401).json({
-        success: false,
-        message: "Usuario no autenticado",
-      });
-      return;
-    }
-
-    if (!productId || !quantity || quantity <= 0 || !shippingAddressId) {
-      res.status(400).json({
-        success: false,
-        message:
-          "Datos de orden inválidos. Se requiere productId, quantity > 0 y shippingAddressId",
-      });
-      return;
-    }
-
-    const result = await createOrderService({
-      userId,
-      productId,
-      quantity,
-      colorCode,
-      size,
-      shippingAddressId,
-    });
-
-    res.status(201).json({
-      success: true,
-      message: "Orden creada exitosamente",
-      data: {
-        orderId: result.orderId,
-        paymentLink: result.paymentLink,
-        preferenceId: result.preferenceId,
-        total: result.total,
-      },
-    });
-  } catch (err) {
-    next(err);
-  }
-};
- */
 
 export const getOrders = async (
   req: Request,

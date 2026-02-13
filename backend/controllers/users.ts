@@ -26,6 +26,8 @@ export const registerUser = async (
       phone_number,
       identification,
       role,
+      acceptTerms,
+      acceptPrivacy,
     } = req.body;
 
     const result = await registerUserService({
@@ -36,6 +38,8 @@ export const registerUser = async (
       phone_number,
       identification,
       role,
+      acceptTerms,
+      acceptPrivacy,
     });
 
     res.status(201).json(result);

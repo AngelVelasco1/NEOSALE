@@ -88,7 +88,13 @@ export const registerSchema = z.object({
     .optional()
     .refine((val) => val === undefined || val === '' || /^[0-9]{10}$/.test(val),
       'Ingresa un número válido de 10 dígitos'),
-  confirmPassword: z.string().min(1, 'Debes confirmar tu contraseña')
+  confirmPassword: z.string().min(1, 'Debes confirmar tu contraseña'),
+  acceptTerms: z.boolean().refine((val) => val === true, {
+    message: 'Debes aceptar los términos y condiciones',
+  }),
+  acceptPrivacy: z.boolean().refine((val) => val === true, {
+    message: 'Debes autorizar el tratamiento de datos personales',
+  }),
 }).refine((data) => data.password === data.confirmPassword, {
   message: "Las contraseñas no coinciden",
   path: ["confirmPassword"],

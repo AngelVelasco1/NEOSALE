@@ -2,7 +2,6 @@
 import { ProductCard } from "./(products)/components/ProductCard";
 import React, { useEffect, useState } from "react";
 import { getLatestProducts } from "./(products)/services/api";
-import { IProduct } from "./types";
 import { useRouter } from "next/navigation";
 import { ArrowRight } from "lucide-react";
 import dynamic from "next/dynamic";

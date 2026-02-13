@@ -52,12 +52,6 @@ export async function GET(
 
     const result = await response.json();
 
-    console.log("Estado de transacción obtenido:", {
-      transactionId,
-      status: result.data?.status,
-      success: result.success,
-    });
-
     return NextResponse.json(result);
   } catch (error) {
     console.error("❌ Error en API route de transacción:", error);

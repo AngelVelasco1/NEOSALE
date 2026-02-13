@@ -127,6 +127,8 @@ model User {
   role                           roles_enum         @default(user)
   active                         Boolean            @default(true)
   emailNotifications             Boolean            @default(true) @map("email_notifications")
+  termsAcceptedAt                DateTime?          @map("terms_accepted_at") @db.Timestamp(6)
+  privacyAcceptedAt              DateTime?          @map("privacy_accepted_at") @db.Timestamp(6)
   createdAt                      DateTime           @default(now()) @map("created_at") @db.Timestamp(6)
   updatedAt                      DateTime?          @map("updated_at") @db.Timestamp(6)
   accounts                       Account[]

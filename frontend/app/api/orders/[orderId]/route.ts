@@ -68,13 +68,6 @@ export async function GET(
 
     const result = await response.json();
 
-    console.log("Orden obtenida:", {
-      orderId: parseInt(orderId),
-      userId: session.user.id,
-      orderStatus: result.data?.status,
-      success: result.success,
-    });
-
     return NextResponse.json(result);
   } catch (error) {
     console.error("❌ Error en API route de orden por ID:", error);

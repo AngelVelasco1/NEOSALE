@@ -113,6 +113,8 @@ export const RegisterForm: React.FC = () => {
       password: "",
       phone_number: "",
       confirmPassword: "",
+      acceptTerms: false,
+      acceptPrivacy: false,
     },
   });
 
@@ -195,7 +197,9 @@ export const RegisterForm: React.FC = () => {
         email: values.email,
         emailVerified: values.emailVerified,
         password: values.password,
-        phone_number: values.phone_number || undefined,
+        phoneNumber: values.phone_number || undefined,
+        acceptTerms: values.acceptTerms,
+        acceptPrivacy: values.acceptPrivacy,
       };
 
       // Registrar usuario
@@ -431,10 +435,10 @@ export const RegisterForm: React.FC = () => {
                                   type="text"
                                   autoComplete="name"
                                   placeholder="Pepito Pérez"
-                                  className="pl-11 pr-4 h-12 border border-slate-700/60 bg-slate-900/40 rounded-xl text-slate-100 placeholder:text-slate-500 focus-visible:border-blue-400 focus-visible:ring-2 focus-visible:ring-blue-500/30 transition-all duration-300 group-hover:shadow-lg group-hover:shadow-blue-900/30"
+                                  className="pl-11 pr-4 h-12 border-2 border-slate-600 bg-slate-900/80 rounded-xl text-slate-50 placeholder:text-slate-400 focus-visible:border-blue-400 focus-visible:ring-2 focus-visible:ring-blue-500/50 transition-all duration-300 group-hover:shadow-lg group-hover:shadow-blue-900/30"
                                   {...field}
                                 />
-                                <User className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-slate-500 group-focus-within:text-blue-400 transition-colors duration-200" />
+                                <User className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-slate-400 group-focus-within:text-blue-400 transition-colors duration-200" />
                               </div>
                             </FormControl>
                             <FormMessage className="text-rose-300 text-xs mt-1" />
@@ -457,10 +461,10 @@ export const RegisterForm: React.FC = () => {
                                   type="email"
                                   autoComplete="email"
                                   placeholder="ejemplo@correo.com"
-                                  className="pl-11 pr-4 h-12 border border-slate-700/60 bg-slate-900/40 rounded-xl text-slate-100 placeholder:text-slate-500 focus-visible:border-blue-400 focus-visible:ring-2 focus-visible:ring-blue-500/30 transition-all duration-300 group-hover:shadow-lg group-hover:shadow-blue-900/30"
+                                  className="pl-11 pr-4 h-12 border-2 border-slate-600 bg-slate-900/80 rounded-xl text-slate-50 placeholder:text-slate-400 focus-visible:border-blue-400 focus-visible:ring-2 focus-visible:ring-blue-500/50 transition-all duration-300 group-hover:shadow-lg group-hover:shadow-blue-900/30"
                                   {...field}
                                 />
-                                <Mail className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-slate-500 group-focus-within:text-blue-400 transition-colors duration-200" />
+                                <Mail className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-slate-400 group-focus-within:text-blue-400 transition-colors duration-200" />
                               </div>
                             </FormControl>
                             <FormMessage className="text-rose-300 text-xs mt-1" />
@@ -488,7 +492,7 @@ export const RegisterForm: React.FC = () => {
                                   maxLength={10}
                                   autoComplete="tel"
                                   placeholder="316 000 0000"
-                                  className="pl-11 pr-4 h-12 border border-slate-700/60 bg-slate-900/40 rounded-xl text-slate-100 placeholder:text-slate-500 focus-visible:border-blue-400 focus-visible:ring-2 focus-visible:ring-blue-500/30 transition-all duration-300 group-hover:shadow-lg group-hover:shadow-blue-900/30"
+                                  className="pl-11 pr-4 h-12 border-2 border-slate-600 bg-slate-900/80 rounded-xl text-slate-50 placeholder:text-slate-400 focus-visible:border-blue-400 focus-visible:ring-2 focus-visible:ring-blue-500/50 transition-all duration-300 group-hover:shadow-lg group-hover:shadow-blue-900/30"
                                   value={field.value ?? ""}
                                   onChange={(event) =>
                                     field.onChange(event.target.value.replace(/[^\d]/g, ""))
@@ -497,7 +501,7 @@ export const RegisterForm: React.FC = () => {
                                   name={field.name}
                                   ref={field.ref}
                                 />
-                                <Phone className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-slate-500 group-focus-within:text-blue-400 transition-colors duration-200" />
+                                <Phone className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-slate-400 group-focus-within:text-blue-400 transition-colors duration-200" />
                               </div>
                             </FormControl>
                             <FormMessage className="text-rose-300 text-xs mt-1" />
@@ -541,10 +545,10 @@ export const RegisterForm: React.FC = () => {
                                   type={showPassword ? "text" : "password"}
                                   placeholder="Mínimo 8 caracteres"
                                   autoComplete="new-password"
-                                  className="pl-11 pr-11 h-12 border border-slate-700/60 bg-slate-900/40 rounded-xl text-slate-100 placeholder:text-slate-500 focus-visible:border-blue-400 focus-visible:ring-2 focus-visible:ring-blue-500/30 transition-all duration-300 group-hover:shadow-lg group-hover:shadow-blue-900/30"
+                                  className="pl-11 pr-11 h-12 border-2 border-slate-600 bg-slate-900/80 rounded-xl text-slate-50 placeholder:text-slate-400 focus-visible:border-blue-400 focus-visible:ring-2 focus-visible:ring-blue-500/50 transition-all duration-300 group-hover:shadow-lg group-hover:shadow-blue-900/30"
                                   {...field}
                                 />
-                                <Lock className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-slate-500 group-focus-within:text-blue-400 transition-colors duration-200" />
+                                <Lock className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-slate-400 group-focus-within:text-blue-400 transition-colors duration-200" />
                                 <motion.button
                                   type="button"
                                   onClick={() => setShowPassword(!showPassword)}
@@ -580,10 +584,10 @@ export const RegisterForm: React.FC = () => {
                                   type={showConfirmPassword ? "text" : "password"}
                                   placeholder="Vuelve a escribirla"
                                   autoComplete="new-password"
-                                  className="pl-11 pr-11 h-12 border border-slate-700/60 bg-slate-900/40 rounded-xl text-slate-100 placeholder:text-slate-500 focus-visible:border-blue-400 focus-visible:ring-2 focus-visible:ring-blue-500/30 transition-all duration-300 group-hover:shadow-lg group-hover:shadow-blue-900/30"
+                                  className="pl-11 pr-11 h-12 border-2 border-slate-600 bg-slate-900/80 rounded-xl text-slate-50 placeholder:text-slate-400 focus-visible:border-blue-400 focus-visible:ring-2 focus-visible:ring-blue-500/50 transition-all duration-300 group-hover:shadow-lg group-hover:shadow-blue-900/30"
                                   {...field}
                                 />
-                                <Lock className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-slate-500 group-focus-within:text-blue-400 transition-colors duration-200" />
+                                <Lock className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-slate-400 group-focus-within:text-blue-400 transition-colors duration-200" />
                                 <motion.button
                                   type="button"
                                   onClick={() =>
@@ -655,6 +659,138 @@ export const RegisterForm: React.FC = () => {
                     </div>
                       )
                     }
+                  </section>
+
+                  {/* Términos y condiciones */}
+                  <section className="rounded-2xl border border-slate-800 bg-slate-900/40 p-6 space-y-4">
+                    <div className="flex items-start gap-4">
+                      <div className="p-3 rounded-2xl bg-slate-800 text-blue-200 flex-shrink-0">
+                        <ShieldCheck className="w-5 h-5" />
+                      </div>
+                      <div className="flex-1">
+                        <p className="text-xs uppercase tracking-wide text-slate-500">
+                          Seguridad y Privacidad
+                        </p>
+                        <p className="text-lg font-semibold text-white">
+                          Autoriza tu información
+                        </p>
+                      </div>
+                    </div>
+
+                    <div className="space-y-3 pt-2">
+                      {/* Checkbox de Términos */}
+                      <FormField
+                        control={form.control}
+                        name="acceptTerms"
+                        render={({ field }) => {
+                          const hasError = !!form.formState.errors.acceptTerms;
+                          const isChecked = field.value ?? false;
+                          return (
+                            <FormItem className="flex items-start space-x-3 space-y-0">
+                              <FormControl>
+                                <motion.div 
+                                  className="flex items-center h-6 mt-1.5 flex-shrink-0"
+                                  whileTap={{ scale: 0.9 }}
+                                >
+                                  <input
+                                    type="checkbox"
+                                    id="acceptTerms"
+                                    checked={isChecked}
+                                    onChange={field.onChange}
+                                    onBlur={field.onBlur}
+                                    className={`w-6 h-6 rounded-xl border-2 transition-all duration-200 cursor-pointer accent-blue-500 ${
+                                      isChecked
+                                        ? 'bg-blue-500 rounded-xl border-blue-500 shadow-lg shadow-blue-500/50'
+                                        : 'bg-slate-800 rounded-xl border-slate-600 hover:border-slate-500'
+                                    } ${hasError ? 'border-rose-500 shadow-lg shadow-rose-500/30' : ''}`}
+                                  />
+                                </motion.div>
+                              </FormControl>
+                              <div className="flex-1 leading-6 pt-0.5">
+                                <label htmlFor="acceptTerms" className="text-sm text-slate-300 cursor-pointer hover:text-slate-200 transition-colors">
+                                  Acepto los{" "}
+                                  <Link
+                                    href="/terms"
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    className="text-blue-400 hover:text-blue-300 underline font-semibold transition-colors"
+                                  >
+                                    términos y condiciones
+                                  </Link>
+                                  {" "}de NEOSALE
+                                </label>
+                                {form.formState.errors.acceptTerms && (
+                                  <motion.div
+                                    initial={{ opacity: 0, y: -5 }}
+                                    animate={{ opacity: 1, y: 0 }}
+                                    className="text-rose-300 text-xs mt-1 block flex items-center gap-1"
+                                  >
+                                    <AlertTriangle className="w-3 h-3" />
+                                    {form.formState.errors.acceptTerms.message}
+                                  </motion.div>
+                                )}
+                              </div>
+                            </FormItem>
+                          );
+                        }}
+                      />
+
+                      {/* Checkbox de Privacidad */}
+                      <FormField
+                        control={form.control}
+                        name="acceptPrivacy"
+                        render={({ field }) => {
+                          const hasError = !!form.formState.errors.acceptPrivacy;
+                          const isChecked = field.value ?? false;
+                          return (
+                            <FormItem className="flex items-start space-x-3 space-y-0">
+                              <FormControl>
+                                <motion.div 
+                                  className="flex items-center h-6 mt-1.5 flex-shrink-0"
+                                  whileTap={{ scale: 0.9 }}
+                                >
+                                  <input
+                                    type="checkbox"
+                                    id="acceptPrivacy"
+                                    checked={isChecked}
+                                    onChange={field.onChange}
+                                    onBlur={field.onBlur}
+                                    className={`w-6 h-6 rounded-lg border-2 transition-all duration-200 cursor-pointer accent-green-500 ${
+                                      isChecked
+                                        ? 'bg-green-500 border-green-500 shadow-lg shadow-green-500/50'
+                                        : 'bg-slate-800 border-slate-600 hover:border-slate-500'
+                                    } ${hasError ? 'border-rose-500 shadow-lg shadow-rose-500/30' : ''}`}
+                                  />
+                                </motion.div>
+                              </FormControl>
+                              <div className="flex-1 leading-6 pt-0.5">
+                                <label htmlFor="acceptPrivacy" className="text-sm text-slate-300 cursor-pointer hover:text-slate-200 transition-colors">
+                                  Autorizo el tratamiento de mis datos personales según la{" "}
+                                  <Link
+                                    href="/privacy"
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    className="text-green-400 hover:text-green-300 underline font-semibold transition-colors"
+                                  >
+                                    política de privacidad
+                                  </Link>
+                                </label>
+                                {form.formState.errors.acceptPrivacy && (
+                                  <motion.div
+                                    initial={{ opacity: 0, y: -5 }}
+                                    animate={{ opacity: 1, y: 0 }}
+                                    className="text-rose-300 text-xs mt-1 block flex items-center gap-1"
+                                  >
+                                    <AlertTriangle className="w-3 h-3" />
+                                    {form.formState.errors.acceptPrivacy.message}
+                                  </motion.div>
+                                )}
+                              </div>
+                            </FormItem>
+                          );
+                        }}
+                      />
+                    </div>
                   </section>
 
                   <div className="space-y-4 pt-4">

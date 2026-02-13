@@ -23,8 +23,6 @@ export function getMailgunClient() {
         pass: EMAIL_PASSWORD,
       },
     });
-
-    console.log('📧 Nodemailer configured with:', EMAIL_USER);
   }
 
   return transporter;
@@ -50,7 +48,6 @@ export async function sendEmail(emailData: EmailData) {
       html: emailData.html,
     });
 
-    console.log('✅ Email sent successfully:', info.messageId);
     return { success: true, data: { id: info.messageId } };
   } catch (error: any) {
     console.error('❌ Error sending email:', error);

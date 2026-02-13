@@ -14,7 +14,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
   session: {
     strategy: "jwt",
     maxAge: 24 * 60 * 60, // 24 hours
-    updateAge: 24 * 60 * 60, // Only update session once per day
+    updateAge: 60 * 60, // Update session every hour to check expiration
   },
   jwt: {
     maxAge: 24 * 60 * 60 // 24 hours
@@ -74,10 +74,28 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
     },
 
     async jwt({ token, user, trigger }) {
-      // Only update token on sign in or explicit update
+      // On sign in, get user data with role
       if (user) {
         token.role = user.role;
+        return token;
       }
+
+      // On token refresh or subsequent calls, look up fresh role from DB
+      // This ensures role changes are reflected immediately
+      if (token.sub) {
+        try {
+          const dbUser = await prisma.user.findUnique({
+            where: { id: Number(token.sub) },
+            select: { role: true }
+          });
+          if (dbUser) {
+            token.role = dbUser.role;
+          }
+        } catch (error) {
+          // If lookup fails, keep existing token role
+        }
+      }
+      
       return token;
     },
     

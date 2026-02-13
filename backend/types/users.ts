@@ -8,6 +8,8 @@ export interface createUserParams {
   phone_number?: string | null;
   identification?: string | null;
   role?: roles_enum;
+  acceptTerms?: boolean;
+  acceptPrivacy?: boolean;
 }
 
 export interface updateUserParams {

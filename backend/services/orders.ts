@@ -529,11 +529,6 @@ export const updateOrderStatusService = async (
       },
     });
 
-    console.log("Estado de orden actualizado:", {
-      orderId: order.id,
-      newStatus: order.status,
-    });
-
     // Notificar a todos los admins sobre el cambio de estado
     try {
       await notifyOrderStatusChange(order.id, status);

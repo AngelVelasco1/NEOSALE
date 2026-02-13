@@ -199,12 +199,6 @@ export const getWompiAcceptanceTokensService = async () => {
       throw new Error("WP_PUBLIC_KEY no está configurado");
     }
 
-    console.log("Obteniendo tokens de aceptación de Wompi...", {
-      publicKey: config.publicKey.substring(0, 20) + "...",
-      environment: config.environment,
-      baseUrl: config.baseUrl,
-    });
-
     const url = `${config.baseUrl}/merchants/${config.publicKey}`;
 
     const response = await fetch(url, {
@@ -245,16 +239,6 @@ export const getWompiAcceptanceTokensService = async () => {
       presigned_acceptance: result.data.presigned_acceptance,
       presigned_personal_data_auth: result.data.presigned_personal_data_auth,
     };
-
-    console.log(" Tokens de aceptación obtenidos exitosamente:", {
-      hasPresignedAcceptance:
-        !!merchantData.presigned_acceptance.acceptance_token,
-      hasPersonalDataAuth:
-        !!merchantData.presigned_personal_data_auth.acceptance_token,
-      acceptancePermalink: merchantData.presigned_acceptance.permalink,
-      personalDataPermalink:
-        merchantData.presigned_personal_data_auth.permalink,
-    });
 
     return {
       success: true,
@@ -514,7 +498,6 @@ export const createPSETransaction = async (
 
     while (!asyncPaymentUrl && pollAttempts < maxPollAttempts) {
       pollAttempts++;
-      console.log(`Polling intento ${pollAttempts}/${maxPollAttempts}...`);
 
       // Esperar 10 segundos antes del siguiente intento
       await new Promise((resolve) => setTimeout(resolve, 10000));
@@ -537,7 +520,6 @@ export const createPSETransaction = async (
             statusResult.data?.payment_method?.extra?.async_payment_url;
 
           if (asyncPaymentUrl) {
-            console.log(" async_payment_url obtenida:", asyncPaymentUrl);
             break;
           }
         }
@@ -1338,13 +1320,9 @@ export const getPaymentByTransactionIdService = async (
   transactionId: string
 ) => {
   try {
-    console.log("Consultando payment desde BD:", { transactionId });
-
     const paymentResult = await prisma.$queryRaw`
       SELECT * FROM get_payment_by_transaction_id(${transactionId}::VARCHAR)
     `;
-
-    console.log(" Payment consultado desde BD:", paymentResult);
 
     return {
       success: true,
@@ -1454,10 +1432,6 @@ export const updatePaymentFromWebhook = async (webhookData: {
       )
     `;
 
-    console.log(
-      "✅ fn_update_payment ejecutada exitosamente desde webhook:",
-      result
-    );
     return { success: true, data: result };
   } catch (error) {
     console.error("Error en updatePaymentFromWebhook:", error);

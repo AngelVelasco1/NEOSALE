@@ -6,6 +6,8 @@ export const registerUser = async (userData: {
   email_verified?: Date;
   password: string;
   phoneNumber?: string;
+  acceptTerms?: boolean;
+  acceptPrivacy?: boolean;
 }) => {
   const { data } = await api.post("/api/users/register", userData);
   return data.data; 

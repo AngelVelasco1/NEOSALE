@@ -88,8 +88,6 @@ export default {
                   token: emailToken,
                   name: user.name || 'Usuario',
                 }).catch(err => console.error('Email send error:', err));
-              } else {
-                console.log('Token válido ya existe para:', user.email);
               }
             } catch (tokenError: any) {
               console.error('Error manejando token de verificación:', tokenError);

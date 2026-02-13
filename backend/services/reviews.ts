@@ -160,10 +160,6 @@ export const createReviewService = async (data: CreateReviewData) => {
       throw new Error("Review not found after creation");
     }
 
-    console.log('✅ Review fetched successfully:', completeReview.id);
-
-    console.log('✅ Review fetched successfully:', completeReview.id);
-
     // 🔔 Notificar a todos los admins sobre la nueva reseña
     try {
       await notifyNewReview(

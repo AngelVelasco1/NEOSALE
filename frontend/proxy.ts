@@ -1,69 +1,83 @@
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
+import { getToken } from "next-auth/jwt";
 
 export default async function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
-  // Skip proxy for static files, API routes, and Next.js internals
+  // Skip public/static assets
   if (
     pathname.startsWith('/_next/static') ||
     pathname.startsWith('/_next/image') ||
-    pathname.startsWith('/_next/webpack-hmr') ||
     pathname.startsWith('/api/') ||
-    pathname.match(/\.(png|jpg|jpeg|gif|svg|ico|webp|woff|woff2|ttf|eot)$/) ||
-    pathname === '/favicon.ico'
+    pathname === '/favicon.ico' ||
+    pathname.match(/\.(png|jpg|jpeg|gif|svg|ico|webp|woff|woff2|ttf|eot)$/)
   ) {
     return NextResponse.next();
   }
 
-  // Skip proxy for prefetch/prerender requests
-  const purpose = request.headers.get('purpose');
-  const nextRouterPreload = request.headers.get('x-nextjs-data');
-  if (purpose === 'prefetch' || nextRouterPreload) {
-    return NextResponse.next();
-  }
+  try {
+    // Get token from request - this works in middleware/proxy
+    const token = await getToken({ 
+      req: request,
+      secret: process.env.AUTH_SECRET || process.env.NEXTAUTH_SECRET
+    });
 
-  // Check for session cookie
-  const sessionToken = request.cookies.get('authjs.session-token') || 
-                      request.cookies.get('__Secure-authjs.session-token');
+    const userRole = (token as any)?.role as string | undefined;
+    const isAdmin = userRole === 'admin';
+    const customerOnlyRoutes = ['/checkout', '/orders', '/profile', '/favorites', '/productsCart'];
+    const isCustomerRoute = customerOnlyRoutes.some(route => pathname.startsWith(route));
 
-  // Protected routes - require authentication
-  const protectedRoutes = ['/dashboard', '/profile', '/orders', '/checkout'];
-  const isProtectedRoute = protectedRoutes.some(route => pathname.startsWith(route));
+    // DEBUG LOGS
+    console.log('🔍 PROXY DEBUG:', {
+      pathname,
+      token: token ? 'EXISTS' : 'NULL',
+      userRole,
+      isAdmin,
+      isCustomerRoute,
+      message: isAdmin && isCustomerRoute ? '❌ ADMIN EN RUTA CUSTOMER - DEBERÍA REDIRIGIR' : 'OK'
+    });
 
-  // Admin-only routes
-  const adminRoutes = ['/dashboard'];
-  const isAdminRoute = adminRoutes.some(route => pathname.startsWith(route));
-
-  // Auth routes (login, register, etc.)
-  const authRoutes = ['/login', '/register', '/forgot-password', '/reset-password'];
-  const isAuthRoute = authRoutes.some(route => pathname.startsWith(route));
-
-  // 1. For auth pages with active session, let client-side handle redirect
-  // Don't redirect in proxy to avoid race conditions
-  if (isAuthRoute && sessionToken) {
-    return NextResponse.next();
-  }
-
-  if (isAuthRoute && !sessionToken) {
-    return NextResponse.next();
-  }
-
-  // 2. Protect admin and other routes - require session token
-  if (isProtectedRoute) {
-    if (!sessionToken) {
-      const loginUrl = new URL('/login', request.url);
-      loginUrl.searchParams.set('from', pathname);
-      return NextResponse.redirect(loginUrl);
+    // If user is admin - block customer-only routes
+    if (isAdmin && token) {
+      if (isCustomerRoute) {
+        // Admin trying to access customer-only route - REDIRECT to dashboard
+        console.log('🚫 ADMIN INTENTANDO ACCEDER A:', pathname, 'REDIRIGIENDO A /dashboard');
+        return NextResponse.redirect(new URL('/dashboard', request.url));
+      }
+      // Admin accessing public/allowed routes - ALLOW
+      return NextResponse.next();
     }
-  }
 
-  return NextResponse.next();
+    // If user is trying to access customer-only routes without proper auth
+    if (isCustomerRoute) {
+      if (!token || userRole !== 'user') {
+        // Not authenticated or wrong role - REDIRECT to login
+        const loginUrl = new URL('/login', request.url);
+        loginUrl.searchParams.set('from', pathname);
+        return NextResponse.redirect(loginUrl);
+      }
+    }
+
+    // All other paths - ALLOW
+    return NextResponse.next();
+  } catch (error) {
+    // On error, allow the request to continue (fail open)
+    console.error('❌ PROXY ERROR:', error);
+    return NextResponse.next();
+  }
 }
 
 // Matcher configuration - run proxy for app routes only
 export const config = {
   matcher: [
-    '/((?!_next/static|_next/image|_next/webpack-hmr|api|favicon.ico|.*\\..*|).*)',
+    /*
+     * Match all request paths except for the ones starting with:
+     * - _next/static (static files)
+     * - _next/image (image optimization files)
+     * - favicon.ico (favicon file)
+     * - public folder
+     */
+    '/((?!_next/static|_next/image|favicon.ico|public).*)',
   ],
 };

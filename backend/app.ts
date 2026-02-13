@@ -6,6 +6,7 @@ import cookieParser from "cookie-parser";
 import { prisma } from "./lib/prisma.js";
 import compression from "compression";
 import { errorsHandler } from "./middlewares/errorsHandler.js";
+import { startTokenCleanupInterval } from "./lib/cleanupTokens.js";
 
 const app = express();
 
@@ -94,6 +95,9 @@ const server = app.listen(Number(BACK_CONFIG.port), "0.0.0.0", async () => {
   console.log(
     `Servidor corriendo en http://${BACK_CONFIG.host}:${BACK_CONFIG.port}`
   );
+  
+  // Iniciar limpieza automática de tokens cada hora
+  startTokenCleanupInterval(60 * 60 * 1000);
 });
 
 // Timeouts para long-running requests

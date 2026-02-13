@@ -67,8 +67,6 @@ export async function GET(
       },
     });
 
-    console.log('Email verified successfully for user:', user.email);
-
     // Redirigir al login con mensaje de éxito
     return NextResponse.redirect(
       new URL('/login?verified=success', request.url)
