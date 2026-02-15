@@ -1,5 +1,6 @@
 import { Metadata } from "next";
 import { Cookie, Settings, BarChart, Target, CheckCircle2, Shield, Database, Globe, Mail, Phone, MapPin, Clock, Sparkles, AlertTriangle } from "lucide-react";
+import { CookiesFloatingParticles } from "./_components/CookiesFloatingParticles";
 
 export const metadata: Metadata = {
   title: "Política de Cookies | NeoSale",
@@ -195,20 +196,7 @@ Control: Puedes rechazar estas cookies sin afectar la funcionalidad básica del 
       </div>
 
       {/* Floating Particles */}
-      <div className="fixed inset-0 overflow-hidden pointer-events-none">
-        {[...Array(20)].map((_, i) => (
-          <div
-            key={i}
-            className="absolute w-1 h-1 bg-white/20 rounded-full animate-ping"
-            style={{
-              left: `${Math.random() * 100}%`,
-              top: `${Math.random() * 100}%`,
-              animationDelay: `${Math.random() * 3}s`,
-              animationDuration: `${2 + Math.random() * 2}s`,
-            }}
-          />
-        ))}
-      </div>
+      <CookiesFloatingParticles />
 
       {/* Content */}
       <div className="relative z-10">

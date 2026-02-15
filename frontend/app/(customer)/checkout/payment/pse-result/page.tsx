@@ -45,8 +45,6 @@ export default function PSEResultPage() {
         // Iniciar polling para verificar el estado de la transacción
         const checkTransactionStatus = async () => {
             try {
-                `);
-
                 const response = await fetch(`/api/payments/transaction/${transactionId}`);
 
                 if (!response.ok) {

@@ -1,4 +1,3 @@
-import { Metadata } from "next";
 import { notFound } from "next/navigation";
 
 
@@ -12,26 +11,8 @@ type PageParams = {
   }>;
 };
 
-export async function generateMetadata({
-  params,
-}: PageParams): Promise<Metadata> {
-  try {
-    const { id } = await params;
-    const productId = parseInt(id);
-    const product = await prisma.products.findUnique({
-      where: { id: productId },
-      select: { name: true },
-    });
-
-    if (!product) {
-      return { title: "Product not found" };
-    }
-
-    return { title: product.name };
-  } catch {
-    return { title: "Product not found" };
-  }
-}
+// Do NOT define generateMetadata or generateStaticParams - let this page be rendered on-demand only
+// This is a dynamic [id] route that should not be prerendered
 
 export default async function ProductDetails({ params }: PageParams) {
   try {
@@ -84,12 +65,17 @@ export default async function ProductDetails({ params }: PageParams) {
       return notFound();
     }
 
-    // Convertir Decimal a number para evitar errores en Client Components
+    // Convertir Decimal a number y Date a string para evitar errores en Client Components
     const serializedProduct = {
       ...product,
       price: Number(product.price),
       base_discount: Number(product.base_discount),
       offer_discount: product.offer_discount ? Number(product.offer_discount) : null,
+      created_at: product.created_at.toISOString(),
+      updated_at: product.updated_at?.toISOString() ?? null,
+      deleted_at: product.deleted_at?.toISOString() ?? null,
+      offer_start_date: product.offer_start_date?.toISOString() ?? null,
+      offer_end_date: product.offer_end_date?.toISOString() ?? null,
       product_variants: product.product_variants.map(variant => ({
         ...variant,
         price: variant.price ? Number(variant.price) : null,

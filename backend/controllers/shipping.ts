@@ -162,9 +162,6 @@ export const handleWebhook = async (
 ) => {
   try {
     const webhookData = req.body;
-
-    console.log("📦 Webhook recibido de EnvioClick:", webhookData);
-
     const result = await processWebhookService(webhookData);
 
     // Siempre responder 200 OK para confirmar recepción

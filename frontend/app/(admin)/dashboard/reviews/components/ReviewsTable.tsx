@@ -66,15 +66,14 @@ export default function ReviewsTable({ reviews }: ReviewsTableProps) {
   const [loadingId, setLoadingId] = useState<number | null>(null);
   const [selectedReview, setSelectedReview] = useState<Review | null>(null);
 
-  const handleToggleStatus = async (reviewId: number) => {
+  const handleToggleStatus = async (reviewId: number, currentActive: boolean) => {
     setLoadingId(reviewId);
-    const result = await toggleReviewStatus(reviewId);
-
-    if (result.success) {
+    try {
+      const result = await toggleReviewStatus(reviewId, !currentActive);
       toast.success(result.message);
       router.refresh();
-    } else {
-      toast.error(result.error);
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : "Error al actualizar reseña");
     }
     setLoadingId(null);
   };
@@ -85,13 +84,12 @@ export default function ReviewsTable({ reviews }: ReviewsTableProps) {
     }
 
     setLoadingId(reviewId);
-    const result = await deleteReview(reviewId);
-
-    if (result.success) {
+    try {
+      const result = await deleteReview(reviewId);
       toast.success(result.message);
       router.refresh();
-    } else {
-      toast.error(result.error);
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : "Error al eliminar reseña");
     }
     setLoadingId(null);
   };
@@ -249,7 +247,7 @@ export default function ReviewsTable({ reviews }: ReviewsTableProps) {
                     <Button
                       size="sm"
                       variant="ghost"
-                      onClick={() => handleToggleStatus(review.id)}
+                      onClick={() => handleToggleStatus(review.id, review.active)}
                       disabled={loadingId === review.id}
                       className={
                         review.active

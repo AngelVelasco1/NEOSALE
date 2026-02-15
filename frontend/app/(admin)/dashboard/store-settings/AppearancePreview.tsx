@@ -1,6 +1,7 @@
 "use client";
 
 import { Watch } from "lucide-react";
+import Image from "next/image";
 
 interface AppearancePreviewProps {
   primaryColor: string;
@@ -40,10 +41,12 @@ export function AppearancePreview({
           >
             <div className="flex items-center gap-2">
               {logoUrl && (
-                <img
+                <Image
                   src={logoUrl}
                   alt="Logo"
-                  className="w-8 h-8 rounded"
+                  width={32}
+                  height={32}
+                  className="w-8 h-8 rounded object-contain"
                   onError={(e) => {
                     e.currentTarget.style.display = "none";
                   }}

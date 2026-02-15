@@ -38,14 +38,16 @@ interface Product {
     active: boolean;
     in_offer: boolean;
     offer_discount: number | null;
-    offer_end_date: Date | null;
+    offer_end_date: string | null;
+    offer_start_date: string | null;
     created_at: string;
     updated_at: string | null;
+    deleted_at: string | null;
     categories: { name: string } | null;
     brands: { name: string } | null;
     images: Array<{
         image_url: string;
-        is_primary: boolean;
+        is_primary: boolean | null;
         color: string | null;
     }>;
     product_variants: Array<{
@@ -63,7 +65,7 @@ interface EditableProductPageProps {
     primaryImage: string;
     allImages: Array<{
         image_url: string;
-        is_primary: boolean;
+        is_primary: boolean | null;
         color: string | null;
     }>;
     variants: Array<{

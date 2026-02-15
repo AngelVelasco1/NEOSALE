@@ -715,12 +715,6 @@ export const createOrderFromPaymentController = async (
       return;
     }
 
-    // Buscar el payment por transaction_id para obtener el ID numérico
-    console.log(
-      "Buscando payment con transaction_id:",
-      finalPaymentTransactionId
-    );
-
     const paymentRecord = await prisma.payments.findUnique({
       where: {
         transaction_id: finalPaymentTransactionId as string,
@@ -732,7 +726,6 @@ export const createOrderFromPaymentController = async (
       },
     });
 
-    console.log("Payment encontrado:", paymentRecord);
 
     if (!paymentRecord) {
       // Buscar todos los payments para debug

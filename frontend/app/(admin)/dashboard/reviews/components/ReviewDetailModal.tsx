@@ -38,7 +38,7 @@ interface Review {
 interface ReviewDetailModalProps {
   review: Review;
   onClose: () => void;
-  onToggleStatus: (id: number) => void;
+  onToggleStatus: (id: number, currentActive: boolean) => void;
   onDelete: (id: number) => void;
   isLoading: boolean;
 }
@@ -182,7 +182,7 @@ export default function ReviewDetailModal({
           <div className="flex gap-3 pt-2">
             <Button
               onClick={() => {
-                onToggleStatus(review.id);
+                onToggleStatus(review.id, review.active);
                 onClose();
               }}
               disabled={isLoading}

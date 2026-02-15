@@ -256,7 +256,11 @@ export default function CheckoutPage() {
   const handleCreateAddress = useCallback(
     async (addressData: any) => {
       try {
-        const newAddress = await createAddress(addressData);
+        const response = await createAddress(addressData);
+        if (!response.success || !response.data) {
+          throw new Error(response.message || "Error al crear la dirección");
+        }
+        const newAddress = response.data;
         setUserAddresses((prev) => [...prev, newAddress]);
         setSelectedAddress(newAddress);
         ErrorsHandler.showSuccess("Éxito", "Dirección creada exitosamente");
@@ -635,7 +639,6 @@ export default function CheckoutPage() {
                     addresses={userAddresses}
                     selectedAddress={selectedAddress}
                     onAddressSelect={setSelectedAddress}
-                    onAddNewAddress={handleCreateAddress}
                     onCreateAddress={handleCreateAddress}
                     userId={userProfile?.id ?? 0}
                     onAddressesChange={fetchData}

@@ -39,7 +39,7 @@ export const useAddresses = () => {
                 const result = await createAddressApi(addressData, userId);
 
                 if (!result.success || !result.data) {
-                    throw new Error(result.error || "Error al crear la dirección");
+                    throw new Error(result.message || "Error al crear la dirección");
                 }
 
                 // ✅ Retornar la dirección completa del servidor

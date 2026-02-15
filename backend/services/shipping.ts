@@ -517,9 +517,7 @@ export const processWebhookService = async (webhookData: any) => {
       data: updateData,
     });
 
-    console.log(
-      `✅ Webhook procesado - Orden ${order.id}, Estado: ${status}`
-    );
+
 
     return {
       success: true,
@@ -569,9 +567,7 @@ export const createShippingGuideAutomaticService = async (
     );
 
     if (guideResult.success) {
-      console.log(
-        `✅ [AUTO-GUIDE] Guía creada automáticamente para orden ${orderId}: ${guideResult.guideNumber}`
-      );
+     
       return {
         success: true,
         message: "Guía de envío creada automáticamente",

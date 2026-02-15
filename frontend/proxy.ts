@@ -28,21 +28,11 @@ export default async function proxy(request: NextRequest) {
     const customerOnlyRoutes = ['/checkout', '/orders', '/profile', '/favorites', '/productsCart'];
     const isCustomerRoute = customerOnlyRoutes.some(route => pathname.startsWith(route));
 
-    // DEBUG LOGS
-    console.log('🔍 PROXY DEBUG:', {
-      pathname,
-      token: token ? 'EXISTS' : 'NULL',
-      userRole,
-      isAdmin,
-      isCustomerRoute,
-      message: isAdmin && isCustomerRoute ? '❌ ADMIN EN RUTA CUSTOMER - DEBERÍA REDIRIGIR' : 'OK'
-    });
 
     // If user is admin - block customer-only routes
     if (isAdmin && token) {
       if (isCustomerRoute) {
         // Admin trying to access customer-only route - REDIRECT to dashboard
-        console.log('🚫 ADMIN INTENTANDO ACCEDER A:', pathname, 'REDIRIGIENDO A /dashboard');
         return NextResponse.redirect(new URL('/dashboard', request.url));
       }
       // Admin accessing public/allowed routes - ALLOW

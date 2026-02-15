@@ -37,7 +37,7 @@ export type Product = {
     image_url: string;
     color: string;
     color_code: string;
-    is_primary?: boolean;
+    is_primary?: boolean | null;
   }>;
   product_variants?: Array<{
     id: number;

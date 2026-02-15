@@ -15,7 +15,7 @@ export default function Favorites() {
   const [favorites, setFavorites] = useState<Favorite[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const { data: session, status } = useSession();
-  const userId = parseInt(session?.user?.id);
+  const userId = session?.user?.id ? parseInt(session.user.id) : null;
   const { refreshFavoritesCount } = useFavorites();
 
   const fetchFavorites = async () => {
@@ -209,7 +209,7 @@ export default function Favorites() {
                           stock: favorite.products.stock,
                           color: favorite.products.color,
                           color_code: favorite.products.color_code,
-                          image_url: favorite.products.image_url,
+                          image_url: favorite.products.image_url ?? undefined,
                         }}
                         initialIsFavorite={true}
                       />

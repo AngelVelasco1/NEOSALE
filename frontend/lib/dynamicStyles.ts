@@ -108,10 +108,10 @@ export const dynamicStyles = {
 };
 
 // Hook para aplicar estilos dinámicos fácilmente
-export const useDynamicStyle = (styleKey: keyof typeof dynamicStyles, ...args: any[]) => {
+export const useDynamicStyle = (styleKey: keyof typeof dynamicStyles, ...args: unknown[]) => {
   const style = dynamicStyles[styleKey];
   if (typeof style === "function") {
-    return style(...args);
+    return (style as (...args: unknown[]) => unknown)(...args);
   }
   return style;
 };

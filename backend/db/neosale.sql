@@ -109,6 +109,8 @@ CREATE TABLE "User" (
     role roles_enum DEFAULT 'user' NOT NULL,
     active BOOLEAN DEFAULT TRUE NOT NULL,
     email_notifications BOOLEAN DEFAULT TRUE NOT NULL,
+    terms_accepted_at TIMESTAMP(6),
+    privacy_accepted_at TIMESTAMP(6),
     created_at TIMESTAMP(6) DEFAULT CURRENT_TIMESTAMP NOT NULL,
     updated_at TIMESTAMP(6) DEFAULT NULL,
     CONSTRAINT chk_user_phone CHECK (
@@ -507,6 +509,7 @@ CREATE TABLE store_settings (
     favicon_url VARCHAR(255),
     primary_color VARCHAR(20) DEFAULT '#3B82F6' NOT NULL,
     secondary_color VARCHAR(20) DEFAULT '#6366F1' NOT NULL,
+    accent_color VARCHAR(20) DEFAULT '#D946EF' NOT NULL,
     footer_text TEXT,
     newsletter_enabled BOOLEAN DEFAULT TRUE NOT NULL,
     show_whatsapp_chat BOOLEAN DEFAULT TRUE NOT NULL,

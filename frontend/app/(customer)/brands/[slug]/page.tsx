@@ -1,4 +1,3 @@
-
 import { Metadata } from "next";
 import { getBrandBySlug } from "../services";
 import { notFound } from "next/navigation";
@@ -7,26 +6,16 @@ import Link from "next/link";
 import { Package2, ArrowLeft } from "lucide-react";
 import { ProductCard } from "./components/ProductCard";
 
+// Static metadata - Dynamic metadata not compatible with Cache Components
+export const metadata: Metadata = {
+  title: "Marca | NeoSale",
+  description: "Descubre todos los productos de esta marca en NeoSale",
+};
+
 interface BrandPageProps {
   params: Promise<{
     slug: string;
   }>;
-}
-
-export async function generateMetadata({ params }: BrandPageProps): Promise<Metadata> {
-  const { slug } = await params;
-  const brand = await getBrandBySlug(slug);
-  
-  if (!brand) {
-    return {
-      title: "Marca no encontrada | NeoSale",
-    };
-  }
-
-  return {
-    title: `${brand.name} | NeoSale`,
-    description: brand.description || `Descubre todos los productos de ${brand.name}`,
-  };
 }
 
 export default async function BrandDetailPage({ params }: BrandPageProps) {

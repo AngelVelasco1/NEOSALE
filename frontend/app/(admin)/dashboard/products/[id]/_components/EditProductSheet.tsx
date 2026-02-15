@@ -26,17 +26,17 @@ export async function EditProductSheet({ product, children }: Props) {
       initialData={{
         name: product.name,
         description: product.description ?? "",
-        image: product.image_url,
-        sku: product.sku,
-        category: product.category_id,
-        costPrice: product.cost_price,
-        salesPrice: product.selling_price,
+        image: product.images?.[0]?.image_url,
+        sku: (product as unknown as { sku?: string }).sku ?? "",
+        category: String(product.category_id),
+        brand: String(product.brand_id),
+        price: product.price,
         stock: product.stock,
-        minStockThreshold: product.min_stock_threshold,
-        slug: product.slug,
+        weight_grams: product.weight_grams,
+        sizes: product.sizes,
       }}
-      action={(formData) => editProduct(product.id, formData)}
-      previewImage={product.image_url}
+      action={(formData) => editProduct(String(product.id), formData)}
+      previewImage={product.images?.[0]?.image_url}
     >
       <SheetTrigger asChild>{children}</SheetTrigger>
     </ProductFormSheet>

@@ -163,7 +163,7 @@ export const createAddressSchema = z.object({
   department: z.string()
     .min(2, 'El departamento debe tener al menos 2 caracteres')
     .max(100, 'El departamento no debe exceder 100 caracteres'),
-  is_default: z.boolean().optional().default(false),
+  is_default: z.boolean(),
 });
 
 export const updateAddressSchema = z.object({

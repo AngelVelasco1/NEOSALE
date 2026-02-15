@@ -217,7 +217,6 @@ class EnvioClickService {
         ? `${this.apiUrl}/api/v2/shipment_sandbox`
         : `${this.apiUrl}/api/v2/shipment`;
 
-      console.log(`Creando guía en ${this.environment}:`, endpoint);
 
       const response = await fetch(endpoint, {
         method: "POST",

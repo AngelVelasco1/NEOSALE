@@ -282,7 +282,6 @@ export const ProductDetails = ({ data }: ProductDetailsProps) => {
                       : "opacity-60 hover:opacity-100 border border-white/5 hover:border-white/20 hover:scale-105"
                       }`}
                     style={selectedImage === index ? {
-                      ringColor: `var(--color-primary)`,
                       boxShadow: `0 0 0 2px var(--color-primary)`
                     } : {}}
                   >

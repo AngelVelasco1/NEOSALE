@@ -1,5 +1,6 @@
 import { Metadata } from "next";
 import { Shield, Lock, Eye, Database, UserCheck, AlertTriangle, CheckCircle2, FileText, Users, CreditCard, Globe, Mail, Phone, MapPin, Clock, Sparkles } from "lucide-react";
+import { FloatingParticles } from "./_components/FloatingParticles";
 
 export const metadata: Metadata = {
   title: "Política de Privacidad | NeoSale",
@@ -279,20 +280,7 @@ export default function PrivacyPage() {
       </div>
 
       {/* Floating Particles */}
-      <div className="fixed inset-0 overflow-hidden pointer-events-none">
-        {[...Array(20)].map((_, i) => (
-          <div
-            key={i}
-            className="absolute w-1 h-1 bg-white/20 rounded-full animate-ping"
-            style={{
-              left: `${Math.random() * 100}%`,
-              top: `${Math.random() * 100}%`,
-              animationDelay: `${Math.random() * 3}s`,
-              animationDuration: `${2 + Math.random() * 2}s`,
-            }}
-          />
-        ))}
-      </div>
+      <FloatingParticles />
 
       {/* Content */}
       <div className="relative z-10">

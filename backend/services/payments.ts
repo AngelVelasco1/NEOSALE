@@ -581,10 +581,7 @@ export const createPSETransaction = async (
         cartData: cartDataForDb || undefined,
       });
 
-      console.log(
-        "✅ Payment PSE almacenado en base de datos:",
-        paymentDbResult
-      );
+  
     } catch (dbError) {
       console.error(
         "⚠️ Error almacenando payment PSE en BD (no crítico):",
@@ -921,11 +918,7 @@ export const createPaymentService = async (
       transactionPayload.payment_method_type =
         transactionData.payment_method_type;
 
-      console.log("Método de pago incluido:", {
-        type: transactionData.payment_method.type,
-        installments: transactionData.payment_method.installments,
-        hasToken: !!transactionData.payment_method.token,
-      });
+    
     }
 
     // Realizar petición a Wompi
@@ -1059,15 +1052,9 @@ export const createPaymentService = async (
         };
       });
     } else {
-      console.log("Cart data NO válido - almacenando array vacío:", {
-        hasCartData: !!transactionData.cartData,
-        cartDataStructure: transactionData.cartData,
-        reason: !transactionData.cartData
-          ? "cartData es null/undefined"
-          : !Array.isArray(transactionData.cartData)
-          ? "cartData no es un array"
-          : "estructura desconocida",
-      });
+      console.warn(
+        "⚠️ No se proporcionó cartData o no es un array válido, se guardará sin datos de carrito"
+      );
     }
 
     try {
@@ -1189,14 +1176,8 @@ export const getWompiTransactionStatusService = async (
 
     const transactionData = await response.json();
 
-    console.log(" Estado de transacción obtenido:", {
-      transactionId,
-      status: transactionData.data?.status,
-      amount: transactionData.data?.amount_in_cents,
-      reference: transactionData.data?.reference,
-    });
 
-    // 🔄 Actualizar estado en nuestra base de datos si ha cambiado
+    // Actualizar estado en nuestra base de datos si ha cambiado
     if (transactionData.data?.status) {
       try {
         await updatePaymentStatusService(

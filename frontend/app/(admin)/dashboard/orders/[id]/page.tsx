@@ -1,4 +1,3 @@
-import { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { FaBagShopping } from "react-icons/fa6";
 import { formatDate } from "@/lib/date-utils";
@@ -31,18 +30,8 @@ type PageParams = {
   }>;
 };
 
-export async function generateMetadata({
-  params,
-}: PageParams): Promise<Metadata> {
-  try {
-    const { id } = await params;
-    const { order } = await fetchOrderDetails({ id });
-
-    return { title: `Pedido #${order.id} - NEO$ALE` };
-  } catch {
-    return { title: "Pedido no encontrado - NEO$ALE" };
-  }
-}
+// Do NOT define generateMetadata or generateStaticParams - let this page be rendered on-demand only
+// This is a dynamic [id] route that should not be prerendered
 
 export default async function Order({ params }: PageParams) {
   try {
@@ -242,7 +231,7 @@ export default async function Order({ params }: PageParams) {
                       {order.User.phoneNumber}
                     </Typography>
                   )}
-                  {order.addresses.street && (
+                  {order.addresses?.street && (
                     <Typography component="p" className="text-sm text-gray-400 font-medium max-w-full">
                       {order.addresses.street}, {order.addresses.city}, {order.addresses.zip_code}
                     </Typography>

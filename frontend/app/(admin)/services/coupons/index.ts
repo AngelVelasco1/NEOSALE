@@ -1,7 +1,7 @@
 "use server";
 import { prisma } from "@/lib/prisma";
 import { FetchCouponsParams, FetchCouponsResponse } from "./types";
-import { Prisma } from "@prisma/client";
+import { Prisma } from "@/prisma/generated/prisma/client";
 
 export async function fetchCoupons({
   page = 1,

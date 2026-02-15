@@ -24,7 +24,7 @@ export function RecoveryPanelContent({ expirationMinutes }: Props) {
     },
     {
       title: "2. Revisa tu bandeja",
-      description: `MailerSend entrega el enlace cifrado. Tienes ${expirationMinutes} minutos para usarlo antes de que caduque por seguridad.`,
+      description: `Te enviamos un enlace cifrado. Tienes ${expirationMinutes} minutos para usarlo antes de que caduque por seguridad.`,
       icon: TimerReset,
     },
     {

@@ -2,7 +2,7 @@
 
 import { Badge } from "@/components/ui/badge"
 import { X } from "lucide-react"
-import type { FilterState } from "../../types"
+import type { FilterState } from "../../../types"
 
 interface Color {
   code: string

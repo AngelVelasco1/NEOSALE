@@ -103,7 +103,7 @@ export function useSendOrderEmail() {
       await sendOrderEmail(params);
       return { success: true };
     } catch (err) {
-      :', err);
+      console.error('Failed to send order email:', err);
       return { success: false, error: err };
     }
   };

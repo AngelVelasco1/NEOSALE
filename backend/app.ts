@@ -1,3 +1,4 @@
+import 'dotenv/config'
 import express from "express";
 import { initRoutes } from "./routes/router.js";
 import { BACK_CONFIG } from "./config/credentials.js";

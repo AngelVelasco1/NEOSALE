@@ -207,8 +207,7 @@ export const WompiContractsAcceptance: React.FC<
                     type="button"
                     onClick={() =>
                       openContract(
-                        contractLinks.termsAndConditions.url,
-                        contractLinks.termsAndConditions.title
+                        contractLinks.termsAndConditions.url
                       )
                     }
                     className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-slate-700/50 border border-violet-500/30 hover:border-violet-400 hover:bg-violet-50/10 text-violet-300 font-medium text-sm transition-all duration-300 shadow-sm hover:shadow-md"
@@ -273,8 +272,7 @@ export const WompiContractsAcceptance: React.FC<
                       type="button"
                       onClick={() =>
                         openContract(
-                          contractLinks.personalDataAuth.url,
-                          contractLinks.personalDataAuth.title
+                          contractLinks.personalDataAuth.url
                         )
                       }
                       className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-slate-700/50 border border-violet-500/30 hover:border-violet-400 hover:bg-violet-50/10 text-violet-300 font-medium text-sm transition-all duration-300 shadow-sm hover:shadow-md"

@@ -69,28 +69,11 @@ export interface FetchOrdersResponse {
 
 export type OrderDetails = {
   id: number;
-  payment_id: number;
-  status: OrderStatus;
-  subtotal: number;
-  discount: number | null;
-  shipping_cost: number;
-  taxes: number;
-  total: number;
-  shipping_address_id: number;
-  user_note: string | null;
-  admin_notes: string | null;
-  coupon_id: number | null;
-  coupon_discount: number | null;
-  tracking_number: string | null;
-  carrier: string | null;
-  estimated_delivery_date: string | null;
+  invoice_no: string;
   created_at: string;
-  updated_at: string | null;
-  shipped_at: string | null;
-  delivered_at: string | null;
-  cancelled_at: string | null;
-  user_id: number;
-  updated_by: number;
+  total: number;
+  shipping_cost: number;
+  status: OrderStatus;
   User: {
     name: string | null;
     email: string;
@@ -101,18 +84,10 @@ export type OrderDetails = {
     city: string;
     state: string;
     zip_code: string;
-  };
+  } | null;
   order_items: Array<{
-    id: number;
-    price: number;
     quantity: number;
-    subtotal: number;
-    color_code: string;
-    size: string;
-    product_id: number;
-    order_id: number;
-    created_at: string;
-    updated_at: string | null;
+    price: number;
     products: {
       name: string;
     };
@@ -123,7 +98,6 @@ export type OrderDetails = {
     discount_value: number;
   } | null;
   payments: {
-    transaction_id: string | null;
     payment_method: string;
   };
 };

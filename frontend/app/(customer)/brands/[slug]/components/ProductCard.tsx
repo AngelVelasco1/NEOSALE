@@ -13,7 +13,7 @@ interface ProductCardProps {
     images: Array<{
       id: number;
       image_url: string;
-      is_primary: boolean;
+      is_primary?: boolean | null;
     }>;
   };
 }

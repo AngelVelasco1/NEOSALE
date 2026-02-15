@@ -1,4 +1,3 @@
-import { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { IoBagHandle } from "react-icons/io5";
 
@@ -13,22 +12,8 @@ type PageParams = {
   params: Promise<{ id: string }>;
 };
 
-export async function generateMetadata({
-  params,
-}: PageParams): Promise<Metadata> {
-  try {
-    const { id } = await params;
-    const { customer } = await fetchCustomerOrders({ id });
-
-
-    return {
-      title: `${customer.name} - Orders`,
-      description: `Order history for ${customer.name}`,
-    };
-  } catch (e) {
-    return { title: "Customer not found" };
-  }
-}
+// Do NOT define generateMetadata or generateStaticParams - let this page be rendered on-demand only
+// This is a dynamic [id] route that should not be prerendered
 
 export default async function CustomerOrders({ params }: PageParams) {
   try {

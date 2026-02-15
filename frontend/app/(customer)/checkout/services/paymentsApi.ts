@@ -822,7 +822,6 @@ export const createNequiTransactionApi = async (
       error:
         errorData?.message ||
         (error instanceof Error ? error.message : "Error desconocido"),
-      details: errorData,
     };
   }
 };
@@ -1112,7 +1111,6 @@ export const createPSETransactionApi = async (
       error:
         errorData?.message ||
         (error instanceof Error ? error.message : "Error desconocido"),
-      details: errorData,
     };
   }
 };

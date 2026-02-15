@@ -1,7 +1,6 @@
 import { Metadata } from "next";
-
+import { Suspense } from "react";
 import { RecoveryPanelContent } from "./_components/RecoveryPanelContent";
-
 
 
 const parsedForgotExpiration = Number(
@@ -20,7 +19,7 @@ export const metadata: Metadata = {
   description: "Restaura el acceso a tu cuenta NeoSale desde un entorno seguro",
 };
 
-export default function Page() {
+function PageContent() {
   return (
     <div className="relative min-h-screen overflow-hidden bg-slate-950 text-white">
       <div className="absolute inset-x-0 top-[-40%] h-[480px] bg-linear-to-br from-sky-500/40 via-indigo-700/30 to-fuchsia-600/30 blur-3xl" />
@@ -56,5 +55,13 @@ export default function Page() {
         </div>
       </div>
     </div>
+  );
+}
+
+export default function Page() {
+  return (
+    <Suspense fallback={<div className="min-h-screen bg-slate-950" />}>
+      <PageContent />
+    </Suspense>
   );
 }

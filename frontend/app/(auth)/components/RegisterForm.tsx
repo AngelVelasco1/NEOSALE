@@ -98,11 +98,17 @@ export const RegisterForm: React.FC = () => {
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [success, setSuccess] = useState(false);
-  const [successParticles] = useState(() => generateParticleField(15));
-  const [heroParticles] = useState(() => generateParticleField(24));
+  const [successParticles, setSuccessParticles] = useState<ParticleStyle[]>([]);
+  const [heroParticles, setHeroParticles] = useState<ParticleStyle[]>([]);
 
   const router = useRouter();
   const { data: session } = useSession();
+
+  // Initialize particles on client side only
+  useEffect(() => {
+    setSuccessParticles(generateParticleField(15));
+    setHeroParticles(generateParticleField(24));
+  }, []);
 
   const form = useForm<RegisterFormValues>({
     resolver: zodResolver(registerSchema),

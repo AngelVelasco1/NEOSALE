@@ -1,5 +1,5 @@
 import { Request, Response } from "express";
-import { Prisma } from "@prisma/client";
+import { Prisma } from "../prisma/generated/prisma/client.js";
 import { AppError } from "../errors/errorsClass";
 
 /* eslint-disable no-undef */
@@ -88,9 +88,7 @@ export const errorsHandler = (
 
   // Errores de Prisma
   if (isPrismaKnownError(error)) {
-    if (process.env.NODE_ENV === "development") {
-      console.log(`Prisma error - Code: ${error.code}`, error.meta);
-    }
+  
 
     if (error.code === "P2001" || error.code === "P2010") {
       const target = error.meta?.target as string[] | undefined;

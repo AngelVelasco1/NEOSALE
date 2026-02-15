@@ -5,7 +5,7 @@ import {
   updateUserParams,
   updatePasswordParams,
 } from "../types/users";
-import { roles_enum } from "@prisma/client";
+import { roles_enum } from "../prisma/generated/prisma/client.js";
 import { ValidationError } from "../errors/errorsClass";
 import { 
   validateRegisterInput, 

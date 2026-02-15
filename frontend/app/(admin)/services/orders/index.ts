@@ -53,15 +53,10 @@ export async function fetchOrders(
     const mappedResult: FetchOrdersResponse = {
       data: result.data,
       pagination: {
-        current: result.pagination.page,
+        page: result.pagination.page,
         limit: result.pagination.limit,
-        items: result.pagination.total,
-        pages: result.pagination.totalPages,
-        next:
-          result.pagination.page < result.pagination.totalPages
-            ? result.pagination.page + 1
-            : null,
-        prev: result.pagination.page > 1 ? result.pagination.page - 1 : null,
+        total: result.pagination.total,
+        totalPages: result.pagination.totalPages,
       },
     };
     return mappedResult;
@@ -93,17 +88,23 @@ export async function fetchOrderDetails(params: {
   const order: OrderDetails = {
     id: data.id,
     invoice_no: `INV-${String(data.id).padStart(6, "0")}`,
-    order_time: data.created_at,
-    total_amount: data.total, // Ya está en unidad base (pesos)
-    shipping_cost: data.shipping_cost, // Ya está en unidad base (pesos)
-    payment_method: "CARD", // Por defecto, se puede obtener del payment si es necesario
+    created_at: data.created_at,
+    total: data.total,
+    shipping_cost: data.shipping_cost,
     status: data.status,
-    customers: {
-      name: data.users.name,
-      email: data.users.email,
-      phone: data.users.phone_number || null,
-      address: data.addresses?.address || null,
+    User: {
+      name: data.users?.name ?? null,
+      email: data.users?.email ?? "",
+      phoneNumber: data.users?.phone_number ?? null,
     },
+    addresses: data.addresses
+      ? {
+          street: data.addresses.address ?? "",
+          city: data.addresses.city ?? "",
+          state: data.addresses.department ?? "",
+          zip_code: "",
+        }
+      : null,
     order_items: data.order_items.map(
       (item: {
         quantity: number;
@@ -111,7 +112,7 @@ export async function fetchOrderDetails(params: {
         products: { name: string };
       }) => ({
         quantity: item.quantity,
-        unit_price: item.price, // Ya está en unidad base (pesos)
+        price: item.price,
         products: {
           name: item.products.name,
         },
@@ -119,10 +120,14 @@ export async function fetchOrderDetails(params: {
     ),
     coupons: data.coupons
       ? {
+          code: data.coupons.code,
           discount_type: data.coupons.discount_type,
           discount_value: Number(data.coupons.discount_value),
         }
       : null,
+    payments: {
+      payment_method: data.payments?.payment_method ?? "CARD",
+    },
   };
 
   return { order };

@@ -95,7 +95,7 @@ export const createAddressApi = async (
 
     return {
       success: false,
-      error:
+      message:
         error.response?.data?.message ||
         error.message ||
         "Error creando dirección",
@@ -128,7 +128,7 @@ export const updateAddress = async (
 
     return {
       success: false,
-      error:
+      message:
         error.response?.data?.message ||
         error.message ||
         "Error actualizando dirección",

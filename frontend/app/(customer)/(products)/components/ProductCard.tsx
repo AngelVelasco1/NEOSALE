@@ -40,7 +40,7 @@ export const ProductCard = ({
   const [hasCheckedFavorite, setHasCheckedFavorite] = useState(false);
   const { data: session } = useSession();
   const { refreshFavoritesCount } = useFavorites();
-  const userId = parseInt(session?.user?.id) || null;
+  const userId = session?.user?.id ? parseInt(session.user.id) : null;
 
   useEffect(() => {
     const checkFavoriteStatus = async () => {

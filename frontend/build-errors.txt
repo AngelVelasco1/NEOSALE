@@ -1,0 +1,4 @@
+$ next build
+Ô¿» Unable to acquire lock at C:\Users\Angel\OneDrive\Documents\GitHub\NEOSALE\frontend\.next\lock, is another instance of next build running?
+  Suggestion: If you intended to restart next build, terminate the other process, and then try again.
+error: script "build" exited with code 1

@@ -37,8 +37,9 @@ export const PaymentMethods = ({
     useState<PaymentMethod>("credit_card");
   const [contractsAccepted, setContractsAccepted] = useState(false);
   const [acceptanceTokens, setAcceptanceTokens] = useState<{
-    [key: string]: string;
-  }>({});
+    termsAndConditions: string;
+    personalDataAuth: string;
+  }>({ termsAndConditions: "", personalDataAuth: "" });
 
   const paymentMethods = [
     {
@@ -76,7 +77,10 @@ export const PaymentMethods = ({
     tokens: { [key: string]: string }
   ) => {
     setContractsAccepted(allAccepted);
-    setAcceptanceTokens(tokens);
+    setAcceptanceTokens({
+      termsAndConditions: tokens.termsAndConditions || "",
+      personalDataAuth: tokens.personalDataAuth || "",
+    });
   };
 
   const renderPaymentForm = () => {

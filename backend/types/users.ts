@@ -1,4 +1,4 @@
-import { roles_enum } from "@prisma/client";
+import { roles_enum } from "../prisma/generated/prisma/client.js";
 
 export interface createUserParams {
   name: string;

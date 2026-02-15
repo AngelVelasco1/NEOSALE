@@ -1,3 +1,5 @@
+"use server";
+
 import {
   FetchCustomersParams,
   FetchCustomersResponse,
@@ -195,9 +197,9 @@ export async function fetchCustomerOrders({ id }: { id: string }): Promise<{
       },
       customer: {
         id: user.id,
-        name: user.name,
+        name: user.name ?? "",
         email: user.email,
-        phone_number: user.phone_number,
+        phoneNumber: user.phoneNumber,
       },
       items: order.order_items.map((item) => ({
         id: item.id,
@@ -218,9 +220,9 @@ export async function fetchCustomerOrders({ id }: { id: string }): Promise<{
     return {
       customer: {
         id: user.id,
-        name: user.name,
+        name: user.name ?? "",
         email: user.email,
-        phoneNumber: user.phone_number,
+        phoneNumber: user.phoneNumber,
       },
       orders: formattedOrders,
     };
