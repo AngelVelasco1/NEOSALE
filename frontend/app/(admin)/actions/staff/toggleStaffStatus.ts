@@ -1,7 +1,8 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
-import { auth } from "@/app/(auth)/auth";
+import { apiClient } from "@/lib/api-client";
+import { requireAdmin } from "@/lib/auth-helpers";
 import { ServerActionResponse } from "@/app/(admin)/types/server-action";
 
 export async function toggleStaffPublishedStatus(
@@ -9,25 +10,14 @@ export async function toggleStaffPublishedStatus(
   currentPublishedStatus: boolean
 ): Promise<ServerActionResponse> {
   try {
-    const session = await auth();
-
-    if (!session?.user || session.user.role !== "admin") {
-      return { success: false, error: "No autorizado" };
-    }
+    await requireAdmin();
 
     const newPublishedStatus = !currentPublishedStatus;
 
-    const response = await fetch(
-      `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/users/${staffId}`,
-      {
-        method: "PUT",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${session?.user?.id}`,
-        },
-        body: JSON.stringify({ active: newPublishedStatus }),
-      }
-    );
+    // apiClient automatically injects auth token
+    const response = await apiClient.put(`/users/${staffId}`, {
+      active: newPublishedStatus,
+    });
 
     if (!response.ok) {
       return { success: false, error: "Failed to update staff status." };
@@ -37,7 +27,7 @@ export async function toggleStaffPublishedStatus(
 
     return { success: true };
   } catch (error) {
-    
+    console.error("[toggleStaffPublishedStatus] Error:", error);
     return { success: false, error: "Failed to update staff status." };
   }
 }

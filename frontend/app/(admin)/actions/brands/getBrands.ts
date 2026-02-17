@@ -1,26 +1,18 @@
 "use server";
 
-import { prisma } from "@/lib/prisma";
+import { apiClient } from "@/lib/api-client";
 
 export async function getBrandsDropdown() {
   try {
-    const brands = await prisma.brands.findMany({
-      where: {
-        active: true,
-        deleted_at: null,
-      },
-      select: {
-        id: true,
-        name: true,
-      },
-      orderBy: {
-        name: "asc",
-      },
-    });
+    const response = await apiClient.get(`/admin/brands`);
 
-    return brands;
+    if (!response.success) {
+      throw new Error(response.error || "Failed to fetch brands");
+    }
+
+    return response.data || [];
   } catch (error) {
-    
-    throw new Error("Failed to fetch brands");
+    console.error("[getBrandsDropdown] Error:", error);
+    return [];
   }
 }

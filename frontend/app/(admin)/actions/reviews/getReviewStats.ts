@@ -1,31 +1,18 @@
 "use server";
 
-import { auth } from "@/app/(auth)/auth";
+import { apiClient } from "@/lib/api-client";
 
 export async function getReviewStats() {
   try {
-    const session = await auth();
+    const response = await apiClient.get(`/admin/reviews/stats`);
 
-    if (!session?.user || session.user.role !== "admin") {
-      throw new Error("No autorizado");
+    if (!response.success) {
+      throw new Error(response.error || "Error al obtener estadísticas");
     }
 
-    const response = await fetch(
-      `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/reviews/admin/stats`,
-      {
-        headers: {
-          Authorization: `Bearer ${session?.user?.id}`,
-        },
-      }
-    );
-
-    if (!response.ok) {
-      throw new Error("Error al obtener estadísticas");
-    }
-
-    return await response.json();
-  } catch (error: any) {
-    
+    return response.data || {};
+  } catch (error) {
+    console.error("[getReviewStats] Error:", error);
     throw error;
   }
 }

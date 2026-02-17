@@ -1,6 +1,6 @@
 "use server";
 
-import { prisma } from "@/lib/prisma";
+import { apiClient } from "@/lib/api-client";
 
 export type GetCategoriesParams = {
   page?: number;
@@ -9,20 +9,6 @@ export type GetCategoriesParams = {
   sortBy?: string;
   sortOrder?: string;
   status?: string;
-};
-
-export type CategoryWithSubcategories = {
-  id: number;
-  name: string;
-  subcategories: {
-    id: number;
-    name: string;
-  }[];
-};
-
-export type SubcategoryItem = {
-  id: number;
-  name: string;
 };
 
 export async function getCategories({
@@ -34,219 +20,117 @@ export async function getCategories({
   status,
 }: GetCategoriesParams = {}) {
   try {
-    const where: any = {};
+    const params = new URLSearchParams();
+    params.append("page", page.toString());
+    params.append("limit", limit.toString());
+    if (search) params.append("search", search);
+    if (status && status !== "all") params.append("status", status);
+    if (sortBy) params.append("sortBy", sortBy);
+    if (sortOrder) params.append("sortOrder", sortOrder);
 
-    // Filtro por búsqueda
-    if (search) {
-      where.name = {
-        contains: search,
-        mode: "insensitive" as const,
-      };
+    const response = await apiClient.get(`/admin/categories?${params.toString()}`);
+
+    if (!response.success) {
+      throw new Error(response.error || "Failed to fetch categories");
     }
 
-    // Filtro por estado
-    if (status && status !== "all") {
-      where.active = status === "active";
-    }
-
-    // Construir orderBy dinámico
-    let orderBy: any = { id: "desc" }; // default
-    if (sortBy && sortOrder) {
-      orderBy = { [sortBy]: sortOrder };
-    }
-
-    const [data, total] = await Promise.all([
-      prisma.categories.findMany({
-        where,
-        skip: (page - 1) * limit,
-        take: limit,
-        orderBy,
-        include: {
-          subcategory: {
-            select: {
-              id: true,
-              name: true,
-            },
-          },
-        },
-      }),
-      prisma.categories.count({
-        where,
-      }),
-    ]);
-
-    return {
-      data,
-      pagination: {
-        page,
-        limit,
-        total,
-        totalPages: Math.ceil(total / limit),
-      },
-    };
+    return response.data || { data: [], pagination: { total: 0, page: 1, limit: 10, totalPages: 0 } };
   } catch (error) {
-    
-    throw new Error("Failed to fetch categories");
+    console.error("[getCategories] Error:", error);
+    return { data: [], pagination: { total: 0, page: 1, limit: 10, totalPages: 0 } };
   }
 }
 
 export async function getCategoriesDropdown() {
   try {
-    const categories = await prisma.categories.findMany({
-      where: {
-        active: true,
-      },
-      select: {
-        id: true,
-        name: true,
-      },
-      orderBy: {
-        name: "asc",
-      },
-    });
+    const response = await apiClient.get(`/admin/categories/dropdown`);
 
-    return categories;
+    if (!response.success) {
+      throw new Error(response.error || "Failed to fetch categories dropdown");
+    }
+
+    return response.data || [];
   } catch (error) {
-    
-    throw new Error("Failed to fetch categories dropdown");
+    console.error("[getCategoriesDropdown] Error:", error);
+    return [];
   }
 }
 
 export async function getSubcategoriesByCategory(categoryId: number) {
   try {
-    const subcategories = await prisma.category_subcategory.findMany({
-      where: {
-        category_id: categoryId,
-        active: true,
-      },
-      include: {
-        subcategories: {
-          select: {
-            id: true,
-            name: true,
-          },
-        },
-      },
-    });
+    const response = await apiClient.get(`/admin/categories/${categoryId}/subcategories`);
 
-    return subcategories.map((cs) => cs.subcategories);
+    if (!response.success) {
+      throw new Error(response.error || "Failed to fetch subcategories");
+    }
+
+    return response.data || [];
   } catch (error) {
-    
-    throw new Error("Failed to fetch subcategories");
+    console.error("[getSubcategoriesByCategory] Error:", error);
+    return [];
   }
 }
 
 export async function getCategoryById(categoryId: number) {
   try {
-    const category = await prisma.categories.findUnique({
-      where: {
-        id: categoryId,
-      },
-      include: {
-        subcategory: true,
-        category_subcategory: {
-          include: {
-            subcategories: true,
-          },
-        },
-      },
-    });
+    const response = await apiClient.get(`/admin/categories/${categoryId}`);
 
-    return category;
+    if (!response.success) {
+      throw new Error(response.error || "Failed to fetch category");
+    }
+
+    return response.data || null;
   } catch (error) {
-    
-    throw new Error("Failed to fetch category");
+    console.error("[getCategoryById] Error:", error);
+    return null;
   }
 }
 
 export async function getSubcategoriesDropdown() {
   try {
-    const subcategories = await prisma.subcategories.findMany({
-      where: {
-        active: true,
-      },
-      select: {
-        id: true,
-        name: true,
-      },
-      orderBy: {
-        name: "asc",
-      },
-    });
+    const response = await apiClient.get(`/admin/subcategories/dropdown`);
 
-    return subcategories;
+    if (!response.success) {
+      throw new Error(response.error || "Failed to fetch subcategories dropdown");
+    }
+
+    return response.data || [];
   } catch (error) {
-    
-    throw new Error("Failed to fetch subcategories dropdown");
+    console.error("[getSubcategoriesDropdown] Error:", error);
+    return [];
   }
 }
 
 export async function getSubcategoriesByCategoryDropdown(categoryId?: number) {
   try {
     if (!categoryId) {
-      // If no category is selected, return all subcategories
       return getSubcategoriesDropdown();
     }
 
-    const subcategories = await prisma.category_subcategory.findMany({
-      where: {
-        category_id: categoryId,
-        active: true,
-      },
-      include: {
-        subcategories: {
-          select: {
-            id: true,
-            name: true,
-          },
-        },
-      },
-    });
+    const response = await apiClient.get(`/admin/categories/${categoryId}/subcategories/dropdown`);
 
-    return subcategories.map((cs) => cs.subcategories);
+    if (!response.success) {
+      throw new Error(response.error || "Failed to fetch subcategories");
+    }
+
+    return response.data || [];
   } catch (error) {
-    
-    throw new Error("Failed to fetch subcategories by category dropdown");
+    console.error("[getSubcategoriesByCategoryDropdown] Error:", error);
+    return [];
   }
 }
 
 export async function getCategoriesWithSubcategories() {
   try {
-    const categories = await prisma.categories.findMany({
-      where: {
-        active: true,
-      },
-      select: {
-        id: true,
-        name: true,
-        category_subcategory: {
-          where: {
-            active: true,
-          },
-          include: {
-            subcategories: {
-              select: {
-                id: true,
-                name: true,
-              },
-            },
-          },
-        },
-      },
-      orderBy: {
-        name: "asc",
-      },
-    });
+    const response = await apiClient.get(`/admin/categories/with-subcategories`);
 
-    return categories.map((category) => ({
-      id: category.id,
-      name: category.name,
-      subcategories: category.category_subcategory.map(
-        (cs) => cs.subcategories
-      ),
-    }));
+    if (!response.success) {
+      throw new Error(response.error || "Failed to fetch categories with subcategories");
+    }
+
+    return response.data || [];
   } catch (error) {
-    
-    throw new Error("Failed to fetch categories with subcategories");
+    console.error("[getCategoriesWithSubcategories] Error:", error);
+    return [];
   }
 }

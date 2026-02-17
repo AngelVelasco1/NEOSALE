@@ -40,11 +40,6 @@ export const getReviewById = async (
 ) => {
   try {
     const id = Number(req.params.id);
-
-    if (!id || isNaN(id)) {
-      return res.status(400).json({ error: "Invalid review ID" });
-    }
-
     const review = await getReviewByIdService(id);
     res.status(200).json(review);
   } catch (err) {
@@ -59,20 +54,6 @@ export const createReview = async (
 ) => {
   try {
     const { user_id, product_id, rating, comment, images, order_id } = req.body;
-
-
-    // Validaciones básicas
-    if (!user_id || !product_id || !rating) {
-      return res.status(400).json({
-        error: "user_id, product_id and rating are required",
-      });
-    }
-
-    if (typeof rating !== "number" || rating < 1 || rating > 5) {
-      return res.status(400).json({
-        error: "Rating must be a number between 1 and 5",
-      });
-    }
 
     const reviewData: CreateReviewData = {
       user_id: Number(user_id),
@@ -99,20 +80,6 @@ export const updateReview = async (
     const id = Number(req.params.id);
     const { user_id, rating, comment } = req.body;
 
-    if (!id || isNaN(id)) {
-      return res.status(400).json({ error: "Invalid review IDO" });
-    }
-
-    if (!user_id) {
-      return res.status(400).json({ error: "user_id is required" });
-    }
-
-    if (rating && (typeof rating !== "number" || rating < 1 || rating > 5)) {
-      return res.status(400).json({
-        error: "Rating must be a number between 1 and 5",
-      });
-    }
-
     const updateData: UpdateReviewData = {};
     if (rating !== undefined) updateData.rating = Number(rating);
     if (comment !== undefined) updateData.comment = comment;
@@ -132,15 +99,6 @@ export const deleteReview = async (
   try {
     const id = Number(req.params.id);
     const { user_id } = req.body;
-
-    if (!id || isNaN(id)) {
-      return res.status(400).json({ error: "Invalid review IDE" });
-    }
-
-    if (!user_id) {
-      return res.status(400).json({ error: "user_id is required" });
-    }
-
     const result = await deleteReviewService(id, Number(user_id));
     res.status(200).json(result);
   } catch (err) {
@@ -155,11 +113,6 @@ export const getReviewableProducts = async (
 ) => {
   try {
     const userId = Number(req.params.userId);
-
-    if (!userId || isNaN(userId)) {
-      return res.status(400).json({ error: "Invalid user ID" });
-    }
-
     const products = await getReviewableProductsService(userId);
     res.status(200).json(products);
   } catch (err) {
@@ -176,18 +129,6 @@ export const canUserReview = async (
     const userId = Number(req.params.userId);
     const productId = Number(req.params.productId);
     const orderId = Number(req.params.orderId);
-
-    if (
-      !userId ||
-      isNaN(userId) ||
-      !productId ||
-      isNaN(productId) ||
-      !orderId ||
-      isNaN(orderId)
-    ) {
-      return res.status(400).json({ error: "Invalid parameters" });
-    }
-
     const result = await canUserReviewService(userId, productId, orderId);
     res.status(200).json(result);
   } catch (err) {

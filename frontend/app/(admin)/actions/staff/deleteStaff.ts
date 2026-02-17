@@ -1,28 +1,18 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
-import { auth } from "@/app/(auth)/auth";
+import { apiClient } from "@/lib/api-client";
+import { requireAdmin } from "@/lib/auth-helpers";
 import { ServerActionResponse } from "@/app/(admin)/types/server-action";
 
 export async function deleteStaff(
   staffId: string
 ): Promise<ServerActionResponse> {
   try {
-    const session = await auth();
+    await requireAdmin();
 
-    if (!session?.user || session.user.role !== "admin") {
-      return { success: false, error: "No autorizado" };
-    }
-
-    const response = await fetch(
-      `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/users/${staffId}`,
-      {
-        method: "DELETE",
-        headers: {
-          Authorization: `Bearer ${session?.user?.id}`,
-        },
-      }
-    );
+    // apiClient automatically injects auth token
+    const response = await apiClient.delete(`/users/${staffId}`);
 
     if (!response.ok) {
       return { success: false, error: "Something went wrong. Could not delete the staff." };
@@ -32,7 +22,7 @@ export async function deleteStaff(
 
     return { success: true };
   } catch (error) {
-    
+    console.error("[deleteStaff] Error:", error);
     return { success: false, error: "Something went wrong. Could not delete the staff." };
   }
 }

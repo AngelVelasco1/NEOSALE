@@ -12,7 +12,6 @@ export const getAllBrands = async (
 ) => {
   try {
     const brands = await getAllBrandsService();
-
     res.status(200).json({
       success: true,
       data: brands,
@@ -28,17 +27,8 @@ export const getBrandById = async (
   next: NextFunction
 ) => {
   try {
-    const { id } = req.params;
-
-    const brand = await getBrandByIdService(parseInt(id));
-
-    if (!brand) {
-      return res.status(404).json({
-        success: false,
-        message: "Brand not found",
-      });
-    }
-
+    const id = parseInt(req.params.id);
+    const brand = await getBrandByIdService(id);
     res.status(200).json({
       success: true,
       data: brand,
@@ -55,16 +45,7 @@ export const getBrandByName = async (
 ) => {
   try {
     const { name } = req.params;
-
     const brand = await getBrandByNameService(name);
-
-    if (!brand) {
-      return res.status(404).json({
-        success: false,
-        message: "Brand not found",
-      });
-    }
-
     res.status(200).json({
       success: true,
       data: brand,

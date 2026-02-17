@@ -1,11 +1,9 @@
 "use server";
 
-import { revalidatePath } from "next/cache";
-import { prisma } from "@/lib/prisma";
-import { uploadImageToCloudinary } from "@/lib/cloudinary";
+import { apiClient } from "@/lib/api-client";
 
 type CreateBrandResponse =
-  | { success: true; brand: { id: number; name: string; image_url: string | null } }
+  | { success: true; brand: { id: number; name: string; image_url?: string | null } }
   | { success: false; error: string };
 
 export async function createBrand(
@@ -14,20 +12,40 @@ export async function createBrand(
   imageFile?: File
 ): Promise<CreateBrandResponse> {
   try {
-    // Validate input
     if (!name || name.trim().length === 0) {
       return { success: false, error: "El nombre de la marca es requerido" };
     }
 
-    const trimmedName = name.trim();
+    if (imageFile) {
+      const formData = new FormData();
+      formData.append("name", name.trim());
+      formData.append("description", description || "");
+      formData.append("image", imageFile);
 
-    // Check if brand already exists
-    const existingBrand = await prisma.brands.findFirst({
-      where: {
-        name: {
-          equals: trimmedName,
-          mode: "insensitive",
-        },
+      const response = await apiClient.uploadFile(`/admin/brands`, formData);
+
+      if (!response.success) {
+        return { success: false, error: response.error || "Failed to create brand" };
+      }
+
+      return { success: true, brand: response.data };
+    } else {
+      const response = await apiClient.post(`/admin/brands`, {
+        name: name.trim(),
+        description: description || "",
+      });
+
+      if (!response.success) {
+        return { success: false, error: response.error || "Failed to create brand" };
+      }
+
+      return { success: true, brand: response.data };
+    }
+  } catch (error) {
+    console.error("[createBrand] Error:", error);
+    return { success: false, error: "Something went wrong. Please try again later." };
+  }
+}
         deleted_at: null,
       },
     });

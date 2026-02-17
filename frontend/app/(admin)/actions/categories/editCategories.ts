@@ -1,8 +1,6 @@
 "use server";
 
-import { revalidatePath } from "next/cache";
-
-import { prisma } from "@/lib/prisma";
+import { apiClient } from "@/lib/api-client";
 import { categoryBulkFormSchema } from "@/app/(admin)/dashboard/categories/_components/form/schema";
 import { formatValidationErrors } from "@/app/(admin)/helpers/formatValidationErrors";
 import { VServerActionResponse } from "@/app/(admin)/types/server-action";
@@ -26,16 +24,18 @@ export async function editCategories(
   const { published } = parsedData.data;
 
   try {
-    await prisma.categories.updateMany({
-      where: { id: { in: categoryIds.map((id) => parseInt(id)) } },
-      data: { active: published },
+    const response = await apiClient.put(`/admin/categories`, {
+      categoryIds: categoryIds.map((id) => parseInt(id)),
+      active: published,
     });
 
-    revalidatePath("/categories");
+    if (!response.success) {
+      return { success: false, error: response.error || "Failed to update categories" };
+    }
 
     return { success: true };
   } catch (error) {
-    
+    console.error("[editCategories] Error:", error);
     return { success: false, error: "Something went wrong. Please try again later." };
   }
 }

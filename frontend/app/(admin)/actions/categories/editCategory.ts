@@ -1,9 +1,6 @@
 "use server";
 
-import { revalidatePath } from "next/cache";
-import { Prisma } from "@/prisma/generated/prisma/client";
-
-import { prisma } from "@/lib/prisma";
+import { apiClient } from "@/lib/api-client";
 import { categoryFormSchema } from "@/app/(admin)/dashboard/categories/_components/form/schema";
 import { formatValidationErrors } from "@/app/(admin)/helpers/formatValidationErrors";
 import { CategoryServerActionResponse } from "@/app/(admin)/types/server-action";
@@ -28,34 +25,18 @@ export async function editCategory(
   const categoryData = parsedData.data;
 
   try {
-    const updatedCategory = await prisma.categories.update({
-      where: { id: parseInt(categoryId) },
-      data: {
-        name: categoryData.name,
-        description: categoryData.description,
-      },
-    });
+    const response = await apiClient.put(`/admin/categories/${categoryId}`, categoryData);
 
-    revalidatePath("/categories");
-
-    return { success: true, category: updatedCategory };
-  } catch (error) {
-    // Manejar errores de unique constraint de Prisma
-    if (error instanceof Prisma.PrismaClientKnownRequestError) {
-      if (error.code === "P2002") {
-        const target = error.meta?.target as string[];
-
-        if (target?.includes("name")) {
-          return {
-            validationErrors: {
-              name: "A category with this name already exists. Please enter a unique name for this category.",
-            },
-          };
-        }
+    if (!response.success) {
+      if (response.validationErrors) {
+        return { validationErrors: response.validationErrors };
       }
+      return { success: false, error: response.error || "Failed to update category" };
     }
 
-    
+    return { success: true, category: response.data };
+  } catch (error) {
+    console.error("[editCategory] Error:", error);
     return { success: false, error: "Something went wrong. Please try again later." };
   }
 }

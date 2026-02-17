@@ -1,8 +1,6 @@
 "use server";
 
-import { revalidatePath } from "next/cache";
-
-import { prisma } from "@/lib/prisma";
+import { apiClient } from "@/lib/api-client";
 import { ServerActionResponse } from "@/app/(admin)/types/server-action";
 
 export async function toggleProductPublishedStatus(
@@ -11,17 +9,17 @@ export async function toggleProductPublishedStatus(
 ): Promise<ServerActionResponse> {
   try {
     const newPublishedStatus = !currentPublishedStatus;
+    const response = await apiClient.patch(
+      `/admin/products/${productId}/status`,
+      { active: newPublishedStatus }
+    );
 
-    await prisma.products.update({
-      where: { id: parseInt(productId) },
-      data: { active: newPublishedStatus },
-    });
-
-    revalidatePath("/products");
+    if (!response.success) {
+      return { success: false, error: response.error || "Failed to update product status." };
+    }
 
     return { success: true };
   } catch (error) {
-    
     return { success: false, error: "Failed to update product status." };
   }
 }

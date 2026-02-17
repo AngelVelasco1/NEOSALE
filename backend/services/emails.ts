@@ -63,7 +63,6 @@ export async function sendOrderConfirmationEmail(params: SendOrderConfirmationEm
   } = params;
 
   try {
-    // Texto plano
     const textContent = `
 ¡Pedido Confirmado!
 

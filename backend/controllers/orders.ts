@@ -1,12 +1,16 @@
 import { NextFunction } from "express-serve-static-core";
 import {
+  getUserOrdersService,
   getProductWithVariantsService,
   checkVariantAvailabilityService,
+  getOrderWithPaymentService,
   getOrderByIdService,
   updateOrderStatusService,
   getUserOrdersWithPaymentsService,
   getOrdersService,
-} from "../services/orders";
+  processWompiOrderWebhook,
+  createOrderService
+} from "../services/orders.js";
 import { Request, Response } from "express";
 
 export const getOrders = async (
@@ -60,17 +64,7 @@ export const getProductWithVariants = async (
 ) => {
   try {
     const { productId } = req.params;
-
-    if (!productId || isNaN(parseInt(productId))) {
-      res.status(400).json({
-        success: false,
-        message: "ID de producto inválido",
-      });
-      return;
-    }
-
     const product = await getProductWithVariantsService(parseInt(productId));
-
     res.json({
       success: true,
       data: product,
@@ -88,20 +82,11 @@ export const checkVariantAvailability = async (
 ) => {
   try {
     const { productId, colorCode, size } = req.params;
-
-    if (!productId || !colorCode || !size) {
-      return res.status(400).json({
-        success: false,
-        message: "Parámetros requeridos: productId, colorCode, size",
-      });
-    }
-
     const availability = await checkVariantAvailabilityService(
       parseInt(productId),
       colorCode,
       size
     );
-
     res.json({
       success: true,
       data: availability,
@@ -236,17 +221,10 @@ export const updateOrderStatus = async (
   }
 };
 
-// 🆕 NUEVO: Crear orden desde payment
-export const createOrderFromPayment = async (req: Request, res: Response) => {
+// NUEVO: Crear orden desde payment
+export const createOrderFromPayment = async (req: Request, res: Response, next: NextFunction) => {
   try {
     const { paymentId, shippingAddressId, couponId } = req.body;
-
-    if (!paymentId || !shippingAddressId) {
-      return res.status(400).json({
-        success: false,
-        message: "paymentId y shippingAddressId son requeridos",
-      });
-    }
 
     const result = await createOrderService({
       paymentId,
@@ -260,63 +238,30 @@ export const createOrderFromPayment = async (req: Request, res: Response) => {
       data: result,
     });
   } catch (error) {
-    console.error("❌ Error en createOrderFromPayment:", error);
-    res.status(500).json({
-      success: false,
-      message: "Error creando orden desde payment",
-      error: error instanceof Error ? error.message : "Error desconocido",
-    });
+    next(error);
   }
 };
 
-// 🆕 NUEVO: Obtener orden con información de payment
-export const getOrderWithPayment = async (req: Request, res: Response) => {
+// NUEVO: Obtener orden con informacion de payment
+export const getOrderWithPayment = async (req: Request, res: Response, next: NextFunction) => {
   try {
     const { orderId } = req.params;
-    const userId = req.user?.id;
-
-    if (!userId) {
-      return res.status(401).json({
-        success: false,
-        message: "Usuario no autenticado",
-      });
-    }
 
     const order = await getOrderWithPaymentService(parseInt(orderId));
-
-    // Verificar que la orden pertenece al usuario (excepto si es admin)
-    if (order.user_id !== userId && req.user?.role !== "admin") {
-      return res.status(403).json({
-        success: false,
-        message: "No tienes permisos para ver esta orden",
-      });
-    }
 
     res.json({
       success: true,
       data: order,
     });
   } catch (error) {
-    console.error("❌ Error en getOrderWithPayment:", error);
-    res.status(500).json({
-      success: false,
-      message: "Error obteniendo orden con payment",
-      error: error instanceof Error ? error.message : "Error desconocido",
-    });
+    next(error);
   }
 };
 
-// 🎯 NUEVO: Procesar webhook específico para órdenes
-export const handleOrderWebhook = async (req: Request, res: Response) => {
+// NUEVO: Procesar webhook especifico para ordenes
+export const handleOrderWebhook = async (req: Request, res: Response, next: NextFunction) => {
   try {
     const { transactionId, paymentStatus } = req.body;
-
-    if (!transactionId || !paymentStatus) {
-      return res.status(400).json({
-        success: false,
-        message: "transactionId y paymentStatus son requeridos",
-      });
-    }
 
     const result = await processWompiOrderWebhook(transactionId, paymentStatus);
 
@@ -326,11 +271,6 @@ export const handleOrderWebhook = async (req: Request, res: Response) => {
       data: result,
     });
   } catch (error) {
-    console.error("❌ Error en handleOrderWebhook:", error);
-    res.status(500).json({
-      success: false,
-      message: "Error procesando webhook de orden",
-      error: error instanceof Error ? error.message : "Error desconocido",
-    });
+    next(error);
   }
 };

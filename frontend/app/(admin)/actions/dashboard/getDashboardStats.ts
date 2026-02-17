@@ -1,350 +1,74 @@
 "use server";
 
-import { prisma } from "@/lib/prisma";
-import { unstable_cache } from "next/cache";
+import { apiClient } from "@/lib/api-client";
 
 export interface DashboardStats {
-  totalRevenue: number;
-  revenueChange: number;
-  totalOrders: number;
-  ordersChange: number;
-  productsSold: number;
-  productsSoldChange: number;
-  newCustomers: number;
-  customersChange: number;
-  avgOrderValue: number;
-  conversionRate: number;
-  pendingOrders: number;
-  activeUsers: number;
-}
-
-export interface OrderStatusStats {
-  pending: number;
-  processing: number;
-  shipped: number;
-  delivered: number;
-  total: number;
-}
-
-export interface DateRangeParams {
-  from?: Date | string;
-  to?: Date | string;
-}
-
-type NormalizedRange = {
-  fromISO: string;
-  toISO: string;
-};
-
-const normalizeDateRange = (params?: DateRangeParams): NormalizedRange => {
-  const now = new Date();
-
-  let currentPeriodStart: Date;
-  let currentPeriodEnd: Date;
-
-  if (params?.from && params?.to) {
-    currentPeriodStart =
-      typeof params.from === "string" ? new Date(params.from) : params.from;
-    currentPeriodEnd =
-      typeof params.to === "string" ? new Date(params.to) : params.to;
-  } else {
-    currentPeriodStart = new Date(now.getFullYear(), now.getMonth(), 1);
-    currentPeriodEnd = now;
-  }
-
-  currentPeriodEnd = new Date(currentPeriodEnd);
-  currentPeriodEnd.setHours(23, 59, 59, 999);
-
-  return {
-    fromISO: currentPeriodStart.toISOString(),
-    toISO: currentPeriodEnd.toISOString(),
+  revenue: {
+    current: number;
+    previous: number;
+    change: number;
   };
-};
+  orders: {
+    current: number;
+    previous: number;
+    change: number;
+  };
+  customers: {
+    current: number;
+    previous: number;
+    change: number;
+  };
+  products: {
+    total: number;
+    active: number;
+  };
+}
 
-const dashboardStatsCache = unstable_cache(
-  async (fromISO: string, toISO: string): Promise<DashboardStats> => {
-    const currentPeriodStart = new Date(fromISO);
-    const currentPeriodEnd = new Date(toISO);
-
-  // Calculate comparison period (same duration, shifted back)
-  const periodDuration =
-    currentPeriodEnd.getTime() - currentPeriodStart.getTime();
-  const comparisonPeriodEnd = new Date(currentPeriodStart.getTime() - 1); // Day before current period
-  const comparisonPeriodStart = new Date(
-    comparisonPeriodEnd.getTime() - periodDuration
-  );
-
+export async function getDashboardStats(
+  from?: Date | string,
+  to?: Date | string
+): Promise<DashboardStats> {
   try {
-    // Ejecutar todas las queries en paralelo para máxima eficiencia
-    const [
-      // Revenue stats
-      currentPeriodRevenue,
-      comparisonPeriodRevenue,
+    const params = new URLSearchParams();
+    if (from) params.append("from", from instanceof Date ? from.toISOString() : from);
+    if (to) params.append("to", to instanceof Date ? to.toISOString() : to);
 
-      // Orders stats
-      currentPeriodOrders,
-      comparisonPeriodOrders,
+    const response = await apiClient.get(
+      `/admin/dashboard/stats${params.toString() ? `?${params.toString()}` : ""}`
+    );
 
-      // Products sold stats
-      currentPeriodProductsSold,
-      comparisonPeriodProductsSold,
+    if (!response.success || !response.data?.data) {
+      throw new Error(response.error || "Failed to fetch dashboard stats");
+    }
 
-      // Customers stats
-      currentPeriodCustomers,
-      comparisonPeriodCustomers,
-
-      // Additional metrics
-      pendingOrdersCount,
-      activeUsersCount,
-      totalVisitsForConversion,
-    ] = await Promise.all([
-      // Current period revenue
-      prisma.orders.aggregate({
-        where: {
-          created_at: { gte: currentPeriodStart, lte: currentPeriodEnd },
-          status: { in: ["paid", "processing", "shipped", "delivered"] },
-        },
-        _sum: { total: true },
-      }),
-
-      // Comparison period revenue
-      prisma.orders.aggregate({
-        where: {
-          created_at: { gte: comparisonPeriodStart, lte: comparisonPeriodEnd },
-          status: { in: ["paid", "processing", "shipped", "delivered"] },
-        },
-        _sum: { total: true },
-      }),
-
-      // Current period orders count
-      prisma.orders.count({
-        where: {
-          created_at: { gte: currentPeriodStart, lte: currentPeriodEnd },
-        },
-      }),
-
-      // Comparison period orders count
-      prisma.orders.count({
-        where: {
-          created_at: { gte: comparisonPeriodStart, lte: comparisonPeriodEnd },
-        },
-      }),
-
-      // Current period products sold
-      prisma.order_items.aggregate({
-        where: {
-          orders: {
-            created_at: { gte: currentPeriodStart, lte: currentPeriodEnd },
-            status: { in: ["paid", "processing", "shipped", "delivered"] },
-          },
-        },
-        _sum: { quantity: true },
-      }),
-
-      // Comparison period products sold
-      prisma.order_items.aggregate({
-        where: {
-          orders: {
-            created_at: {
-              gte: comparisonPeriodStart,
-              lte: comparisonPeriodEnd,
-            },
-            status: { in: ["paid", "processing", "shipped", "delivered"] },
-          },
-        },
-        _sum: { quantity: true },
-      }),
-
-      // Current period new customers
-      prisma.user.count({
-        where: {
-          createdAt: { gte: currentPeriodStart, lte: currentPeriodEnd },
-          role: "user",
-        },
-      }),
-
-      // Comparison period new customers
-      prisma.user.count({
-        where: {
-          createdAt: { gte: comparisonPeriodStart, lte: comparisonPeriodEnd },
-          role: "user",
-        },
-      }),
-
-      // Pending orders
-      prisma.orders.count({
-        where: {
-          status: { in: ["pending", "paid"] },
-        },
-      }),
-
-      // Active users (users who placed an order in current period)
-      prisma.user.count({
-        where: {
-          role: "user",
-          active: true,
-        },
-      }),
-
-      // Total active sessions/visits (using cart as proxy)
-      prisma.cart.count({
-        where: {
-          created_at: { gte: currentPeriodStart, lte: currentPeriodEnd },
-        },
-      }),
-    ]);
-
-    // Calculate values
-    const totalRevenue = currentPeriodRevenue._sum.total || 0;
-    const comparisonRevenue = comparisonPeriodRevenue._sum.total || 0;
-    const revenueChange =
-      comparisonRevenue > 0
-        ? ((totalRevenue - comparisonRevenue) / comparisonRevenue) * 100
-        : 0;
-
-    const totalOrders = currentPeriodOrders;
-    const ordersChange =
-      comparisonPeriodOrders > 0
-        ? ((totalOrders - comparisonPeriodOrders) / comparisonPeriodOrders) *
-          100
-        : 0;
-
-    const productsSold = currentPeriodProductsSold._sum.quantity || 0;
-    const comparisonProductsSold =
-      comparisonPeriodProductsSold._sum.quantity || 0;
-    const productsSoldChange =
-      comparisonProductsSold > 0
-        ? ((productsSold - comparisonProductsSold) / comparisonProductsSold) *
-          100
-        : 0;
-
-    const newCustomers = currentPeriodCustomers;
-    const comparisonCustomers = comparisonPeriodCustomers;
-    const customersChange =
-      comparisonCustomers > 0
-        ? ((newCustomers - comparisonCustomers) / comparisonCustomers) * 100
-        : 0;
-
-    const avgOrderValue = totalOrders > 0 ? totalRevenue / totalOrders : 0;
-    const conversionRate =
-      totalVisitsForConversion > 0
-        ? (totalOrders / totalVisitsForConversion) * 100
-        : 0;
-
-    return {
-      totalRevenue,
-      revenueChange,
-      totalOrders,
-      ordersChange,
-      productsSold,
-      productsSoldChange,
-      newCustomers,
-      customersChange,
-      avgOrderValue,
-      conversionRate,
-      pendingOrders: pendingOrdersCount,
-      activeUsers: activeUsersCount,
+    return response.data.data || {
+      revenue: { current: 0, previous: 0, change: 0 },
+      orders: { current: 0, previous: 0, change: 0 },
+      customers: { current: 0, previous: 0, change: 0 },
+      products: { total: 0, active: 0 },
     };
   } catch (error) {
-    
-    throw new Error("Failed to fetch dashboard statistics");
+    console.error("[getDashboardStats] Error:", error);
+    return {
+      revenue: { current: 0, previous: 0, change: 0 },
+      orders: { current: 0, previous: 0, change: 0 },
+      customers: { current: 0, previous: 0, change: 0 },
+      products: { total: 0, active: 0 },
+    };
   }
-  },
-  ["dashboard-stats"],
-  { revalidate: 60, tags: ["dashboard-stats"] }
-);
-
-/**
- * Obtiene las estadísticas del dashboard con comparación del período anterior
- * Optimizado con queries en paralelo usando Promise.all
- */
-export async function getDashboardStats(
-  params?: DateRangeParams
-): Promise<DashboardStats> {
-  const { fromISO, toISO } = normalizeDateRange(params);
-  return dashboardStatsCache(fromISO, toISO);
 }
 
-/**
- * Obtiene las estadísticas de estados de órdenes
- * Query única optimizada con groupBy
- */
-export async function getOrderStatusStats(
-  params?: DateRangeParams
-): Promise<OrderStatusStats> {
-  const fromISO = params?.from && params?.to
-    ? (typeof params.from === "string" ? new Date(params.from) : params.from).toISOString()
-    : "all";
-  const toISO = params?.from && params?.to
-    ? (typeof params.to === "string" ? new Date(params.to) : params.to).toISOString()
-    : "all";
+export async function getOrderStatusStats(): Promise<any> {
+  try {
+    const response = await apiClient.get(`/admin/dashboard/stats`);
 
-  return orderStatusStatsCache(fromISO, toISO);
-}
-
-const orderStatusStatsCache = unstable_cache(
-  async (fromISO: string, toISO: string): Promise<OrderStatusStats> => {
-    try {
-      const hasRange = fromISO !== "all" && toISO !== "all";
-      const dateFilter = hasRange
-        ? {
-            created_at: {
-              gte: new Date(fromISO),
-              lte: new Date(toISO),
-            },
-          }
-        : {};
-
-      // Una sola query agrupada por status
-      const statusCounts = await prisma.orders.groupBy({
-        by: ["status"],
-        _count: {
-          id: true,
-        },
-        where: {
-          ...dateFilter,
-          status: {
-            in: ["pending", "paid", "processing", "shipped", "delivered"],
-          },
-        },
-      });
-
-      // Mapear resultados
-      const stats = {
-        pending: 0,
-        processing: 0,
-        shipped: 0,
-        delivered: 0,
-        total: 0,
-      };
-
-      statusCounts.forEach((item) => {
-        const count = item._count.id;
-        stats.total += count;
-
-        switch (item.status) {
-          case "pending":
-          case "paid":
-            stats.pending += count;
-            break;
-          case "processing":
-            stats.processing += count;
-            break;
-          case "shipped":
-            stats.shipped += count;
-            break;
-          case "delivered":
-            stats.delivered += count;
-            break;
-        }
-      });
-
-      return stats;
-    } catch (error) {
-      
-      throw new Error("Failed to fetch order status statistics");
+    if (!response.success) {
+      throw new Error(response.error || "Failed to fetch order stats");
     }
-  },
-  ["order-status-stats"],
-  { revalidate: 60, tags: ["dashboard-stats"] }
-);
+
+    return response.data?.data || {};
+  } catch (error) {
+    console.error("[getOrderStatusStats] Error:", error);
+    return {};
+  }
+}

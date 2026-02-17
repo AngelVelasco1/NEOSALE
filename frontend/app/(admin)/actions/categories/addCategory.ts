@@ -1,13 +1,10 @@
 "use server";
 
-import { revalidatePath } from "next/cache";
-import { Prisma } from "@/prisma/generated/prisma/client";
-import { z } from "zod";
-
-import { prisma } from "@/lib/prisma";
+import { apiClient } from "@/lib/api-client";
 import { categoryFormSchema } from "@/app/(admin)/dashboard/categories/_components/form/schema";
 import { formatValidationErrors } from "@/app/(admin)/helpers/formatValidationErrors";
 import { CategoryServerActionResponse } from "@/app/(admin)/types/server-action";
+import { z } from "zod";
 
 export async function addCategory(
   formData: FormData
@@ -31,22 +28,24 @@ export async function addCategory(
       };
     }
 
-    const { subcategories, ...categoryData } = parsedData.data;
-
-    const newCategory = await prisma.categories.create({
-      data: {
-        name: categoryData.name,
-        description: categoryData.description,
-        active: true,
-      },
+    const response = await apiClient.post(`/admin/categories`, {
+      name: parsedData.data.name,
+      description: parsedData.data.description,
     });
 
-    // Handle subcategory relationships if provided
-    if (subcategories && subcategories.trim()) {
-      const subcategoryNames = subcategories
-        .split(",")
-        .map((name: string) => name.trim())
-        .filter((name: string) => name.length > 0);
+    if (!response.success) {
+      if (response.validationErrors) {
+        return { validationErrors: response.validationErrors };
+      }
+      return { success: false, error: response.error || "Failed to create category" };
+    }
+
+    return { success: true, category: response.data };
+  } catch (error) {
+    console.error("[addCategory] Error:", error);
+    return { success: false, error: "Something went wrong. Please try again later." };
+  }
+}
 
       if (subcategoryNames.length > 0) {
         const subcategoryIds: number[] = [];

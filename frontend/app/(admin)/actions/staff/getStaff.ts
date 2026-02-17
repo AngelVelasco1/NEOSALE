@@ -1,6 +1,7 @@
 "use server";
 
-import { auth } from "@/app/(auth)/auth";
+import { apiClient } from "@/lib/api-client";
+import { requireAdmin } from "@/lib/auth-helpers";
 
 export type GetStaffParams = {
   page?: number;
@@ -16,34 +17,28 @@ export async function getStaff({
   role,
 }: GetStaffParams = {}) {
   try {
-    const session = await auth();
+    // Verify admin access (optional since apiClient will also validate via auth middleware)
+    await requireAdmin();
 
-    if (!session?.user || session.user.role !== "admin") {
-      throw new Error("No autorizado");
-    }
+    const queryParams = new URLSearchParams();
+    queryParams.append("page", page.toString());
+    queryParams.append("limit", limit.toString());
+    if (search) queryParams.append("search", search);
+    if (role && role !== "all") queryParams.append("role", role);
 
-    const params = new URLSearchParams();
-    params.append("page", page.toString());
-    params.append("limit", limit.toString());
-    if (search) params.append("search", search);
-    if (role && role !== "all") params.append("role", role);
-
-    const response = await fetch(
-      `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/users/admin/staff?${params}`,
-      {
-        headers: {
-          Authorization: `Bearer ${session?.user?.id}`,
-        },
-      }
+    // apiClient automatically injects auth token via getAuthToken()
+    const response = await apiClient.get(
+      `/users/admin/staff?${queryParams}`,
+      {}
     );
 
     if (!response.ok) {
       throw new Error("Error al obtener staff");
     }
 
-    return await response.json();
+    return response.data;
   } catch (error) {
-    
+    console.error("Failed to fetch staff:", error);
     throw new Error("Failed to fetch staff");
   }
 }

@@ -1,19 +1,20 @@
 import { Router } from "express";
-import { productsRoutes } from "./products";
-import { usersRoutes } from "./users";
-import { cartRoutes } from "./cart";
-import { addressesRoutes } from "./addresses";
-import { reviewsRoutes } from "./reviews";
-import { paymentsRoutes } from "./payments";
-import { ordersRoutes } from "./orders";
-import { categoriesRoutes } from "./categories";
-import { brandsRoutes } from "./brands";
-import { storeSettingsRoutes } from "./storeSettings";
-import { searchRoutes } from "./search";
-import couponsRoutes from "./coupons";
-import notificationsRoutes from "./notifications";
-import { shippingRoutes } from "./shipping";
-import emailsRoutes from "./emails";
+import { productsRoutes } from "./products.js";
+import { usersRoutes } from "./users.js";
+import { cartRoutes } from "./cart.js";
+import { addressesRoutes } from "./addresses.js";
+import { reviewsRoutes } from "./reviews.js";
+import { paymentsRoutes } from "./payments.js";
+import { ordersRoutes } from "./orders.js";
+import { categoriesRoutes } from "./categories.js";
+import { brandsRoutes } from "./brands.js";
+import { storeSettingsRoutes } from "./storeSettings.js";
+import { searchRoutes } from "./search.js";
+import couponsRoutes from "./coupons.js";
+import notificationsRoutes from "./notifications.js";
+import { shippingRoutes } from "./shipping.js";
+import emailsRoutes from "./emails.js";
+import { adminRoutes } from "./admin.js";
 
 export const initRoutes = () => {
   const app = Router();
@@ -32,6 +33,7 @@ export const initRoutes = () => {
   app.use("/notifications", notificationsRoutes);
   app.use("/shipping", shippingRoutes());
   app.use("/emails", emailsRoutes);
+  app.use("/admin", adminRoutes()); // ✅ Admin routes
 
   return app;
 };

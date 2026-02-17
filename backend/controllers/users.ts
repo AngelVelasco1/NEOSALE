@@ -5,12 +5,14 @@ import {
   updateUserService,
   updatePasswordService,
   updateUserImageService,
+  editProfileService,
   addFavoriteService,
   removeFavoriteService,
   checkIsFavoriteService,
   getUserFavoritesService,
   getUsersService,
-} from "../services/users";
+  deleteUserService,
+} from "../services/users.js";
 
 export const registerUser = async (
   req: Request,
@@ -42,7 +44,7 @@ export const registerUser = async (
       acceptPrivacy,
     });
 
-    res.status(201).json(result);
+    res.status(201).json({ success: true, data: result.data });
   } catch (error) {
     next(error);
   }
@@ -201,6 +203,11 @@ export const checkIsFavorite = async (
       ? Number(req.params.productId)
       : undefined;
 
+    if (!userId || !productId) {
+      res.status(400).json({ success: false, message: "userId and productId are required" });
+      return;
+    }
+
     const isFavorite = await checkIsFavoriteService(userId, productId);
     res.json({ isFavorite });
   } catch (error) {
@@ -216,8 +223,63 @@ export const getUserFavorites = async (
   try {
     const userId = req.params.userId ? Number(req.params.userId) : undefined;
 
+    if (!userId) {
+      res.status(400).json({ success: false, message: "userId is required" });
+      return;
+    }
+
     const favorites = await getUserFavoritesService(userId);
     res.json(favorites);
+  } catch (error) {
+    next(error);
+  }
+};
+
+// DELETE - Delete user (soft delete)
+export const deleteUser = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  try {
+    const userId = parseInt(req.params.id);
+    await deleteUserService(userId);
+
+    res.status(200).json({
+      success: true,
+      message: "Usuario eliminado exitosamente",
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const editProfile = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  try {
+    const userId = (req as any).user?.id;
+    const { name, phone, image, currentPassword, newPassword } = req.body;
+
+    if (!userId) {
+      return res.status(401).json({
+        success: false,
+        error: "Unauthorized - User ID not found",
+      });
+    }
+
+    const result = await editProfileService({
+      userId,
+      name,
+      phone,
+      image,
+      currentPassword,
+      newPassword,
+    });
+
+    res.json(result);
   } catch (error) {
     next(error);
   }

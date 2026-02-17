@@ -1,8 +1,6 @@
 "use server";
 
-import { revalidatePath } from "next/cache";
-
-import { prisma } from "@/lib/prisma";
+import { apiClient } from "@/lib/api-client";
 import { productBulkFormSchema } from "@/app/(admin)/dashboard/products/_components/form/schema";
 import { formatValidationErrors } from "@/app/(admin)/helpers/formatValidationErrors";
 import { VServerActionResponse } from "@/app/(admin)/types/server-action";
@@ -39,16 +37,18 @@ export async function editProducts(
       updateData.active = published;
     }
 
-    await prisma.products.updateMany({
-      where: { id: { in: productIds.map((id) => parseInt(id)) } },
-      data: updateData,
-    });
+    const response = await apiClient.put(
+      `/admin/products`,
+      { productIds: productIds.map(id => parseInt(id)), ...updateData }
+    );
 
-    revalidatePath("/products");
+    if (!response.success) {
+      return { success: false, error: response.error || "Failed to update products" };
+    }
 
     return { success: true };
   } catch (error) {
-    
+    console.error("[editProducts] Error:", error);
     return { success: false, error: "Something went wrong. Please try again later." };
   }
 }

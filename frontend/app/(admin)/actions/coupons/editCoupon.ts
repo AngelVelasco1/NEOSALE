@@ -1,9 +1,6 @@
 "use server";
 
-import { revalidatePath } from "next/cache";
-import { Prisma } from "@/prisma/generated/prisma/client";
-
-import { prisma } from "@/lib/prisma";
+import { apiClient } from "@/lib/api-client";
 import { couponFormSchema } from "@/app/(admin)/dashboard/coupons/_components/form/schema";
 import { formatValidationErrors } from "@/app/(admin)/helpers/formatValidationErrors";
 import { CouponServerActionResponse } from "@/app/(admin)/types/server-action";
@@ -31,22 +28,29 @@ export async function editCoupon(
   }
 
   try {
-    const updatedCoupon = await prisma.coupons.update({
-      where: { id: couponId },
-      data: {
-        code: parsedData.data.code,
-        name: parsedData.data.name,
-        discount_type: parsedData.data.isPercentageDiscount
-          ? "percentage"
-          : "fixed",
-        discount_value: parsedData.data.discountValue,
-        min_purchase_amount: parsedData.data.minPurchaseAmount || 0,
-        usage_limit: parsedData.data.usageLimit || null,
-        expires_at: parsedData.data.expiresAt,
-      },
+    const response = await apiClient.put(`/admin/coupons/${couponId}`, {
+      code: parsedData.data.code,
+      name: parsedData.data.name,
+      discount_type: parsedData.data.isPercentageDiscount ? "percentage" : "fixed",
+      discount_value: parsedData.data.discountValue,
+      min_purchase_amount: parsedData.data.minPurchaseAmount || 0,
+      usage_limit: parsedData.data.usageLimit || null,
+      expires_at: parsedData.data.expiresAt,
     });
 
-    revalidatePath("/coupons");
+    if (!response.success) {
+      if (response.validationErrors) {
+        return { validationErrors: response.validationErrors };
+      }
+      return { success: false, error: response.error || "Failed to update coupon" };
+    }
+
+    return { success: true, coupon: response.data };
+  } catch (error) {
+    console.error("[editCoupon] Error:", error);
+    return { success: false, error: "Something went wrong. Please try again later." };
+  }
+}
 
     return { success: true, coupon: updatedCoupon };
   } catch (error) {

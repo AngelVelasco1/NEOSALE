@@ -1,8 +1,6 @@
 "use server";
 
-import { revalidatePath } from "next/cache";
-
-import { prisma } from "@/lib/prisma";
+import { apiClient } from "@/lib/api-client";
 import { ServerActionResponse } from "@/app/(admin)/types/server-action";
 
 export async function toggleCouponActiveStatus(
@@ -12,16 +10,17 @@ export async function toggleCouponActiveStatus(
   try {
     const newActiveStatus = !currentActiveStatus;
 
-    await prisma.coupons.update({
-      where: { id: couponId },
-      data: { active: newActiveStatus },
+    const response = await apiClient.patch(`/admin/coupons/${couponId}/status`, {
+      active: newActiveStatus,
     });
 
-    revalidatePath("/coupons");
+    if (!response.success) {
+      return { success: false, error: response.error || "Failed to update coupon status." };
+    }
 
     return { success: true };
   } catch (error) {
-    
+    console.error("[toggleCouponActiveStatus] Error:", error);
     return { success: false, error: "Failed to update coupon status." };
   }
 }

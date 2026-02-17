@@ -1,16 +1,18 @@
 "use server";
 
-import { prisma } from "@/lib/prisma";
+import { apiClient } from "@/lib/api-client";
 
 export async function exportCustomers() {
   try {
-    const data = await prisma.user.findMany({
-      where: { role: "user" },
-    });
+    const response = await apiClient.get(`/admin/customers/export`);
 
-    return { data };
+    if (!response.success) {
+      return { error: response.error || "Failed to fetch data for customers." };
+    }
+
+    return { data: response.data || [] };
   } catch (error) {
-    
-    return { error: `Failed to fetch data for customers.` };
+    console.error("[exportCustomers] Error:", error);
+    return { error: "Failed to fetch data for customers." };
   }
 }

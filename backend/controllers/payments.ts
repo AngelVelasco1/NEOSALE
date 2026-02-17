@@ -1,4 +1,4 @@
-import { Request, Response } from "express";
+import { Request, Response, NextFunction } from "express";
 import {
   getWompiAcceptanceTokensService,
   getWompiPublicConfigService,
@@ -16,16 +16,17 @@ import {
   PSETransactionData,
   createNequiTransaction,
   NequiTransactionData,
-} from "../services/payments";
+} from "../services/payments.js";
 import {
   createOrderService,
   processWompiOrderWebhook,
-} from "../services/orders";
-import { prisma } from "../lib/prisma";
+} from "../services/orders.js";
+import { prisma } from "../lib/prisma.js";
 
 export const getAcceptanceTokensController = async (
   req: Request,
-  res: Response
+  res: Response,
+  next: NextFunction
 ) => {
   try {
     const result = await getWompiAcceptanceTokensService();
@@ -45,18 +46,14 @@ export const getAcceptanceTokensController = async (
       data: result.data,
     });
   } catch (error) {
-    console.error("Error en getAcceptanceTokensController:", error);
-    res.status(500).json({
-      success: false,
-      message: "Error interno del servidor",
-      error: error instanceof Error ? error.message : "Error desconocido",
-    });
+    next(error);
   }
 };
 
 export const getPaymentConfigController = async (
   req: Request,
-  res: Response
+  res: Response,
+  next: NextFunction
 ) => {
   try {
     const result = await getWompiPublicConfigService();
@@ -76,18 +73,14 @@ export const getPaymentConfigController = async (
       data: result.data,
     });
   } catch (error) {
-    console.error("Error en getPaymentConfigController:", error);
-    res.status(500).json({
-      success: false,
-      message: "Error interno del servidor",
-      error: error instanceof Error ? error.message : "Error desconocido",
-    });
+    next(error);
   }
 };
 
 export const testWompiConnectionController = async (
   req: Request,
-  res: Response
+  res: Response,
+  next: NextFunction
 ) => {
   try {
     const tokensResult = await getWompiAcceptanceTokensService();
@@ -103,45 +96,22 @@ export const testWompiConnectionController = async (
       },
     });
   } catch (error) {
-    console.error("Error en testWompiConnectionController:", error);
-    res.status(500).json({
-      success: false,
-      message: "Error probando conexión con Wompi",
-      error: error instanceof Error ? error.message : "Error desconocido",
-    });
+    next(error);
   }
 };
 
 export const generateIntegritySignatureController = async (
   req: Request,
-  res: Response
+  res: Response,
+  next: NextFunction
 ) => {
   try {
     const { reference, amount, currency = "COP" } = req.body;
-
-    // Validar datos requeridos
-    if (!reference || !amount) {
-      res.status(400).json({
-        success: false,
-        message: "Reference y amount son requeridos",
-      });
-      return;
-    }
-
-    if (typeof amount !== "number" || amount <= 0) {
-      res.status(400).json({
-        success: false,
-        message: "Amount debe ser un número mayor a 0",
-      });
-      return;
-    }
-
     const signature = generateWompiIntegritySignature(
       reference,
       amount,
       currency
     );
-
     res.status(200).json({
       success: true,
       message: "Firma de integridad generada exitosamente",
@@ -153,16 +123,11 @@ export const generateIntegritySignatureController = async (
       },
     });
   } catch (error) {
-    console.error("Error en generateIntegritySignatureController:", error);
-    res.status(500).json({
-      success: false,
-      message: "Error generando firma de integridad",
-      error: error instanceof Error ? error.message : "Error desconocido",
-    });
+    next(error);
   }
 };
 
-export const createPaymentController = async (req: Request, res: Response) => {
+export const createPaymentController = async (req: Request, res: Response, next: NextFunction) => {
   try {
     const transactionData: WompiTransactionData = req.body;
 
@@ -229,18 +194,14 @@ export const createPaymentController = async (req: Request, res: Response) => {
       data: result.data,
     });
   } catch (error) {
-    console.error("Error en createWompiTransactionController:", error);
-    res.status(500).json({
-      success: false,
-      message: "Error interno del servidor",
-      error: error instanceof Error ? error.message : "Error desconocido",
-    });
+    next(error);
   }
 };
 
 export const getTransactionStatusController = async (
   req: Request,
-  res: Response
+  res: Response,
+  next: NextFunction
 ) => {
   try {
     const { transactionId } = req.params;
@@ -274,12 +235,7 @@ export const getTransactionStatusController = async (
       data: result.data,
     });
   } catch (error) {
-    console.error("❌ Error en getTransactionStatusController:", error);
-    res.status(500).json({
-      success: false,
-      message: "Error interno del servidor",
-      error: error instanceof Error ? error.message : "Error desconocido",
-    });
+    next(error);
   }
 };
 

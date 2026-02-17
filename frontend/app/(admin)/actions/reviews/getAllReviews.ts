@@ -1,6 +1,6 @@
 "use server";
 
-import { auth } from "@/app/(auth)/auth";
+import { apiClient } from "@/lib/api-client";
 
 export interface ReviewFilters {
   status?: "pending" | "approved" | "all";
@@ -14,12 +14,6 @@ export interface ReviewFilters {
 
 export async function getAllReviews(filters: ReviewFilters = {}) {
   try {
-    const session = await auth();
-
-    if (!session?.user || session.user.role !== "admin") {
-      throw new Error("No autorizado");
-    }
-
     const params = new URLSearchParams();
     if (filters.status) params.append("status", filters.status);
     if (filters.rating) params.append("rating", filters.rating.toString());
@@ -29,22 +23,15 @@ export async function getAllReviews(filters: ReviewFilters = {}) {
     if (filters.page) params.append("page", filters.page.toString());
     if (filters.limit) params.append("limit", filters.limit.toString());
 
-    const response = await fetch(
-      `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/reviews/admin/list?${params}`,
-      {
-        headers: {
-          Authorization: `Bearer ${session?.user?.id}`,
-        },
-      }
-    );
+    const response = await apiClient.get(`/admin/reviews?${params.toString()}`);
 
-    if (!response.ok) {
-      throw new Error("Error al obtener las reseñas");
+    if (!response.success) {
+      throw new Error(response.error || "Error al obtener las reseñas");
     }
 
-    return await response.json();
+    return response.data || [];
   } catch (error) {
-    
+    console.error("[getAllReviews] Error:", error);
     throw error;
   }
 }

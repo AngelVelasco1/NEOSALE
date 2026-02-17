@@ -1,14 +1,18 @@
 "use server";
 
-import { prisma } from "@/lib/prisma";
+import { apiClient } from "@/lib/api-client";
 
 export async function exportCategories() {
   try {
-    const data = await prisma.categories.findMany();
+    const response = await apiClient.get(`/admin/categories/export`);
 
-    return { data };
+    if (!response.success) {
+      return { error: response.error || "Failed to fetch data for categories." };
+    }
+
+    return { data: response.data || [] };
   } catch (error) {
-    
-    return { error: `Failed to fetch data for categories.` };
+    console.error("[exportCategories] Error:", error);
+    return { error: "Failed to fetch data for categories." };
   }
 }

@@ -6,7 +6,7 @@ import {
   getTrackingInfoService,
   cancelShippingService,
   processWebhookService,
-} from "../services/shipping";
+} from "../services/shipping.js";
 
 /**
  * Obtener cotización de envío para una orden
@@ -18,16 +18,7 @@ export const getShippingQuote = async (
 ) => {
   try {
     const { orderId } = req.params;
-
-    if (!orderId) {
-      return res.status(400).json({
-        success: false,
-        message: "ID de orden requerido",
-      });
-    }
-
     const result = await getShippingQuoteService(parseInt(orderId));
-
     res.status(result.success ? 200 : 400).json(result);
   } catch (error) {
     next(error);
@@ -46,28 +37,12 @@ export const createShippingGuide = async (
   try {
     const { orderId } = req.params;
     const { idRate, requestPickup = false, insurance = true } = req.body;
-
-    if (!orderId) {
-      return res.status(400).json({
-        success: false,
-        message: "ID de orden requerido",
-      });
-    }
-
-    if (!idRate) {
-      return res.status(400).json({
-        success: false,
-        message: "idRate requerido (obténlo primero de /api/shipping/:orderId/quote)",
-      });
-    }
-
     const result = await createShippingGuideService(
       parseInt(orderId),
       parseInt(idRate),
       requestPickup,
       insurance
     );
-
     res.status(result.success ? 200 : 400).json(result);
   } catch (error) {
     next(error);
@@ -84,16 +59,7 @@ export const updateTracking = async (
 ) => {
   try {
     const { orderId } = req.params;
-
-    if (!orderId) {
-      return res.status(400).json({
-        success: false,
-        message: "ID de orden requerido",
-      });
-    }
-
     const result = await updateTrackingService(parseInt(orderId));
-
     res.status(result.success ? 200 : 400).json(result);
   } catch (error) {
     next(error);

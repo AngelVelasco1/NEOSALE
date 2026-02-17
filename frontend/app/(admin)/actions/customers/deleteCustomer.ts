@@ -1,23 +1,21 @@
 "use server";
 
-import { revalidatePath } from "next/cache";
-
-import { prisma } from "@/lib/prisma";
+import { apiClient } from "@/lib/api-client";
 import { ServerActionResponse } from "@/app/(admin)/types/server-action";
 
 export async function deleteCustomer(
   customerId: string
 ): Promise<ServerActionResponse> {
   try {
-    await prisma.user.delete({
-      where: { id: parseInt(customerId) },
-    });
+    const response = await apiClient.delete(`/admin/customers/${customerId}`);
 
-    revalidatePath("/customers");
+    if (!response.success) {
+      return { success: false, error: response.error || "Something went wrong. Could not delete the customer." };
+    }
 
     return { success: true };
   } catch (error) {
-    
+    console.error("[deleteCustomer] Error:", error);
     return { success: false, error: "Something went wrong. Could not delete the customer." };
   }
 }

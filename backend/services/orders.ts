@@ -1,5 +1,6 @@
 import { prisma } from "../lib/prisma.js";
 import { notifyNewOrder, notifyOrderStatusChange, notifyLowStock } from "./notifications.js";
+import { ValidationError, NotFoundError, ForbiddenError, handlePrismaError } from "../errors/errorsClass.js";
 
 interface CreateOrderFromPaymentRequest {
   paymentId: number;
@@ -72,6 +73,17 @@ export const createOrderService = async ({
   shippingAddressId,
   couponId,
 }: CreateOrderFromPaymentRequest): Promise<CreateOrderFromPaymentResponse> => {
+  // VALIDATION BEFORE TRY-CATCH
+  if (!paymentId || paymentId <= 0) {
+    throw new ValidationError("paymentId es requerido y debe ser mayor a 0");
+  }
+  if (!shippingAddressId || shippingAddressId <= 0) {
+    throw new ValidationError("shippingAddressId es requerido y debe ser mayor a 0");
+  }
+  if (couponId !== undefined && couponId !== null && couponId <= 0) {
+    throw new ValidationError("couponId debe ser mayor a 0 si se proporciona");
+  }
+
   try {
     const result = (await prisma.$queryRaw`
       SELECT * FROM fn_create_order(
@@ -96,14 +108,14 @@ export const createOrderService = async ({
       const orderDetails = await prisma.orders.findUnique({
         where: { id: orderResult.order_id },
         include: {
-          users: { select: { name: true, email: true } },
+          User: { select: { name: true, email: true } },
         },
       });
 
       if (orderDetails) {
         await notifyNewOrder(
           orderDetails.id,
-          orderDetails.users?.name || orderDetails.users?.email || "Cliente",
+          orderDetails.User?.name || orderDetails.User?.email || "Cliente",
           orderDetails.total / 100 // Convertir de centavos a unidades
         );
 
@@ -121,7 +133,7 @@ export const createOrderService = async ({
         }
       }
     } catch (notifyError) {
-      console.error("⚠️ Error al crear notificación de nuevo pedido:", notifyError);
+      console.error("[createOrderService] Error al crear notificación de nuevo pedido:", notifyError);
       // No lanzar error, la notificación es opcional
     }
 
@@ -132,13 +144,12 @@ export const createOrderService = async ({
       success: orderResult.success,
       message: orderResult.message,
     };
-  } catch (error) {
-    console.error("Error en createOrderFromPaymentService:", error);
-    throw new Error(
-      error instanceof Error
-        ? error.message
-        : "Error creando orden desde payment"
-    );
+  } catch (error: any) {
+    if (error instanceof ValidationError) {
+      throw error;
+    }
+    console.error("[createOrderService] Error creando orden con paymentId:", paymentId, error);
+    throw handlePrismaError(error);
   }
 };
 
@@ -146,6 +157,14 @@ export const createOrderItemsService = async (
   orderId: number,
   cartData: object
 ) => {
+  // VALIDATION BEFORE TRY-CATCH
+  if (!orderId || orderId <= 0) {
+    throw new ValidationError("orderId es requerido y debe ser mayor a 0");
+  }
+  if (!cartData || typeof cartData !== "object") {
+    throw new ValidationError("cartData es requerido y debe ser un objeto");
+  }
+
   try {
     const result = (await prisma.$queryRaw`
       SELECT * FROM fn_create_order_items(
@@ -165,15 +184,21 @@ export const createOrderItemsService = async (
       success: itemsResult.success,
       message: itemsResult.message,
     };
-  } catch (error) {
-    console.error("❌ Error en createOrderItemsService:", error);
-    throw new Error(
-      error instanceof Error ? error.message : "Error creando order items"
-    );
+  } catch (error: any) {
+    if (error instanceof ValidationError) {
+      throw error;
+    }
+    console.error("[createOrderItemsService] Error creando order items para orderId:", orderId, error);
+    throw handlePrismaError(error);
   }
 };
 
 export const getOrderWithPaymentService = async (orderId: number) => {
+  // VALIDATION BEFORE TRY-CATCH
+  if (!orderId || orderId <= 0) {
+    throw new ValidationError("orderId es requerido y debe ser mayor a 0");
+  }
+
   try {
     const order = await prisma.orders.findUnique({
       where: { id: orderId },
@@ -196,7 +221,7 @@ export const getOrderWithPaymentService = async (orderId: number) => {
     });
 
     if (!order) {
-      throw new Error("Orden no encontrada");
+      throw new NotFoundError("Orden no encontrada");
     }
 
     // Obtener la dirección completa usando shipping_address_id
@@ -233,15 +258,21 @@ export const getOrderWithPaymentService = async (orderId: number) => {
       ...order,
       payment,
     };
-  } catch (error) {
-    console.error("Error en getOrderWithPaymentService:", error);
-    throw new Error(
-      error instanceof Error ? error.message : "Error al obtener la orden"
-    );
+  } catch (error: any) {
+    if (error instanceof NotFoundError) {
+      throw error;
+    }
+    console.error("[getOrderWithPaymentService] Error obteniendo orden con orderId:", orderId, error);
+    throw handlePrismaError(error);
   }
 };
 
 export const getUserOrdersWithPaymentsService = async (userId: number) => {
+  // VALIDATION BEFORE TRY-CATCH
+  if (!userId || userId <= 0) {
+    throw new ValidationError("userId es requerido y debe ser mayor a 0");
+  }
+
   try {
     const orders = await prisma.orders.findMany({
       where: { user_id: userId },
@@ -311,15 +342,21 @@ export const getUserOrdersWithPaymentsService = async (userId: number) => {
     );
 
     return ordersWithPayments;
-  } catch (error) {
-    console.error("Error en getUserOrdersWithPaymentsService:", error);
-    throw new Error(
-      error instanceof Error ? error.message : "Error al obtener las órdenes"
-    );
+  } catch (error: any) {
+    if (error instanceof ValidationError) {
+      throw error;
+    }
+    console.error("[getUserOrdersWithPaymentsService] Error obteniendo órdenes para userId:", userId, error);
+    throw handlePrismaError(error);
   }
 };
 
 export const getProductWithVariantsService = async (productId: number) => {
+  // VALIDATION BEFORE TRY-CATCH
+  if (!productId || productId <= 0) {
+    throw new ValidationError("productId es requerido y debe ser mayor a 0");
+  }
+
   try {
     const product = await prisma.products.findUnique({
       where: { id: productId },
@@ -338,7 +375,7 @@ export const getProductWithVariantsService = async (productId: number) => {
     });
 
     if (!product) {
-      throw new Error("Producto no encontrado");
+      throw new NotFoundError("Producto no encontrado");
     }
 
     // Calcular precio final con ofertas
@@ -370,11 +407,12 @@ export const getProductWithVariantsService = async (productId: number) => {
         0
       ),
     };
-  } catch (error) {
-    console.error("Error in getProductWithVariantsService:", error);
-    throw new Error(
-      error instanceof Error ? error.message : "Error al obtener el producto"
-    );
+  } catch (error: any) {
+    if (error instanceof NotFoundError) {
+      throw error;
+    }
+    console.error("[getProductWithVariantsService] Error obteniendo producto con productId:", productId, error);
+    throw handlePrismaError(error);
   }
 };
 
@@ -383,6 +421,17 @@ export const checkVariantAvailabilityService = async (
   colorCode: string,
   size: string
 ) => {
+  // VALIDATION BEFORE TRY-CATCH
+  if (!productId || productId <= 0) {
+    throw new ValidationError("productId es requerido y debe ser mayor a 0");
+  }
+  if (!colorCode || colorCode.trim() === "") {
+    throw new ValidationError("colorCode es requerido y no puede estar vacío");
+  }
+  if (!size || size.trim() === "") {
+    throw new ValidationError("size es requerido y no puede estar vacío");
+  }
+
   try {
     const variant = await prisma.product_variants.findFirst({
       where: {
@@ -431,17 +480,21 @@ export const checkVariantAvailabilityService = async (
         new Date() < product.offer_end_date,
       message: variant.stock > 0 ? "Disponible" : "Sin stock",
     };
-  } catch (error) {
-    console.error("Error in checkVariantAvailabilityService:", error);
-    throw new Error(
-      error instanceof Error
-        ? error.message
-        : "Error al verificar disponibilidad"
-    );
+  } catch (error: any) {
+    if (error instanceof ValidationError) {
+      throw error;
+    }
+    console.error("[checkVariantAvailabilityService] Error verificando disponibilidad de variante con productId:", productId, "colorCode:", colorCode, "size:", size, error);
+    throw handlePrismaError(error);
   }
 };
 
 export const getOrderByIdService = async (orderId: number) => {
+  // VALIDATION BEFORE TRY-CATCH
+  if (!orderId || orderId <= 0) {
+    throw new ValidationError("orderId es requerido y debe ser mayor a 0");
+  }
+
   try {
     const order = await prisma.orders.findUnique({
       where: { id: orderId },
@@ -464,7 +517,7 @@ export const getOrderByIdService = async (orderId: number) => {
     });
 
     if (!order) {
-      throw new Error("Orden no encontrada");
+      throw new NotFoundError("Orden no encontrada");
     }
 
     // Obtener la dirección completa usando shipping_address_id
@@ -488,11 +541,12 @@ export const getOrderByIdService = async (orderId: number) => {
       ...order,
       addresses: address,
     };
-  } catch (error) {
-    console.error("Error in getOrderByIdService:", error);
-    throw new Error(
-      error instanceof Error ? error.message : "Error al obtener la orden"
-    );
+  } catch (error: any) {
+    if (error instanceof NotFoundError) {
+      throw error;
+    }
+    console.error("[getOrderByIdService] Error obteniendo orden con orderId:", orderId, error);
+    throw handlePrismaError(error);
   }
 };
 
@@ -506,6 +560,15 @@ export const updateOrderStatusService = async (
     | "delivered"
     | "cancelled"
 ) => {
+  // VALIDATION BEFORE TRY-CATCH
+  if (!orderId || orderId <= 0) {
+    throw new ValidationError("orderId es requerido y debe ser mayor a 0");
+  }
+  const validStatuses = ["pending", "paid", "confirmed", "shipped", "delivered", "cancelled"];
+  if (!status || !validStatuses.includes(status)) {
+    throw new ValidationError(`status debe ser uno de: ${validStatuses.join(", ")}`);
+  }
+
   try {
     const order = await prisma.orders.update({
       where: { id: orderId },
@@ -533,15 +596,16 @@ export const updateOrderStatusService = async (
     try {
       await notifyOrderStatusChange(order.id, status);
     } catch (notifyError) {
-      console.error("Error al crear notificación de cambio de estado:", notifyError);
+      console.error("[updateOrderStatusService] Advertencia: Error notificando cambio de estado:", notifyError);
     }
 
     return order;
-  } catch (error) {
-    console.error("❌ Error en updateOrderStatusService:", error);
-    throw new Error(
-      error instanceof Error ? error.message : "Error al actualizar la orden"
-    );
+  } catch (error: any) {
+    if (error instanceof ValidationError) {
+      throw error;
+    }
+    console.error("[updateOrderStatusService] Error actualizando orden con orderId:", orderId, "status:", status, error);
+    throw handlePrismaError(error);
   }
 };
 
@@ -886,4 +950,80 @@ export type {
   ProcessOrderResult,
   PaymentInfo,
   PaymentWithOrder,
+};
+
+// ============================================
+// ADMIN FUNCTIONS - Orders
+// ============================================
+
+// PUT - Change order status
+export const changeOrderStatusService = async (
+  orderId: number,
+  newStatus: string
+): Promise<void> => {
+  // Validación ANTES del try-catch
+  if (!orderId || orderId <= 0) {
+    throw new ValidationError("ID de orden inválido");
+  }
+  if (!newStatus) {
+    throw new ValidationError("Estado de orden requerido");
+  }
+
+  try {
+    const existing = await prisma.orders.findUnique({
+      where: { id: orderId },
+    });
+
+    if (!existing) {
+      throw new NotFoundError("Orden no encontrada");
+    }
+
+    await prisma.orders.update({
+      where: { id: orderId },
+      data: {
+        status: newStatus as any,
+        updated_at: new Date(),
+      },
+    });
+  } catch (error: any) {
+    if (error instanceof ValidationError || error instanceof NotFoundError) throw error;
+    console.error(`[changeOrderStatusService] Error al cambiar estado de orden ${orderId}:`, error);
+    throw handlePrismaError(error);
+  }
+};
+
+// GET - Export all orders for CSV/Excel
+export const exportOrdersService = async (): Promise<any[]> => {
+  try {
+    const orders = await prisma.orders.findMany({
+      select: {
+        id: true,
+        order_number: true,
+        status: true,
+        subtotal: true,
+        tax: true,
+        discount: true,
+        total: true,
+        created_at: true,
+        updated_at: true,
+      },
+      orderBy: { created_at: "desc" },
+    });
+
+    // Format for export
+    return orders.map((o: any) => ({
+      id: o.id,
+      orderNumber: o.order_number,
+      status: o.status,
+      subtotal: Number(o.subtotal),
+      tax: Number(o.tax),
+      discount: Number(o.discount),
+      total: Number(o.total),
+      createdAt: o.created_at,
+      updatedAt: o.updated_at,
+    }));
+  } catch (error: any) {
+    console.error("[exportOrdersService] Error al exportar órdenes:", error);
+    throw handlePrismaError(error);
+  }
 };

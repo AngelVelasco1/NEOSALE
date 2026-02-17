@@ -1,40 +1,20 @@
 "use server";
 
-import { auth } from "@/app/(auth)/auth";
-import { revalidatePath } from "next/cache";
+import { apiClient } from "@/lib/api-client";
 
 export async function toggleReviewStatus(reviewId: number, active: boolean) {
   try {
-    const session = await auth();
+    const response = await apiClient.patch(`/admin/reviews/${reviewId}/status`, {
+      active,
+    });
 
-    if (!session?.user || session.user.role !== "admin") {
-      throw new Error("No autorizado");
+    if (!response.success) {
+      return { success: false, error: response.error || "Error al actualizar reseña" };
     }
 
-    const response = await fetch(
-      `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/reviews/${reviewId}`,
-      {
-        method: "PUT",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${session?.user?.id}`,
-        },
-        body: JSON.stringify({ active }),
-      }
-    );
-
-    if (!response.ok) {
-      throw new Error("Error al actualizar reseña");
-    }
-
-    revalidatePath("/dashboard/reviews");
-
-    return {
-      success: true,
-      message: "Reseña actualizada exitosamente",
-    };
-  } catch (error: any) {
-    
-    throw error;
+    return { success: true, message: "Reseña actualizada exitosamente" };
+  } catch (error) {
+    console.error("[toggleReviewStatus] Error:", error);
+    return { success: false, error: "Error al actualizar reseña" };
   }
 }

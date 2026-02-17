@@ -1,14 +1,18 @@
 "use server";
 
-import { prisma } from "@/lib/prisma";
+import { apiClient } from "@/lib/api-client";
 
 export async function exportCoupons() {
   try {
-    const data = await prisma.coupons.findMany();
+    const response = await apiClient.get(`/admin/coupons/export`);
 
-    return { data };
+    if (!response.success) {
+      return { error: response.error || "Failed to fetch data for coupons." };
+    }
+
+    return { data: response.data || [] };
   } catch (error) {
-    
-    return { error: `Failed to fetch data for coupons.` };
+    console.error("[exportCoupons] Error:", error);
+    return { error: "Failed to fetch data for coupons." };
   }
 }

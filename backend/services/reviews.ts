@@ -1,4 +1,10 @@
 import { prisma } from "../lib/prisma.js";
+import {
+  ValidationError,
+  NotFoundError,
+  ForbiddenError,
+  handlePrismaError,
+} from "../errors/errorsClass.js";
 import { notifyNewReview } from "./notifications.js";
 
 export interface CreateReviewData {
@@ -19,84 +25,130 @@ export const getReviewsService = async (
   productId?: number,
   userId?: number
 ) => {
+  // Validación ANTES del try-catch
+  if (productId && productId <= 0) {
+    throw new ValidationError("ID de producto inválido");
+  }
+  if (userId && userId <= 0) {
+    throw new ValidationError("ID de usuario inválido");
+  }
+
   const whereClause: any = { active: true }; // Solo reseñas aprobadas
 
   if (productId) whereClause.product_id = productId;
   if (userId) whereClause.user_id = userId;
 
-  const reviews = await prisma.reviews.findMany({
-    where: whereClause,
-    include: {
-      User: {
-        select: {
-          id: true,
-          name: true,
-          image: true,
+  try {
+    const reviews = await prisma.reviews.findMany({
+      where: whereClause,
+      include: {
+        User: {
+          select: {
+            id: true,
+            name: true,
+            image: true,
+          },
         },
-      },
-      products: {
-        select: {
-          id: true,
-          name: true,
+        products: {
+          select: {
+            id: true,
+            name: true,
+          },
         },
+        review_images: true,
       },
-      review_images: true,
-    },
-    orderBy: {
-      created_at: "desc",
-    },
-  });
+      orderBy: {
+        created_at: "desc",
+      },
+    });
 
-  return reviews.map((review: any) => ({
-    id: review.id,
-    rating: review.rating,
-    comment: review.comment,
-    created_at: review.created_at,
-    updated_at: review.updated_at,
-    user: review.User,
-    product: review.products,
-    images: review.review_images,
-  }));
+    return reviews.map((review: any) => ({
+      id: review.id,
+      rating: review.rating,
+      comment: review.comment,
+      created_at: review.created_at,
+      updated_at: review.updated_at,
+      user: review.User,
+      product: review.products,
+      images: review.review_images,
+    }));
+  } catch (error: any) {
+    console.error(
+      `[getReviewsService] Error al obtener reseñas (productId: ${productId}, userId: ${userId}):`,
+      error
+    );
+    throw handlePrismaError(error);
+  }
 };
 
 export const getReviewByIdService = async (id: number) => {
-  const review = await prisma.reviews.findUnique({
-    where: { id },
-    include: {
-      User: {
-        select: {
-          id: true,
-          name: true,
-          image: true,
-        },
-      },
-      products: {
-        select: {
-          id: true,
-          name: true,
-        },
-      },
-      review_images: true,
-    },
-  });
-
-  if (!review) {
-    throw new Error("Review not found");
+  // Validación ANTES del try-catch
+  if (!id || id <= 0) {
+    throw new ValidationError("ID de reseña inválido");
   }
 
-  return {
-    id: review.id,
-    rating: review.rating,
-    comment: review.comment,
-    created_at: review.created_at,
-    updated_at: review.updated_at,
-    user: review.User,
-    product: review.products,
-    images: review.review_images,
-  };
+  try {
+    const review = await prisma.reviews.findUnique({
+      where: { id },
+      include: {
+        User: {
+          select: {
+            id: true,
+            name: true,
+            image: true,
+          },
+        },
+        products: {
+          select: {
+            id: true,
+            name: true,
+          },
+        },
+        review_images: true,
+      },
+    });
+
+    if (!review) {
+      throw new NotFoundError("Reseña no encontrada");
+    }
+
+    return {
+      id: review.id,
+      rating: review.rating,
+      comment: review.comment,
+      created_at: review.created_at,
+      updated_at: review.updated_at,
+      user: review.User,
+      product: review.products,
+      images: review.review_images,
+    };
+  } catch (error: any) {
+    if (error instanceof NotFoundError) {
+      throw error;
+    }
+    console.error(`[getReviewByIdService] Error al obtener reseña ${id}:`, error);
+    throw handlePrismaError(error);
+  }
 };
 
 export const createReviewService = async (data: CreateReviewData) => {
+  // Validación ANTES del try-catch
+  if (!data.user_id || data.user_id <= 0) {
+    throw new ValidationError("ID de usuario inválido");
+  }
+  if (!data.product_id || data.product_id <= 0) {
+    throw new ValidationError("ID de producto inválido");
+  }
+  if (!data.rating || data.rating < 1 || data.rating > 5) {
+    throw new ValidationError("La calificación debe estar entre 1 y 5");
+  }
+  if (data.images && !Array.isArray(data.images)) {
+    throw new ValidationError("Las imágenes deben ser un array");
+  }
+  if (data.images && data.images.length > 5) {
+    throw new ValidationError("No se pueden agregar más de 5 imágenes por reseña");
+  }
+
   try {
     // Usar el stored procedure para crear la review con order_id
     const result = await prisma.$queryRaw<{ sp_create_review: number }[]>`
@@ -109,14 +161,11 @@ export const createReviewService = async (data: CreateReviewData) => {
       ) as sp_create_review
     `;
 
-
     const reviewId = result[0]?.sp_create_review;
 
     if (!reviewId) {
-      console.error('❌ No review ID returned:', result);
-      throw new Error("Error al crear la review - No se recibió ID");
+      throw new Error("No se recibió ID de la reseña");
     }
-
 
     // Si hay imágenes, agregarlas usando stored procedure
     if (data.images && data.images.length > 0) {
@@ -129,11 +178,6 @@ export const createReviewService = async (data: CreateReviewData) => {
       `;
     }
 
-    
-    if (!reviewId || isNaN(reviewId)) {
-      throw new Error(`Invalid review ID: ${reviewId}`);
-    }
-    
     // Obtener directamente con Prisma en lugar de usar el servicio
     const completeReview = await prisma.reviews.findUnique({
       where: { id: reviewId },
@@ -156,8 +200,7 @@ export const createReviewService = async (data: CreateReviewData) => {
     });
 
     if (!completeReview) {
-      console.error('❌ Review not found after creation with ID:', reviewId);
-      throw new Error("Review not found after creation");
+      throw new Error("No se pudo recuperar la reseña creada");
     }
 
     // 🔔 Notificar a todos los admins sobre la nueva reseña
@@ -168,7 +211,7 @@ export const createReviewService = async (data: CreateReviewData) => {
         data.rating
       );
     } catch (notifyError) {
-      console.error("⚠️ Error al crear notificación de nueva reseña:", notifyError);
+      console.error("[createReviewService] Error al crear notificación de nueva reseña:", notifyError);
       // No lanzar error, la notificación es opcional
     }
 
@@ -183,21 +226,11 @@ export const createReviewService = async (data: CreateReviewData) => {
       images: completeReview.review_images,
     };
   } catch (error: any) {
-    // Mapear errores específicos de PostgreSQL
-    if (error.message.includes("Usuario ya ha calificado este producto")) {
-      throw new Error("Ya has calificado este producto anteriormente");
+    if (error instanceof ValidationError) {
+      throw error;
     }
-    if (error.message.includes("Usuario no existe o está inactivo")) {
-      throw new Error("Usuario no válido");
-    }
-    if (error.message.includes("Producto no existe o está inactivo")) {
-      throw new Error("Producto no válido");
-    }
-    if (error.message.includes("calificación debe estar entre 1 y 5")) {
-      throw new Error("La calificación debe estar entre 1 y 5");
-    }
-
-    throw new Error(error.message || "Error al crear la review");
+    console.error(`[createReviewService] Error al crear reseña para producto ${data.product_id}:`, error);
+    throw handlePrismaError(error);
   }
 };
 
@@ -206,6 +239,17 @@ export const updateReviewService = async (
   userId: number,
   data: UpdateReviewData
 ) => {
+  // Validación ANTES del try-catch
+  if (!id || id <= 0) {
+    throw new ValidationError("ID de reseña inválido");
+  }
+  if (!userId || userId <= 0) {
+    throw new ValidationError("ID de usuario inválido");
+  }
+  if (data.rating && (data.rating < 1 || data.rating > 5)) {
+    throw new ValidationError("La calificación debe estar entre 1 y 5");
+  }
+
   try {
     // Usar el stored procedure para actualizar la review
     await prisma.$executeRaw`
@@ -220,114 +264,131 @@ export const updateReviewService = async (
     // Retornar la review actualizada
     return getReviewByIdService(id);
   } catch (error: any) {
-    // Mapear errores específicos de PostgreSQL
-    if (error.message.includes("Review no encontrada")) {
-      throw new Error("Review no encontrada");
+    if (error instanceof NotFoundError || error instanceof ValidationError) {
+      throw error;
     }
-    if (error.message.includes("No tienes permisos")) {
-      throw new Error("No tienes permisos para modificar esta review");
-    }
-    if (error.message.includes("calificación debe estar entre 1 y 5")) {
-      throw new Error("La calificación debe estar entre 1 y 5");
-    }
-
-    throw new Error(error.message || "Error al actualizar la review");
+    console.error(`[updateReviewService] Error al actualizar reseña ${id}:`, error);
+    throw handlePrismaError(error);
   }
 };
 
 export const deleteReviewService = async (id: number, userId: number) => {
+  // Validación ANTES del try-catch
+  if (!id || id <= 0) {
+    throw new ValidationError("ID de reseña inválido");
+  }
+  if (!userId || userId <= 0) {
+    throw new ValidationError("ID de usuario inválido");
+  }
+
   try {
     // Usar el stored procedure para eliminar la review
     await prisma.$executeRaw`
       CALL sp_delete_review(${id}, ${userId})
     `;
 
-    return { message: "Review eliminada exitosamente" };
+    return { message: "Reseña eliminada exitosamente" };
   } catch (error: any) {
-    // Mapear errores específicos de PostgreSQL
-    if (error.message.includes("Review no encontrada")) {
-      throw new Error("Review no encontrada");
+    if (error instanceof NotFoundError || error instanceof ForbiddenError) {
+      throw error;
     }
-    if (error.message.includes("No tienes permisos")) {
-      throw new Error("No tienes permisos para eliminar esta review");
-    }
-
-    throw new Error(error.message || "Error al eliminar la review");
+    console.error(`[deleteReviewService] Error al eliminar reseña ${id}:`, error);
+    throw handlePrismaError(error);
   }
 };
 
 export const getProductReviewStatsService = async (productId: number) => {
-  const stats = await prisma.reviews.aggregate({
-    where: { 
-      product_id: productId,
-      active: true // Solo reseñas aprobadas
-    },
-    _avg: {
-      rating: true,
-    },
-    _count: {
-      id: true,
-    },
-  });
+  // Validación ANTES del try-catch
+  if (!productId || productId <= 0) {
+    throw new ValidationError("ID de producto inválido");
+  }
 
-  const ratingDistribution = await prisma.reviews.groupBy({
-    by: ["rating"],
-    where: { 
-      product_id: productId,
-      active: true // Solo reseñas aprobadas
-    },
-    _count: {
-      rating: true,
-    },
-  });
+  try {
+    const stats = await prisma.reviews.aggregate({
+      where: {
+        product_id: productId,
+        active: true, // Solo reseñas aprobadas
+      },
+      _avg: {
+        rating: true,
+      },
+      _count: {
+        id: true,
+      },
+    });
 
-  return {
-    average_rating: stats._avg.rating
-      ? Number(stats._avg.rating.toFixed(1))
-      : 0,
-    total_reviews: stats._count.id,
-    rating_distribution: ratingDistribution.map((item: any) => ({
-      rating: item.rating,
-      count: item._count.rating,
-    })),
-  };
+    const ratingDistribution = await prisma.reviews.groupBy({
+      by: ["rating"],
+      where: {
+        product_id: productId,
+        active: true, // Solo reseñas aprobadas
+      },
+      _count: {
+        rating: true,
+      },
+    });
+
+    return {
+      average_rating: stats._avg.rating
+        ? Number(stats._avg.rating.toFixed(1))
+        : 0,
+      total_reviews: stats._count.id,
+      rating_distribution: ratingDistribution.map((item: any) => ({
+        rating: item.rating,
+        count: item._count.rating,
+      })),
+    };
+  } catch (error: any) {
+    console.error(`[getProductReviewStatsService] Error al obtener estadísticas de reseñas del producto ${productId}:`, error);
+    throw handlePrismaError(error);
+  }
 };
 
 export const getUserReviewsService = async (userId: number) => {
-  const reviews = await prisma.reviews.findMany({
-    where: { user_id: userId },
-    include: {
-      products: {
-        select: {
-          id: true,
-          name: true,
-          images: {
-            take: 1,
-            select: {
-              image_url: true,
+  // Validación ANTES del try-catch
+  if (!userId || userId <= 0) {
+    throw new ValidationError("ID de usuario inválido");
+  }
+
+  try {
+    const reviews = await prisma.reviews.findMany({
+      where: { user_id: userId },
+      include: {
+        products: {
+          select: {
+            id: true,
+            name: true,
+            images: {
+              take: 1,
+              select: {
+                image_url: true,
+              },
             },
           },
         },
+        review_images: true,
       },
-      review_images: true,
-    },
-    orderBy: {
-      created_at: "desc",
-    },
-  });
+      orderBy: {
+        created_at: "desc",
+      },
+    });
 
-  return reviews.map((review: any) => ({
-    id: review.id,
-    rating: review.rating,
-    comment: review.comment,
-    created_at: review.created_at,
-    updated_at: review.updated_at,
-    product: {
-      ...review.products,
-      image_url: review.products.images[0]?.image_url,
-    },
-    images: review.review_images,
-  }));
+    return reviews.map((review: any) => ({
+      id: review.id,
+      rating: review.rating,
+      comment: review.comment,
+      created_at: review.created_at,
+      updated_at: review.updated_at,
+      product: {
+        ...review.products,
+        image_url: review.products.images[0]?.image_url,
+      },
+      images: review.review_images,
+    }));
+  } catch (error: any) {
+    console.error(`[getUserReviewsService] Error al obtener reseñas del usuario ${userId}:`, error);
+    throw handlePrismaError(error);
+  }
 };
 
 // Servicio para agregar imágenes a una review existente
@@ -336,11 +397,21 @@ export const addReviewImagesService = async (
   userId: number,
   images: string[]
 ) => {
-  try {
-    if (!images || images.length === 0) {
-      throw new Error("Se debe proporcionar al menos una imagen");
-    }
+  // Validación ANTES del try-catch
+  if (!reviewId || reviewId <= 0) {
+    throw new ValidationError("ID de reseña inválido");
+  }
+  if (!userId || userId <= 0) {
+    throw new ValidationError("ID de usuario inválido");
+  }
+  if (!images || !Array.isArray(images) || images.length === 0) {
+    throw new ValidationError("Se debe proporcionar al menos una imagen");
+  }
+  if (images.length > 5) {
+    throw new ValidationError("No se pueden agregar más de 5 imágenes por reseña");
+  }
 
+  try {
     // Usar el stored procedure para agregar imágenes
     await prisma.$executeRaw`
       CALL sp_add_review_images(
@@ -353,18 +424,11 @@ export const addReviewImagesService = async (
     // Retornar la review actualizada con las nuevas imágenes
     return getReviewByIdService(reviewId);
   } catch (error: any) {
-    // Mapear errores específicos de PostgreSQL
-    if (error.message.includes("Review no encontrada")) {
-      throw new Error("Review no encontrada");
+    if (error instanceof NotFoundError || error instanceof ValidationError) {
+      throw error;
     }
-    if (error.message.includes("No tienes permisos")) {
-      throw new Error("No tienes permisos para modificar esta review");
-    }
-    if (error.message.includes("más de 5 imágenes")) {
-      throw new Error("No se pueden agregar más de 5 imágenes por review");
-    }
-
-    throw new Error(error.message || "Error al agregar imágenes");
+    console.error(`[addReviewImagesService] Error al agregar imágenes a la reseña ${reviewId}:`, error);
+    throw handlePrismaError(error);
   }
 };
 
@@ -373,6 +437,14 @@ export const deleteReviewImageService = async (
   imageId: number,
   userId: number
 ) => {
+  // Validación ANTES del try-catch
+  if (!imageId || imageId <= 0) {
+    throw new ValidationError("ID de imagen inválido");
+  }
+  if (!userId || userId <= 0) {
+    throw new ValidationError("ID de usuario inválido");
+  }
+
   try {
     // Usar el stored procedure para eliminar la imagen
     await prisma.$executeRaw`
@@ -381,15 +453,11 @@ export const deleteReviewImageService = async (
 
     return { message: "Imagen eliminada exitosamente" };
   } catch (error: any) {
-    // Mapear errores específicos de PostgreSQL
-    if (error.message.includes("Imagen de review no encontrada")) {
-      throw new Error("Imagen no encontrada");
+    if (error instanceof NotFoundError || error instanceof ForbiddenError) {
+      throw error;
     }
-    if (error.message.includes("No tienes permisos")) {
-      throw new Error("No tienes permisos para eliminar esta imagen");
-    }
-
-    throw new Error(error.message || "Error al eliminar la imagen");
+    console.error(`[deleteReviewImageService] Error al eliminar imagen ${imageId}:`, error);
+    throw handlePrismaError(error);
   }
 };
 
@@ -408,6 +476,11 @@ export interface ReviewableProduct {
 export const getReviewableProductsService = async (
   userId: number
 ): Promise<ReviewableProduct[]> => {
+  // Validación ANTES del try-catch
+  if (!userId || userId <= 0) {
+    throw new ValidationError("ID de usuario inválido");
+  }
+
   try {
     // Obtener todas las órdenes entregadas del usuario
     const deliveredOrders = await prisma.orders.findMany({
@@ -471,7 +544,8 @@ export const getReviewableProductsService = async (
 
     return reviewableProducts;
   } catch (error: any) {
-    throw new Error(error.message || "Error al obtener productos reseñables");
+    console.error(`[getReviewableProductsService] Error al obtener productos reseñables para usuario ${userId}:`, error);
+    throw handlePrismaError(error);
   }
 };
 
@@ -481,6 +555,17 @@ export const canUserReviewService = async (
   productId: number,
   orderId: number
 ): Promise<{ can_review: boolean; reason?: string }> => {
+  // Validación ANTES del try-catch
+  if (!userId || userId <= 0) {
+    throw new ValidationError("ID de usuario inválido");
+  }
+  if (!productId || productId <= 0) {
+    throw new ValidationError("ID de producto inválido");
+  }
+  if (!orderId || orderId <= 0) {
+    throw new ValidationError("ID de orden inválido");
+  }
+
   try {
     // Verificar que la orden existe y pertenece al usuario
     const order = await prisma.orders.findFirst({
@@ -536,6 +621,199 @@ export const canUserReviewService = async (
 
     return { can_review: true };
   } catch (error: any) {
-    throw new Error(error.message || "Error al verificar permisos de reseña");
+    console.error(
+      `[canUserReviewService] Error al verificar permisos de reseña (usuario: ${userId}, producto: ${productId}, orden: ${orderId}):`,
+      error
+    );
+    throw handlePrismaError(error);
+  }
+};
+
+// ============================================
+// ADMIN FUNCTIONS - Reviews
+// ============================================
+
+interface AdminReviewsQueryParams {
+  page?: number;
+  limit?: number;
+  status?: "active" | "inactive";
+  rating?: number;
+  productId?: number;
+  userId?: number;
+  search?: string;
+}
+
+const DEFAULT_LIMIT = 20;
+const MAX_LIMIT = 100;
+
+const getPaginationParams = (page?: number, limit?: number) => {
+  const safeLimit = Math.min(limit || DEFAULT_LIMIT, MAX_LIMIT);
+  const safePage = Math.max(page || 1, 1);
+  return { skip: (safePage - 1) * safeLimit, take: safeLimit, limit: safeLimit };
+};
+
+// GET - Admin Reviews List (with filtering)
+export const getReviewsAdminService = async (params: AdminReviewsQueryParams) => {
+  const { skip, take, limit } = getPaginationParams(params.page, params.limit);
+
+  try {
+    const where: any = {};
+
+    // Filter by active status
+    if (params.status === "active") {
+      where.active = true;
+    } else if (params.status === "inactive") {
+      where.active = false;
+    }
+
+    // Filter by rating
+    if (params.rating && params.rating > 0 && params.rating <= 5) {
+      where.rating = params.rating;
+    }
+
+    // Filter by product
+    if (params.productId && params.productId > 0) {
+      where.product_id = params.productId;
+    }
+
+    // Filter by user
+    if (params.userId && params.userId > 0) {
+      where.user_id = params.userId;
+    }
+
+    // Search in comment
+    if (params.search?.trim()) {
+      where.comment = { contains: params.search.trim(), mode: "insensitive" };
+    }
+
+    const [reviews, total] = await Promise.all([
+      prisma.reviews.findMany({
+        where,
+        select: {
+          id: true,
+          rating: true,
+          comment: true,
+          active: true,
+          created_at: true,
+          product: { select: { name: true } },
+          user: { select: { name: true, email: true } },
+        },
+        skip,
+        take,
+        orderBy: { created_at: "desc" },
+      }),
+      prisma.reviews.count({ where }),
+    ]);
+
+    return {
+      success: true,
+      data: reviews,
+      pagination: {
+        total,
+        page: params.page || 1,
+        limit,
+        totalPages: Math.ceil(total / limit),
+      },
+    };
+  } catch (error: any) {
+    console.error("[getReviewsAdminService] Error al obtener reseñas:", error);
+    throw handlePrismaError(error);
+  }
+};
+
+// PUT - Toggle review active status
+export const toggleReviewStatusService = async (
+  reviewId: number,
+  active: boolean
+): Promise<void> => {
+  // Validación ANTES del try-catch
+  if (!reviewId || reviewId <= 0) {
+    throw new ValidationError("ID de reseña inválido");
+  }
+
+  try {
+    const existing = await prisma.reviews.findUnique({
+      where: { id: reviewId },
+    });
+
+    if (!existing) {
+      throw new NotFoundError("Reseña no encontrada");
+    }
+
+    await prisma.reviews.update({
+      where: { id: reviewId },
+      data: { active },
+    });
+  } catch (error: any) {
+    if (error instanceof ValidationError || error instanceof NotFoundError) throw error;
+    console.error(
+      `[toggleReviewStatusService] Error al cambiar estado de reseña ${reviewId}:`,
+      error
+    );
+    throw handlePrismaError(error);
+  }
+};
+
+// DELETE - Delete review
+export const deleteReviewAdminService = async (reviewId: number): Promise<void> => {
+  // Validación ANTES del try-catch
+  if (!reviewId || reviewId <= 0) {
+    throw new ValidationError("ID de reseña inválido");
+  }
+
+  try {
+    const existing = await prisma.reviews.findUnique({
+      where: { id: reviewId },
+    });
+
+    if (!existing) {
+      throw new NotFoundError("Reseña no encontrada");
+    }
+
+    await prisma.reviews.delete({
+      where: { id: reviewId },
+    });
+  } catch (error: any) {
+    if (error instanceof ValidationError || error instanceof NotFoundError) throw error;
+    console.error(`[deleteReviewAdminService] Error al eliminar reseña ${reviewId}:`, error);
+    throw handlePrismaError(error);
+  }
+};
+
+// GET - Review stats
+export const getReviewStatsService = async (): Promise<any> => {
+  try {
+    const [totalReviews, activeReviews, averageRating, ratingDistribution] =
+      await Promise.all([
+        prisma.reviews.count(),
+        prisma.reviews.count({ where: { active: true } }),
+        prisma.reviews.aggregate({
+          _avg: { rating: true },
+        }),
+        prisma.reviews.groupBy({
+          by: ["rating"],
+          _count: true,
+        }),
+      ]);
+
+    return {
+      success: true,
+      data: {
+        totalReviews,
+        activeReviews,
+        averageRating: ratingDistribution.length > 0 ? 
+          Math.round((averageRating._avg.rating || 0) * 10) / 10 : 0,
+        ratingDistribution: ratingDistribution.reduce(
+          (acc, item) => ({
+            ...acc,
+            [item.rating]: item._count,
+          }),
+          {}
+        ),
+      },
+    };
+  } catch (error: any) {
+    console.error("[getReviewStatsService] Error al obtener estadísticas de reseñas:", error);
+    throw handlePrismaError(error);
   }
 };

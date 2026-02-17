@@ -1,8 +1,6 @@
 "use server";
 
-import { revalidatePath } from "next/cache";
-
-import { prisma } from "@/lib/prisma";
+import { apiClient } from "@/lib/api-client";
 import { couponBulkFormSchema } from "@/app/(admin)/dashboard/coupons/_components/form/schema";
 import { formatValidationErrors } from "@/app/(admin)/helpers/formatValidationErrors";
 import { VServerActionResponse } from "@/app/(admin)/types/server-action";
@@ -26,16 +24,18 @@ export async function editCoupons(
   const { active } = parsedData.data;
 
   try {
-    await prisma.coupons.updateMany({
-      where: { id: { in: couponIds } },
-      data: { active },
+    const response = await apiClient.put(`/admin/coupons`, {
+      couponIds,
+      active,
     });
 
-    revalidatePath("/coupons");
+    if (!response.success) {
+      return { success: false, error: response.error || "Failed to update coupons" };
+    }
 
     return { success: true };
   } catch (error) {
-    
+    console.error("[editCoupons] Error:", error);
     return { success: false, error: "Something went wrong. Please try again later." };
   }
 }

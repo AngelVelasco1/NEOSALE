@@ -1,9 +1,7 @@
 "use server";
 
-import { revalidatePath } from "next/cache";
-import { Prisma } from "@/prisma/generated/prisma/client";
-
-import { prisma } from "@/lib/prisma";
+import { apiClient } from "@/lib/api-client";
+import { requireAdmin } from "@/lib/auth-helpers";
 import { staffFormSchema } from "@/app/(admin)/dashboard/staff/_components/form/schema";
 import { formatValidationErrors } from "@/app/(admin)/helpers/formatValidationErrors";
 import { StaffServerActionResponse } from "@/app/(admin)/types/server-action";
@@ -12,6 +10,8 @@ export async function editStaff(
   staffId: string,
   formData: FormData
 ): Promise<StaffServerActionResponse> {
+  await requireAdmin();
+
   const parsedData = staffFormSchema.safeParse({
     name: formData.get("name"),
     phone: formData.get("phone"),
@@ -26,47 +26,22 @@ export async function editStaff(
     };
   }
 
-  const { image, ...staffData } = parsedData.data;
-
-  let imageUrl: string | undefined;
-
-  // TODO: Implementar upload de imagen con Cloudinary
-  if (image instanceof File && image.size > 0) {
-    // Por ahora, guardamos el nombre del archivo
-    // Implementa tu solución de storage preferida aquí (Cloudinary, etc.)
-    imageUrl = `/uploads/staff/${image.name}`;
-  }
-
   try {
-    const updatedStaff = await prisma.user.update({
-      where: { id: parseInt(staffId) },
-      data: {
-        name: staffData.name,
-        phoneNumber: staffData.phone,
-        // ...(imageUrl && { image: imageUrl }), // TODO: Descomentar cuando necesites actualizar la imagen
-      },
-    });
+    const response = await apiClient.uploadFile(
+      `/admin/staff/${staffId}`,
+      formData
+    );
 
-    revalidatePath("/staff");
-
-    return { success: true, staff: updatedStaff };
-  } catch (error) {
-    // Manejar errores de unique constraint de Prisma
-    if (error instanceof Prisma.PrismaClientKnownRequestError) {
-      if (error.code === "P2002") {
-        const target = error.meta?.target as string[];
-
-        if (target?.includes("phone_number")) {
-          return {
-            validationErrors: {
-              phone: "This phone number is already in use.",
-            },
-          };
-        }
+    if (!response.success) {
+      if (response.validationErrors) {
+        return { validationErrors: response.validationErrors };
       }
+      return { success: false, error: response.error || "Failed to update staff" };
     }
 
-    
+    return { success: true, staff: response.data };
+  } catch (error) {
+    console.error("[editStaff] Error:", error);
     return { success: false, error: "Something went wrong. Please try again later." };
   }
 }

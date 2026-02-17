@@ -4,6 +4,9 @@ import {
   getCategoryById,
   getSubcategoriesByCategory,
   getActiveCategoriesOnly,
+  createCategory,
+  updateCategory,
+  deleteCategory,
 } from "../controllers/categories";
 import { cacheMiddleware } from "../middlewares/cache";
 
@@ -15,5 +18,11 @@ export const categoriesRoutes = () =>
     .get("/:categoryId/subcategories", cacheMiddleware(15 * 60 * 1000), getSubcategoriesByCategory)
     // Obtener todas las categorías con sus subcategorías
     .get("/", cacheMiddleware(15 * 60 * 1000), getAllCategoriesWithSubcategories)
-    // Obtener una categoría específica por ID con sus subcategorías
-    .get("/:id", cacheMiddleware(15 * 60 * 1000), getCategoryById);
+    // Obtener una categoría específica por ID con sus subcategorías - DEBE IR AL FINAL de GET routes
+    .get("/:id", cacheMiddleware(15 * 60 * 1000), getCategoryById)
+    // POST - Crear nueva categoría
+    .post("/", createCategory)
+    // PUT - Actualizar categoría
+    .put("/:id", updateCategory)
+    // DELETE - Eliminar categoría (soft delete)
+    .delete("/:id", deleteCategory);

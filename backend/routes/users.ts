@@ -5,11 +5,13 @@ import {
   updateUser,
   updatePassword,
   updateUserImage,
+  editProfile,
   addFavorite,
   removeFavorite,
   checkIsFavorite,
   getUserFavorites,
   getUsers,
+  deleteUser,
 } from "../controllers/users";
 
 export const usersRoutes = () =>
@@ -21,7 +23,10 @@ export const usersRoutes = () =>
     .put("/updateUser", updateUser)
     .put("/updatePassword", updatePassword)
     .put("/updateUserImage", updateUserImage)
+    .put("/profile/edit", editProfile) // Auth required: Edit logged-in user profile
     .post("/addFavorite", addFavorite)
     .delete("/removeFavorite", removeFavorite)
     .get("/checkIsFavorite/:userId/:productId", checkIsFavorite)
-    .get("/getUserFavorites/:userId", getUserFavorites);
+    .get("/getUserFavorites/:userId", getUserFavorites)
+    // DELETE - Eliminar usuario (soft delete)
+    .delete("/:id", deleteUser);

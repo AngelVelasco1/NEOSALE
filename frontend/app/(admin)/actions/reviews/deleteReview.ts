@@ -1,38 +1,18 @@
 "use server";
 
-import { auth } from "@/app/(auth)/auth";
-import { revalidatePath } from "next/cache";
+import { apiClient } from "@/lib/api-client";
 
 export async function deleteReview(reviewId: number) {
   try {
-    const session = await auth();
+    const response = await apiClient.delete(`/admin/reviews/${reviewId}`);
 
-    if (!session?.user || session.user.role !== "admin") {
-      throw new Error("No autorizado");
+    if (!response.success) {
+      return { success: false, error: response.error || "Error al eliminar reseña" };
     }
 
-    const response = await fetch(
-      `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/reviews/${reviewId}`,
-      {
-        method: "DELETE",
-        headers: {
-          Authorization: `Bearer ${session?.user?.id}`,
-        },
-      }
-    );
-
-    if (!response.ok) {
-      throw new Error("Error al eliminar reseña");
-    }
-
-    revalidatePath("/dashboard/reviews");
-
-    return {
-      success: true,
-      message: "Reseña eliminada exitosamente",
-    };
-  } catch (error: any) {
-    
-    throw error;
+    return { success: true, message: "Reseña eliminada exitosamente" };
+  } catch (error) {
+    console.error("[deleteReview] Error:", error);
+    return { success: false, error: "Error al eliminar reseña" };
   }
 }

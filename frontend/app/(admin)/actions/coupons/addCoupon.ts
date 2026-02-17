@@ -1,9 +1,6 @@
 "use server";
 
-import { revalidatePath } from "next/cache";
-import { Prisma } from "@/prisma/generated/prisma/client";
-
-import { prisma } from "@/lib/prisma";
+import { apiClient } from "@/lib/api-client";
 import { couponFormSchema } from "@/app/(admin)/dashboard/coupons/_components/form/schema";
 import { formatValidationErrors } from "@/app/(admin)/helpers/formatValidationErrors";
 import { CouponServerActionResponse } from "@/app/(admin)/types/server-action";
@@ -30,41 +27,26 @@ export async function addCoupon(
   }
 
   try {
-    const newCoupon = await prisma.coupons.create({
-      data: {
-        code: parsedData.data.code,
-        name: parsedData.data.name,
-        discount_type: parsedData.data.isPercentageDiscount
-          ? "percentage"
-          : "fixed",
-        discount_value: parsedData.data.discountValue,
-        min_purchase_amount: parsedData.data.minPurchaseAmount || 0,
-        usage_limit: parsedData.data.usageLimit || null,
-        expires_at: parsedData.data.expiresAt,
-        active: true,
-        created_by: 1, // TODO: Obtener del usuario autenticado
-      },
+    const response = await apiClient.post(`/admin/coupons`, {
+      code: parsedData.data.code,
+      name: parsedData.data.name,
+      discount_type: parsedData.data.isPercentageDiscount ? "percentage" : "fixed",
+      discount_value: parsedData.data.discountValue,
+      min_purchase_amount: parsedData.data.minPurchaseAmount || 0,
+      usage_limit: parsedData.data.usageLimit || null,
+      expires_at: parsedData.data.expiresAt,
     });
 
-    revalidatePath("/coupons");
-
-    return { success: true, coupon: newCoupon };
-  } catch (error) {
-    if (error instanceof Prisma.PrismaClientKnownRequestError) {
-      if (error.code === "P2002") {
-        const target = error.meta?.target as string[];
-
-        if (target?.includes("code")) {
-          return {
-            validationErrors: {
-              code: "This coupon code is already in use. Please create a unique code for your new coupon.",
-            },
-          };
-        }
+    if (!response.success) {
+      if (response.validationErrors) {
+        return { validationErrors: response.validationErrors };
       }
+      return { success: false, error: response.error || "Failed to create coupon" };
     }
 
-    
+    return { success: true, coupon: response.data };
+  } catch (error) {
+    console.error("[addCoupon] Error:", error);
     return { success: false, error: "Something went wrong. Please try again later." };
   }
 }

@@ -4,6 +4,9 @@ import {
   getLatestProductsService,
   getVariantStockService,
   getOffersService,
+  createProductService,
+  updateProductService,
+  deleteProductService,
 } from "../services/products.js";
 import { Request, Response } from "express";
 import { prisma } from "../lib/prisma.js";
@@ -59,15 +62,6 @@ export const getVariantStock = async (
 ) => {
   try {
     const { id, color_code, size } = req.body;
-
-    if (!id || !color_code || !size) {
-      res.status(400).json({
-        error: "Faltan parámetros requeridos",
-        required: ["product_id", "color_code", "size"],
-      });
-      return;
-    }
-
     const productVariant = await getVariantStockService(id, color_code, size);
     res.status(200).json({
       success: true,
@@ -201,5 +195,63 @@ export const updateVariant = async (
   } catch (err) {
     console.error("❌ Error en controller updateVariant:", err);
     next(err);
+  }
+};
+
+// POST - Create new product
+export const createProduct = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  try {
+    const result = await createProductService(req.body);
+
+    res.status(201).json({
+      success: true,
+      data: result,
+      message: "Producto creado exitosamente",
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+// PUT - Update product
+export const updateProduct = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  try {
+    const productId = parseInt(req.params.id);
+    const result = await updateProductService(productId, req.body);
+
+    res.status(200).json({
+      success: true,
+      data: result,
+      message: "Producto actualizado exitosamente",
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+// DELETE - Delete product (soft delete)
+export const deleteProduct = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  try {
+    const productId = parseInt(req.params.id);
+    await deleteProductService(productId);
+
+    res.status(200).json({
+      success: true,
+      message: "Producto eliminado exitosamente",
+    });
+  } catch (error) {
+    next(error);
   }
 };

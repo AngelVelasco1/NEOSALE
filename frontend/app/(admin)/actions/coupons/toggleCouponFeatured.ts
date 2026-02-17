@@ -1,11 +1,7 @@
 "use server";
 
-import { revalidatePath } from "next/cache";
-
-import { prisma } from "@/lib/prisma";
+import { apiClient } from "@/lib/api-client";
 import { ServerActionResponse } from "@/app/(admin)/types/server-action";
-
-const MAX_FEATURED_COUPONS = 3;
 
 export async function toggleCouponFeatured(
   couponId: number,
@@ -14,34 +10,17 @@ export async function toggleCouponFeatured(
   try {
     const newFeaturedStatus = !currentFeaturedStatus;
 
-    // Si se va a activar como destacado, verificar el límite
-    if (newFeaturedStatus) {
-      const featuredCount = await prisma.coupons.count({
-        where: {
-          featured: true,
-          deleted_at: null,
-          active: true,
-        },
-      });
-
-      if (featuredCount >= MAX_FEATURED_COUPONS) {
-        return { 
-          success: false,
-          error: `No se pueden destacar más de ${MAX_FEATURED_COUPONS} cupones. Desactiva uno primero.` 
-        };
-      }
-    }
-
-    await prisma.coupons.update({
-      where: { id: couponId },
-      data: { featured: newFeaturedStatus },
+    const response = await apiClient.patch(`/admin/coupons/${couponId}/featured`, {
+      featured: newFeaturedStatus,
     });
 
-    revalidatePath("/coupons");
+    if (!response.success) {
+      return { success: false, error: response.error || "Failed to update coupon featured status." };
+    }
 
     return { success: true };
   } catch (error) {
-    
+    console.error("[toggleCouponFeatured] Error:", error);
     return { success: false, error: "Failed to update coupon featured status." };
   }
 }

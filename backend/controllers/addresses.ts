@@ -1,4 +1,4 @@
-import { Request, Response } from "express";
+import { Request, Response, NextFunction } from "express";
 import {
   getUserAddressesService,
   getAddressByIdService,
@@ -9,18 +9,18 @@ import {
   getDefaultAddressService,
   CreateAddressData,
   UpdateAddressData,
-} from "../services/addresses";
+} from "../services/addresses.js";
 
-export const getUserAddresses = async (req: Request, res: Response) => {
+export const getUserAddresses = async (req: Request, res: Response, next: NextFunction) => {
   try {
     const user_id = parseInt(req.query.user_id as string);
-
+    
     if (!user_id || isNaN(user_id)) {
-      res.status(401).json({
+      return res.status(401).json({
         success: false,
         message: "Usuario no autenticado",
+        code: "UNAUTHORIZED",
       });
-      return;
     }
 
     const addresses = await getUserAddressesService(user_id);
@@ -28,36 +28,23 @@ export const getUserAddresses = async (req: Request, res: Response) => {
     res.status(200).json({
       success: true,
       data: addresses,
-      message: "Direcciones obtenidas exitosamente",
     });
   } catch (error: any) {
-    console.error("Error getting user addresses:", error);
-    res.status(500).json({
-      success: false,
-      message: error.message || "Error interno del servidor",
-    });
+    next(error);
   }
 };
 
-export const getAddressById = async (req: Request, res: Response) => {
+export const getAddressById = async (req: Request, res: Response, next: NextFunction) => {
   try {
     const user_id = parseInt(req.query.user_id as string);
     const address_id = parseInt(req.params.address_id);
 
     if (!user_id || isNaN(user_id)) {
-      res.status(401).json({
+      return res.status(401).json({
         success: false,
         message: "Usuario no autenticado",
+        code: "UNAUTHORIZED",
       });
-      return;
-    }
-
-    if (!address_id || isNaN(address_id)) {
-      res.status(400).json({
-        success: false,
-        message: "ID de dirección inválido",
-      });
-      return;
     }
 
     const address = await getAddressByIdService(address_id, user_id);
@@ -65,101 +52,51 @@ export const getAddressById = async (req: Request, res: Response) => {
     res.status(200).json({
       success: true,
       data: address,
-      message: "Dirección obtenida exitosamente",
     });
   } catch (error: any) {
-    console.error("Error getting address:", error);
-    const statusCode =
-      error.message.includes("no encontrada") ||
-      error.message.includes("no pertenece")
-        ? 404
-        : 500;
-    res.status(statusCode).json({
-      success: false,
-      message: error.message || "Error interno del servidor",
-    });
+    next(error);
   }
 };
 
-export const createAddress = async (req: Request, res: Response) => {
+export const createAddress = async (req: Request, res: Response, next: NextFunction) => {
   try {
-    // Obtener user_id del body (donde el frontend lo envía)
+    // Obtener user_id del body
     const user_id = parseInt(req.body.user_id);
 
     if (!user_id || isNaN(user_id)) {
-      res.status(401).json({
+      return res.status(401).json({
         success: false,
         message: "Usuario no autenticado",
+        code: "UNAUTHORIZED",
       });
-      return;
     }
 
     const addressData: CreateAddressData = req.body;
-
-    const { address, country, city, department } = addressData;
-    if (!address || !country || !city || !department) {
-      res.status(400).json({
-        success: false,
-        message:
-          "Los campos dirección, país, ciudad y departamento son obligatorios",
-      });
-      return;
-    }
-
     const newAddress = await createAddressService(user_id, addressData);
 
     res.status(201).json({
       success: true,
       data: newAddress,
-      message: "Dirección creada exitosamente",
     });
   } catch (error: any) {
-    console.error("Error creating address:", error);
-    res.status(400).json({
-      success: false,
-      message: error.message || "Error creando la dirección",
-    });
+    next(error);
   }
 };
 
-export const updateAddress = async (req: Request, res: Response) => {
+export const updateAddress = async (req: Request, res: Response, next: NextFunction) => {
   try {
-    // Obtener user_id del body o query
-    const user_id = parseInt(req.body.user_id || req.query.user_id as string);
+    const user_id = parseInt(req.body.user_id || (req.query.user_id as string));
     const address_id = parseInt(req.params.address_id);
 
     if (!user_id || isNaN(user_id)) {
-      res.status(401).json({
+      return res.status(401).json({
         success: false,
         message: "Usuario no autenticado",
+        code: "UNAUTHORIZED",
       });
-      return;
-    }
-
-    if (!address_id || isNaN(address_id)) {
-      res.status(400).json({
-        success: false,
-        message: "ID de dirección inválido",
-      });
-      return;
     }
 
     const updateData: UpdateAddressData = req.body;
-
-    if (
-      !updateData.address &&
-      !updateData.country &&
-      !updateData.city &&
-      !updateData.department &&
-      updateData.is_default === undefined
-    ) {
-      res.status(400).json({
-        success: false,
-        message: "Debe proporcionar al menos un campo para actualizar",
-      });
-      return;
-    }
-
     const updatedAddress = await updateAddressService(
       address_id,
       user_id,
@@ -169,41 +106,22 @@ export const updateAddress = async (req: Request, res: Response) => {
     res.status(200).json({
       success: true,
       data: updatedAddress,
-      message: "Dirección actualizada exitosamente",
     });
   } catch (error: any) {
-    console.error("Error updating address:", error);
-    const statusCode =
-      error.message.includes("no encontrada") ||
-      error.message.includes("no pertenece")
-        ? 404
-        : 400;
-    res.status(statusCode).json({
-      success: false,
-      message: error.message || "Error actualizando la dirección",
-    });
+    next(error);
   }
 };
-
-export const deleteAddress = async (req: Request, res: Response) => {
+export const deleteAddress = async (req: Request, res: Response, next: NextFunction) => {
   try {
     const user_id = parseInt(req.query.user_id as string);
     const address_id = parseInt(req.params.address_id);
 
     if (!user_id || isNaN(user_id)) {
-      res.status(401).json({
+      return res.status(401).json({
         success: false,
         message: "Usuario no autenticado",
+        code: "UNAUTHORIZED",
       });
-      return;
-    }
-
-    if (!address_id || isNaN(address_id)) {
-      res.status(400).json({
-        success: false,
-        message: "ID de dirección inválido",
-      });
-      return;
     }
 
     await deleteAddressService(address_id, user_id);
@@ -213,39 +131,21 @@ export const deleteAddress = async (req: Request, res: Response) => {
       message: "Dirección eliminada exitosamente",
     });
   } catch (error: any) {
-    console.error("Error deleting address:", error);
-    const statusCode =
-      error.message.includes("no encontrada") ||
-      error.message.includes("no pertenece") ||
-      error.message.includes("única dirección")
-        ? 404
-        : 400;
-    res.status(statusCode).json({
-      success: false,
-      message: error.message || "Error eliminando la dirección",
-    });
+    next(error);
   }
 };
-
-export const setDefaultAddress = async (req: Request, res: Response) => {
+ 
+export const setDefaultAddress = async (req: Request, res: Response, next: NextFunction) => {
   try {
     const user_id = parseInt(req.query.user_id as string);
     const address_id = parseInt(req.params.address_id);
 
     if (!user_id || isNaN(user_id)) {
-      res.status(401).json({
+      return res.status(401).json({
         success: false,
         message: "Usuario no autenticado",
+        code: "UNAUTHORIZED",
       });
-      return;
-    }
-
-    if (!address_id || isNaN(address_id)) {
-      res.status(400).json({
-        success: false,
-        message: "ID de dirección inválido",
-      });
-      return;
     }
 
     const updatedAddress = await setDefaultAddressService(address_id, user_id);
@@ -253,55 +153,31 @@ export const setDefaultAddress = async (req: Request, res: Response) => {
     res.status(200).json({
       success: true,
       data: updatedAddress,
-      message: "Dirección establecida como predeterminada exitosamente",
     });
   } catch (error: any) {
-    console.error("Error setting default address:", error);
-    const statusCode =
-      error.message.includes("no encontrada") ||
-      error.message.includes("no pertenece")
-        ? 404
-        : 400;
-    res.status(statusCode).json({
-      success: false,
-      message: error.message || "Error estableciendo dirección predeterminada",
-    });
+    next(error);
   }
 };
 
-export const getDefaultAddress = async (req: Request, res: Response) => {
+export const getDefaultAddress = async (req: Request, res: Response, next: NextFunction) => {
   try {
     const user_id = parseInt(req.query.user_id as string);
 
     if (!user_id || isNaN(user_id)) {
-      res.status(401).json({
+      return res.status(401).json({
         success: false,
         message: "Usuario no autenticado",
+        code: "UNAUTHORIZED",
       });
-      return;
     }
 
     const defaultAddress = await getDefaultAddressService(user_id);
 
-    if (!defaultAddress) {
-      res.status(200).json({
-        success: true,
-        data: null,
-        message: "No tienes una dirección predeterminada configurada",
-      });
-      return;
-    }
-
     res.status(200).json({
       success: true,
       data: defaultAddress,
-      message: "Dirección predeterminada obtenida exitosamente",
     });
   } catch (error: any) {
-    console.error("Error getting default address:", error);
-    res.status(500).json({
-      success: false,
-      message: error.message || "Error obteniendo dirección predeterminada",
-    });
+    next(error);
   }
 };
