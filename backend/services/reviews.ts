@@ -251,20 +251,43 @@ export const updateReviewService = async (
   }
 
   try {
-    // Usar el stored procedure para actualizar la review
-    await prisma.$executeRaw`
-      CALL sp_update_review(
-        ${id}::INTEGER, 
-        ${data.rating || null}::INTEGER, 
-        ${data.comment !== undefined ? data.comment : null}::TEXT, 
-        ${userId}::INTEGER
-      )
-    `;
+    // Verificar que la review existe y que el usuario es el propietario
+    const review = await prisma.reviews.findUnique({
+      where: { id },
+      select: { user_id: true }
+    });
+
+    if (!review) {
+      throw new NotFoundError("Reseña no encontrada");
+    }
+
+    if (review.user_id !== userId) {
+      throw new ForbiddenError("No tienes permisos para modificar esta reseña");
+    }
+
+    // Actualizar solo los campos proporcionados (order_id no se puede modificar)
+    const updateData: any = {};
+
+    if (data.rating !== undefined) {
+      updateData.rating = data.rating;
+    }
+
+    if (data.comment !== undefined) {
+      updateData.comment = data.comment;
+    }
+
+    await prisma.reviews.update({
+      where: { id },
+      data: {
+        ...updateData,
+        updated_at: new Date()
+      }
+    });
 
     // Retornar la review actualizada
     return getReviewByIdService(id);
   } catch (error: any) {
-    if (error instanceof NotFoundError || error instanceof ValidationError) {
+    if (error instanceof NotFoundError || error instanceof ForbiddenError || error instanceof ValidationError) {
       throw error;
     }
     console.error(`[updateReviewService] Error al actualizar reseña ${id}:`, error);
@@ -282,10 +305,24 @@ export const deleteReviewService = async (id: number, userId: number) => {
   }
 
   try {
-    // Usar el stored procedure para eliminar la review
-    await prisma.$executeRaw`
-      CALL sp_delete_review(${id}, ${userId})
-    `;
+    // Verificar que la review existe y que el usuario es el propietario en una sola consulta
+    const review = await prisma.reviews.findUnique({
+      where: { id },
+      select: { user_id: true }
+    });
+
+    if (!review) {
+      throw new NotFoundError("Reseña no encontrada");
+    }
+
+    if (review.user_id !== userId) {
+      throw new ForbiddenError("No tienes permisos para eliminar esta reseña");
+    }
+
+    // Eliminar la review (las imágenes se eliminan en cascada por FK)
+    await prisma.reviews.delete({
+      where: { id }
+    });
 
     return { message: "Reseña eliminada exitosamente" };
   } catch (error: any) {
@@ -412,19 +449,54 @@ export const addReviewImagesService = async (
   }
 
   try {
-    // Usar el stored procedure para agregar imágenes
-    await prisma.$executeRaw`
-      CALL sp_add_review_images(
-        ${reviewId}::INTEGER, 
-        ${userId}::INTEGER, 
-        ${images}::TEXT[]
-      )
-    `;
+    // Verificar que la review existe y que el usuario es el propietario
+    const review = await prisma.reviews.findUnique({
+      where: { id: reviewId },
+      select: {
+        user_id: true,
+        review_images: {
+          select: { id: true } // Solo contar
+        }
+      }
+    });
+
+    if (!review) {
+      throw new NotFoundError("Reseña no encontrada");
+    }
+
+    if (review.user_id !== userId) {
+      throw new ForbiddenError("No tienes permisos para modificar esta reseña");
+    }
+
+    // Verificar límite de imágenes (máximo 5 por review)
+    const currentImageCount = review.review_images.length;
+    if (currentImageCount + images.length > 5) {
+      throw new ValidationError(
+        `No se pueden agregar más de 5 imágenes por reseña. Actualmente tienes ${currentImageCount}, intentas agregar ${images.length}.`
+      );
+    }
+
+    // Filtrar URLs válidas y crear imágenes
+    const validImages = images
+      .map(url => url?.trim())
+      .filter((url): url is string => url !== null && url !== undefined && url.length > 0);
+
+    if (validImages.length === 0) {
+      throw new ValidationError("No se proporcionaron URLs de imagen válidas");
+    }
+
+    // Insertar las imágenes en una sola consulta
+    await prisma.review_images.createMany({
+      data: validImages.map(image_url => ({
+        review_id: reviewId,
+        image_url
+      }))
+    });
 
     // Retornar la review actualizada con las nuevas imágenes
     return getReviewByIdService(reviewId);
   } catch (error: any) {
-    if (error instanceof NotFoundError || error instanceof ValidationError) {
+    if (error instanceof NotFoundError || error instanceof ForbiddenError || error instanceof ValidationError) {
       throw error;
     }
     console.error(`[addReviewImagesService] Error al agregar imágenes a la reseña ${reviewId}:`, error);
@@ -446,10 +518,28 @@ export const deleteReviewImageService = async (
   }
 
   try {
-    // Usar el stored procedure para eliminar la imagen
-    await prisma.$executeRaw`
-      CALL sp_delete_review_image(${imageId}::INTEGER, ${userId}::INTEGER)
-    `;
+    // Obtener la imagen con la review asociada para validar ownership
+    const image = await prisma.review_images.findUnique({
+      where: { id: imageId },
+      select: {
+        reviews: {
+          select: { user_id: true }
+        }
+      }
+    });
+
+    if (!image) {
+      throw new NotFoundError("Imagen de reseña no encontrada");
+    }
+
+    if (image.reviews.user_id !== userId) {
+      throw new ForbiddenError("No tienes permisos para eliminar esta imagen");
+    }
+
+    // Eliminar la imagen
+    await prisma.review_images.delete({
+      where: { id: imageId }
+    });
 
     return { message: "Imagen eliminada exitosamente" };
   } catch (error: any) {
@@ -695,8 +785,8 @@ export const getReviewsAdminService = async (params: AdminReviewsQueryParams) =>
           comment: true,
           active: true,
           created_at: true,
-          product: { select: { name: true } },
-          user: { select: { name: true, email: true } },
+          products: { select: { name: true } },
+          User: { select: { name: true, email: true } },
         },
         skip,
         take,

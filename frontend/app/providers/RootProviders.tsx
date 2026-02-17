@@ -5,6 +5,8 @@ import React, { useEffect, useState } from "react";
 import dynamic from "next/dynamic";
 import TanstackQueryProvider from "@/app/(admin)/lib/tanstack-query-provider";
 import { UserProvider } from "@/app/(auth)/context/UserContext";
+import { CartProvider } from "@/app/(customer)/(cart)/hooks/useCart";
+import { FavoritesProvider } from "@/app/(customer)/favorites/context/useFavorites";
 import { ThemeColorLoader } from "./ThemeColorLoader";
 import { ColorInitializer } from "./ColorInitializer";
 
@@ -36,18 +38,22 @@ export function RootProviders({ children, session }: ProvidersProps) {
       basePath="/api/auth"
     >
       <UserProvider>
-        <TanstackQueryProvider>
-          <ColorInitializer />
-          <ThemeColorLoader />
-          {isHydrated ? (
-            <>
-              {children}
-              <Toaster position="top-right" closeButton richColors />
-            </>
-          ) : (
-            children
-          )}
-        </TanstackQueryProvider>
+        <CartProvider>
+          <FavoritesProvider>
+            <TanstackQueryProvider>
+              <ColorInitializer />
+              <ThemeColorLoader />
+              {isHydrated ? (
+                <>
+                  {children}
+                  <Toaster position="top-right" closeButton richColors />
+                </>
+              ) : (
+                children
+              )}
+            </TanstackQueryProvider>
+          </FavoritesProvider>
+        </CartProvider>
       </UserProvider>
     </SessionProvider>
   );

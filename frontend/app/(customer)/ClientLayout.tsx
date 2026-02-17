@@ -1,6 +1,5 @@
 "use client";
 
-import { UserProviders } from "@/app/providers/UserProviders";
 import { Navbar } from "../components/Navbar";
 import { useMounted } from "@/app/(auth)/hooks/useMounted";
 import { useSession } from "next-auth/react";
@@ -56,17 +55,15 @@ export function ClientLayout({
   }
 
   return (
-    <UserProviders>
-      <div className="flex flex-col min-h-screen w-full font-montserrat bg-linear-to-br from-slate-900 via-slate-900 to-slate-900">
-        {session?.user && !session.user.emailVerified && (
-          <EmailVerificationBanner />
-        )}
-        <CouponBanner />
-        <Navbar />
-        <main className="grow">{children}</main>
-        <Footer />
-        <CookieConsent />
-      </div>
-    </UserProviders>
+    <div className="flex flex-col min-h-screen w-full font-montserrat bg-linear-to-br from-slate-900 via-slate-900 to-slate-900">
+      {session?.user && !session.user.emailVerified && (
+        <EmailVerificationBanner />
+      )}
+      <CouponBanner />
+      <Navbar />
+      <main className="grow">{children}</main>
+      <Footer />
+      <CookieConsent />
+    </div>
   );
 }

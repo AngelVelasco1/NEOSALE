@@ -1,7 +1,7 @@
 "use client"
 import React, { useCallback, useEffect, useState, useMemo } from "react"
 import { motion, AnimatePresence } from "framer-motion"
-import Image from "next/image"
+import { ExternalImage } from "../../components/ExternalImage"
 import { useRouter } from "next/navigation"
 import { Button } from "@/components/ui/button"
 import {
@@ -109,17 +109,10 @@ const ProductItem = React.memo<ProductItemProps>(({
             } shadow-lg`}
           transition={{ duration: 0.3 }}
         >
-          <Image
+          <ExternalImage
             src={product.image_url || "/placeholder.svg"}
             alt={product.name || product.title || "Producto"}
-            fill
-            className="object-cover"
-            sizes="128px"
-            unoptimized={product.image_url?.includes('via.placeholder.com') || product.image_url?.includes('static.nike.com')}
-            onError={(e) => {
-              const target = e.target as HTMLImageElement;
-              target.src = '/placeholder.svg';
-            }}
+            className="w-full h-full object-cover"
           />
           {isStockLoading && (
             <div className="absolute inset-0 bg-slate-900/90 backdrop-blur-md flex items-center justify-center rounded-2xl">

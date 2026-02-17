@@ -19,8 +19,15 @@ export const useProductFilters = (products: IProduct[], setFilteredProducts: (pr
   const { categories: dbCategories } = useCategories()
 
   const uniqueData = useMemo(() => {
+    // Extract unique colors from all product images
     const colors = Array.from(
-      new Map(products.flatMap((product) => product.images).map((image) => [image?.color_code, { code: image?.color_code, name: image?.color }])).values(),
+      new Map(
+        products
+          .filter((product) => product.images && Array.isArray(product.images))
+          .flatMap((product) => product.images)
+          .filter((image) => image?.color_code && image?.color)
+          .map((image) => [image.color_code, { code: image.color_code, name: image.color }])
+      ).values(),
     )
 
     // Use database categories instead of extracting from products

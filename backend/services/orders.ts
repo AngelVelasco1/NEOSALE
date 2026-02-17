@@ -213,7 +213,7 @@ export const getOrderWithPaymentService = async (orderId: number) => {
             },
           },
         },
-        users: {
+        User: {
           select: { id: true, name: true, email: true },
         },
         coupons: true,
@@ -509,7 +509,7 @@ export const getOrderByIdService = async (orderId: number) => {
             },
           },
         },
-        users: {
+        User: {
           select: { id: true, name: true, email: true },
         },
         coupons: true,
@@ -586,7 +586,7 @@ export const updateOrderStatusService = async (
             },
           },
         },
-        users: {
+        User: {
           select: { id: true, name: true, email: true },
         },
       },
@@ -655,7 +655,7 @@ export const getOrdersService = async ({
 
     // Filtro por búsqueda (nombre de usuario o email)
     if (search) {
-      where.users = {
+      where.User = {
         OR: [
           { name: { contains: search, mode: "insensitive" as const } },
           { email: { contains: search, mode: "insensitive" as const } },
@@ -695,7 +695,7 @@ export const getOrdersService = async ({
     if (sortBy && sortOrder) {
       if (sortBy === "customer") {
         // Ordenar por nombre de usuario
-        orderBy = { users: { name: sortOrder } };
+        orderBy = { User: { name: sortOrder } };
       } else {
         // Ordenar por campos directos (created_at, total, status, id)
         orderBy = { [sortBy]: sortOrder };
@@ -998,10 +998,9 @@ export const exportOrdersService = async (): Promise<any[]> => {
     const orders = await prisma.orders.findMany({
       select: {
         id: true,
-        order_number: true,
         status: true,
         subtotal: true,
-        tax: true,
+        taxes: true,
         discount: true,
         total: true,
         created_at: true,

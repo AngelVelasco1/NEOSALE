@@ -28,13 +28,14 @@ const productListSelect = {
   stock: true,
   sizes: true,
   base_discount: true,
+  category_id: true,
+  brand_id: true,
   images: {
     select: {
       image_url: true,
       color_code: true,
       color: true,
     },
-    take: 1,
   },
   categories: {
     select: {
@@ -66,19 +67,34 @@ const productDetailSelect = {
   },
 };
 
-const formatProductForList = (p: any) => ({
-  id: p.id,
-  name: p.name,
-  description: p.description,
-  price: p.price,
-  stock: p.stock,
-  sizes: p.sizes,
-  discount: p.base_discount,
-  image_url: p.images[0]?.image_url,
-  color_code: p.images[0]?.color_code,
-  color: p.images[0]?.color,
-  category: p.categories?.name,
-});
+const formatProductForList = (p: any) => {
+  console.log(`[formatProductForList] Producto ${p.id} (${p.name})`);
+  console.log(`[formatProductForList] Imágenes totales:`, p.images?.length || 0);
+
+  // Sacar imágenes únicas por color_code
+  const uniqueImages = p.images || [];
+
+  console.log(`[formatProductForList] Imágenes para mostrar:`, uniqueImages.length);
+
+  return {
+    id: p.id,
+    name: p.name,
+    description: p.description,
+    price: p.price,
+    stock: p.stock,
+    sizes: p.sizes,
+    discount: p.base_discount,
+    image_url: uniqueImages[0]?.image_url,
+    color_code: uniqueImages[0]?.color_code,
+    color: uniqueImages[0]?.color,
+    category: p.categories?.name,
+    images: uniqueImages.map((img: any) => ({
+      image_url: img.image_url,
+      color: img.color,
+      color_code: img.color_code,
+    })),
+  };
+};
 
 export const getProductsService = async (
   id?: number,

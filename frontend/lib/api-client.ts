@@ -32,7 +32,7 @@ class ApiClient {
     "Content-Type": "application/json",
   };
 
-  constructor(baseUrl: string = typeof process !== 'undefined' ? (process.env.NEXT_PUBLIC_BACKEND_URL || "") : "") {
+  constructor(baseUrl: string = typeof process !== 'undefined' ? (process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000") : "") {
     this.baseUrl = baseUrl;
   }
 

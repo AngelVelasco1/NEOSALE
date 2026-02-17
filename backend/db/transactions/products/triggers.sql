@@ -46,10 +46,3 @@ CREATE TRIGGER trg_recalculate_product_stock_on_variant_change
     FOR EACH ROW
     EXECUTE FUNCTION fn_recalculate_product_stock();
 
--- Comentarios para documentación
-COMMENT ON FUNCTION fn_recalculate_product_stock() IS 
-'Recalcula automáticamente el stock total del producto sumando el stock de todas sus variantes activas. 
-Se ejecuta cuando se inserta, actualiza o elimina una variante.';
-
-COMMENT ON TRIGGER trg_recalculate_product_stock_on_variant_change ON product_variants IS 
-'Trigger que mantiene sincronizado el stock del producto con la suma de sus variantes activas.';

@@ -5,7 +5,7 @@ import {
   removeFavoriteApi,
   checkIfFavoriteApi,
 } from "../../favorites/services/favoritesApi";
-import Image from "next/image";
+import { ExternalImage } from "../../components/ExternalImage";
 import Link from "next/link";
 import { Skeleton } from "@/components/ui/skeleton";
 import { motion } from "framer-motion";
@@ -228,17 +228,10 @@ export const ProductCard = ({
 
           <div className="relative aspect-square overflow-hidden rounded-2xl bg-linear-to-br from-white/10 to-slate-50/20 border border-white/20 transition-all duration-500 shadow-inner group-hover:shadow-2xl group-hover:shadow-blue-500/20">
             {data.image_url ? (
-              <Image
+              <ExternalImage
                 src={data.image_url || "/placeholder.svg"}
                 alt={data.name || "product"}
-                fill
-                sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-                className="object-cover object-center group-hover:scale-110 transition-transform duration-700"
-                unoptimized={data.image_url?.includes('via.placeholder.com') || data.image_url?.includes('static.nike.com')}
-                onError={(e) => {
-                  const target = e.target as HTMLImageElement;
-                  target.src = '/placeholder.svg';
-                }}
+                className="w-full h-full object-cover object-center group-hover:scale-110 transition-transform duration-700"
               />
             ) : (
               <Skeleton className="w-full h-full rounded-2xl bg-linear-to-br from-white/10 to-slate-50/30" />

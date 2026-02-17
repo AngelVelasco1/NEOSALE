@@ -8,7 +8,6 @@ import {
   ShieldCheck,
 } from "lucide-react";
 
-import { auth } from "@/app/(auth)/auth";
 import SalesOverview from "./_components/SalesOverview";
 import StatusOverview from "./_components/StatusOverview";
 import DashboardCharts from "./_components/dashboard-charts";

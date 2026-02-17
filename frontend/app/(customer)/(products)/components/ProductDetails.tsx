@@ -1,6 +1,6 @@
 "use client";
 import { useCallback, useEffect, useState } from "react";
-import Image from "next/image";
+import { ExternalImage } from "../../components/ExternalImage";
 import { Button } from "@/components/ui/button";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Badge } from "@/components/ui/badge";
@@ -191,17 +191,10 @@ export const ProductDetails = ({ data }: ProductDetailsProps) => {
             <div className="relative aspect-square bg-linear-to-br from-slate-900 to-slate-800 rounded-xl shadow-2xl overflow-hidden group border border-white/5 hover:border-white/10 transition-all duration-500">
               {images.length > 0 && images[selectedImage]?.image_url ? (
                 <>
-                  <Image
+                  <ExternalImage
                     src={images[selectedImage].image_url || "/placeholder.svg"}
                     alt={images[selectedImage].color || data.name}
-                    fill
-                    sizes="(max-width: 768px) 100vw, 50vw"
-                    className="object-cover transition-all duration-700 ease-out group-hover:scale-105 group-hover:rotate-1"
-                    unoptimized={images[selectedImage].image_url?.includes('via.placeholder.com') || images[selectedImage].image_url?.includes('static.nike.com')}
-                    onError={(e) => {
-                      const target = e.target as HTMLImageElement;
-                      target.src = '/placeholder.svg';
-                    }}
+                    className="w-full h-full object-cover transition-all duration-700 ease-out group-hover:scale-105 group-hover:rotate-1"
                   />
                   {/* Animated gradient overlay */}
                   <div className="absolute inset-0 bg-linear-to-tr from-blue-500/5 via-transparent to-purple-500/5 opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
@@ -285,21 +278,11 @@ export const ProductDetails = ({ data }: ProductDetailsProps) => {
                       boxShadow: `0 0 0 2px var(--color-primary)`
                     } : {}}
                   >
-                    <Image
+                    <ExternalImage
                       src={image.image_url || "/placeholder.svg"}
                       alt={`${data.name} thumbnail ${index + 1}`}
-                      fill
-                      sizes="80px"
-                      className="object-cover"
-                      unoptimized={image.image_url?.includes('via.placeholder.com') || image.image_url?.includes('static.nike.com')}
-                      onError={(e) => {
-                        const target = e.target as HTMLImageElement;
-                        target.src = '/placeholder.svg';
-                      }}
+                      className="w-full h-full object-cover"
                     />
-                    {selectedImage === index && (
-                      <div className="absolute inset-0 rounded-2xl" style={{backgroundColor: `rgba(var(--color-primary-rgb), 0.1)`}}></div>
-                    )}
                   </button>
                 ))
               ) : (

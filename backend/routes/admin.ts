@@ -3,6 +3,9 @@ import { authenticateAdmin } from "../middlewares/auth.js";
 import {
   getChartData,
   getDashboardStats,
+  getOrderStatusStats,
+  getCategorySalesData,
+  getMonthlySalesData,
   getProductsAdmin,
   toggleProductStatus,
   deleteProducts,
@@ -39,6 +42,9 @@ export const adminRoutes = () =>
     // ============ DASHBOARD ============
     .get("/dashboard/chart-data", getChartData)
     .get("/dashboard/stats", getDashboardStats)
+    .get("/dashboard/order-status", getOrderStatusStats)
+    .get("/dashboard/category-sales", getCategorySalesData)
+    .get("/dashboard/monthly-sales", getMonthlySalesData)
 
     // ============ PRODUCTS ADMIN ============
     .get("/products", getProductsAdmin)

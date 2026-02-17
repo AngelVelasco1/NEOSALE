@@ -2,6 +2,9 @@ import { Request, Response, NextFunction } from "express";
 import {
   getChartDataService,
   getDashboardStatsService,
+  getOrderStatusStatsService,
+  getCategorySalesDataService,
+  getMonthlySalesDataService,
 } from "../services/dashboard.js";
 import {
   getProductsAdminService,
@@ -69,6 +72,54 @@ export const getDashboardStats = async (
 ) => {
   try {
     const result = await getDashboardStatsService({
+      from: req.query.from ? new Date(req.query.from as string) : undefined,
+      to: req.query.to ? new Date(req.query.to as string) : undefined,
+    });
+    res.status(200).json(result);
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const getOrderStatusStats = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  try {
+    const result = await getOrderStatusStatsService({
+      from: req.query.from ? new Date(req.query.from as string) : undefined,
+      to: req.query.to ? new Date(req.query.to as string) : undefined,
+    });
+    res.status(200).json(result);
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const getCategorySalesData = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  try {
+    const result = await getCategorySalesDataService({
+      from: req.query.from ? new Date(req.query.from as string) : undefined,
+      to: req.query.to ? new Date(req.query.to as string) : undefined,
+    });
+    res.status(200).json(result);
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const getMonthlySalesData = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  try {
+    const result = await getMonthlySalesDataService({
       from: req.query.from ? new Date(req.query.from as string) : undefined,
       to: req.query.to ? new Date(req.query.to as string) : undefined,
     });

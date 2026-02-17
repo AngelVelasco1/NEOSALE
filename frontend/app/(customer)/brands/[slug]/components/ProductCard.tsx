@@ -1,6 +1,6 @@
 "use client";
 
-import Image from "next/image";
+import { ExternalImage } from "../../../components/ExternalImage";
 import Link from "next/link";
 import { Package2, ShoppingCart, Eye } from "lucide-react";
 
@@ -35,17 +35,10 @@ export function ProductCard({ product }: ProductCardProps) {
         {/* Product Image */}
         <div className="relative w-full aspect-square bg-slate-800/50 overflow-hidden">
           {primaryImage ? (
-            <Image
+            <ExternalImage
               src={primaryImage}
               alt={product.name}
-              fill
-              sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-              className="object-cover group-hover:scale-110 transition-transform duration-500"
-              unoptimized={primaryImage.includes('via.placeholder.com') || primaryImage.includes('static.nike.com')}
-              onError={(e) => {
-                const target = e.target as HTMLImageElement;
-                target.style.display = 'none';
-              }}
+              className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
             />
           ) : (
             <div className="absolute inset-0 flex items-center justify-center">
