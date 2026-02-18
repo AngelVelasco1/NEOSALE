@@ -71,8 +71,8 @@ services:
     name: neosale-frontend
     region: oregon
     plan: free
-    buildCommand: "bun install && cd frontend && bun install && bun run build"
-    startCommand: "cd frontend && bun run start"
+    buildCommand: "cd frontend && bun install && bun run build && echo 'Build complete'"
+    startCommand: "cd frontend && bun --version && ls -la node_modules/.bin/next && bun run start"
     envVars:
       - key: NODE_ENV
         value: production
