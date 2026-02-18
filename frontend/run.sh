@@ -14,4 +14,5 @@ if [ ! -d ".next" ]; then
 fi
 
 echo "Starting Next.js..."
-exec bunx next start
+# Use direct path to next binary
+exec ./node_modules/.bin/next start
