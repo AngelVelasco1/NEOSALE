@@ -520,7 +520,6 @@ export const getOrderByIdService = async (orderId: number) => {
       throw new NotFoundError("Orden no encontrada");
     }
 
-    // Obtener la dirección completa usando shipping_address_id
     let address = null;
     if (order.shipping_address_id) {
       address = await prisma.addresses.findUnique({

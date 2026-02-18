@@ -93,11 +93,6 @@ app.use((err: Error, req: express.Request, res: express.Response) => {
 });
 
 const server = app.listen(Number(BACK_CONFIG.port), "0.0.0.0", async () => {
-  console.log(
-    `Servidor corriendo en http://${BACK_CONFIG.host}:${BACK_CONFIG.port}`
-  );
-  
-  // Iniciar limpieza automática de tokens cada hora
   startTokenCleanupInterval(60 * 60 * 1000);
 });
 
@@ -106,10 +101,8 @@ server.setTimeout(30000);
 
 // Graceful shutdown
 process.on("SIGINT", async () => {
-  console.log("Cerrando servidor...");
   server.close(async () => {
     await prisma.$disconnect();
-    console.log("Servidor cerrado correctamente");
     process.exit(0);
   });
 });

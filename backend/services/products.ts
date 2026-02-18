@@ -68,13 +68,10 @@ const productDetailSelect = {
 };
 
 const formatProductForList = (p: any) => {
-  console.log(`[formatProductForList] Producto ${p.id} (${p.name})`);
-  console.log(`[formatProductForList] Imágenes totales:`, p.images?.length || 0);
-
+ 
   // Sacar imágenes únicas por color_code
   const uniqueImages = p.images || [];
 
-  console.log(`[formatProductForList] Imágenes para mostrar:`, uniqueImages.length);
 
   return {
     id: p.id,

@@ -1,0 +1,123 @@
+databases:
+  - name: neosale-db
+    databaseName: neosale
+    user: neosale
+    plan: free            # cambia a "starter" ($7/mes) para producción real
+    region: oregon        # opciones: oregon, ohio, singapore, frankfurt
+
+services:
+  # ─────────────────────────────────────────────
+  # BACKEND — Express + Bun
+  # ─────────────────────────────────────────────
+  - type: web
+    name: neosale-backend
+    region: oregon
+    plan: free            # cambia a "starter" para que no duerma
+    runtime: docker
+    dockerfilePath: ./backend/Dockerfile
+    dockerContext: .       # contexto = raíz del repo (necesario para el monorepo)
+    healthCheckPath: /
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: PORT
+        value: 10000       # Render inyecta PORT=10000 por defecto
+      - key: DATABASE_URL
+        fromDatabase:
+          name: neosale-db
+          property: connectionString
+      - key: CORS_ORIGIN
+        fromService:
+          type: web
+          name: neosale-frontend
+          property: host
+          envVarKey: RENDER_EXTERNAL_URL   # se rellena automáticamente
+      - key: FRONTEND_URL
+        fromService:
+          type: web
+          name: neosale-frontend
+          property: host
+          envVarKey: RENDER_EXTERNAL_URL
+      # ── Pagos Wompi (rellena manualmente en el dashboard) ──
+      - key: WP_PUBLIC_KEY
+        sync: false
+      - key: WP_PRIVATE_KEY
+        sync: false
+      - key: WP_EVENTS
+        sync: false
+      - key: WP_INTEGRITY
+        sync: false
+      # ── Email ──
+      - key: EMAIL_USER
+        sync: false
+      - key: EMAIL_PASSWORD
+        sync: false
+      - key: EMAIL_FROM
+        sync: false
+      - key: EMAIL_HOST
+        value: smtp.gmail.com
+      - key: EMAIL_PORT
+        value: "587"
+      # ── EnvioClick ──
+      - key: ENVIOCLICK_API_KEY
+        sync: false
+      - key: STORE_NAME
+        value: NeoSale
+
+  # ─────────────────────────────────────────────
+  # FRONTEND — Next.js
+  # ─────────────────────────────────────────────
+  - type: web
+    name: neosale-frontend
+    region: oregon
+    plan: free
+    runtime: docker
+    dockerfilePath: ./frontend/Dockerfile
+    dockerContext: .       # contexto = raíz del repo
+    healthCheckPath: /
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: NEXT_TELEMETRY_DISABLED
+        value: "1"
+      - key: DATABASE_URL
+        fromDatabase:
+          name: neosale-db
+          property: connectionString
+      - key: NEXT_PUBLIC_API_URL
+        fromService:
+          type: web
+          name: neosale-backend
+          envVarKey: RENDER_EXTERNAL_URL
+      - key: NEXT_PUBLIC_APP_URL
+        fromService:
+          type: web
+          name: neosale-frontend
+          envVarKey: RENDER_EXTERNAL_URL
+      - key: NEXTAUTH_URL
+        fromService:
+          type: web
+          name: neosale-frontend
+          envVarKey: RENDER_EXTERNAL_URL
+      # ── Auth.js (rellena manualmente en el dashboard) ──
+      - key: AUTH_SECRET
+        generateValue: true   # Render genera un valor seguro automáticamente
+      - key: AUTH_TRUST_HOST
+        value: "true"
+      - key: AUTH_GOOGLE_ID
+        sync: false
+      - key: AUTH_GOOGLE_SECRET
+        sync: false
+      - key: AUTH_FACEBOOK_ID
+        sync: false
+      - key: AUTH_FACEBOOK_SECRET
+        sync: false
+      # ── Cloudinary ──
+      - key: CLOUDINARY_CLOUD_NAME
+        sync: false
+      - key: CLOUDINARY_API_KEY
+        sync: false
+      - key: CLOUDINARY_API_SECRET
+        sync: false
+      - key: NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME
+        sync: false
