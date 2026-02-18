@@ -49,6 +49,8 @@ export function getCSPDirectives(nonce) {
     "https://www.google.com",
     "https://checkout.wompi.co", // Wompi payments (producción)
     "https://sandbox.wompi.co", // Wompi payments (sandbox/pruebas)
+    "https://api.wompi.co", // Wompi API (producción)
+    "https://sandbox.api.wompi.co", // Wompi API (sandbox)
   ];
 
   const allowedFontDomains = [
@@ -71,6 +73,8 @@ export function getCSPDirectives(nonce) {
           "https://accounts.google.com",
           "https://checkout.wompi.co",
           "https://sandbox.wompi.co",
+          "https://api.wompi.co",
+          "https://sandbox.api.wompi.co",
         ]
       : [
           "'self'",
@@ -78,6 +82,8 @@ export function getCSPDirectives(nonce) {
           "https://accounts.google.com",
           "https://checkout.wompi.co",
           "https://sandbox.wompi.co",
+          "https://api.wompi.co",
+          "https://sandbox.api.wompi.co",
         ],
 
     // Estilos: unsafe-inline necesario para Tailwind en ambos entornos
@@ -101,11 +107,12 @@ export function getCSPDirectives(nonce) {
     // Conexiones: APIs permitidas
     "connect-src": allowedConnectDomains,
 
-    // Frames: Solo dominios específicos
+    // Frames: allow payment and auth providers
     "frame-src": [
       "'self'",
       "https://accounts.google.com",
       "https://checkout.wompi.co",
+      "https://sandbox.wompi.co",
     ],
 
     // Media: Self only
