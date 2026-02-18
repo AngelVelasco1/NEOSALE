@@ -12,8 +12,13 @@ type PageParams = {
   params: Promise<{ id: string }>;
 };
 
-// Do NOT define generateMetadata or generateStaticParams - let this page be rendered on-demand only
-// This is a dynamic [id] route that should not be prerendered
+// Disable prerendering for this dynamic route since customer IDs are unknown at build time
+export const dynamic = "force-dynamic";
+
+// Return empty array to prevent static generation attempts
+export async function generateStaticParams() {
+  return [];
+}
 
 export default async function CustomerOrders({ params }: PageParams) {
   try {
