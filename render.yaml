@@ -71,10 +71,8 @@ services:
     name: neosale-frontend
     region: oregon
     plan: free
-    runtime: docker
-    dockerfilePath: ./frontend/Dockerfile
-    dockerContext: .       # contexto = raíz del repo
-    healthCheckPath: /
+    buildCommand: "bun install && cd frontend && bun install && bun run build"
+    startCommand: "cd frontend && bun start"
     envVars:
       - key: NODE_ENV
         value: production
