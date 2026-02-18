@@ -298,13 +298,11 @@ const nextConfig = {
     ];
   },
   async rewrites() {
+    const backendUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
     return [
       {
         source: "/backend/:path*",
-        destination: `http://localhost:8000/backend/:path*`,
-
-        /*         destination:  `http://10.5.213.111:8000/backend/:path*`,
-         */
+        destination: `${backendUrl}/backend/:path*`,
       },
     ];
   },

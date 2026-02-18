@@ -33,7 +33,7 @@ WORKDIR /app
 RUN apt-get update && apt-get install -y dumb-init curl && rm -rf /var/lib/apt/lists/*
 
 # Copy from builder
-COPY --from=builder /app/dist ./dist
+COPY --from=builder /app/backend/dist ./dist
 COPY --from=builder /app/package.json ./
 COPY --from=builder /app/bun.lock* ./
 COPY --from=builder /app/backend/package.json ./backend/

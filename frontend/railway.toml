@@ -1,0 +1,32 @@
+[build]
+builder = "DOCKERFILE"
+dockerfilePath = "Dockerfile"
+# El contexto debe ser la raíz del repo (../),
+# configúralo en Railway Dashboard → Build → Docker Build Context = /
+
+[deploy]
+startCommand = "bun start"
+healthcheckPath = "/api/health"
+healthcheckTimeout = 300
+restartPolicyType = "ON_FAILURE"
+restartPolicyMaxRetries = 3
+
+[[deploy.envVars]]
+# Configura las siguientes en Railway Dashboard → Variables:
+#
+# DATABASE_URL                       = (Railway PostgreSQL → Connect → Postgres URL)
+# NEXT_PUBLIC_API_URL                = https://tu-backend.up.railway.app
+# NEXT_PUBLIC_APP_URL                = https://tu-frontend.up.railway.app
+# NEXTAUTH_URL                       = https://tu-frontend.up.railway.app
+# AUTH_SECRET                        = (genera: openssl rand -base64 32)
+# AUTH_TRUST_HOST                    = true
+# AUTH_GOOGLE_ID                     = ...
+# AUTH_GOOGLE_SECRET                 = ...
+# AUTH_FACEBOOK_ID                   = ...
+# AUTH_FACEBOOK_SECRET               = ...
+# CLOUDINARY_CLOUD_NAME              = ...
+# CLOUDINARY_API_KEY                 = ...
+# CLOUDINARY_API_SECRET              = ...
+# NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME  = ...
+# NEXT_TELEMETRY_DISABLED            = 1
+# NODE_ENV                           = production
