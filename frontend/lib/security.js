@@ -62,7 +62,7 @@ export function getCSPDirectives(nonce) {
     // Default: Fallback para directivas no especificadas
     "default-src": ["'self'"],
 
-    // Scripts: En producción sin unsafe-*, en desarrollo sí
+    // Scripts: In production allow inline for Next.js runtime scripts
     "script-src": isDevelopment
       ? [
           "'self'",
@@ -74,6 +74,7 @@ export function getCSPDirectives(nonce) {
         ]
       : [
           "'self'",
+          "'unsafe-inline'", // Required for Next.js runtime and Cache Components
           "https://accounts.google.com",
           "https://checkout.wompi.co",
           "https://sandbox.wompi.co",
