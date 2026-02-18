@@ -11,6 +11,17 @@ export type GetCategoriesParams = {
   status?: string;
 };
 
+export type SubcategoryItem = {
+  id: number;
+  name: string;
+};
+
+export type CategoryWithSubcategories = {
+  id: number;
+  name: string;
+  subcategories?: SubcategoryItem[];
+};
+
 export async function getCategories({
   page = 1,
   limit = 10,

@@ -183,7 +183,7 @@ export default function ProductFilters() {
                   <option value="all">Todas las categorías</option>
                   {!isLoadingCategories &&
                     !isErrorCategories &&
-                    categories?.map((category) => (
+                    (categories as any[])?.map((category) => (
                       <option key={category.id} value={category.id.toString()}>
                         {category.name}
                       </option>
@@ -216,7 +216,7 @@ export default function ProductFilters() {
                   <option value="all">Todas las marcas</option>
                   {!isLoadingBrands &&
                     !isErrorBrands &&
-                    brands?.map((brand) => (
+                    (brands as any[])?.map((brand) => (
                       <option key={brand.id} value={brand.id.toString()}>
                         {brand.name}
                       </option>
@@ -350,7 +350,7 @@ export default function ProductFilters() {
                     onClick={() => handleCategoryChange("all")}
                   >
                     <Tag className="h-3.5 w-3.5" />
-                    <span className="font-medium">{categories?.find((c) => c.id.toString() === currentFilters.category)?.name}</span>
+                    <span className="font-medium">{(categories as any[])?.find((c) => c.id.toString() === currentFilters.category)?.name}</span>
                     <div className="rounded-sm p-0.5 transition-colors group-hover:bg-purple-900/40">
                       <X className="h-3 w-3" />
                     </div>
@@ -363,7 +363,7 @@ export default function ProductFilters() {
                     onClick={() => handleBrandChange("all")}
                   >
                     <Layers className="h-3.5 w-3.5" />
-                    <span className="font-medium">{brands?.find((b) => b.id.toString() === currentFilters.brand)?.name}</span>
+                    <span className="font-medium">{(brands as any[])?.find((b) => b.id.toString() === currentFilters.brand)?.name}</span>
                     <div className="rounded-sm p-0.5 transition-colors group-hover:bg-pink-900/40">
                       <X className="h-3 w-3" />
                     </div>

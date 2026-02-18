@@ -12,7 +12,22 @@ export interface ReviewFilters {
   limit?: number;
 }
 
-export async function getAllReviews(filters: ReviewFilters = {}) {
+export interface Review {
+  id: number;
+  product_id: number;
+  user_id: number;
+  rating: number;
+  comment: string;
+  verified_purchase: boolean;
+  helpful_count: number;
+  status: "pending" | "approved" | "rejected";
+  created_at: string;
+  updated_at: string;
+  products?: { name: string };
+  User?: { name: string; email: string };
+}
+
+export async function getAllReviews(filters: ReviewFilters = {}): Promise<{ success: boolean; reviews?: Review[]; error?: string }> {
   try {
     const params = new URLSearchParams();
     if (filters.status) params.append("status", filters.status);
@@ -29,9 +44,16 @@ export async function getAllReviews(filters: ReviewFilters = {}) {
       throw new Error(response.error || "Error al obtener las reseñas");
     }
 
-    return response.data || [];
+    return {
+      success: true,
+      reviews: (response.data as unknown as Review[]) || [],
+    };
   } catch (error) {
     console.error("[getAllReviews] Error:", error);
-    throw error;
+    return {
+      success: false,
+      reviews: [],
+      error: error instanceof Error ? error.message : "Error desconocido",
+    };
   }
 }

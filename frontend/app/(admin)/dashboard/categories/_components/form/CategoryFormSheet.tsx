@@ -73,9 +73,9 @@ export default function CategoryFormSheet({
   const {
     data: existingSubcategories = [],
     isLoading: isLoadingSubcategories,
-  } = useQuery<Subcategory[]>({
+  } = useQuery({
     queryKey: ["subcategories", "dropdown"],
-    queryFn: () => getSubcategoriesDropdown(),
+    queryFn: () => getSubcategoriesDropdown() as Promise<Subcategory[]>,
     staleTime: 5 * 60 * 1000,
   });
 

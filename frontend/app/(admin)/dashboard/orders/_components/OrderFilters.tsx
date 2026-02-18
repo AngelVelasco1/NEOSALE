@@ -244,9 +244,9 @@ export default function OrderFilters() {
     toast.info(`Downloading orders...`);
     startTransition(async () => {
       const result = await exportOrders();
-      if (result.error) {
+      if ("error" in result) {
         toast.error(result.error);
-      } else if (result.data) {
+      } else {
         exportAsCSV(result.data, "Orders");
       }
     });

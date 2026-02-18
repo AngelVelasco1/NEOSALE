@@ -44,9 +44,9 @@ const FormSubcategoryInput = forwardRef(function FormCategoryInputRender<
     data: subcategories,
     isLoading,
     isError,
-  } = useQuery<Subcategory[]>({
+  } = useQuery({
     queryKey: ["subcategories", "dropdown"],
-    queryFn: () => fetchSubcategoriesDropdown(),
+    queryFn: () => fetchSubcategoriesDropdown() as Promise<Subcategory[]>,
     staleTime: 5 * 60 * 1000,
   });
 

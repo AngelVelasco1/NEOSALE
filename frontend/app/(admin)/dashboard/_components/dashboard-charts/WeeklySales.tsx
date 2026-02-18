@@ -31,7 +31,7 @@ export default function WeeklySales({ data, dateRange }: WeeklySalesProps) {
   };
 
   // Calculate totals for display
-  const totalSales = data.reduce((sum, item) => sum + item.sales, 0);
+  const totalSales = data.reduce((sum, item) => sum + item.revenue, 0);
   const totalOrders = data.reduce((sum, item) => sum + item.orders, 0);
 
   // Calculate period description based on date range
@@ -196,7 +196,7 @@ export default function WeeklySales({ data, dateRange }: WeeklySalesProps) {
                               Ventas:
                             </span>
                             <span className="font-mono font-bold text-base bg-linear-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
-                              ${Number(data.sales).toLocaleString()}
+                              ${Number(data.revenue).toLocaleString()}
                             </span>
                           </div>
 
@@ -214,7 +214,7 @@ export default function WeeklySales({ data, dateRange }: WeeklySalesProps) {
                   }}
                 />
                 <Bar
-                  dataKey="sales"
+                  dataKey="revenue"
                   fill="hsl(217, 91%, 60%)"
                   radius={[4, 4, 0, 0]}
                 />

@@ -13,21 +13,18 @@ export async function fetchStaff(
   params: FetchStaffParams
 ): Promise<FetchStaffResponse> {
   const result = await getStaff(params);
+  const typedResult = result as unknown as FetchStaffResponse;
   
   // Mapear la estructura de paginación del servidor a la esperada por el frontend
   const mappedResult: FetchStaffResponse = {
-    data: result.data,
+    data: typedResult.data || [],
     pagination: {
-      current: result.pagination.page,
-      limit: result.pagination.limit,
-      items: result.pagination.total,
-      pages: result.pagination.totalPages,
-      next: result.pagination.page < result.pagination.totalPages 
-        ? result.pagination.page + 1 
-        : null,
-      prev: result.pagination.page > 1 
-        ? result.pagination.page - 1 
-        : null,
+      current: typedResult.pagination.current,
+      limit: typedResult.pagination.limit,
+      items: typedResult.pagination.items,
+      pages: typedResult.pagination.pages,
+      next: typedResult.pagination.next,
+      prev: typedResult.pagination.prev,
     }
   };
 

@@ -14,7 +14,7 @@ export async function deleteStaff(
     // apiClient automatically injects auth token
     const response = await apiClient.delete(`/users/${staffId}`);
 
-    if (!response.ok) {
+    if (!response.success) {
       return { success: false, error: "Something went wrong. Could not delete the staff." };
     }
 

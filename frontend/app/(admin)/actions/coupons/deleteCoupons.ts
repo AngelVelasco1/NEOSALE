@@ -7,8 +7,8 @@ export async function deleteCoupons(
   couponIds: number[]
 ): Promise<ServerActionResponse> {
   try {
-    const response = await apiClient.delete(`/admin/coupons`, {
-      body: { couponIds },
+    const response = await apiClient.post(`/admin/coupons/delete`, {
+      couponIds,
     });
 
     if (!response.success) {

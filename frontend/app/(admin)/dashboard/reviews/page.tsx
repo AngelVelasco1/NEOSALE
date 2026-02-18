@@ -79,7 +79,7 @@ async function ReviewsTableSection({
     );
   }
 
-  return <ReviewsTable reviews={result.reviews} />;
+  return <ReviewsTable reviews={result.reviews as any} />;
 }
 
 function StatsLoading() {

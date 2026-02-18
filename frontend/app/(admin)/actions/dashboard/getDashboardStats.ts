@@ -52,8 +52,8 @@ export async function getDashboardStats(
       throw new Error(statsResponse.error || "Failed to fetch dashboard stats");
     }
 
-    const data = statsResponse.data.data;
-    const orderStatusData = orderStatusResponse.data?.data || {};
+    const data = statsResponse.data.data as any;
+    const orderStatusData = (orderStatusResponse.data?.data || {}) as any;
     
     const totalRevenue = data.revenue?.current || 0;
     const totalOrders = data.orders?.current || 0;

@@ -19,7 +19,7 @@ export async function toggleStaffPublishedStatus(
       active: newPublishedStatus,
     });
 
-    if (!response.ok) {
+    if (!response.success) {
       return { success: false, error: "Failed to update staff status." };
     }
 

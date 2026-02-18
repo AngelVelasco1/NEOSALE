@@ -265,8 +265,8 @@ export default async function PrintOrder({ params }: PageParams) {
                   </tr>
                 </thead>
                 <tbody>
-                  {order.order_items?.map((item) => (
-                    <tr key={item.id}>
+                  {order.order_items?.map((item, index) => (
+                    <tr key={`order-item-${index}`}>
                       <td>
                         <strong>{item?.products.name}</strong>
                         <br />

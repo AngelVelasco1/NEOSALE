@@ -304,7 +304,7 @@ export default async function Order({ params }: PageParams) {
                 </Typography>
 
                 <Typography className="text-lg font-bold text-gray-100 capitalize print:text-black">
-                  {order.payment?.payment_method || "N/A"}
+                  {order.payments?.payment_method || "N/A"}
                 </Typography>
               </div>
             </div>

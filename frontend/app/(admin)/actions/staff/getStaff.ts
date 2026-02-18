@@ -2,6 +2,7 @@
 
 import { apiClient } from "@/lib/api-client";
 import { requireAdmin } from "@/lib/auth-helpers";
+import { auth } from "@/app/(auth)/auth";
 
 export type GetStaffParams = {
   page?: number;
@@ -32,7 +33,7 @@ export async function getStaff({
       {}
     );
 
-    if (!response.ok) {
+    if (!response.success) {
       throw new Error("Error al obtener staff");
     }
 

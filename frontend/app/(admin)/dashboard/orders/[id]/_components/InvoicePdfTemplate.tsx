@@ -173,7 +173,7 @@ export default function InvoicePdfTemplate({ order }: { order: OrderDetails }) {
             textTransform: "uppercase",
             margin: 0
           }}>
-            {order.payment?.payment_method || "N/A"}
+            {order.payments?.payment_method || "N/A"}
           </p>
         </div>
       </div>
@@ -377,7 +377,7 @@ export default function InvoicePdfTemplate({ order }: { order: OrderDetails }) {
             textTransform: "capitalize",
             margin: 0
           }}>
-            {order.payment?.payment_method || "N/A"}
+            {order.payments?.payment_method || "N/A"}
           </p>
         </div>
 

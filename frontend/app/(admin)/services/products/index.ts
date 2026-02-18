@@ -78,8 +78,10 @@ export async function fetchProducts(
     sortOrder,
   });
 
+  const typedResult = result as unknown as { data: any[]; pagination: any };
+
   // Map Decimal fields to numbers and Date fields to strings
-  const mappedData = result.data.map((product) => ({
+  const mappedData = (typedResult.data || []).map((product) => ({
     ...product,
     base_discount: Number(product.base_discount),
     offer_discount: product.offer_discount ? Number(product.offer_discount) : null,
@@ -93,15 +95,15 @@ export async function fetchProducts(
   const mappedResult: FetchProductsResponse = {
     data: mappedData,
     pagination: {
-      current: result.pagination.page,
-      limit: result.pagination.limit,
-      items: result.pagination.total,
-      pages: result.pagination.totalPages,
-      next: result.pagination.page < result.pagination.totalPages 
-        ? result.pagination.page + 1 
+      current: typedResult.pagination.page,
+      limit: typedResult.pagination.limit,
+      items: typedResult.pagination.total,
+      pages: typedResult.pagination.totalPages,
+      next: typedResult.pagination.page < typedResult.pagination.totalPages 
+        ? typedResult.pagination.page + 1 
         : null,
-      prev: result.pagination.page > 1 
-        ? result.pagination.page - 1 
+      prev: typedResult.pagination.page > 1 
+        ? typedResult.pagination.page - 1 
         : null,
     }
   };

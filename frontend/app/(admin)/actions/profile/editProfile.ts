@@ -68,7 +68,7 @@ export async function editProfile(
       newPassword: profileData.newPassword || undefined,
     });
 
-    if (!response.ok) {
+    if (!response.success) {
       // Handle validation errors from backend
       if (response.data?.validationErrors) {
         return { validationErrors: response.data.validationErrors };

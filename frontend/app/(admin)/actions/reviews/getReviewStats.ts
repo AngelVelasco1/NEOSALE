@@ -2,7 +2,15 @@
 
 import { apiClient } from "@/lib/api-client";
 
-export async function getReviewStats() {
+interface ReviewStats {
+  total: number;
+  pending: number;
+  approved: number;
+  averageRating: number;
+  ratingDistribution: { rating: number; count: number }[];
+}
+
+export async function getReviewStats(): Promise<{ success: boolean; stats?: ReviewStats }> {
   try {
     const response = await apiClient.get(`/admin/reviews/stats`);
 
@@ -10,9 +18,14 @@ export async function getReviewStats() {
       throw new Error(response.error || "Error al obtener estadísticas");
     }
 
-    return response.data || {};
+    return {
+      success: true,
+      stats: response.data as unknown as ReviewStats,
+    };
   } catch (error) {
     console.error("[getReviewStats] Error:", error);
-    throw error;
+    return {
+      success: false,
+    };
   }
 }

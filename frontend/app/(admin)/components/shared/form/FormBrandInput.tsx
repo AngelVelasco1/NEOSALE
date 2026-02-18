@@ -154,7 +154,7 @@ const FormBrandInput = forwardRef(function FormBrandInputRender<
                       {!isLoading &&
                         !isError &&
                         brands &&
-                        brands.map((brand) => (
+                        (brands as any[]).map((brand) => (
                           <SelectItem key={brand.id} value={brand.id.toString()}>
                             {brand.name}
                           </SelectItem>

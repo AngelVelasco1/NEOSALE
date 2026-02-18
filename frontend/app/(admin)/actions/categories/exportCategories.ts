@@ -2,7 +2,9 @@
 
 import { apiClient } from "@/lib/api-client";
 
-export async function exportCategories() {
+type ExportResponse = { data: any[] } | { error: string };
+
+export async function exportCategories(): Promise<ExportResponse> {
   try {
     const response = await apiClient.get(`/admin/categories/export`);
 
@@ -10,7 +12,7 @@ export async function exportCategories() {
       return { error: response.error || "Failed to fetch data for categories." };
     }
 
-    return { data: response.data || [] };
+    return { data: (response.data || []) as any[] };
   } catch (error) {
     console.error("[exportCategories] Error:", error);
     return { error: "Failed to fetch data for categories." };
