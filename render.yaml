@@ -71,8 +71,8 @@ services:
     name: neosale-frontend
     region: oregon
     plan: free
-    buildCommand: "bun install && cd frontend && bun install && bun run build"
-    startCommand: "cd frontend && bun start"
+    buildCommand: "cd frontend && bun install --frozen-lockfile && bun run build"
+    startCommand: "cd frontend && chmod +x start.sh && ./start.sh"
     envVars:
       - key: NODE_ENV
         value: production
