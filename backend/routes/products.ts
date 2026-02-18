@@ -14,15 +14,21 @@ import { cacheMiddleware } from "../middlewares/cache";
 
 export const productsRoutes = () =>
   Router()
-    .get("/getProducts", cacheMiddleware(3 * 60 * 1000), getProducts)
-    .get("/getLatestProducts", cacheMiddleware(5 * 60 * 1000), getLatestProducts)
-    .get("/getOffers", cacheMiddleware(10 * 60 * 1000), getOffers)
+    // ✅ NUEVAS RUTAS RESTful
+    .get("/", cacheMiddleware(3 * 60 * 1000), getProducts)
+    .get("/latest", cacheMiddleware(5 * 60 * 1000), getLatestProducts)
+    .get("/offers", cacheMiddleware(10 * 60 * 1000), getOffers)
     .get("/trust-metrics", cacheMiddleware(60 * 60 * 1000), getTrustMetrics)
-    .post("/getVariantStock", getVariantStock)
+    .post("/variant-stock", getVariantStock)
     .patch("/variants/:id", updateVariant)
     // POST - Crear nuevo producto
     .post("/", createProduct)
     // PUT - Actualizar producto
     .put("/:id", updateProduct)
     // DELETE - Eliminar producto (soft delete)
-    .delete("/:id", deleteProduct);
+    .delete("/:id", deleteProduct)
+    // 🔄 COMPATIBILIDAD HACIA ATRÁS (rutas antiguas)
+    .get("/getProducts", cacheMiddleware(3 * 60 * 1000), getProducts)
+    .get("/getLatestProducts", cacheMiddleware(5 * 60 * 1000), getLatestProducts)
+    .get("/getOffers", cacheMiddleware(10 * 60 * 1000), getOffers)
+    .post("/getVariantStock", getVariantStock);

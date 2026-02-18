@@ -20,6 +20,7 @@ import { OrderBadgeVariants } from "@/app/(admin)/constants/badge";
 import { fetchOrderDetails } from "@/app/(admin)/services/orders";
 import { InvoiceActions } from "./_components/InvoiceActions";
 import { ShippingManagement } from "./_components/ShippingManagement";
+import { PrintTrigger } from "./_components/PrintTrigger";
 
 // Importar estilos específicos para el PDF
 import "./invoice-pdf.css";
@@ -41,6 +42,7 @@ export default async function Order({ params }: PageParams) {
 
     return (
       <section className="invoice-background p-4 ">
+        <PrintTrigger />
 
         <Card className="mb-8 glass-card glass-card-hover p-8 lg:p-10 print:border-none print:bg-white print:mb-0 relative overflow-hidden">
           {/* Subtle blue overlay */}
@@ -302,7 +304,7 @@ export default async function Order({ params }: PageParams) {
                 </Typography>
 
                 <Typography className="text-lg font-bold text-gray-100 capitalize print:text-black">
-                  {order.payments.payment_method}
+                  {order.payment?.payment_method || "N/A"}
                 </Typography>
               </div>
             </div>

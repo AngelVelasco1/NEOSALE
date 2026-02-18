@@ -119,8 +119,8 @@ export function getCSPDirectives(nonce) {
     // Form actions: Solo self
     "form-action": ["'self'"],
 
-    // Frame ancestors: Prevenir clickjacking
-    "frame-ancestors": ["'none'"],
+    // Frame ancestors: Prevenir clickjacking pero permitir ventanas de impresión
+    "frame-ancestors": ["'self'"],
 
     // Upgrade insecure requests en producción
     ...(isDevelopment ? {} : { "upgrade-insecure-requests": [] }),

@@ -28,7 +28,7 @@ export async function createBrand(
         return { success: false, error: response.error || "Failed to create brand" };
       }
 
-      return { success: true, brand: response.data };
+      return { success: true, brand: response.data as any };
     } else {
       const response = await apiClient.post(`/admin/brands`, {
         name: name.trim(),
@@ -39,58 +39,10 @@ export async function createBrand(
         return { success: false, error: response.error || "Failed to create brand" };
       }
 
-      return { success: true, brand: response.data };
+      return { success: true, brand: response.data as any };
     }
   } catch (error) {
     console.error("[createBrand] Error:", error);
     return { success: false, error: "Something went wrong. Please try again later." };
-  }
-}
-        deleted_at: null,
-      },
-    });
-
-    if (existingBrand) {
-      return { success: false, error: "Una marca con este nombre ya existe" };
-    }
-
-    // Upload image if provided
-    let imageUrl: string | null = null;
-    if (imageFile) {
-      try {
-        imageUrl = await uploadImageToCloudinary(imageFile, "brands");
-      } catch (error) {
-        
-        return { success: false, error: "Error al subir la imagen" };
-      }
-    }
-
-    // Create the brand
-    const brand = await prisma.brands.create({
-      data: {
-        name: trimmedName,
-        description: description?.trim() || null,
-        image_url: imageUrl,
-        active: true,
-      },
-      select: {
-        id: true,
-        name: true,
-        image_url: true,
-      },
-    });
-
-    // Revalidate relevant paths
-    revalidatePath("/dashboard/products");
-    revalidatePath("/dashboard/brands");
-    revalidatePath("/brands");
-
-    return { success: true, brand };
-  } catch (error) {
-    
-    return {
-      success: false,
-      error: "Error al crear la marca. Por favor intenta de nuevo.",
-    };
   }
 }

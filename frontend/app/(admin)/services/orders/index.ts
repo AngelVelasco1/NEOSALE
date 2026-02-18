@@ -4,7 +4,10 @@ import type {
   OrderDetails,
 } from "./types";
 
-const BACKEND_URL = "http://localhost:8000";
+// Usa la ruta proxy de Next.js /api/backend/* 
+// que redirige a http://localhost:8000/api/*
+// Esto evita completamente problemas de CORS
+const API_URL = "/api/backend";
 
 // Migrado a Prisma - Usa API routes
 export async function fetchOrders(
@@ -39,7 +42,7 @@ export async function fetchOrders(
   });
 
   const response = await fetch(
-    `${BACKEND_URL}/api/orders?${queryParams.toString()}`
+    `${API_URL}/orders?${queryParams.toString()}`
   );
 
   if (!response.ok) {
@@ -70,7 +73,7 @@ export async function fetchOrderDetails(params: {
 }): Promise<{ order: OrderDetails }> {
   const { id } = params;
 
-  const response = await fetch(`${BACKEND_URL}/api/orders/${id}`, {
+  const response = await fetch(`${API_URL}/orders/${id}`, {
     cache: "no-cache",
     headers: {
       "Content-Type": "application/json",
@@ -84,40 +87,42 @@ export async function fetchOrderDetails(params: {
   const result = await response.json();
   const data = result.data;
 
-  // Transformar la respuesta del backend al formato esperado por el frontend
-  const order: OrderDetails = {
+  if (!data) {
+    throw new Error("Order data is empty");
+  }
+
+  // Mapear exactamente a la estructura que la página de impresión espera
+  const order: any = {
     id: data.id,
     invoice_no: `INV-${String(data.id).padStart(6, "0")}`,
     created_at: data.created_at,
-    total: data.total,
-    shipping_cost: data.shipping_cost,
     status: data.status,
+    total: data.total ?? data.total_amount ?? 0,
+    shipping_cost: data.shipping_cost ?? 0,
     User: {
-      name: data.users?.name ?? null,
-      email: data.users?.email ?? "",
-      phoneNumber: data.users?.phone_number ?? null,
+      name: data.users?.name || "Cliente",
+      email: data.users?.email || "",
+      phoneNumber: data.users?.phone_number || null,
     },
     addresses: data.addresses
       ? {
-          street: data.addresses.address ?? "",
-          city: data.addresses.city ?? "",
-          state: data.addresses.department ?? "",
-          zip_code: "",
+          street: data.addresses.address || "",
+          city: data.addresses.city || "",
+          state: data.addresses.department || "",
+          zip_code: data.addresses.postal_code || "",
         }
       : null,
-    order_items: data.order_items.map(
-      (item: {
-        quantity: number;
-        price: number;
-        products: { name: string };
-      }) => ({
-        quantity: item.quantity,
-        price: item.price,
-        products: {
-          name: item.products.name,
-        },
-      })
-    ),
+    order_items: Array.isArray(data.order_items)
+      ? data.order_items.map((item: any) => ({
+          id: item.id,
+          quantity: item.quantity || 1,
+          price: item.price ?? item.unit_price ?? 0,
+          products: {
+            name: item.products?.name || item.product?.name || "Sin nombre",
+            description: item.products?.description || item.product?.description || "",
+          },
+        }))
+      : [],
     coupons: data.coupons
       ? {
           code: data.coupons.code,

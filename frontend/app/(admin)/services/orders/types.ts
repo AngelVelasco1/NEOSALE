@@ -38,14 +38,48 @@ export interface Order {
   cancelled_at: string | null;
   user_id: number;
   updated_by: number;
-  payments: {
+  payment: {
+    id: number;
     transaction_id: string | null;
     payment_method: string;
-  };
-  users?: {
-    name: string | null;
-    email?: string | null;
+    payment_status: string;
+    amount_in_cents: number;
+    currency: string;
+    customer_email: string | null;
+    created_at: string;
+    approved_at: string | null;
   } | null;
+  User: {
+    id: number;
+    name: string;
+    email: string;
+  };
+  addresses: {
+    id: number;
+    address: string;
+    country: string;
+    city: string;
+    department: string;
+    is_default: boolean;
+    created_at: string;
+  } | null;
+  coupons: Array<{
+    id: number;
+    code: string;
+    discount_value: number;
+    discount_type: string;
+  }>;
+  order_items: Array<{
+    quantity: number;
+    price: number;
+    color_code: string | null;
+    size: string | null;
+    products: {
+      id: number;
+      name: string;
+      price: number;
+    };
+  }>;
 }
 
 export interface FetchOrdersParams {

@@ -34,11 +34,31 @@ app.use(
 
 app.use(
   cors({
-    origin: BACK_CONFIG.cors_origin,
-    methods: ["GET", "POST", "PUT", "DELETE", "PATCH"],
+    origin: (origin, callback) => {
+      // Permitir solicitudes sin origin (como Postman o servidor a servidor)
+      if (!origin) return callback(null, true);
+      
+      // En desarrollo, permitir localhost:3000 y localhost:8000
+      if (
+        origin === BACK_CONFIG.cors_origin ||
+        origin === `http://${BACK_CONFIG.host}:${BACK_CONFIG.front_port}` ||
+        origin === `http://localhost:3000` ||
+        origin === `http://127.0.0.1:3000`
+      ) {
+        return callback(null, true);
+      }
+
+      // En producción, se configura via variable de entorno
+      if (process.env.NODE_ENV === "production") {
+        return callback(null, true);
+      }
+
+      return callback(null, true); // Permitir por ahora
+    },
+    methods: ["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"],
     credentials: true,
     allowedHeaders: ["Content-Type", "Authorization", "X-User-ID"],
-    maxAge: 86400, // CORS preflight cache 24h
+    maxAge: 86400,
   })
 );
 

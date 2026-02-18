@@ -7,8 +7,8 @@ export async function deleteCategories(
   categoryIds: string[]
 ): Promise<ServerActionResponse> {
   try {
-    const response = await apiClient.delete(`/admin/categories`, {
-      body: { categoryIds: categoryIds.map((id) => parseInt(id)) },
+    const response = await apiClient.post(`/admin/categories/delete`, {
+      categoryIds: categoryIds.map((id) => parseInt(id)),
     });
 
     if (!response.success) {

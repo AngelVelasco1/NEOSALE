@@ -209,6 +209,15 @@ export const updateOrderStatus = async (
       });
     }
 
+    // Validar que el status sea válido (pending, paid, processing, shipped, delivered)
+    const validStatuses = ["pending", "paid", "processing", "shipped", "delivered"];
+    if (!validStatuses.includes(status)) {
+      return res.status(400).json({
+        success: false,
+        error: `Status inválido. Valores válidos: ${validStatuses.join(", ")}`,
+      });
+    }
+
     const order = await updateOrderStatusService(parseInt(orderId), status);
 
     res.json({

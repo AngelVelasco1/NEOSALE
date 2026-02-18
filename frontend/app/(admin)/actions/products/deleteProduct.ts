@@ -14,13 +14,7 @@ export async function deleteProduct(
     }
 
     return { success: true };
-    });
-
-    revalidatePath("/products");
-
-    return { success: true };
   } catch (error) {
-    
     return {
       success: false,
       error: "Something went wrong. Could not deactivate the product.",

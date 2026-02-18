@@ -91,9 +91,3 @@ export async function editProfile(
     };
   }
 }
-      success: false,
-      error:
-        "Something went wrong while updating your profile. Please try again later.",
-    };
-  }
-}

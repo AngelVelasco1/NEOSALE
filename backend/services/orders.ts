@@ -225,8 +225,9 @@ export const getOrderWithPaymentService = async (orderId: number) => {
     }
 
     // Obtener la dirección completa usando shipping_address_id
+    let address = null;
     if (order.shipping_address_id) {
-      await prisma.addresses.findUnique({
+      address = await prisma.addresses.findUnique({
         where: { id: order.shipping_address_id },
         select: {
           id: true,
@@ -254,8 +255,21 @@ export const getOrderWithPaymentService = async (orderId: number) => {
       payment = paymentResult[0];
     }
 
+    // Asegurar que User tiene nombre válido
+    const userExists = order.User && typeof order.User === 'object';
+    const rawName = userExists ? (order.User.name || '').toString().trim() : '';
+    const userName = rawName && rawName.length > 0
+      ? rawName 
+      : `Cliente #${order.user_id}`;
+
     return {
       ...order,
+      User: {
+        id: userExists ? order.User.id : order.user_id,
+        name: userName,
+        email: userExists ? (order.User.email || '') : '',
+      },
+      addresses: address,
       payment,
     };
   } catch (error: any) {
@@ -292,7 +306,9 @@ export const getUserOrdersWithPaymentsService = async (userId: number) => {
             },
           },
         },
-
+        User: {
+          select: { id: true, name: true, email: true },
+        },
         coupons: true,
       },
       orderBy: {
@@ -302,20 +318,6 @@ export const getUserOrdersWithPaymentsService = async (userId: number) => {
 
     const ordersWithPayments = await Promise.all(
       orders.map(async (order: any) => {
-        let payment: PaymentInfo | null = null;
-        const paymentResult = await prisma.$queryRaw<PaymentInfo[]>`
-          SELECT
-            id, transaction_id, payment_status, payment_method,
-            (amount_in_cents / 100)::INTEGER as amount_in_cents, currency, customer_email,
-            created_at, approved_at
-          FROM payments
-          WHERE id = (SELECT payment_id FROM orders WHERE id = ${order.id}::INTEGER)
-        `;
-
-        if (paymentResult && paymentResult.length > 0) {
-          payment = paymentResult[0];
-        }
-
         // Obtener la dirección completa usando shipping_address_id
         let address = null;
         if (order.shipping_address_id) {
@@ -333,8 +335,34 @@ export const getUserOrdersWithPaymentsService = async (userId: number) => {
           });
         }
 
+        let payment: PaymentInfo | null = null;
+        const paymentResult = await prisma.$queryRaw<PaymentInfo[]>`
+          SELECT
+            id, transaction_id, payment_status, payment_method,
+            (amount_in_cents / 100)::INTEGER as amount_in_cents, currency, customer_email,
+            created_at, approved_at
+          FROM payments
+          WHERE id = (SELECT payment_id FROM orders WHERE id = ${order.id}::INTEGER)
+        `;
+
+        if (paymentResult && paymentResult.length > 0) {
+          payment = paymentResult[0];
+        }
+
+        // Asegurar que User tiene nombre válido
+        const userExists = order.User && typeof order.User === 'object';
+        const rawName = userExists ? (order.User.name || '').toString().trim() : '';
+        const userName = rawName && rawName.length > 0
+          ? rawName 
+          : `Cliente #${order.user_id}`;
+
         return {
           ...order,
+          User: {
+            id: userExists ? order.User.id : order.user_id,
+            name: userName,
+            email: userExists ? (order.User.email || '') : '',
+          },
           addresses: address,
           payment,
         };
@@ -536,8 +564,20 @@ export const getOrderByIdService = async (orderId: number) => {
       });
     }
 
+    // Asegurar que User tiene nombre válido
+    const userExists = order.User && typeof order.User === 'object';
+    const rawName = userExists ? (order.User.name || '').toString().trim() : '';
+    const userName = rawName && rawName.length > 0
+      ? rawName 
+      : `Cliente #${order.user_id}`;
+
     return {
       ...order,
+      User: {
+        id: userExists ? order.User.id : order.user_id,
+        name: userName,
+        email: userExists ? (order.User.email || '') : '',
+      },
       addresses: address,
     };
   } catch (error: any) {
@@ -551,19 +591,13 @@ export const getOrderByIdService = async (orderId: number) => {
 
 export const updateOrderStatusService = async (
   orderId: number,
-  status:
-    | "pending"
-    | "paid"
-    | "confirmed"
-    | "shipped"
-    | "delivered"
-    | "cancelled"
+  status: "pending" | "paid" | "processing" | "shipped" | "delivered"
 ) => {
   // VALIDATION BEFORE TRY-CATCH
   if (!orderId || orderId <= 0) {
     throw new ValidationError("orderId es requerido y debe ser mayor a 0");
   }
-  const validStatuses = ["pending", "paid", "confirmed", "shipped", "delivered", "cancelled"];
+  const validStatuses = ["pending", "paid", "processing", "shipped", "delivered"];
   if (!status || !validStatuses.includes(status)) {
     throw new ValidationError(`status debe ser uno de: ${validStatuses.join(", ")}`);
   }
@@ -725,11 +759,18 @@ export const getOrdersService = async ({
           },
           payments: {
             select: {
+              id: true,
               payment_method: true,
               payment_status: true,
               transaction_id: true,
+              amount_in_cents: true,
+              currency: true,
+              customer_email: true,
+              created_at: true,
+              approved_at: true,
             },
           },
+          addresses: true, // ✅ Agregar direcciones
           order_items: {
             include: {
               products: {
@@ -747,57 +788,75 @@ export const getOrdersService = async ({
       prisma.orders.count({ where }),
     ]);
 
-    // Obtener información de payment para cada orden con filtro de método si aplica
-    const ordersWithPayments = await Promise.all(
-      orders.map(async (order: any) => {
-        let paymentResult: PaymentInfo[];
+    // Filtrar por método de pago si aplica
+    let filteredOrders = orders;
+    if (method || methodFilter) {
+      filteredOrders = orders.filter((order: any) => {
+        if (!methodFilter || !order.payments) return true;
+        return order.payments.payment_method === methodFilter;
+      });
+    }
 
-        if (methodFilter) {
-          paymentResult = await prisma.$queryRaw<PaymentInfo[]>`
-            SELECT
-              id, transaction_id, payment_status, payment_method,
-              (amount_in_cents / 100)::INTEGER as amount_in_cents, currency, customer_email,
-              created_at, approved_at
-            FROM payments
-            WHERE id = (SELECT payment_id FROM orders WHERE id = ${order.id}::INTEGER)
-              AND payment_method = ${methodFilter}::payment_method_enum
-          `;
-        } else {
-          // Sin filtro de método
-          paymentResult = await prisma.$queryRaw<PaymentInfo[]>`
-            SELECT
-              id, transaction_id, payment_status, payment_method,
-              (amount_in_cents / 100)::INTEGER as amount_in_cents, currency, customer_email,
-              created_at, approved_at
-            FROM payments
-            WHERE id = (SELECT payment_id FROM orders WHERE id = ${order.id}::INTEGER)
-          `;
-        }
+    // Asegurar que siempre hay un nombre de cliente y mapear correctamente la respuesta
+    const ordersFormatted = filteredOrders.map((order: any) => {
+      // Manejar casos donde User sea null o undefined
+      const userExists = order.User && typeof order.User === 'object';
+      const rawName = userExists ? (order.User.name || '').toString().trim() : '';
+      const userName = rawName && rawName.length > 0
+        ? rawName 
+        : `Cliente #${order.user_id}`;
 
-        let payment: PaymentInfo | null = null;
-        if (paymentResult && paymentResult.length > 0) {
-          payment = paymentResult[0];
-        }
+      // Mapear payment correctamente (singular)  
+      const payment = order.payments ? {
+        id: order.payments.id,
+        transaction_id: order.payments.transaction_id,
+        payment_status: order.payments.payment_status,
+        payment_method: order.payments.payment_method,
+        amount_in_cents: Math.floor(Number(order.payments.amount_in_cents || 0) / 100),
+        currency: order.payments.currency,
+        customer_email: order.payments.customer_email,
+        created_at: order.payments.created_at,
+        approved_at: order.payments.approved_at,
+      } : null;
 
-        // Si hay filtro de método y no hay payment, retornar null
-        if (method && !payment) {
-          return null;
-        }
-
-        return {
-          ...order,
-          payment,
-        };
-      })
-    );
-
-    // Filtrar órdenes que no cumplen con el filtro de método de pago
-    const filteredOrders = ordersWithPayments.filter(
-      (order: any): order is NonNullable<typeof order> => order !== null
-    );
+      return {
+        id: order.id,
+        payment_id: Number(order.payment_id),
+        status: order.status,
+        subtotal: Number(order.subtotal),
+        discount: order.discount ? Number(order.discount) : null,
+        shipping_cost: Number(order.shipping_cost),
+        taxes: Number(order.taxes),
+        total: Number(order.total),
+        shipping_address_id: Number(order.shipping_address_id),
+        user_note: order.user_note,
+        admin_notes: order.admin_notes,
+        coupon_id: order.coupon_id ? Number(order.coupon_id) : null,
+        coupon_discount: order.coupon_discount ? Number(order.coupon_discount) : null,
+        tracking_number: order.tracking_number,
+        carrier: order.carrier,
+        estimated_delivery_date: order.estimated_delivery_date,
+        created_at: order.created_at,
+        updated_at: order.updated_at,
+        shipped_at: order.shipped_at,
+        delivered_at: order.delivered_at,
+        cancelled_at: order.cancelled_at,
+        user_id: Number(order.user_id),
+        updated_by: Number(order.updated_by),
+        User: {
+          id: userExists ? order.User.id : order.user_id,
+          name: userName,
+          email: userExists ? (order.User.email || '') : '',
+        },
+        payment,
+        addresses: order.addresses,
+        coupons: order.coupons,
+        order_items: order.order_items,
+      };
+    });
 
     return {
-      data: filteredOrders,
+      data: ordersFormatted,
       pagination: {
         total: method ? filteredOrders.length : total,
         page,
@@ -885,7 +944,7 @@ export const processWompiOrderWebhook = async (
         case "DECLINED":
         case "ERROR":
         case "VOIDED":
-          newOrderStatus = "cancelled";
+          newOrderStatus = "pending"; // No usar "cancelled" que no existe en el enum
           break;
         default:
           newOrderStatus = "pending";

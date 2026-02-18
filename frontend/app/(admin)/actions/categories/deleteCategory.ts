@@ -19,12 +19,3 @@ export async function deleteCategory(
     return { success: false, error: "Something went wrong. Could not delete the category." };
   }
 }
-
-    revalidatePath("/categories");
-
-    return { success: true };
-  } catch (error) {
-    
-    return { success: false, error: "Something went wrong. Could not delete the category." };
-  }
-}

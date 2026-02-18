@@ -1,4 +1,5 @@
-import { Printer, Loader2 } from "lucide-react";
+import { Printer } from "lucide-react";
+import { useRouter } from "next/navigation";
 
 import {
   Tooltip,
@@ -7,17 +8,14 @@ import {
   TooltipTrigger,
 } from "../../../../components/ui/tooltip";
 import { Button } from "../../../../components/ui/button";
-import { usePagePrint } from "../../../../hooks/use-page-print";
 
 export function PrintInvoiceButton({ orderId }: { orderId: string }) {
-  const { isLoading, printPage } = usePagePrint();
+  const router = useRouter();
 
-  if (isLoading)
-    return (
-      <Button variant="ghost" size="icon" disabled className="text-foreground">
-        <Loader2 className="size-5 animate-spin" />
-      </Button>
-    );
+  const handlePrint = () => {
+    // Navegar a la página de detalles con parámetro para auto-imprimir
+    router.push(`/dashboard/orders/${orderId}?print=true`);
+  };
 
   return (
     <TooltipProvider>
@@ -26,7 +24,7 @@ export function PrintInvoiceButton({ orderId }: { orderId: string }) {
           <Button
             variant="ghost"
             size="icon"
-            onClick={() => printPage(`/orders/${orderId}`)}
+            onClick={handlePrint}
             className="text-foreground"
           >
             <Printer className="size-5" />

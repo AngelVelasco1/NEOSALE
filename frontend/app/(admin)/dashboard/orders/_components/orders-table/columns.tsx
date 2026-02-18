@@ -52,7 +52,7 @@ export const getColumns = ({
       header: "Cliente",
       cell: ({ row }) => (
         <span className="block max-w-52 truncate">
-          {row.original.users?.name || "Cliente sin nombre"}
+          {row.original.User?.name || "Cliente sin nombre"}
         </span>
       ),
     },
@@ -60,7 +60,7 @@ export const getColumns = ({
       id: "method",
       header: "Método",
       cell: ({ row }) => (
-        <span className="capitalize">{row.original.payments.payment_method}</span>
+        <span className="capitalize">{row.original.payment?.payment_method || "N/A"}</span>
       ),
     },
     {

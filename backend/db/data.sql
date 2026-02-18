@@ -113,7 +113,6 @@ INSERT INTO products (name, description, price, stock, weight_grams, sizes, base
 ('Cama King Size', 'Cama king size en madera maciza', 950000, 0, 60000, 'Único', 0, 12, 8, TRUE, TRUE, 40.0, '2026-01-01 00:00:00', '2026-12-31 23:59:59', 1, 1),
 ('Producto Descontinuado', 'Este producto ya no está disponible', 50000, 0, 100, 'Único', 0, 5, 1, FALSE, FALSE, NULL, NULL, NULL, 1, 1);
 
-
 -- VARIANTES DE PRODUCTOS
 INSERT INTO product_variants (product_id, color_code, color, size, stock, sku, price, weight_grams, active) VALUES
 -- Camiseta Dry-Fit Pro (ID: 1) - Con oferta

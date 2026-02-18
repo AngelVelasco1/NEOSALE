@@ -51,24 +51,3 @@ export async function editCoupon(
     return { success: false, error: "Something went wrong. Please try again later." };
   }
 }
-
-    return { success: true, coupon: updatedCoupon };
-  } catch (error) {
-    if (error instanceof Prisma.PrismaClientKnownRequestError) {
-      if (error.code === "P2002") {
-        const target = error.meta?.target as string[];
-
-        if (target?.includes("code")) {
-          return {
-            validationErrors: {
-              code: "This coupon code is already in use. Please create a unique code for your new coupon.",
-            },
-          };
-        }
-      }
-    }
-
-    
-    return { success: false, error: "Something went wrong. Please try again later." };
-  }
-}
