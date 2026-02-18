@@ -41,8 +41,9 @@ export function ProductReviews({ productId }: ProductReviewsProps) {
     const fetchReviews = async () => {
         try {
             setIsLoading(true);
+            const backendUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
             const response = await fetch(
-                `http://localhost:8000/api/reviews/getReviews?productId=${productId}`,
+                `${backendUrl}/api/reviews/getReviews?productId=${productId}`,
                 {
                     credentials: "include",
                 }

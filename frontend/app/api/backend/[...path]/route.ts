@@ -1,8 +1,8 @@
 // frontend/app/api/backend/[...path]/route.ts
 // Este archivo actúa como proxy hacia el backend
-// Las solicitudes a /api/backend/* se redirigen a http://localhost:8000/api/*
+// Las solicitudes a /api/backend/* se redirigen a la URL del backend
 
-const BACKEND_URL = process.env.NEXT_PRIVATE_API_URL || "http://localhost:8000";
+const BACKEND_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
 
 export async function GET(
   request: Request,
