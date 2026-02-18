@@ -39,9 +39,8 @@ COPY --from=builder /app/frontend/.next ./.next
 COPY --from=builder /app/frontend/public ./public
 COPY --from=builder /app/frontend/package.json ./
 COPY --from=builder /app/frontend/bun.lock* ./
-
-# Install production dependencies only
-RUN bun install --production --frozen-lockfile --no-save
+# Copy node_modules from builder to ensure all dependencies are available
+COPY --from=builder /app/frontend/node_modules ./node_modules
 
 # Set environment variables
 ENV NODE_ENV=production
