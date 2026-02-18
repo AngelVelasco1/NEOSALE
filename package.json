@@ -3,9 +3,9 @@
   "version": "1.0.0",
   "private": true,
   "scripts": {
-    "dev": "concurrently \"cd frontend && npm run dev\" \"cd backend && bun run dev\"",
-    "build": "cd frontend && npm run build",
-    "start": "cd frontend && npm run start"
+    "dev": "concurrently \"cd frontend && bun run dev\" \"cd backend && bun run dev\"",
+    "build": "cd frontend && bun run build",
+    "start": "cd frontend && bun run start"
   },
   "devDependencies": {
     "@eslint/js": "9.39.1",
