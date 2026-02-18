@@ -53,9 +53,9 @@ export interface CustomerOrder {
   cancelled_at: Date | null;
   user_note: string | null;
   admin_notes: string | null;
-  payment_method: string;
-  payment_status: string;
-  payment_reference: string;
+  payment_method: string | null;
+  payment_status: string | null;
+  payment_reference: string | null;
   transaction_id: string | null;
   shipping_address: {
     address: string;
