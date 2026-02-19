@@ -1,28 +1,15 @@
 "use client";
 
-import { FRONT_CONFIG } from "@/config/credentials.js";
+import { api } from "@/config/api";
 import type { Coupon, CouponValidationResponse } from "../types/coupon";
-
-const API_URL = FRONT_CONFIG.api_origin;
 
 /**
  * Obtiene los últimos 3 cupones activos disponibles
  */
 export async function getActiveCoupons(): Promise<Coupon[]> {
   try {
-    const response = await fetch(`${API_URL}/api/coupons/active`, {
-      method: "GET",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      credentials: "include",
-    });
-
-    if (!response.ok) {
-      throw new Error("Error al obtener cupones");
-    }
-
-    const data = await response.json();
+    const response = await api.get(`/api/coupons/active`);
+    const data = response.data;
     return data.coupons || [];
   } catch (error) {
     
@@ -38,18 +25,14 @@ export async function validateCoupon(
   subtotal: number
 ): Promise<CouponValidationResponse> {
   try {
-    const response = await fetch(`${API_URL}/api/coupons/validate`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      credentials: "include",
-      body: JSON.stringify({ code, subtotal }),
+    const response = await api.post(`/api/coupons/validate`, {
+      code,
+      subtotal,
     });
 
-    const data = await response.json();
+    const data = response.data;
 
-    if (!response.ok) {
+    if (data.success === false) {
       return {
         valid: false,
         error: data.message || "Cupón inválido",

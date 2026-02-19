@@ -22,7 +22,7 @@ export interface BrandWithProducts extends Brand {
   }>;
 }
 
-const BACKEND_URL = process.env.NEXT_PUBLIC_BACKEND_URL;
+const BACKEND_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
 
 export async function getAllBrands(): Promise<Brand[]> {
   try {

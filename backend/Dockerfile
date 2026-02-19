@@ -47,19 +47,19 @@ RUN bun run -i "bunx prisma generate"
 
 # Set environment variables
 ENV NODE_ENV=production
-ENV PORT=3001
+ENV PORT=10000
 
 # Create non-root user for security
 RUN useradd -m -u 1001 appuser && chown -R appuser:appuser /app
 
 USER appuser
 
-# Health check
+# Health check - usamos / porque el backend responde en raíz
 HEALTHCHECK --interval=30s --timeout=10s --start-period=40s --retries=3 \
-  CMD curl -f http://localhost:3001/health || exit 1
+  CMD curl -f http://localhost:10000/ || exit 1
 
 # Expose port
-EXPOSE 3001
+EXPOSE 10000
 
 # Use dumb-init to handle signals properly (PID 1)
 ENTRYPOINT ["dumb-init", "--"]

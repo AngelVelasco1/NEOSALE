@@ -298,11 +298,17 @@ const nextConfig = {
     ];
   },
   async rewrites() {
-    const backendUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
+    // En Render full-stack: backend en localhost:8000, frontend en 3000
+    // En desarrollo: backend en localhost:8000
+    // En producción multidominio: backend en NEXT_PUBLIC_API_URL
+    const backendUrl = process.env.NODE_ENV === "production" && !process.env.RENDER_SERVICE_ID
+      ? (process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000")
+      : "http://localhost:8000";
+    
     return [
       {
-        source: "/backend/:path*",
-        destination: `${backendUrl}/backend/:path*`,
+        source: "/api/:path*",
+        destination: `${backendUrl}/api/:path*`,
       },
     ];
   },

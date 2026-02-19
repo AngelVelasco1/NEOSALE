@@ -83,6 +83,14 @@ app.use((req, res, next) => {
   next();
 });
 
+// HealthCheck - Ruta raíz para Render health check
+app.get("/", (req, res) => {
+  res.json({ 
+    status: "ok", 
+    message: "NEOSALE Backend is running",
+    timestamp: new Date().toISOString()
+  });
+});
 
 app.use("/api", initRoutes());
 
