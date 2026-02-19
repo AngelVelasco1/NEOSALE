@@ -305,12 +305,38 @@ const nextConfig = {
       ? (process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000")
       : "http://localhost:8000";
     
-    return [
-      {
-        source: "/api/:path*",
-        destination: `${backendUrl}/api/:path*`,
-      },
-    ];
+    return {
+      beforeFiles: [
+        // Auth routes must NOT be forwarded to backend - they are internal to Next.js
+        {
+          source: "/api/auth/:path*",
+          destination: "/api/auth/:path*",
+        },
+      ],
+      afterFiles: [
+        // Forward all other /api/* calls to backend Express server
+        {
+          source: "/api/products/:path*",
+          destination: `${backendUrl}/api/products/:path*`,
+        },
+        {
+          source: "/api/categories/:path*",
+          destination: `${backendUrl}/api/categories/:path*`,
+        },
+        {
+          source: "/api/orders/:path*",
+          destination: `${backendUrl}/api/orders/:path*`,
+        },
+        {
+          source: "/api/coupons/:path*",
+          destination: `${backendUrl}/api/coupons/:path*`,
+        },
+        {
+          source: "/api/:path*",
+          destination: `${backendUrl}/api/:path*`,
+        },
+      ],
+    };
   },
 };
 
