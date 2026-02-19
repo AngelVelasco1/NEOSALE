@@ -1,3 +1,4 @@
+/// <reference types="node" />
 import 'dotenv/config'
 import express from "express";
 import { initRoutes } from "./routes/router.js";

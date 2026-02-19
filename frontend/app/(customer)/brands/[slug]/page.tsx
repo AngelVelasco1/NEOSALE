@@ -6,9 +6,6 @@ import Link from "next/link";
 import { Package2, ArrowLeft } from "lucide-react";
 import { ProductCard } from "./components/ProductCard";
 
-// Esta ruta es dinámica y depende de la BD, no se puede prerenderer
-export const dynamic = "force-dynamic";
-
 // Static metadata - Dynamic metadata not compatible with Cache Components
 export const metadata: Metadata = {
   title: "Marca | NeoSale",

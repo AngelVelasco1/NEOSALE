@@ -19,9 +19,6 @@ type PageParams = {
   }>;
 };
 
-// Esta ruta es dinámica y depende de la BD, no se puede prerenderer
-export const dynamic = "force-dynamic";
-
 export default async function PrintOrder({ params }: PageParams) {
   try {
     const { id } = await params;

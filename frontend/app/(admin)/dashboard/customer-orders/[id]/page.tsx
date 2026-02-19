@@ -8,9 +8,6 @@ import PageTitle from "@/app/(admin)/components/shared/PageTitle";
 import CustomerOrdersTable from "./_components/Table";
 import { fetchCustomerOrders } from "@/app/(admin)/services/customers";
 
-// Esta ruta es dinámica y depende de la BD, no se puede prerenderer
-export const dynamic = "force-dynamic";
-
 type PageParams = {
   params: Promise<{ id: string }>;
 };
