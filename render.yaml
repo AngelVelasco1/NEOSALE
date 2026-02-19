@@ -13,7 +13,7 @@ services:
     name: neosale
     region: oregon
     plan: free
-    buildCommand: "cd frontend && bun install && bun run build && cd ../backend && bun install --production && bun build app.ts --outdir dist --target node"
+    buildCommand: "cd frontend && bun install && bun run build && cd ../backend && bun install --production && bunx prisma generate && bunx prisma migrate deploy --skip-generate && bun build app.ts --outdir dist --target node"
     startCommand: "bash start-fullstack.sh"
     envVars:
       - key: NODE_ENV
@@ -29,11 +29,11 @@ services:
           name: neosale-db
           property: connectionString
       - key: NEXT_PUBLIC_API_URL
-        value: "https://neosale.onrender.com"
+        value: ""
       - key: NEXTAUTH_URL
         value: "https://neosale.onrender.com"
       - key: AUTH_SECRET
-        generateValue: true
+        sync: false
       - key: AUTH_TRUST_HOST
         value: "true"
       - key: AUTH_GOOGLE_ID
@@ -73,4 +73,9 @@ services:
       - key: ENVIOCLICK_API_KEY
         sync: false
       - key: STORE_NAME
-        value: NeoSale
+        value: NeoSale      - key: STORE_PHONE
+        sync: false
+      - key: STORE_ADDRESS
+        sync: false
+      - key: STORE_CITY
+        sync: false

@@ -31,8 +31,8 @@ type PageParams = {
   }>;
 };
 
-// Do NOT define generateMetadata or generateStaticParams - let this page be rendered on-demand only
-// This is a dynamic [id] route that should not be prerendered
+// Esta ruta es dinámica y depende de la BD, no se puede prerenderer
+export const dynamic = "force-dynamic";
 
 export default async function Order({ params }: PageParams) {
   try {

@@ -113,9 +113,10 @@ app.use((err: Error, req: express.Request, res: express.Response) => {
     errorsHandler(err, req, res);
   }
 });
-const PORT = Number(process.env.PORT) || 3000;
+const PORT = Number(process.env.PORT) || 8000;
 
 const server = app.listen(PORT, "0.0.0.0", async () => {
+  console.log(`NEOSALE Backend is running on port ${PORT}`);
   startTokenCleanupInterval(60 * 60 * 1000);
 });
 
