@@ -18,7 +18,9 @@ cleanup() {
 }
 trap cleanup EXIT
 
-# Save Render's PORT for the frontend (Render assigns a specific port)
+# Use the port that Render assigns (via $PORT environment variable)
+# Render will assign a dynamic port - we use it for the frontend
+# Backend stays on internal port 8000
 FRONTEND_PORT=${PORT:-3000}
 
 # Iniciar Backend en background
@@ -35,7 +37,8 @@ echo "Backend PID: $BACKEND_PID"
 echo "Waiting for backend to start..."
 BACKEND_READY=0
 for i in {1..60}; do
-  if curl -s http://localhost:8000/ > /dev/null 2>&1; then
+  # Try to access any API endpoint - just check if port 8000 is responding
+  if timeout 2 curl -s http://localhost:8000/api/products/featured >/dev/null 2>&1 || timeout 2 curl -s -o /dev/null -w "%{http_code}" http://localhost:8000/api/products 2>/dev/null | grep -q "200\|304"; then
     echo "✓ Backend is ready!"
     BACKEND_READY=1
     break

@@ -84,16 +84,14 @@ app.use((req, res, next) => {
   next();
 });
 
-// HealthCheck - Ruta raíz para Render health check
-app.get("/", (req, res) => {
-  res.json({ 
-    status: "ok", 
-    message: "NEOSALE Backend is running",
-    timestamp: new Date().toISOString()
-  });
-});
-
 app.use("/api", initRoutes());
+
+// ⚠️ CRITICAL: Block direct access to root "/"
+// Only /api/* routes should be served from backend
+// Frontend (Next.js) should handle all requests to "/"
+app.all("/", (req, res) => {
+  res.status(404).send("ERROR: Backend root (/) is blocked. This is the backend API server, not the frontend. Access the public URL instead.");
+});
 
 // Ruta 404 optimizada
 app.use((req, res, next) => {
@@ -116,10 +114,14 @@ app.use((err: Error, req: express.Request, res: express.Response) => {
 });
 const PORT = Number(process.env.PORT) || 8000;
 
-// Listen only on localhost (127.0.0.1) for internal communication only
-// The frontend will proxy requests to this port internally
-const server = app.listen(PORT, "127.0.0.1", () => {
-  console.log(`NEOSALE Backend is running on port ${PORT} (localhost only)`);
+// Backend listens on all interfaces (required for Render health checks)
+// But doesn't serve "/" - only "/api/*" routes
+// Frontend handles all requests to "/" and proxies /api/* to this server
+const server = app.listen(PORT, "0.0.0.0", () => {
+  console.log(`✓ NEOSALE Backend initialized on port ${PORT} (${new Date().toISOString()})`);
+  console.log(`✓ Listening on: http://0.0.0.0:${PORT}`);
+  console.log(`✓ Only /api/* routes are served from this backend`);
+  console.log(`✓ All requests to "/" are blocked (frontend handles root)`);
 });
 
 // Start token cleanup AFTER server is listening (non-blocking)
