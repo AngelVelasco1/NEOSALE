@@ -67,8 +67,11 @@ export async function getStaffDetails(userId: number) {
       throw new Error("No autorizado");
     }
 
+    const BACKEND_URL = process.env.NEXT_PUBLIC_API_URL || 
+      (process.env.NODE_ENV === 'production' ? '' : 'http://localhost:8000');
+
     const response = await fetch(
-      `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/users/${userId}`,
+      `${BACKEND_URL}/api/users/${userId}`,
       {
         headers: {
           Authorization: `Bearer ${session?.user?.id}`,
