@@ -116,8 +116,10 @@ app.use((err: Error, req: express.Request, res: express.Response) => {
 });
 const PORT = Number(process.env.PORT) || 8000;
 
-const server = app.listen(PORT, "0.0.0.0", () => {
-  console.log(`NEOSALE Backend is running on port ${PORT}`);
+// Listen only on localhost (127.0.0.1) for internal communication only
+// The frontend will proxy requests to this port internally
+const server = app.listen(PORT, "127.0.0.1", () => {
+  console.log(`NEOSALE Backend is running on port ${PORT} (localhost only)`);
 });
 
 // Start token cleanup AFTER server is listening (non-blocking)

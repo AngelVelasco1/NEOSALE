@@ -18,11 +18,14 @@ cleanup() {
 }
 trap cleanup EXIT
 
+# Save Render's PORT for the frontend (Render assigns a specific port)
+FRONTEND_PORT=${PORT:-3000}
+
 # Iniciar Backend en background
 echo "Starting Backend on port 8000..."
 cd backend
 export NODE_ENV=production
-# Pass PORT inline for backend, don't export it globally
+# Pass PORT inline for backend (internal only), don't export it globally
 PORT=8000 bun dist/app.js > "$BACKEND_LOG" 2>&1 &
 BACKEND_PID=$!
 echo $BACKEND_PID > "$BACKEND_PID_FILE"
@@ -49,9 +52,9 @@ if [ $BACKEND_READY -eq 0 ]; then
 fi
 
 # Iniciar Frontend en foreground (MUST be foreground for Render)
-echo "Starting Frontend on port 3000..."
+echo "Starting Frontend on port $FRONTEND_PORT..."
 cd ../frontend
-export PORT=3000
+export PORT=$FRONTEND_PORT
 export NODE_ENV=production
 echo "Frontend starting..."
 exec ./node_modules/.bin/next start
