@@ -83,12 +83,6 @@ app.use((req, res, next) => {
   next();
 });
 
-app.get("/", (req, res) => {
-  res.json({
-    message: "Servidor Corriendo",
-    status: "online",
-  });
-});
 
 app.use("/api", initRoutes());
 
@@ -111,8 +105,9 @@ app.use((err: Error, req: express.Request, res: express.Response) => {
     errorsHandler(err, req, res);
   }
 });
+const PORT = Number(process.env.PORT) || 3000;
 
-const server = app.listen(Number(BACK_CONFIG.port), "0.0.0.0", async () => {
+const server = app.listen(PORT, "0.0.0.0", async () => {
   startTokenCleanupInterval(60 * 60 * 1000);
 });
 
