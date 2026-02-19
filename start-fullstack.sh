@@ -21,6 +21,9 @@ trap cleanup EXIT
 # Iniciar Backend en background
 echo "Starting Backend on port 8000..."
 cd backend
+# Try to run migrations if they haven't been run yet
+echo "Checking/running database migrations..."
+bunx prisma migrate deploy --skip-generate 2>&1 || echo "⚠ Migrations skipped (may already be applied or DB not ready)"
 export NODE_ENV=production
 # Pass PORT inline for backend, don't export it globally
 PORT=8000 bun dist/app.js > "$BACKEND_LOG" 2>&1 &

@@ -13,7 +13,7 @@ services:
     name: neosale
     region: oregon
     plan: free
-    buildCommand: "cd frontend && bun install && bun run build && cd ../backend && bun install --production && bunx prisma generate && bunx prisma migrate deploy --skip-generate && bun build app.ts --outdir dist --target node"
+    buildCommand: "cd frontend && bun install && bun run build && cd ../backend && bun install --production && bunx prisma generate && bun build app.ts --outdir dist --target node"
     startCommand: "bash start-fullstack.sh"
     envVars:
       - key: NODE_ENV
@@ -25,9 +25,7 @@ services:
       - key: NEXT_TELEMETRY_DISABLED
         value: "1"
       - key: DATABASE_URL
-        fromDatabase:
-          name: neosale-db
-          property: connectionString
+        value: "postgresql://neosale_user:VMzOh30M52JasBzgsbnkAbrBs8tjabx2@dpg-d6b3ef4r85hc73c487o0-a/neosale"
       - key: NEXT_PUBLIC_API_URL
         value: ""
       - key: NEXTAUTH_URL
