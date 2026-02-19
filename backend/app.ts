@@ -36,10 +36,15 @@ app.use(
 app.use(
   cors({
     origin: (origin, callback) => {
-      // Permitir solicitudes sin origin (como Postman o servidor a servidor)
+      // Permitir solicitudes sin origin (servidor a servidor)
       if (!origin) return callback(null, true);
       
-      // En desarrollo, permitir localhost:3000 y localhost:8000
+      // En producción, permitir cualquier origin desde Render
+      if (process.env.NODE_ENV === "production") {
+        return callback(null, true);
+      }
+      
+      // En desarrollo, permitir localhost
       if (
         origin === BACK_CONFIG.cors_origin ||
         origin === `http://${BACK_CONFIG.host}:${BACK_CONFIG.front_port}` ||
@@ -49,12 +54,7 @@ app.use(
         return callback(null, true);
       }
 
-      // En producción, se configura via variable de entorno
-      if (process.env.NODE_ENV === "production") {
-        return callback(null, true);
-      }
-
-      return callback(null, true); // Permitir por ahora
+      return callback(null, true);
     },
     methods: ["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"],
     credentials: true,
