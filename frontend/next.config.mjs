@@ -298,39 +298,23 @@ const nextConfig = {
     ];
   },
   async rewrites() {
-    // En Render full-stack: backend en localhost:8000, frontend en 3000
-    // En desarrollo: backend en localhost:8000
-    // En producción multidominio: backend en NEXT_PUBLIC_API_URL
-    const backendUrl = process.env.NODE_ENV === "production" && !process.env.RENDER_SERVICE_ID
-      ? (process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000")
-      : "http://localhost:8000";
+    // Next.js rewrites: transparently proxy API calls to backend
+    // This happens on the server-side, not visible to the browser
+    
+    // In development: proxy to localhost:8000 (local backend)
+    // In production (Render): proxy to internal localhost:8000 (backend in same container)
+    const backendUrl = "http://localhost:8000";
     
     return {
       beforeFiles: [
-        // Auth routes must NOT be forwarded to backend - they are internal to Next.js
+        // Auth routes are handled internally by Next.js, NOT proxied to backend
         {
           source: "/api/auth/:path*",
           destination: "/api/auth/:path*",
         },
       ],
       afterFiles: [
-        // Forward all other /api/* calls to backend Express server
-        {
-          source: "/api/products/:path*",
-          destination: `${backendUrl}/api/products/:path*`,
-        },
-        {
-          source: "/api/categories/:path*",
-          destination: `${backendUrl}/api/categories/:path*`,
-        },
-        {
-          source: "/api/orders/:path*",
-          destination: `${backendUrl}/api/orders/:path*`,
-        },
-        {
-          source: "/api/coupons/:path*",
-          destination: `${backendUrl}/api/coupons/:path*`,
-        },
+        // All other /api/* routes are proxied to the backend
         {
           source: "/api/:path*",
           destination: `${backendUrl}/api/:path*`,

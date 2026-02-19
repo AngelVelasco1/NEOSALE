@@ -41,7 +41,7 @@ export function ProductReviews({ productId }: ProductReviewsProps) {
     const fetchReviews = async () => {
         try {
             setIsLoading(true);
-            const backendUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
+            const backendUrl = process.env.NEXT_PUBLIC_API_URL || (typeof process !== 'undefined' && process.env.NODE_ENV === 'production' ? '' : "http://localhost:8000");
             const response = await fetch(
                 `${backendUrl}/api/reviews/getReviews?productId=${productId}`,
                 {
