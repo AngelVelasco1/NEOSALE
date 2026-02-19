@@ -116,8 +116,13 @@ app.use((err: Error, req: express.Request, res: express.Response) => {
 });
 const PORT = Number(process.env.PORT) || 8000;
 
-const server = app.listen(PORT, "0.0.0.0", async () => {
+const server = app.listen(PORT, "0.0.0.0", () => {
   console.log(`NEOSALE Backend is running on port ${PORT}`);
+});
+
+// Start token cleanup AFTER server is listening (non-blocking)
+// This ensures health check succeeds immediately
+setImmediate(() => {
   startTokenCleanupInterval(60 * 60 * 1000);
 });
 
