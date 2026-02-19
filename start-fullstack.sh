@@ -3,6 +3,13 @@ set -e
 
 echo "=== STARTING NEOSALE FULL STACK ==="
 
+# Run Prisma db push FIRST to sync schema (before backend starts)
+echo "Syncing database schema with Prisma..."
+cd "$(dirname "$0")/backend"
+export NODE_ENV=production
+./node_modules/.bin/prisma db push --skip-generate || true
+cd ..
+
 # Crear archivo temporal para tracking
 BACKEND_PID_FILE="/tmp/backend.pid"
 BACKEND_LOG="/tmp/backend.log"

@@ -14,7 +14,7 @@ services:
     region: oregon
     plan: free
     port: 3000
-    buildCommand: "cd frontend && bun install && bun run build && cd ../backend && bun install --production && ./node_modules/.bin/prisma generate && ./node_modules/.bin/prisma db push --skip-generate && bun build app.ts --outdir dist --target node"
+    buildCommand: "cd frontend && bun install && bun run build && cd ../backend && bun install --production && ./node_modules/.bin/prisma generate && bun build app.ts --outdir dist --target node"
     startCommand: "bash start-fullstack.sh"
     envVars:
       - key: NODE_ENV
