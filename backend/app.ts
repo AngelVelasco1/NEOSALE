@@ -114,14 +114,15 @@ app.use((err: Error, req: express.Request, res: express.Response) => {
 });
 const PORT = Number(process.env.PORT) || 8000;
 
-// Backend listens on all interfaces (required for Render health checks)
-// But doesn't serve "/" - only "/api/*" routes
-// Frontend handles all requests to "/" and proxies /api/* to this server
-const server = app.listen(PORT, "0.0.0.0", () => {
+// Backend MUST listen ONLY on 127.0.0.1 (localhost/internal)
+// This way Render won't expose it publicly - only the frontend is public
+// Frontend at 0.0.0.0:$RENDER_PORT handles all external requests
+const server = app.listen(PORT, "127.0.0.1", () => {
   console.log(`✓ NEOSALE Backend initialized on port ${PORT} (${new Date().toISOString()})`);
-  console.log(`✓ Listening on: http://0.0.0.0:${PORT}`);
+  console.log(`✓ Listening ONLY on: http://127.0.0.1:${PORT} (internal/localhost only)`);
   console.log(`✓ Only /api/* routes are served from this backend`);
   console.log(`✓ All requests to "/" are blocked (frontend handles root)`);
+  console.log(`✓ Not exposed publicly - frontend proxies requests to this port`);
 });
 
 // Start token cleanup AFTER server is listening (non-blocking)

@@ -18,10 +18,9 @@ cleanup() {
 }
 trap cleanup EXIT
 
-# Use the port that Render assigns (via $PORT environment variable)
-# Render will assign a dynamic port - we use it for the frontend
-# Backend stays on internal port 8000
-FRONTEND_PORT=${PORT:-3000}
+# Frontend SIEMPRE escucha en puerto 3000 (especificado en render.yaml con "port: 3000")
+# Render mapea automáticamente 3000 → https://neosale.onrender.com
+FRONTEND_PORT=3000
 
 # Iniciar Backend en background
 echo "Starting Backend on port 8000..."
@@ -34,11 +33,11 @@ echo $BACKEND_PID > "$BACKEND_PID_FILE"
 echo "Backend PID: $BACKEND_PID"
 
 # Esperar a que el backend esté listo (aumentado a 60 intentos = 60 segundos)
-echo "Waiting for backend to start..."
+echo "Waiting for backend to start on localhost:8000..."
 BACKEND_READY=0
 for i in {1..60}; do
-  # Try to access any API endpoint - just check if port 8000 is responding
-  if timeout 2 curl -s http://localhost:8000/api/products/featured >/dev/null 2>&1 || timeout 2 curl -s -o /dev/null -w "%{http_code}" http://localhost:8000/api/products 2>/dev/null | grep -q "200\|304"; then
+  # Check if backend is responding on /api/products (doesn't require auth)
+  if curl -s -o /dev/null -w "%{http_code}" http://localhost:8000/api/products 2>/dev/null | grep -q "200"; then
     echo "✓ Backend is ready!"
     BACKEND_READY=1
     break
@@ -55,9 +54,11 @@ if [ $BACKEND_READY -eq 0 ]; then
 fi
 
 # Iniciar Frontend en foreground (MUST be foreground for Render)
-echo "Starting Frontend on port $FRONTEND_PORT..."
+echo ""
+echo "Starting Frontend on port $FRONTEND_PORT (PUBLIC - specified in render.yaml with port: 3000)..."
 cd ../frontend
 export PORT=$FRONTEND_PORT
 export NODE_ENV=production
 echo "Frontend starting..."
+# Next.js will listen on 0.0.0.0:3000 (all interfaces, publicly accessible)
 exec ./node_modules/.bin/next start

@@ -13,13 +13,12 @@ services:
     name: neosale
     region: oregon
     plan: free
+    port: 3000
     buildCommand: "cd frontend && bun install && bun run build && cd ../backend && bun install --production && ./node_modules/.bin/prisma generate && bun build app.ts --outdir dist --target node"
     startCommand: "bash start-fullstack.sh"
     envVars:
       - key: NODE_ENV
         value: production
-      - key: PORT
-        value: 3000
       - key: BACKEND_PORT
         value: 8000
       - key: NEXT_TELEMETRY_DISABLED
@@ -71,7 +70,8 @@ services:
       - key: ENVIOCLICK_API_KEY
         sync: false
       - key: STORE_NAME
-        value: NeoSale      - key: STORE_PHONE
+        value: NeoSale
+      - key: STORE_PHONE
         sync: false
       - key: STORE_ADDRESS
         sync: false
