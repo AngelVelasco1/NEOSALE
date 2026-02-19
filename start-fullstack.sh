@@ -3,12 +3,29 @@ set -e
 
 echo "=== STARTING NEOSALE FULL STACK ==="
 
-# Run Prisma db push FIRST to sync schema (before backend starts)
-echo "Syncing database schema with Prisma..."
-cd "$(dirname "$0")/backend"
-export NODE_ENV=production
-./node_modules/.bin/prisma db push --skip-generate || true
-cd ..
+# Get script directory (even when called from different locations)
+SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
+
+# IMPORTANT: DATABASE_URL should be set from environment (render.yaml)
+# Prisma adapter-pg reads it from process.env
+if [ -z "$DATABASE_URL" ]; then
+  echo "❌ ERROR: DATABASE_URL is not set!"
+  exit 1
+fi
+
+# Create tables using the SQL dump (only if tables don't exist)
+echo "Ensuring database schema exists..."
+
+# Check if products table exists - if not, create all tables
+if ! psql "$DATABASE_URL" -c "SELECT 1 FROM information_schema.tables WHERE table_name='products'" 2>/dev/null | grep -q "1 row"; then
+  echo "Creating database schema from neosale.sql..."
+  psql "$DATABASE_URL" -f "$SCRIPT_DIR/backend/db/neosale.sql" 2>&1 || {
+    echo "⚠️ Warning: Schema creation may have had issues, but continuing..."
+  }
+  echo "✓ Database schema created"
+else
+  echo "✓ Database schema already exists"
+fi
 
 # Crear archivo temporal para tracking
 BACKEND_PID_FILE="/tmp/backend.pid"
@@ -31,7 +48,7 @@ FRONTEND_PORT=3000
 
 # Iniciar Backend en background
 echo "Starting Backend on port 8000..."
-cd backend
+cd "$SCRIPT_DIR/backend"
 export NODE_ENV=production
 # Pass PORT inline for backend (internal only), don't export it globally
 PORT=8000 bun dist/app.js > "$BACKEND_LOG" 2>&1 &
@@ -63,7 +80,7 @@ fi
 # Iniciar Frontend en foreground (MUST be foreground for Render)
 echo ""
 echo "Starting Frontend on port $FRONTEND_PORT (PUBLIC - specified in render.yaml with port: 3000)..."
-cd ../frontend
+cd "$SCRIPT_DIR/frontend"
 export PORT=$FRONTEND_PORT
 export NODE_ENV=production
 echo "Frontend starting..."
