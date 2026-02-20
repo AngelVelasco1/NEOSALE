@@ -307,35 +307,14 @@ const nextConfig = {
     
     return {
       beforeFiles: [
-        // /api/auth/* routes are internal Next.js Auth.js routes
-        // List specific auth routes to prevent proxying them to backend
-        {
-          source: "/api/auth/signin",
-          destination: "/api/auth/signin",
-        },
-        {
-          source: "/api/auth/callback/:provider",
-          destination: "/api/auth/callback/:provider",
-        },
-        {
-          source: "/api/auth/session",
-          destination: "/api/auth/session",
-        },
-        {
-          source: "/api/auth/signout",
-          destination: "/api/auth/signout",
-        },
-        {
-          source: "/api/auth/providers",
-          destination: "/api/auth/providers",
-        },
+        // /api/auth/* routes are internal Next.js Auth.js routes - DO NOT proxy
         {
           source: "/api/auth/:path*",
           destination: "/api/auth/:path*",
         },
       ],
       afterFiles: [
-        // All other /api/* routes are proxied to the backend
+        // All other /api/* routes (except /api/auth) are proxied to the backend
         {
           source: "/api/:path*",
           destination: `${backendUrl}/api/:path*`,

@@ -13,6 +13,8 @@ type PageParams = {
 };
 
 export default async function CustomerOrders({ params }: PageParams) {
+  'use cache';
+  
   try {
     const { id } = await params;
     const { customer, orders } = await fetchCustomerOrders({ id });

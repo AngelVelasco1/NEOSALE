@@ -3,6 +3,7 @@ import { NextResponse } from "next/server";
 const BACKEND_URL = process.env.NEXT_PUBLIC_API_URL || (process.env.NODE_ENV === 'production' ? '' : 'http://localhost:8000');
 
 export async function GET() {
+  'use cache';
   try {
     const response = await fetch(`${BACKEND_URL}/api/products/trust-metrics`, {
       method: 'GET',
