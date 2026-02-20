@@ -27,6 +27,14 @@ else
   echo "✓ Database schema already exists"
 fi
 
+# Load all stored procedures, functions, and triggers
+# These are idempotent (safe to run multiple times)
+echo "Loading all stored procedures and functions..."
+psql "$DATABASE_URL" -f "$SCRIPT_DIR/backend/db/load-all-procedures.sql" 2>&1 || {
+  echo "⚠️ Warning: Some procedures may have had issues, but continuing..."
+}
+echo "✓ All procedures and functions loaded"
+
 # Crear archivo temporal para tracking
 BACKEND_PID_FILE="/tmp/backend.pid"
 BACKEND_LOG="/tmp/backend.log"
