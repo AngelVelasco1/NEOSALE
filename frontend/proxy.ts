@@ -21,15 +21,12 @@ export default async function proxy(request: NextRequest) {
       // Get token from request - set cookieName for production
       const getTokenParams = {
         req: request,
-        secret: process.env.AUTH_SECRET ?? process.env.NEXT_PUBLIC_AUTH_SECRET ?? "secret",
-      };
-      // Only add 'cookieName' if getToken supports it (for next-auth v4.22+)
-      const token = await getToken({
-        ...getTokenParams,
+        secret: process.env.AUTH_SECRET ?? "secret",
         ...(process.env.NODE_ENV === "production"
-          ? { cookies: { "__Secure-authjs.session-token": request.cookies.get("__Secure-authjs.session-token")?.value } }
+          ? { cookieName: "__Secure-authjs.session-token" }
           : {}),
-      });
+      };
+      const token = await getToken(getTokenParams);
 
     const userRole = (token as any)?.role as string | undefined;
     const isAdmin = userRole === 'admin';
