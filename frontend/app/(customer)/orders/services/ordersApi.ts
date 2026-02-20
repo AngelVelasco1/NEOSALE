@@ -114,7 +114,10 @@ export const createOrderApi = async (
 export const getUserOrdersApi = async (): Promise<Order[]> => {
   try {
     // Obtener la sesión para extraer el user_id
-    const sessionResponse = await fetch("/api/auth/session");
+    const sessionResponse = await fetch("/api/auth/session", { 
+      credentials: 'include',
+      cache: 'no-store'
+    });
     const session = await sessionResponse.json();
 
     if (!session?.user?.id) {
@@ -169,7 +172,10 @@ export const getUserOrdersApi = async (): Promise<Order[]> => {
 export const getOrderByIdApi = async (orderId: number): Promise<Order> => {
   try {
     // Obtener la sesión para extraer el user_id
-    const sessionResponse = await fetch("/api/auth/session");
+    const sessionResponse = await fetch("/api/auth/session", { 
+      credentials: 'include',
+      cache: 'no-store'
+    });
     const session = await sessionResponse.json();
 
     if (!session?.user?.id) {
