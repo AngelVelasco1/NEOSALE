@@ -28,6 +28,13 @@ export default async function proxy(request: NextRequest) {
     const customerOnlyRoutes = ['/checkout', '/orders', '/profile', '/favorites', '/productsCart'];
     const isCustomerRoute = customerOnlyRoutes.some(route => pathname.startsWith(route));
 
+    // DEBUG: Log token and role info (remove later)
+    if (process.env.NODE_ENV === 'production' && isCustomerRoute) {
+      console.log(`[MIDDLEWARE] Path: ${pathname}`);
+      console.log(`[MIDDLEWARE] Token exists: ${!!token}`);
+      console.log(`[MIDDLEWARE] User role: ${userRole}`);
+      console.log(`[MIDDLEWARE] Token data:`, token ? { id: (token as any)?.sub, email: (token as any)?.email, role: userRole } : null);
+    }
 
     // If user is admin - block customer-only routes
     if (isAdmin && token) {
