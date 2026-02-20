@@ -1,5 +1,3 @@
-"use cache";
-
 import React from "react";
 import { ClientLayout } from "./ClientLayout";
 

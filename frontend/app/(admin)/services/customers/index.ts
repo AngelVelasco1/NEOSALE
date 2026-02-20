@@ -8,7 +8,8 @@ import {
 import { prisma } from "@/lib/prisma";
 
 const BACKEND_URL =
-  process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
+  process.env.NEXT_PUBLIC_API_URL || 
+  (process.env.NODE_ENV === 'production' ? '' : 'http://localhost:8000');
 
 export async function fetchCustomers({
   page = 1,

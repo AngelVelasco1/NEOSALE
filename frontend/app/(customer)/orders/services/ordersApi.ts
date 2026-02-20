@@ -114,7 +114,10 @@ export const createOrderApi = async (
 export const getUserOrdersApi = async (): Promise<Order[]> => {
   try {
     // Obtener la sesión para extraer el user_id
-    const sessionResponse = await fetch("/api/auth/session");
+    const sessionResponse = await fetch("/api/auth/session", { 
+      credentials: 'include',
+      cache: 'no-store'
+    });
     const session = await sessionResponse.json();
 
     if (!session?.user?.id) {
@@ -123,7 +126,8 @@ export const getUserOrdersApi = async (): Promise<Order[]> => {
 
     const userId = session.user.id;
     const BACKEND_URL =
-      process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
+      process.env.NEXT_PUBLIC_API_URL || 
+      (process.env.NODE_ENV === 'production' ? '' : 'http://localhost:8000');
 
     // Llamar directamente al backend
     const response = await fetch(
@@ -168,7 +172,10 @@ export const getUserOrdersApi = async (): Promise<Order[]> => {
 export const getOrderByIdApi = async (orderId: number): Promise<Order> => {
   try {
     // Obtener la sesión para extraer el user_id
-    const sessionResponse = await fetch("/api/auth/session");
+    const sessionResponse = await fetch("/api/auth/session", { 
+      credentials: 'include',
+      cache: 'no-store'
+    });
     const session = await sessionResponse.json();
 
     if (!session?.user?.id) {
@@ -177,7 +184,8 @@ export const getOrderByIdApi = async (orderId: number): Promise<Order> => {
 
     const userId = session.user.id;
     const BACKEND_URL =
-      process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
+      process.env.NEXT_PUBLIC_API_URL || 
+      (process.env.NODE_ENV === 'production' ? '' : 'http://localhost:8000');
 
     // Llamar directamente al backend
     const response = await fetch(

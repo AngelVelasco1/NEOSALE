@@ -292,6 +292,7 @@ export const LoginForm: React.FC = (): React.ReactNode => {
         
         // Fetch fresh session to get role information
         const sessionResponse = await fetch('/api/auth/session', {
+          credentials: 'include',
           cache: 'no-store'
         });
         const sessionData = await sessionResponse.json();

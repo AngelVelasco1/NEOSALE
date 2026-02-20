@@ -14,10 +14,9 @@ export async function cleanupExpiredVerificationTokens(): Promise<number> {
         }
       }
     })
-
     return result.count
   } catch (error) {
-    console.error('Error limpiando tokens de verificación:', error)
+    // Silently ignore - BD might not be available yet
     return 0
   }
 }
@@ -51,37 +50,42 @@ export async function cleanupExpiredOAuthTokens(): Promise<number> {
         accessToken: null
       }
     })
-
     return result.count
   } catch (error) {
-    console.error('Error limpiando tokens OAuth:', error)
+    // Silently ignore - BD might not be available yet
     return 0
   }
 }
 
 /**
  * Ejecuta todas las tareas de limpieza de tokens
+ * NO bloquea si hay errores de conexión
  */
 export async function cleanupAllExpiredTokens(): Promise<void> {
-  await cleanupExpiredVerificationTokens();
-  await cleanupExpiredOAuthTokens();
-
+  try {
+    await cleanupExpiredVerificationTokens();
+    await cleanupExpiredOAuthTokens();
+  } catch (error) {
+    // Log pero no throw - permite que el servidor inicie aunque falle la BD
+    console.debug('Token cleanup encountered an error (not critical):', (error as Error).message)
+  }
 }
 
 export function startTokenCleanupInterval(intervalMs: number = 60 * 60 * 1000): () => void {
   
-  // Run cleanup immediately on startup, then at regular intervals
-  cleanupAllExpiredTokens().then(() => {
-  }).catch(err => {
-    console.error('Initial token cleanup failed:', err)
+  // Fire cleanup asynchronously - NEVER bloquea el servidor
+  Promise.resolve().then(() => {
+    cleanupAllExpiredTokens()
+  }).catch(() => {
+    // Ignore all errors - server starts anyway
   })
 
+  // Schedule regular cleanup
   const intervalId = setInterval(() => {
-    cleanupAllExpiredTokens().catch(err => {
-      console.error('Token cleanup failed:', err)
+    cleanupAllExpiredTokens().catch(() => {
+      // Ignore errors
     })
   }, intervalMs)
-
 
   // Retornar función para detener el intervalo
   return () => {

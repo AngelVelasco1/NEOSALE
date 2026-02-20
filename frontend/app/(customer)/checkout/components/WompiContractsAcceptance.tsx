@@ -49,7 +49,7 @@ export const WompiContractsAcceptance: React.FC<
         setIsLoading(true);
 
         const response = await fetch(
-          `${process.env.NEXT_PUBLIC_BACKEND_URL || "http://localhost:8000"
+          `${process.env.NEXT_PUBLIC_BACKEND_URL || (typeof process !== 'undefined' && process.env.NODE_ENV === 'production' ? '' : "http://localhost:8000")
           }/api/payments/config`
         );
 

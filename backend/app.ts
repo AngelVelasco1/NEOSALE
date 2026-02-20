@@ -1,3 +1,4 @@
+/// <reference types="node" />
 import 'dotenv/config'
 import express from "express";
 import { initRoutes } from "./routes/router.js";
@@ -35,10 +36,15 @@ app.use(
 app.use(
   cors({
     origin: (origin, callback) => {
-      // Permitir solicitudes sin origin (como Postman o servidor a servidor)
+      // Permitir solicitudes sin origin (servidor a servidor)
       if (!origin) return callback(null, true);
       
-      // En desarrollo, permitir localhost:3000 y localhost:8000
+      // En producción, permitir cualquier origin desde Render
+      if (process.env.NODE_ENV === "production") {
+        return callback(null, true);
+      }
+      
+      // En desarrollo, permitir localhost
       if (
         origin === BACK_CONFIG.cors_origin ||
         origin === `http://${BACK_CONFIG.host}:${BACK_CONFIG.front_port}` ||
@@ -48,12 +54,7 @@ app.use(
         return callback(null, true);
       }
 
-      // En producción, se configura via variable de entorno
-      if (process.env.NODE_ENV === "production") {
-        return callback(null, true);
-      }
-
-      return callback(null, true); // Permitir por ahora
+      return callback(null, true);
     },
     methods: ["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"],
     credentials: true,
@@ -83,14 +84,14 @@ app.use((req, res, next) => {
   next();
 });
 
-app.get("/", (req, res) => {
-  res.json({
-    message: "Servidor Corriendo",
-    status: "online",
-  });
-});
-
 app.use("/api", initRoutes());
+
+// ⚠️ CRITICAL: Block direct access to root "/"
+// Only /api/* routes should be served from backend
+// Frontend (Next.js) should handle all requests to "/"
+app.all("/", (req, res) => {
+  res.status(404).send("ERROR: Backend root (/) is blocked. This is the backend API server, not the frontend. Access the public URL instead.");
+});
 
 // Ruta 404 optimizada
 app.use((req, res, next) => {
@@ -111,8 +112,22 @@ app.use((err: Error, req: express.Request, res: express.Response) => {
     errorsHandler(err, req, res);
   }
 });
+const PORT = Number(process.env.PORT) || 8000;
 
-const server = app.listen(Number(BACK_CONFIG.port), "0.0.0.0", async () => {
+// Backend MUST listen ONLY on 127.0.0.1 (localhost/internal)
+// This way Render won't expose it publicly - only the frontend is public
+// Frontend at 0.0.0.0:$RENDER_PORT handles all external requests
+const server = app.listen(PORT, "127.0.0.1", () => {
+  console.log(`✓ NEOSALE Backend initialized on port ${PORT} (${new Date().toISOString()})`);
+  console.log(`✓ Listening ONLY on: http://127.0.0.1:${PORT} (internal/localhost only)`);
+  console.log(`✓ Only /api/* routes are served from this backend`);
+  console.log(`✓ All requests to "/" are blocked (frontend handles root)`);
+  console.log(`✓ Not exposed publicly - frontend proxies requests to this port`);
+});
+
+// Start token cleanup AFTER server is listening (non-blocking)
+// This ensures health check succeeds immediately
+setImmediate(() => {
   startTokenCleanupInterval(60 * 60 * 1000);
 });
 

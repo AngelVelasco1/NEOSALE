@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 
-const BACKEND_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
+const BACKEND_URL = process.env.NEXT_PUBLIC_API_URL || (process.env.NODE_ENV === 'production' ? '' : 'http://localhost:8000');
 
 export async function GET() {
   try {
@@ -9,8 +9,7 @@ export async function GET() {
       headers: {
         'Content-Type': 'application/json',
       },
-      cache: 'default',
-      next: { revalidate: 3600 }, // Cache for 1 hour
+      cache: 'no-store',
     });
 
     if (!response.ok) {
@@ -20,7 +19,6 @@ export async function GET() {
     const data = await response.json();
     return NextResponse.json(data.data || data);
   } catch (error) {
-    
     return NextResponse.json({ error: "No se pudieron obtener las métricas" }, { status: 500 });
   }
 }

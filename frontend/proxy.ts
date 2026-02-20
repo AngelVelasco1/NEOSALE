@@ -18,16 +18,41 @@ export default async function proxy(request: NextRequest) {
 
   try {
     // Get token from request - this works in middleware/proxy
-    const token = await getToken({ 
-      req: request,
-      secret: process.env.AUTH_SECRET || process.env.NEXTAUTH_SECRET
-    });
+      // Get token from request - set cookieName for production
+      const getTokenParams = {
+        req: request,
+        secret: process.env.AUTH_SECRET ?? "secret",
+        ...(process.env.NODE_ENV === "production"
+          ? { cookieName: "__Secure-authjs.session-token" }
+          : {}),
+      };
+      const token = await getToken(getTokenParams);
 
     const userRole = (token as any)?.role as string | undefined;
     const isAdmin = userRole === 'admin';
     const customerOnlyRoutes = ['/checkout', '/orders', '/profile', '/favorites', '/productsCart'];
     const isCustomerRoute = customerOnlyRoutes.some(route => pathname.startsWith(route));
 
+    // DEBUG: Log token and role info ALWAYS (not just production)
+    if (isCustomerRoute) {
+      console.log(`\n[PROXY] === ROUTE ACCESS ATTEMPT ===`);
+      console.log(`[PROXY] Path: ${pathname}`);
+      console.log(`[PROXY] NODE_ENV: ${process.env.NODE_ENV}`);
+      console.log(`[PROXY] AUTH_SECRET exists: ${!!process.env.AUTH_SECRET}`);
+      console.log(`[PROXY] Token exists: ${!!token}`);
+      if (token) {
+        console.log(`[PROXY] Token sub: ${(token as any)?.sub}`);
+        console.log(`[PROXY] Token email: ${(token as any)?.email}`);
+        console.log(`[PROXY] Token role: ${userRole}`);
+      }
+      console.log(`[PROXY] IsCustomerRoute: ${isCustomerRoute}`);
+      console.log(`[PROXY] ===========================\n`);
+    }
+
+    // DEBUG: Log AUTH_SECRET value (remove after debug)
+    if (isCustomerRoute) {
+      console.log(`[PROXY] AUTH_SECRET value: '${process.env.AUTH_SECRET}'`);
+    }
 
     // If user is admin - block customer-only routes
     if (isAdmin && token) {
@@ -41,11 +66,14 @@ export default async function proxy(request: NextRequest) {
 
     // If user is trying to access customer-only routes without proper auth
     if (isCustomerRoute) {
-      if (!token || userRole !== 'user') {
+      if (userRole !== 'user') {
         // Not authenticated or wrong role - REDIRECT to login
+        console.log(`[PROXY] BLOCKING - No token or wrong role. Token: ${!!token}, Role: ${userRole}`);
         const loginUrl = new URL('/login', request.url);
         loginUrl.searchParams.set('from', pathname);
         return NextResponse.redirect(loginUrl);
+      } else {
+        console.log(`[PROXY] ALLOWING - Valid user token for route ${pathname}`);
       }
     }
 

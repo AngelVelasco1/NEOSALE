@@ -1,5 +1,3 @@
-import { FRONT_CONFIG } from "@/config/credentials.js";
-
 export interface ReviewableProduct {
   order_id: number;
   order_date: Date | null;
@@ -33,7 +31,7 @@ export async function getReviewableProducts(
   userId: number
 ): Promise<ReviewableProduct[]> {
   const response = await fetch(
-    `${FRONT_CONFIG.api_origin}/api/reviews/reviewable/${userId}`,
+    `/api/reviews/reviewable/${userId}`,
     {
       method: "GET",
       credentials: "include",
@@ -56,7 +54,7 @@ export async function canUserReview(
   orderId: number
 ): Promise<CanReviewResponse> {
   const response = await fetch(
-    `${FRONT_CONFIG.api_origin}/api/reviews/can-review/${userId}/${productId}/${orderId}`,
+    `/api/reviews/can-review/${userId}/${productId}/${orderId}`,
     {
       method: "GET",
       credentials: "include",
@@ -75,7 +73,7 @@ export async function canUserReview(
  */
 export async function createReview(data: CreateReviewData) {
   const response = await fetch(
-    `${FRONT_CONFIG.api_origin}/api/reviews/createReview`,
+    `/api/reviews/createReview`,
     {
       method: "POST",
       headers: {

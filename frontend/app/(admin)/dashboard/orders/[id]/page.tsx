@@ -31,9 +31,6 @@ type PageParams = {
   }>;
 };
 
-// Do NOT define generateMetadata or generateStaticParams - let this page be rendered on-demand only
-// This is a dynamic [id] route that should not be prerendered
-
 export default async function Order({ params }: PageParams) {
   try {
     const { id } = await params;

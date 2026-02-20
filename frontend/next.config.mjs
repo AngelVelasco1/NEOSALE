@@ -9,8 +9,8 @@ const __dirname = path.dirname(__filename);
 
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  // Cache Components (Next.js 16.1+)
-  cacheComponents: true,
+  // Cache Components disabled - causing prerendering errors with dynamic routes
+  // cacheComponents: true,
 
   allowedDevOrigins: [
     `${FRONT_CONFIG.host}:${FRONT_CONFIG.front_port}`,
@@ -298,13 +298,27 @@ const nextConfig = {
     ];
   },
   async rewrites() {
-    const backendUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
-    return [
-      {
-        source: "/backend/:path*",
-        destination: `${backendUrl}/backend/:path*`,
-      },
-    ];
+    // Next.js rewrites: transparently proxy API calls to backend
+    // This happens on the server-side, not visible to the browser
+    
+    // In development: proxy to localhost:8000 (local backend)
+    // In production (Render): proxy to internal localhost:8000 (backend in same container)
+    const backendUrl = "http://localhost:8000";
+    
+    return {
+      afterFiles: [
+        // Proxy /api/* to backend EXCEPT /api/auth/* which is handled locally by Next.js Auth.js
+        // Place specific exclusions before catch-all
+        {
+          source: "/api/auth/:path*",
+          destination: "/api/auth/:path*", // Route stays local - handled by [..nextauth]/route.ts
+        },
+        {
+          source: "/api/:path*",
+          destination: `${backendUrl}/api/:path*`,
+        },
+      ],
+    };
   },
 };
 

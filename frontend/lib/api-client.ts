@@ -32,8 +32,23 @@ class ApiClient {
     "Content-Type": "application/json",
   };
 
-  constructor(baseUrl: string = typeof process !== 'undefined' ? (process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000") : "") {
-    this.baseUrl = baseUrl;
+  constructor(baseUrl: string = "") {
+    // In production on Render: use relative paths so Next.js rewrites handle proxying to backend
+    // In development: use localhost:8000 directly
+    const isProduction = typeof process !== 'undefined' && process.env.NODE_ENV === 'production';
+    const fromEnv = process.env.NEXT_PUBLIC_API_URL;
+    
+    if (baseUrl) {
+      this.baseUrl = baseUrl;
+    } else if (fromEnv) {
+      this.baseUrl = fromEnv;
+    } else if (isProduction) {
+      // In Render production: use relative paths, Next.js rewrites will proxy to backend
+      this.baseUrl = "";
+    } else {
+      // In development: direct backend URL
+      this.baseUrl = "http://localhost:8000";
+    }
   }
 
   /**

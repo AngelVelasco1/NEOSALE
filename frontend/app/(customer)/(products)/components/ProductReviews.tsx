@@ -42,7 +42,7 @@ export function ProductReviews({ productId }: ProductReviewsProps) {
         try {
             setIsLoading(true);
             const response = await fetch(
-                `http://localhost:8000/api/reviews/getReviews?productId=${productId}`,
+                `/api/reviews/getReviews?productId=${productId}`,
                 {
                     credentials: "include",
                 }
