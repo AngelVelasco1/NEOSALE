@@ -1,5 +1,4 @@
 import { notFound } from "next/navigation";
-import { cacheLife } from "next/dist/server/use-cache/cache-life";
 import { IoBagHandle } from "react-icons/io5";
 
 import { Card } from "@/components/ui/card";
@@ -14,9 +13,6 @@ type PageParams = {
 };
 
 export default async function CustomerOrders({ params }: PageParams) {
-  'use cache';
-  cacheLife({ stale: 60, revalidate: 120, expire: 300 });
-  
   try {
     const { id } = await params;
     const { customer, orders } = await fetchCustomerOrders({ id });
