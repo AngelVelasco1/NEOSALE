@@ -146,6 +146,7 @@ export default {
       },
     }),
   ],
+
   cookies: {
     sessionToken: {
       name: process.env.NODE_ENV === "production"
