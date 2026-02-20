@@ -9,8 +9,8 @@ const __dirname = path.dirname(__filename);
 
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  // Cache Components (Next.js 16.1+)
-  cacheComponents: true,
+  // Cache Components disabled - causing prerendering errors with dynamic routes
+  // cacheComponents: true,
 
   allowedDevOrigins: [
     `${FRONT_CONFIG.host}:${FRONT_CONFIG.front_port}`,
