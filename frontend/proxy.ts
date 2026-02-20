@@ -20,7 +20,7 @@ export default async function proxy(request: NextRequest) {
     // Get token from request - this works in middleware/proxy
     const token = await getToken({ 
       req: request,
-      secret: process.env.AUTH_SECRET || process.env.NEXTAUTH_SECRET
+      secret: process.env.AUTH_SECRET,
     });
 
     const userRole = (token as any)?.role as string | undefined;
@@ -44,6 +44,11 @@ export default async function proxy(request: NextRequest) {
       console.log(`[PROXY] ===========================\n`);
     }
 
+    // DEBUG: Log AUTH_SECRET value (remove after debug)
+    if (isCustomerRoute) {
+      console.log(`[PROXY] AUTH_SECRET value: '${process.env.AUTH_SECRET}'`);
+    }
+
     // If user is admin - block customer-only routes
     if (isAdmin && token) {
       if (isCustomerRoute) {
@@ -56,7 +61,7 @@ export default async function proxy(request: NextRequest) {
 
     // If user is trying to access customer-only routes without proper auth
     if (isCustomerRoute) {
-      if (!token || userRole !== 'user') {
+      if (userRole !== 'user') {
         // Not authenticated or wrong role - REDIRECT to login
         console.log(`[PROXY] BLOCKING - No token or wrong role. Token: ${!!token}, Role: ${userRole}`);
         const loginUrl = new URL('/login', request.url);
