@@ -2,8 +2,8 @@ import { NextResponse } from "next/server";
 
 const BACKEND_URL = process.env.NEXT_PUBLIC_API_URL || (process.env.NODE_ENV === 'production' ? '' : 'http://localhost:8000');
 
-// Skip prerendering for this API route
-export const dynamic = 'force-dynamic';
+// Disable Static Generation - run on demand
+export const revalidate = 0;
 
 export async function GET() {
   try {

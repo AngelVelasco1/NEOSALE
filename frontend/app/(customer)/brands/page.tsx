@@ -4,13 +4,15 @@ import Link from "next/link";
 import Image from "next/image";
 import { Package2, ArrowRight } from "lucide-react";
 
-// Force dynamic rendering - skip prerendering during build
-export const dynamic = 'force-dynamic';
-
 export const metadata: Metadata = {
   title: "Marcas | NeoSale",
   description: "Explora nuestras marcas favoritas y descubre productos de alta calidad",
 };
+
+// Prevent prerendering of this page during build
+export async function generateStaticParams() {
+  return [];
+}
 
 export default async function BrandsPage() {
   const brands = await getAllBrands();
