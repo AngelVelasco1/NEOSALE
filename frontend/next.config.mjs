@@ -307,8 +307,12 @@ const nextConfig = {
     
     return {
       afterFiles: [
-        // All /api/* routes (except those with local handlers like /api/auth/*) 
-        // are proxied to the backend
+        // Proxy /api/* to backend EXCEPT /api/auth/* which is handled locally by Next.js Auth.js
+        // Place specific exclusions before catch-all
+        {
+          source: "/api/auth/:path*",
+          destination: "/api/auth/:path*", // Route stays local - handled by [..nextauth]/route.ts
+        },
         {
           source: "/api/:path*",
           destination: `${backendUrl}/api/:path*`,
