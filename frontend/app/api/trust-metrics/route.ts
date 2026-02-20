@@ -2,9 +2,6 @@ import { NextResponse } from "next/server";
 
 const BACKEND_URL = process.env.NEXT_PUBLIC_API_URL || (process.env.NODE_ENV === 'production' ? '' : 'http://localhost:8000');
 
-// Disable Static Generation - run on demand
-export const revalidate = 0;
-
 export async function GET() {
   try {
     const response = await fetch(`${BACKEND_URL}/api/products/trust-metrics`, {

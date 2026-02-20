@@ -9,11 +9,6 @@ export const metadata: Metadata = {
   description: "Explora nuestras marcas favoritas y descubre productos de alta calidad",
 };
 
-// Prevent prerendering of this page during build
-export async function generateStaticParams() {
-  return [];
-}
-
 export default async function BrandsPage() {
   const brands = await getAllBrands();
 

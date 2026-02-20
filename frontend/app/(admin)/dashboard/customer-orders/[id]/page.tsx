@@ -12,11 +12,6 @@ type PageParams = {
   params: Promise<{ id: string }>;
 };
 
-// Prevent prerendering of this dynamic route
-export async function generateStaticParams() {
-  return [];
-}
-
 export default async function CustomerOrders({ params }: PageParams) {
   try {
     const { id } = await params;
