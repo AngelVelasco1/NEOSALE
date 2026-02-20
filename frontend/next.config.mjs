@@ -306,15 +306,9 @@ const nextConfig = {
     const backendUrl = "http://localhost:8000";
     
     return {
-      beforeFiles: [
-        // /api/auth/* routes are internal Next.js Auth.js routes - DO NOT proxy
-        {
-          source: "/api/auth/:path*",
-          destination: "/api/auth/:path*",
-        },
-      ],
       afterFiles: [
-        // All other /api/* routes (except /api/auth) are proxied to the backend
+        // All /api/* routes (except those with local handlers like /api/auth/*) 
+        // are proxied to the backend
         {
           source: "/api/:path*",
           destination: `${backendUrl}/api/:path*`,
