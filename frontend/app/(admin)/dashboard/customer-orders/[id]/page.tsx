@@ -12,6 +12,9 @@ type PageParams = {
   params: Promise<{ id: string }>;
 };
 
+// Force dynamic rendering - skip prerendering during build
+export const dynamic = 'force-dynamic';
+
 export default async function CustomerOrders({ params }: PageParams) {
   try {
     const { id } = await params;

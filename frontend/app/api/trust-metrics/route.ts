@@ -2,6 +2,9 @@ import { NextResponse } from "next/server";
 
 const BACKEND_URL = process.env.NEXT_PUBLIC_API_URL || (process.env.NODE_ENV === 'production' ? '' : 'http://localhost:8000');
 
+// Skip prerendering for this API route
+export const dynamic = 'force-dynamic';
+
 export async function GET() {
   try {
     const response = await fetch(`${BACKEND_URL}/api/products/trust-metrics`, {
@@ -9,8 +12,7 @@ export async function GET() {
       headers: {
         'Content-Type': 'application/json',
       },
-      cache: 'default',
-      next: { revalidate: 3600 }, // Cache for 1 hour
+      cache: 'no-store',
     });
 
     if (!response.ok) {
