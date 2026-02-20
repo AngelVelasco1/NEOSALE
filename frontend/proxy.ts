@@ -28,12 +28,20 @@ export default async function proxy(request: NextRequest) {
     const customerOnlyRoutes = ['/checkout', '/orders', '/profile', '/favorites', '/productsCart'];
     const isCustomerRoute = customerOnlyRoutes.some(route => pathname.startsWith(route));
 
-    // DEBUG: Log token and role info (remove later)
-    if (process.env.NODE_ENV === 'production' && isCustomerRoute) {
-      console.log(`[MIDDLEWARE] Path: ${pathname}`);
-      console.log(`[MIDDLEWARE] Token exists: ${!!token}`);
-      console.log(`[MIDDLEWARE] User role: ${userRole}`);
-      console.log(`[MIDDLEWARE] Token data:`, token ? { id: (token as any)?.sub, email: (token as any)?.email, role: userRole } : null);
+    // DEBUG: Log token and role info ALWAYS (not just production)
+    if (isCustomerRoute) {
+      console.log(`\n[PROXY] === ROUTE ACCESS ATTEMPT ===`);
+      console.log(`[PROXY] Path: ${pathname}`);
+      console.log(`[PROXY] NODE_ENV: ${process.env.NODE_ENV}`);
+      console.log(`[PROXY] AUTH_SECRET exists: ${!!process.env.AUTH_SECRET}`);
+      console.log(`[PROXY] Token exists: ${!!token}`);
+      if (token) {
+        console.log(`[PROXY] Token sub: ${(token as any)?.sub}`);
+        console.log(`[PROXY] Token email: ${(token as any)?.email}`);
+        console.log(`[PROXY] Token role: ${userRole}`);
+      }
+      console.log(`[PROXY] IsCustomerRoute: ${isCustomerRoute}`);
+      console.log(`[PROXY] ===========================\n`);
     }
 
     // If user is admin - block customer-only routes
@@ -50,9 +58,12 @@ export default async function proxy(request: NextRequest) {
     if (isCustomerRoute) {
       if (!token || userRole !== 'user') {
         // Not authenticated or wrong role - REDIRECT to login
+        console.log(`[PROXY] BLOCKING - No token or wrong role. Token: ${!!token}, Role: ${userRole}`);
         const loginUrl = new URL('/login', request.url);
         loginUrl.searchParams.set('from', pathname);
         return NextResponse.redirect(loginUrl);
+      } else {
+        console.log(`[PROXY] ALLOWING - Valid user token for route ${pathname}`);
       }
     }
 
