@@ -1,4 +1,5 @@
 import { Metadata } from "next";
+import { cacheLife } from "next/dist/server/use-cache/cache-life";
 import { getAllBrands } from "./services";
 import Link from "next/link";
 import Image from "next/image";
@@ -11,6 +12,7 @@ export const metadata: Metadata = {
 
 export default async function BrandsPage() {
   'use cache';
+  cacheLife({ stale: 60, revalidate: 120, expire: 300 });
 
   const brands = await getAllBrands();
 
