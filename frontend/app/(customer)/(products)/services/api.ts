@@ -12,23 +12,23 @@ export const getProduct = async (id: number) => {
 
 export const getLatestProducts = async () => {
   try {
-    const response = await api.get(`/api/products/getLatestProducts`);
+    // Usar la ruta RESTful nueva (/latest) en lugar de la deprecada
+    const response = await api.get(`/api/products/latest`);
     const responseData = response.data;
-    
+
     // Si es directo un array (debería venir envuelto)
     if (Array.isArray(responseData)) {
       return responseData;
     }
-    
+
     // Si viene { success: true, data: [...] }
     if (responseData?.data && Array.isArray(responseData.data)) {
       return responseData.data;
     }
-    
-    // Fallback: retorna array vacío
-    return [];
+
+    return responseData?.data || [];
   } catch (error) {
-    
+    console.error("❌ Error fetchLatestProducts en API:", error);
     return [];
   }
 };

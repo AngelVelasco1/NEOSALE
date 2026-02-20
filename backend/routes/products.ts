@@ -6,11 +6,11 @@ import {
   getOffers,
   getTrustMetrics,
   updateVariant,
-  createProduct,
+  createProduct,  
   updateProduct,
   deleteProduct,
-} from "../controllers/products";
-import { cacheMiddleware } from "../middlewares/cache";
+} from "../controllers/products.js";
+import { cacheMiddleware } from "../middlewares/cache.js";
 
 export const productsRoutes = () =>
   Router()

@@ -30,29 +30,8 @@ export default async function proxy(request: NextRequest) {
 
     const userRole = (token as any)?.role as string | undefined;
     const isAdmin = userRole === 'admin';
-    const customerOnlyRoutes = ['/checkout', '/orders', '/profile', '/favorites', '/productsCart'];
+    const customerOnlyRoutes = ['/checkout', '/orders', '/profile', '/favorites'];
     const isCustomerRoute = customerOnlyRoutes.some(route => pathname.startsWith(route));
-
-    // DEBUG: Log token and role info ALWAYS (not just production)
-    if (isCustomerRoute) {
-      console.log(`\n[PROXY] === ROUTE ACCESS ATTEMPT ===`);
-      console.log(`[PROXY] Path: ${pathname}`);
-      console.log(`[PROXY] NODE_ENV: ${process.env.NODE_ENV}`);
-      console.log(`[PROXY] AUTH_SECRET exists: ${!!process.env.AUTH_SECRET}`);
-      console.log(`[PROXY] Token exists: ${!!token}`);
-      if (token) {
-        console.log(`[PROXY] Token sub: ${(token as any)?.sub}`);
-        console.log(`[PROXY] Token email: ${(token as any)?.email}`);
-        console.log(`[PROXY] Token role: ${userRole}`);
-      }
-      console.log(`[PROXY] IsCustomerRoute: ${isCustomerRoute}`);
-      console.log(`[PROXY] ===========================\n`);
-    }
-
-    // DEBUG: Log AUTH_SECRET value (remove after debug)
-    if (isCustomerRoute) {
-      console.log(`[PROXY] AUTH_SECRET value: '${process.env.AUTH_SECRET}'`);
-    }
 
     // If user is admin - block customer-only routes
     if (isAdmin && token) {
@@ -68,20 +47,15 @@ export default async function proxy(request: NextRequest) {
     if (isCustomerRoute) {
       if (userRole !== 'user') {
         // Not authenticated or wrong role - REDIRECT to login
-        console.log(`[PROXY] BLOCKING - No token or wrong role. Token: ${!!token}, Role: ${userRole}`);
         const loginUrl = new URL('/login', request.url);
         loginUrl.searchParams.set('from', pathname);
         return NextResponse.redirect(loginUrl);
-      } else {
-        console.log(`[PROXY] ALLOWING - Valid user token for route ${pathname}`);
-      }
+      } 
     }
 
     // All other paths - ALLOW
     return NextResponse.next();
   } catch (error) {
-    // On error, allow the request to continue (fail open)
-    console.error('❌ PROXY ERROR:', error);
     return NextResponse.next();
   }
 }
