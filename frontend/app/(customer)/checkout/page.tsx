@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect, useCallback } from "react";
 import { useRouter } from "next/navigation";
+import { useSession } from "next-auth/react";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -22,7 +23,9 @@ import { Address } from "../(addresses)/services/addressesApi";
 import { createOrderApi } from "../orders/services/ordersApi";
 import { useAddresses } from "./hooks/useAddresses";
 import { useUser } from "@/app/(auth)/context/UserContext";
+import { useSendOrderEmail } from "../hooks/useSendOrderEmail";
 import { motion, AnimatePresence } from "framer-motion";
+import { toast } from "sonner";
 import {
   ShoppingCart,
   MapPin,
@@ -33,9 +36,11 @@ import {
   Package,
   Sparkles
 } from "lucide-react";
+import { useUserSafe } from "@/app/(auth)/hooks/useUserSafe";
 
 export default function CheckoutPage() {
   const router = useRouter();
+  const { data: session } = useSession();
   const {
     getUserAddresses,
     createAddress,
@@ -48,6 +53,7 @@ export default function CheckoutPage() {
     getSubTotal,
     clearCart,
   } = useCart();
+  const { sendOrderEmailSilently } = useSendOrderEmail();
 
   const [userAddresses, setUserAddresses] = useState<Address[]>([]);
   const [selectedAddress, setSelectedAddress] = useState<Address | null>(null);
@@ -55,10 +61,26 @@ export default function CheckoutPage() {
   const [error, setError] = useState<string | null>(null);
   const [isInitializing, setIsInitializing] = useState(true);
   const [isProcessingOrder, setIsProcessingOrder] = useState(false);
-  const { userProfile } = useUser();
+  const { userProfile } = useUserSafe();
 
   // Step management
   const [currentStep, setCurrentStep] = useState(1);
+
+  // Verificar email verificado - solo cuando userProfile esté cargado
+  useEffect(() => {
+    // Esperar a que userProfile esté cargado y sea definitivo
+    if (!userProfile) return;
+    
+    // Si el usuario tiene sesión pero su email NO está verificado (es null)
+    if (session?.user && userProfile.emailVerified === null) {
+      toast.error('Debes verificar tu email antes de realizar compras', {
+        description: 'Revisa tu bandeja de entrada y verifica tu email.',
+        duration: 5000,
+      });
+      router.push('/');
+    }
+      
+  }, [session, userProfile, router]);
 
   useEffect(() => {
     const timer = setTimeout(() => {
@@ -76,13 +98,18 @@ export default function CheckoutPage() {
   }, [isInitializing, isAuthenticated, router]);
 
   useEffect(() => {
-    if (!isInitializing && (!cartProducts || cartProducts.length === 0)) {
+    // Solo mostrar error de carrito vacío cuando:
+    // 1. La inicialización haya terminado
+    // 2. El carrito haya terminado de cargar
+    // 3. Y esté realmente vacío
+    if (!isInitializing && !cartLoading && (!cartProducts || cartProducts.length === 0)) {
       ErrorsHandler.showError(
         "Carrito vacío",
         "No hay productos en tu carrito"
       );
+      router.push("/productsCart");
     }
-  }, [cartProducts, isInitializing, router]);
+  }, [cartProducts, isInitializing, cartLoading, router]);
 
 
   const subtotal = cartProducts && cartProducts.length > 0 ? getSubTotal() : 0;
@@ -111,7 +138,7 @@ export default function CheckoutPage() {
         setSelectedAddress(null);
       }
     } catch (err) {
-      console.error("Error loading checkout data:", err);
+      
       const errorMessage =
         err instanceof Error
           ? err.message
@@ -138,7 +165,7 @@ export default function CheckoutPage() {
   }, [cartLoading, isAuthenticated, cartProducts, fetchData]);
 
   const handlePaymentSuccess = useCallback(
-    async (paymentId: string, paymentMethod?: string) => {
+    async (paymentId: string) => {
       setIsProcessingOrder(true);
 
       try {
@@ -160,6 +187,30 @@ export default function CheckoutPage() {
 
         await clearCart();
 
+        // Enviar email de confirmación de orden
+        sendOrderEmailSilently({
+          orderId: (order.order_id || order.id || '').toString(),
+          items: cartProducts?.map((item) => ({
+            productName: item.name || 'Producto',
+            quantity: item.quantity || 1,
+            price: item.price || 0,
+          })) || [],
+          subtotal: subtotal || 0,
+          shipping: shipping || 0,
+          taxes: taxes || 0,
+          discount: 0,
+          total: total || 0,
+          shippingAddress: {
+            street: selectedAddress.address || '',
+            city: selectedAddress.city || '',
+            state: selectedAddress.department || '',
+            zipCode: '000000',
+            country: selectedAddress.country || 'Colombia',
+          },
+        }).catch((err) => {
+          
+        });
+
         setCurrentStep(3);
 
         ErrorsHandler.showSuccess(
@@ -171,7 +222,7 @@ export default function CheckoutPage() {
           router.push(`/orders/${order.order_id || order.id}`);
         }, 3000);
       } catch (error) {
-        console.error("Error creating order:", error);
+        
         const errorMessage =
           error instanceof Error
             ? error.message
@@ -189,12 +240,13 @@ export default function CheckoutPage() {
       shipping,
       total,
       clearCart,
+      sendOrderEmailSilently,
       router,
     ]
   );
 
   const handlePaymentError = useCallback((error: Error) => {
-    console.error("Payment error:", error);
+    
     ErrorsHandler.showError(
       "Error de pago",
       "Hubo un problema procesando tu pago. Por favor intenta nuevamente."
@@ -204,12 +256,16 @@ export default function CheckoutPage() {
   const handleCreateAddress = useCallback(
     async (addressData: any) => {
       try {
-        const newAddress = await createAddress(addressData);
+        const response = await createAddress(addressData);
+        if (!response.success || !response.data) {
+          throw new Error(response.message || "Error al crear la dirección");
+        }
+        const newAddress = response.data;
         setUserAddresses((prev) => [...prev, newAddress]);
         setSelectedAddress(newAddress);
         ErrorsHandler.showSuccess("Éxito", "Dirección creada exitosamente");
       } catch (error) {
-        console.error("Error creating address:", error);
+        
         const errorMessage =
           error instanceof Error
             ? error.message
@@ -268,7 +324,7 @@ export default function CheckoutPage() {
 
   if (cartLoading || isLoading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950 flex items-center justify-center">
+      <div className="min-h-screen bg-linear-to-br from-slate-950 via-slate-900 to-slate-950 flex items-center justify-center">
         <motion.div
           initial={{ opacity: 0, scale: 0.9 }}
           animate={{ opacity: 1, scale: 1 }}
@@ -304,8 +360,8 @@ export default function CheckoutPage() {
 
   if (error) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-900 to-slate-900 flex items-center justify-center p-4">
-        <Card className="w-full max-w-2xl bg-gradient-to-br from-slate-900/90 to-slate-800/90 backdrop-blur-xl border-slate-700/50 shadow-2xl">
+      <div className="min-h-screen bg-linear-to-br from-slate-900 via-slate-900 to-slate-900 flex items-center justify-center p-4">
+        <Card className="w-full max-w-2xl bg-linear-to-br from-slate-900/90 to-slate-800/90 backdrop-blur-xl border-slate-700/50 shadow-2xl">
           <CardHeader>
             <CardTitle className="text-slate-100">Error</CardTitle>
             <CardDescription className="text-slate-400">
@@ -325,7 +381,16 @@ export default function CheckoutPage() {
             </Button>
             <Button
               onClick={() => router.push("/productsCart")}
-              className="bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-500 hover:to-purple-500 text-white"
+              className="text-white"
+              style={{
+                backgroundImage: `linear-gradient(to right, var(--color-primary), var(--color-secondary))`,
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.opacity = '0.9';
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.opacity = '1';
+              }}
             >
               Volver al carrito
             </Button>
@@ -336,7 +401,7 @@ export default function CheckoutPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950 py-12 relative overflow-hidden">
+    <div className="min-h-screen bg-linear-to-br from-slate-950 via-slate-900 to-slate-950 py-12 relative overflow-hidden">
       {/* Animated background effects */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
         <motion.div
@@ -349,7 +414,7 @@ export default function CheckoutPage() {
             repeat: Infinity,
             ease: "linear"
           }}
-          className="absolute -top-1/2 -left-1/2 w-full h-full bg-gradient-to-br from-indigo-500/10 to-blue-500/10 rounded-full blur-3xl"
+          className="absolute -top-1/2 -left-1/2 w-full h-full bg-linear-to-br from-indigo-500/10 to-blue-500/10 rounded-full blur-3xl"
         />
         <motion.div
           animate={{
@@ -361,7 +426,7 @@ export default function CheckoutPage() {
             repeat: Infinity,
             ease: "linear"
           }}
-          className="absolute -bottom-1/2 -right-1/2 w-full h-full bg-gradient-to-br from-blue-500/10 to-slate-500/10 rounded-full blur-3xl"
+          className="absolute -bottom-1/2 -right-1/2 w-full h-full bg-linear-to-br from-blue-500/10 to-slate-500/10 rounded-full blur-3xl"
         />
       </div>
 
@@ -383,7 +448,7 @@ export default function CheckoutPage() {
                 damping: 20,
                 delay: 0.1
               }}
-              className="relative p-5 rounded-2xl bg-gradient-to-br from-purple-700 via-indigo-600 to-indigo-700 shadow-2xl shadow-indigo-500/40"
+              className="relative p-5 rounded-2xl bg-linear-to-br from-purple-700 via-indigo-600 to-indigo-700 shadow-2xl shadow-indigo-500/40"
             >
               <motion.div
                 animate={{
@@ -395,12 +460,12 @@ export default function CheckoutPage() {
                   repeat: Infinity,
                   ease: "easeInOut"
                 }}
-                className="absolute inset-0 rounded-2xl bg-gradient-to-br from-indigo-400 to-blue-400 blur-xl"
+                className="absolute inset-0 rounded-2xl bg-linear-to-br from-indigo-400 to-blue-400 blur-xl"
               />
               <ShoppingCart className="w-8 h-8 text-white relative z-10" />
             </motion.div>
             <div>
-              <h1 className="text-5xl font-extrabold bg-gradient-to-r from-slate-100 via-indigo-200 to-purple-200 bg-clip-text text-transparent">
+              <h1 className="text-5xl font-extrabold bg-linear-to-r from-slate-100 via-indigo-200 to-purple-200 bg-clip-text text-transparent">
                 Finalizar compra
               </h1>
               <p className="text-slate-400 mt-2 text-lg flex items-center gap-2">
@@ -440,10 +505,10 @@ export default function CheckoutPage() {
                           className={`
                             w-20 h-20 rounded-2xl flex items-center justify-center transition-all duration-500 relative
                             ${step.completed
-                              ? 'bg-gradient-to-br from-emerald-500 via-teal-500 to-cyan-600 shadow-2xl shadow-emerald-500/40'
+                              ? 'bg-linear-to-br from-emerald-500 via-teal-500 to-cyan-600 shadow-2xl shadow-emerald-500/40'
                               : step.active
-                                ? 'bg-gradient-to-br from-indigo-600 via-purple-600 to-indigo-700 shadow-2xl shadow-indigo-500/40'
-                                : 'bg-gradient-to-br from-slate-800/50 to-slate-900/50 border border-slate-700/50'
+                                ? 'bg-linear-to-br from-indigo-600 via-purple-600 to-indigo-700 shadow-2xl shadow-indigo-500/40'
+                                : 'bg-linear-to-br from-slate-800/50 to-slate-900/50 border border-slate-700/50'
                             }
                           `}
                         >
@@ -459,8 +524,8 @@ export default function CheckoutPage() {
                                 ease: "easeInOut"
                               }}
                               className={`absolute inset-0 rounded-2xl blur-xl ${step.completed
-                                ? 'bg-gradient-to-br from-emerald-400 to-cyan-500'
-                                : 'bg-gradient-to-br from-indigo-500 to-purple-500'
+                                ? 'bg-linear-to-br from-emerald-400 to-cyan-500'
+                                : 'bg-linear-to-br from-indigo-500 to-purple-500'
                                 }`}
                             />
                           )}
@@ -477,9 +542,9 @@ export default function CheckoutPage() {
                           className={`
                             absolute -top-2 -right-2 w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold transition-all shadow-lg
                             ${step.completed
-                              ? 'bg-gradient-to-br from-emerald-400 to-teal-500 text-white'
+                              ? 'bg-linear-to-br from-emerald-400 to-teal-500 text-white'
                               : step.active
-                                ? 'bg-gradient-to-br from-indigo-500 to-purple-600 text-white'
+                                ? 'bg-linear-to-br from-indigo-500 to-purple-600 text-white'
                                 : 'bg-slate-700 text-slate-300 border border-slate-700'
                             }
                           `}
@@ -520,7 +585,7 @@ export default function CheckoutPage() {
                             scaleX: step.completed ? 1 : 0
                           }}
                           transition={{ duration: 0.5, delay: 0.5 + index * 0.1 }}
-                          className="absolute inset-0 bg-gradient-to-r from-emerald-500 via-teal-500 to-cyan-500 origin-left"
+                          className="absolute inset-0 bg-linear-to-r from-emerald-500 via-teal-500 to-cyan-500 origin-left"
                         />
                       </div>
                     )}
@@ -548,7 +613,7 @@ export default function CheckoutPage() {
                 variant="outline"
                 onClick={handlePreviousStep}
                 disabled={isProcessingOrder}
-                className="bg-gradient-to-br from-slate-800 to-slate-900 text-slate-100 border-slate-700/50 hover:border-slate-600 px-6 py-6 rounded-2xl text-sm font-semibold shadow-lg hover:shadow-slate-700/50 transition-all"
+                className="bg-linear-to-br from-slate-800 to-slate-900 text-slate-100 border-slate-700/50 hover:border-slate-600 px-6 py-6 rounded-2xl text-sm font-semibold shadow-lg hover:shadow-slate-700/50 transition-all"
               >
                 <ArrowLeft className="w-4 h-4 mr-2" />
                 Volver
@@ -574,7 +639,6 @@ export default function CheckoutPage() {
                     addresses={userAddresses}
                     selectedAddress={selectedAddress}
                     onAddressSelect={setSelectedAddress}
-                    onAddNewAddress={handleCreateAddress}
                     onCreateAddress={handleCreateAddress}
                     userId={userProfile?.id ?? 0}
                     onAddressesChange={fetchData}
@@ -590,7 +654,7 @@ export default function CheckoutPage() {
                     <Button
                       variant="outline"
                       onClick={() => router.push("/productsCart")}
-                      className="bg-gradient-to-br from-slate-800 to-slate-900 text-slate-100 border-slate-700/50 hover:border-slate-600 px-6 py-6 rounded-2xl text-sm font-semibold shadow-lg hover:shadow-slate-700/50 transition-all"
+                      className="bg-linear-to-br from-slate-800 to-slate-900 text-slate-100 border-slate-700/50 hover:border-slate-600 px-6 py-6 rounded-2xl text-sm font-semibold shadow-lg hover:shadow-slate-700/50 transition-all"
                     >
                       <ArrowLeft className="w-4 h-4 mr-2" />
                       Volver al carrito
@@ -598,7 +662,7 @@ export default function CheckoutPage() {
                     <Button
                       onClick={handleNextStep}
                       disabled={!selectedAddress}
-                      className="px-8 py-6 text-sm font-semibold rounded-2xl bg-gradient-to-r from-indigo-600 via-purple-600 to-indigo-700 hover:from-indigo-500 hover:via-purple-500 hover:to-indigo-600 text-white shadow-2xl shadow-indigo-500/40 disabled:opacity-50 disabled:cursor-not-allowed transition-all"
+                      className="px-8 py-6 text-sm font-semibold rounded-2xl bg-linear-to-r from-indigo-600 via-purple-600 to-indigo-700 hover:from-indigo-500 hover:via-purple-500 hover:to-indigo-600 text-white shadow-2xl shadow-indigo-500/40 disabled:opacity-50 disabled:cursor-not-allowed transition-all"
                     >
                       Continuar al pago
                       <ArrowRight className="w-4 h-4 ml-2" />
@@ -623,6 +687,7 @@ export default function CheckoutPage() {
                     onPaymentError={handlePaymentError}
                     disabled={!selectedAddress || isProcessingOrder}
                     userId={userProfile?.id ?? 0}
+                    selectedAddress={selectedAddress}
                   />
 
 
@@ -638,7 +703,7 @@ export default function CheckoutPage() {
                   exit={{ opacity: 0, scale: 0.9 }}
                   transition={{ duration: 0.5 }}
                 >
-                  <Card className="bg-gradient-to-br from-slate-900/90 to-slate-800/90 backdrop-blur-xl border-2 border-emerald-500/30 shadow-2xl shadow-emerald-500/20">
+                  <Card className="bg-linear-to-br from-slate-900/90 to-slate-800/90 backdrop-blur-xl border-2 border-emerald-500/30 shadow-2xl shadow-emerald-500/20">
                     <CardHeader className="text-center pb-8">
                       <motion.div
                         initial={{ scale: 0 }}
@@ -649,7 +714,7 @@ export default function CheckoutPage() {
                           damping: 15,
                           delay: 0.2
                         }}
-                        className="relative mx-auto mb-6 w-24 h-24 rounded-full bg-gradient-to-br from-emerald-500 via-teal-500 to-cyan-600 flex items-center justify-center shadow-2xl shadow-emerald-500/50"
+                        className="relative mx-auto mb-6 w-24 h-24 rounded-full bg-linear-to-br from-emerald-500 via-teal-500 to-cyan-600 flex items-center justify-center shadow-2xl shadow-emerald-500/50"
                       >
                         <motion.div
                           animate={{
@@ -661,11 +726,11 @@ export default function CheckoutPage() {
                             repeat: Infinity,
                             ease: "easeInOut"
                           }}
-                          className="absolute inset-0 rounded-full bg-gradient-to-br from-emerald-400 to-cyan-500 blur-xl"
+                          className="absolute inset-0 rounded-full bg-linear-to-br from-emerald-400 to-cyan-500 blur-xl"
                         />
                         <CheckCircle className="w-12 h-12 text-white relative z-10" />
                       </motion.div>
-                      <CardTitle className="text-4xl font-extrabold bg-gradient-to-r from-emerald-400 via-teal-400 to-cyan-400 bg-clip-text text-transparent">
+                      <CardTitle className="text-4xl font-extrabold bg-linear-to-r from-emerald-400 via-teal-400 to-cyan-400 bg-clip-text text-transparent">
                         ¡Orden confirmada!
                       </CardTitle>
                       <CardDescription className="text-slate-300 text-lg mt-3">
@@ -674,9 +739,9 @@ export default function CheckoutPage() {
                     </CardHeader>
                     <CardContent className="space-y-6">
                       {/* Order details */}
-                      <div className="bg-gradient-to-br from-slate-800/50 to-slate-900/50 rounded-2xl p-8 space-y-6 border border-slate-700/50">
+                      <div className="bg-linear-to-br from-slate-800/50 to-slate-900/50 rounded-2xl p-8 space-y-6 border border-slate-700/50">
                         <div className="flex items-center gap-4">
-                          <div className="p-3 rounded-xl bg-gradient-to-br from-indigo-500/20 to-purple-500/20 border border-indigo-500/30">
+                          <div className="p-3 rounded-xl bg-linear-to-br from-indigo-500/20 to-purple-500/20 border border-indigo-500/30">
                             <Package className="w-6 h-6 text-indigo-400" />
                           </div>
                           <div>
@@ -686,19 +751,19 @@ export default function CheckoutPage() {
                         </div>
 
                         <div className="flex items-center gap-4">
-                          <div className="p-3 rounded-xl bg-gradient-to-br from-cyan-500/20 to-blue-500/20 border border-cyan-500/30">
+                          <div className="p-3 rounded-xl bg-linear-to-br from-cyan-500/20 to-blue-500/20 border border-cyan-500/30">
                             <MapPin className="w-6 h-6 text-cyan-400" />
                           </div>
                           <div>
                             <p className="text-sm text-slate-400 mb-1">Dirección de envío</p>
-                            <p className="text-xl font-bold text-slate-100">{selectedAddress?.street}</p>
+                            <p className="text-xl font-bold text-slate-100">{selectedAddress?.address}</p>
                           </div>
                         </div>
 
                         <div className="pt-6 border-t border-slate-700/50">
                           <div className="flex justify-between items-center">
                             <span className="text-xl font-bold text-slate-300">Total pagado:</span>
-                            <span className="text-3xl font-extrabold bg-gradient-to-r from-emerald-400 to-cyan-400 bg-clip-text text-transparent">
+                            <span className="text-3xl font-extrabold bg-linear-to-r from-emerald-400 to-cyan-400 bg-clip-text text-transparent">
                               ${total.toFixed(2)}
                             </span>
                           </div>

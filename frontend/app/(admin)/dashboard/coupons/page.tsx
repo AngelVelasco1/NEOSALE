@@ -1,7 +1,7 @@
 import { Metadata } from "next";
 
-import PageTitle from "@/app/(admin)/components/shared/PageTitle";
 import Coupons from "./_components";
+import { RiCouponFill } from "react-icons/ri";
 
 export const metadata: Metadata = {
   title: "Coupons",
@@ -9,9 +9,7 @@ export const metadata: Metadata = {
 
 export default async function CouponsPage() {
   return (
-    <section>
-      <PageTitle>Coupons</PageTitle>
-
+    <section className="space-y-6 p-3 min-h-screen">
       <Coupons />
     </section>
   );

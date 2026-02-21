@@ -2,9 +2,9 @@
 
 import { getCoreRowModel, useReactTable } from "@tanstack/react-table";
 
-import DataTable from "@/components/shared/table/DataTable";
-import { DataTableWithRowSelectionProps } from "@/types/data-table";
-import { Product } from "@/services/products/types";
+import DataTable from "@/app/(admin)/components/shared/table/DataTable";
+import { DataTableWithRowSelectionProps } from "@/app/(admin)//types/data-table";
+import { Product } from "@/app/(admin)//services/products/types";
 
 export default function ProductsTable({
   data,
@@ -13,11 +13,13 @@ export default function ProductsTable({
   rowSelection,
   setRowSelection,
 }: DataTableWithRowSelectionProps<Product>) {
+
+  // useReactTable ya está optimizado internamente con memoization
   const table = useReactTable({
     data,
     columns,
     getCoreRowModel: getCoreRowModel(),
-    getRowId: (row) => row.id,
+    getRowId: (row) => String(row.id),
     state: {
       rowSelection,
     },
@@ -27,6 +29,10 @@ export default function ProductsTable({
 
       setRowSelection(newSelectionState);
     },
+    meta: { sectionLabel: "Productos" },
+    // Optimizaciones adicionales
+    enableRowSelection: true,
+    enableMultiRowSelection: true,
   });
 
   return <DataTable table={table} pagination={pagination} />;

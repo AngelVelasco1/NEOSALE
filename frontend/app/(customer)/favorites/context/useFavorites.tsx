@@ -38,7 +38,7 @@ export const FavoritesProvider = ({ children }: { children: ReactNode }) => {
       const favoritesData = await getUserFavoritesApi(userId);
       setFavoritesCount(favoritesData?.length || 0);
     } catch (error) {
-      console.error("Error fetching favorites count:", error);
+      
       setFavoritesCount(0);
     }
   };

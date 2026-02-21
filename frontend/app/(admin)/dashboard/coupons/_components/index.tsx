@@ -11,11 +11,11 @@ export default function Products() {
 
   return (
     <Fragment>
+      <CouponFilters />
       <CouponActions
         rowSelection={rowSelection}
         setRowSelection={setRowSelection}
       />
-      <CouponFilters />
       <AllCoupons
         rowSelection={rowSelection}
         setRowSelection={setRowSelection}

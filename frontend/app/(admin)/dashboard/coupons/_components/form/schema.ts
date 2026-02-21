@@ -1,44 +1,20 @@
 import * as z from "zod";
 
-const MAX_FILE_SIZE_MB = 3;
-const MAX_FILE_SIZE = MAX_FILE_SIZE_MB * 1024 * 1024; // 3MB
-const ACCEPTED_IMAGE_TYPES = [
-  "image/jpeg",
-  "image/jpg",
-  "image/png",
-  "image/webp",
-];
-
-const fileSchema = z
-  .instanceof(File, { message: "Coupon image is required" })
-  .refine(
-    (file) => file.size <= MAX_FILE_SIZE,
-    `File size must be less than ${MAX_FILE_SIZE_MB}MB`
-  )
-  .refine(
-    (file) => ACCEPTED_IMAGE_TYPES.includes(file.type),
-    "Only .jpg, .jpeg, .png and .webp formats are supported"
-  );
-
 export const couponFormSchema = z
   .object({
     name: z
       .string()
-      .min(1, { message: "Campaign name is required" })
-      .max(100, "Campaign name must be 100 characters or less"),
+      .min(1, { message: "Coupon name is required" })
+      .max(100, "Coupon name must be 100 characters or less"),
     code: z
       .string()
-      .min(1, { message: "Campaign code is required" })
+      .min(1, { message: "Coupon code is required" })
       .regex(/^[0-9A-Z]+$/, {
         message: "Code must contain only numbers and capital letters",
       })
-      .max(100, "Campaign code must be 100 characters or less"),
-    image: z.union([fileSchema, z.string().url()]),
-    startDate: z.coerce.date({
-      invalid_type_error: "Start date must be a valid date",
-    }),
-    endDate: z.coerce.date({
-      invalid_type_error: "End date must be a valid date",
+      .max(50, "Coupon code must be 50 characters or less"),
+    expiresAt: z.coerce.date({
+      invalid_type_error: "Expiration date must be a valid date",
     }),
     isPercentageDiscount: z.coerce.boolean(),
     discountValue: z.coerce
@@ -46,13 +22,28 @@ export const couponFormSchema = z
         invalid_type_error: "Discount value must be a number",
       })
       .min(1, { message: "Discount value must be greater than 0" }),
+    minPurchaseAmount: z.coerce
+      .number({
+        invalid_type_error: "Minimum purchase must be a number",
+      })
+      .min(0, { message: "Minimum purchase cannot be negative" })
+      .optional(),
+    usageLimit: z.coerce
+      .number({
+        invalid_type_error: "Usage limit must be a number",
+      })
+      .min(1, { message: "Usage limit must be at least 1" })
+      .optional(),
   })
   .superRefine((data, ctx) => {
-    if (data.endDate < data.startDate) {
+    const now = new Date();
+    now.setHours(0, 0, 0, 0);
+
+    if (data.expiresAt < now) {
       ctx.addIssue({
         code: z.ZodIssueCode.custom,
-        message: "End date must be after the start date",
-        path: ["endDate"],
+        message: "Expiration date must be in the future",
+        path: ["expiresAt"],
       });
     }
 
@@ -66,7 +57,7 @@ export const couponFormSchema = z
   });
 
 export const couponBulkFormSchema = z.object({
-  published: z.coerce.boolean(),
+  active: z.coerce.boolean(),
 });
 
 export type CouponFormData = z.infer<typeof couponFormSchema>;

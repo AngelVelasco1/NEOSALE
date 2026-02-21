@@ -1,20 +1,16 @@
 "use server";
 
-import { revalidatePath } from "next/cache";
-
-import { createServerActionClient } from "@/lib/supabase/server-action";
-import { couponBulkFormSchema } from "@/app/(dashboard)/coupons/_components/form/schema";
-import { formatValidationErrors } from "@/helpers/formatValidationErrors";
-import { VServerActionResponse } from "@/types/server-action";
+import { apiClient } from "@/lib/api-client";
+import { couponBulkFormSchema } from "@/app/(admin)/dashboard/coupons/_components/form/schema";
+import { formatValidationErrors } from "@/app/(admin)/helpers/formatValidationErrors";
+import { VServerActionResponse } from "@/app/(admin)/types/server-action";
 
 export async function editCoupons(
-  couponIds: string[],
+  couponIds: number[],
   formData: FormData
 ): Promise<VServerActionResponse> {
-  const supabase = createServerActionClient();
-
   const parsedData = couponBulkFormSchema.safeParse({
-    published: !!(formData.get("published") === "true"),
+    active: !!(formData.get("active") === "true"),
   });
 
   if (!parsedData.success) {
@@ -25,19 +21,21 @@ export async function editCoupons(
     };
   }
 
-  const { published } = parsedData.data;
+  const { active } = parsedData.data;
 
-  const { error: dbError } = await supabase
-    .from("coupons")
-    .update({ published })
-    .in("id", couponIds);
+  try {
+    const response = await apiClient.put(`/admin/coupons`, {
+      couponIds,
+      active,
+    });
 
-  if (dbError) {
-    console.error("Database update failed:", dbError);
-    return { dbError: "Something went wrong. Please try again later." };
+    if (!response.success) {
+      return { success: false, error: response.error || "Failed to update coupons" };
+    }
+
+    return { success: true };
+  } catch (error) {
+    console.error("[editCoupons] Error:", error);
+    return { success: false, error: "Something went wrong. Please try again later." };
   }
-
-  revalidatePath("/coupons");
-
-  return { success: true };
 }

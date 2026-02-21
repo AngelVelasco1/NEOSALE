@@ -17,45 +17,46 @@ export function usePdfDownload() {
     const templateElement = document.getElementById(htmlId);
 
     if (!templateElement) {
-      console.error("Template element not found!");
+      
       return;
     }
 
     setIsLoading(true);
 
     try {
+      // Create canvas with optimized configuration
       const canvas = await html2canvas(templateElement, {
-        logging: false,
         scale: 2,
-        imageTimeout: 15000,
-        useCORS: false,
+        useCORS: true,
+        allowTaint: false,
+        backgroundColor: "#ffffff",
+        logging: false,
         width: 794,
         height: 1123,
+        windowWidth: 794,
+        windowHeight: 1123,
       });
 
-      const imageData = canvas.toDataURL("image/png");
+      // Create PDF with A4 format
+      const pdf = new jsPDF({
+        orientation: "portrait",
+        unit: "mm",
+        format: "a4",
+        compress: true,
+      });
 
-      const pdf = new jsPDF("p", "mm", "a4", true);
-
+      // Calculate dimensions to fit A4
+      const imgData = canvas.toDataURL("image/jpeg", 0.95);
       const pdfWidth = pdf.internal.pageSize.getWidth();
       const pdfHeight = pdf.internal.pageSize.getHeight();
-      const imgWidth = canvas.width;
-      const imgHeight = canvas.height;
-      const ratio = Math.min(pdfWidth / imgWidth, pdfHeight / imgHeight);
-      const imgX = (pdfWidth - imgWidth * ratio) / 2;
-      const imgY = (pdfHeight - imgHeight * ratio) / 2;
-      pdf.addImage(
-        imageData,
-        "PNG",
-        imgX,
-        imgY,
-        imgWidth * ratio,
-        imgHeight * ratio
-      );
 
+      // Add image to PDF fitted to page
+      pdf.addImage(imgData, "JPEG", 0, 0, pdfWidth, pdfHeight, undefined, "FAST");
+
+      // Save PDF
       pdf.save(`${pdfName}.pdf`);
     } catch (error) {
-      console.error("Failed to download pdf:", error);
+      
     } finally {
       setIsLoading(false);
     }

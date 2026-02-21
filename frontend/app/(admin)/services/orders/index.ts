@@ -1,18 +1,17 @@
-// TODO: Migrado a Prisma - Usa API routes
-// import { SupabaseClient } from "@supabase/supabase-js";
-// import { Database } from "@/types/supabase";
-// import { queryPaginatedTable } from "@/helpers/queryPaginatedTable";
-import {
-  Order,
+import type {
   FetchOrdersParams,
   FetchOrdersResponse,
   OrderDetails,
 } from "./types";
 
+// Usa la ruta proxy de Next.js /api/backend/* 
+// que redirige a http://localhost:8000/api/*
+// Esto evita completamente problemas de CORS
+const API_URL = "/api/backend";
+
 // Migrado a Prisma - Usa API routes
 export async function fetchOrders(
-  params: FetchOrdersParams,
-  _client?: any // No se usa más, mantenido por compatibilidad
+  params: FetchOrdersParams
 ): Promise<FetchOrdersResponse> {
   const {
     page = 1,
@@ -22,8 +21,12 @@ export async function fetchOrders(
     method,
     startDate,
     endDate,
+    minAmount,
+    maxAmount,
+    sortBy,
+    sortOrder,
   } = params;
-  
+
   const queryParams = new URLSearchParams({
     page: page.toString(),
     limit: limit.toString(),
@@ -32,106 +35,105 @@ export async function fetchOrders(
     ...(method && { method }),
     ...(startDate && { startDate }),
     ...(endDate && { endDate }),
+    ...(minAmount && { minAmount }),
+    ...(maxAmount && { maxAmount }),
+    ...(sortBy && { sortBy }),
+    ...(sortOrder && { sortOrder }),
   });
 
-  const response = await fetch(`/api/orders?${queryParams.toString()}`);
-  
+  const response = await fetch(
+    `${API_URL}/orders?${queryParams.toString()}`
+  );
+
   if (!response.ok) {
     throw new Error("Failed to fetch orders");
   }
 
-  return response.json();
-  
-  /* CÓDIGO ORIGINAL CON SUPABASE - ARCHIVADO
-  const selectQuery = `
-    *,
-    customers!inner (
-      name
-    )
-  `;
+  const result = await response.json();
 
-  let query = client.from("orders").select(selectQuery, { count: "exact" });
-
-  if (search) {
-    query = query.ilike("customers.name", `%${search}%`);
+  // Mapear la estructura de paginación si viene del servidor externo
+  if (result.pagination && typeof result.pagination.page !== "undefined") {
+    const mappedResult: FetchOrdersResponse = {
+      data: result.data,
+      pagination: {
+        page: result.pagination.page,
+        limit: result.pagination.limit,
+        total: result.pagination.total,
+        totalPages: result.pagination.totalPages,
+      },
+    };
+    return mappedResult;
   }
 
-  if (status) {
-    query = query.eq("status", status);
-  }
+  return result;
+}
 
-  if (method) {
-    query = query.eq("payment_method", method);
-  }
+export async function fetchOrderDetails(params: {
+  id: string;
+}): Promise<{ order: OrderDetails }> {
+  const { id } = params;
 
-  if (startDate) {
-    query = query.gte("created_at", startDate);
-  }
-
-  if (endDate) {
-    const endDay = new Date(endDate);
-    const nextDay = new Date(endDay);
-    nextDay.setDate(endDay.getDate() + 1);
-
-    query = query.lt("created_at", nextDay.toISOString());
-  }
-
-  query = query.order("created_at", { ascending: false });
-
-  const paginatedOrders = await queryPaginatedTable<Order, "orders">({
-    name: "orders",
-    page,
-    limit,
-    query,
+  const response = await fetch(`${API_URL}/orders/${id}`, {
+    cache: "no-cache",
+    headers: {
+      "Content-Type": "application/json",
+    },
   });
 
-  return paginatedOrders;
-}
-
-export async function fetchOrderDetails(
-  client: SupabaseClient<Database>,
-  { id }: { id: string }
-) {
-  const selectQuery = `
-    id,
-    invoice_no,
-    order_time,
-    total_amount,
-    shipping_cost,
-    payment_method,
-    status,
-    customers(name, email, phone, address),
-    order_items(quantity, unit_price, products(name)),
-    coupons(discount_type, discount_value)
-  `;
-
-  const { data, error } = await client
-    .from("orders")
-    .select(selectQuery)
-    .eq("id", id)
-    .single();
-
-  if (error) {
-    console.error(error.message);
-    throw new Error(`Failed to fetch order details: ${error.message}`);
+  if (!response.ok) {
+    throw new Error(`Failed to fetch order details: ${response.statusText}`);
   }
+
+  const result = await response.json();
+  const data = result.data;
 
   if (!data) {
-    console.error("Failed to fetch order details");
-    throw new Error("Failed to fetch order details");
+    throw new Error("Order data is empty");
   }
 
-  return {
-    order: data as OrderDetails,
+  // Mapear exactamente a la estructura que la página de impresión espera
+  const order: any = {
+    id: data.id,
+    invoice_no: `INV-${String(data.id).padStart(6, "0")}`,
+    created_at: data.created_at,
+    status: data.status,
+    total: data.total ?? data.total_amount ?? 0,
+    shipping_cost: data.shipping_cost ?? 0,
+    User: {
+      name: data.users?.name || "Cliente",
+      email: data.users?.email || "",
+      phoneNumber: data.users?.phone_number || null,
+    },
+    addresses: data.addresses
+      ? {
+          street: data.addresses.address || "",
+          city: data.addresses.city || "",
+          state: data.addresses.department || "",
+          zip_code: data.addresses.postal_code || "",
+        }
+      : null,
+    order_items: Array.isArray(data.order_items)
+      ? data.order_items.map((item: any) => ({
+          id: item.id,
+          quantity: item.quantity || 1,
+          price: item.price ?? item.unit_price ?? 0,
+          products: {
+            name: item.products?.name || item.product?.name || "Sin nombre",
+            description: item.products?.description || item.product?.description || "",
+          },
+        }))
+      : [],
+    coupons: data.coupons
+      ? {
+          code: data.coupons.code,
+          discount_type: data.coupons.discount_type,
+          discount_value: Number(data.coupons.discount_value),
+        }
+      : null,
+    payments: {
+      payment_method: data.payments?.payment_method ?? "CARD",
+    },
   };
-  */
-}
 
-// Stub temporal para fetchOrderDetails
-export async function fetchOrderDetails(
-  params: { id: string },
-  _client?: any
-): Promise<{ order: OrderDetails | null }> {
-  // TODO: Implementar con Prisma
-  return { order: null };
+  return { order };
 }

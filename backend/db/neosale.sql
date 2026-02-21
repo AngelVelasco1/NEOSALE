@@ -1,4 +1,5 @@
 CREATE DATABASE neosale;
+
 -- Eliminar Tablas y enums
 DROP TABLE IF EXISTS review_images;
 DROP TABLE IF EXISTS favorites;
@@ -8,7 +9,6 @@ DROP TABLE IF EXISTS cart_items;
 DROP TABLE IF EXISTS images;
 DROP TABLE IF EXISTS reviews;
 DROP TABLE IF EXISTS "Account";
-
 DROP TABLE IF EXISTS product_variants;
 DROP TABLE IF EXISTS orders;
 DROP TABLE IF EXISTS payments;
@@ -17,92 +17,88 @@ DROP TABLE IF EXISTS addresses;
 DROP TABLE IF EXISTS products;
 DROP TABLE IF EXISTS coupons;
 DROP TABLE IF EXISTS category_subcategory;
-
 DROP TABLE IF EXISTS categories;
 DROP TABLE IF EXISTS subcategories;
 DROP TABLE IF EXISTS brands;
 DROP TABLE IF EXISTS "User";
-DROP TABLE IF EXISTS "verificationtoken";
+DROP TABLE IF EXISTS notifications;
+DROP TABLE IF EXISTS "verificationToken";
 
-DO $$ BEGIN
+DO $$
+BEGIN
     IF EXISTS (SELECT 1 FROM pg_type WHERE typname = 'payment_method_enum') THEN
         DROP TYPE payment_method_enum;
     END IF;
-
     IF EXISTS (SELECT 1 FROM pg_type WHERE typname = 'payment_status_enum') THEN
         DROP TYPE payment_status_enum;
     END IF;
-
     IF EXISTS (SELECT 1 FROM pg_type WHERE typname = 'orders_status_enum') THEN
         DROP TYPE orders_status_enum;
     END IF;
-
     IF EXISTS (SELECT 1 FROM pg_type WHERE typname = 'roles_enum') THEN
         DROP TYPE roles_enum;
     END IF;
-
     IF EXISTS (SELECT 1 FROM pg_type WHERE typname = 'notification_type_enum') THEN
         DROP TYPE notification_type_enum;
     END IF;
-
     IF EXISTS (SELECT 1 FROM pg_type WHERE typname = 'return_status_enum') THEN
         DROP TYPE return_status_enum;
     END IF;
 END $$;
 
 -- TIPOS ENUM
-DO $$ BEGIN
-       CREATE TYPE payment_method_enum AS ENUM (
-            'PSE', 
-            'CARD', 
-            'NEQUI', 
-            'BANCOLOMBIA',
-            'BANCOLOMBIA_TRANSFER'
-        );
-        
-        CREATE TYPE payment_status_enum AS ENUM (
-            'PENDING',    -- Pendiente (inicial)
-            'APPROVED',   -- Aprobada 
-            'DECLINED',   -- Rechazada 
-            'VOIDED',     -- Anulada (solo tarjetas)
-            'ERROR'       -- Error en procesamiento
-        );
+DO $$
+BEGIN
+    CREATE TYPE payment_method_enum AS ENUM (
+        'PSE',
+        'CARD',
+        'NEQUI',
+        'BANCOLOMBIA',
+        'BANCOLOMBIA_TRANSFER'
+    );
 
-       CREATE TYPE orders_status_enum AS ENUM (
-            'pending',      -- Pendiente
-            'paid',         -- Pagada (cuando payment_status = 'APPROVED')
-            'processing',   -- Procesando
-            'shipped',      -- Enviada
-            'delivered',    -- Entregada
-            'cancelled',    -- Cancelada
-            'refunded'      -- Reembolsada
-        );
-select * from orders;
-       CREATE TYPE roles_enum AS ENUM ('user', 'admin');
-  
-       CREATE TYPE notification_type_enum AS ENUM (
-            'order_confirmed',     -- Orden confirmada
-            'order_shipped',       -- Orden enviada
-            'order_delivered',     -- Orden entregada
-            'price_drop',          -- Bajada de precio
-            'back_in_stock',       -- Producto disponible
-            'review_request',      -- Solicitud de review
-            'promotion'            -- Promoción especial
-        );
+    CREATE TYPE payment_status_enum AS ENUM (
+        'PENDING',    -- Pendiente (inicial)
+        'APPROVED',   -- Aprobada
+        'DECLINED',   -- Rechazada
+        'VOIDED',     -- Anulada (solo tarjetas)
+        'ERROR'       -- Error en procesamiento
+    );
 
-        CREATE TYPE return_status_enum AS ENUM (
-            'requested', 
-            'approved', 
-            'rejected', 
-            'processed', 
-            'refunded'
-        );
+    CREATE TYPE orders_status_enum AS ENUM (
+        'pending',      -- Pendiente
+        'paid',         -- Pagada (cuando payment_status = 'APPROVED')
+        'processing',   -- Procesando
+        'shipped',      -- Enviada
+        'delivered'    -- Entregada
+    );
+
+    CREATE TYPE roles_enum AS ENUM ('user', 'admin');
+
+    CREATE TYPE notification_type_enum AS ENUM (
+        'low_stock',           -- Stock bajo
+        'out_of_stock',        -- Sin stock
+        'new_order',           -- Nueva orden
+        'order_status_change', -- Cambio estado de orden
+        'new_review',          -- Nueva reseña
+        'system_alert',        -- Alerta del sistema
+        'promotion'            -- Promoción especial
+    );
+
+    CREATE TYPE return_status_enum AS ENUM (
+        'requested',
+        'approved',
+        'rejected',
+        'processed',
+        'refunded'
+    );
 END $$;
 
 -- Tablas
+
 CREATE TABLE "User" (
     id SERIAL PRIMARY KEY,
-    name VARCHAR(255) NOT NULL,
+    name VARCHAR(255),
     email VARCHAR(255) UNIQUE NOT NULL,
     email_verified TIMESTAMP(6),
     password VARCHAR(255),
@@ -113,35 +109,72 @@ CREATE TABLE "User" (
     role roles_enum DEFAULT 'user' NOT NULL,
     active BOOLEAN DEFAULT TRUE NOT NULL,
     email_notifications BOOLEAN DEFAULT TRUE NOT NULL,
+    terms_accepted_at TIMESTAMP(6),
+    privacy_accepted_at TIMESTAMP(6),
     created_at TIMESTAMP(6) DEFAULT CURRENT_TIMESTAMP NOT NULL,
     updated_at TIMESTAMP(6) DEFAULT NULL,
-    
-    CONSTRAINT chk_user_phone CHECK (phone_number ~ '^3\d{9}$' OR phone_number IS NULL),
-    CONSTRAINT chk_user_identification CHECK (identification ~ '^\d{6,12}$' OR identification IS NULL),
-    CONSTRAINT chk_user_identification_type CHECK (identification_type IN ('CC', 'CE', 'PP'))
+    CONSTRAINT chk_user_phone CHECK (
+        phone_number ~ '^3\d{9}$' OR phone_number IS NULL
+    ),
+    CONSTRAINT chk_user_identification CHECK (
+        identification ~ '^\d{6,12}$' OR identification IS NULL
+    ),
+    CONSTRAINT chk_user_identification_type CHECK (
+        identification_type IN ('CC', 'CE', 'PP')
+    )
 );
+
+
+-- Tabla de notificaciones para administradores
+CREATE TABLE notifications (
+    id SERIAL PRIMARY KEY,
+    staff_id INTEGER NOT NULL REFERENCES "User"(id) ON DELETE CASCADE,
+    type notification_type_enum NOT NULL,
+    title VARCHAR(255) NOT NULL,
+    message TEXT NOT NULL,
+    link VARCHAR(500), -- URL para redireccionar 
+    related_entity_type VARCHAR(50), -- 'order', 'product', 'review', etc.
+    related_entity_id INTEGER, -- ID de la entidad relacionada
+    is_read BOOLEAN DEFAULT FALSE NOT NULL,
+    read_at TIMESTAMP(6),
+    created_at TIMESTAMP(6) DEFAULT CURRENT_TIMESTAMP NOT NULL,
+    CONSTRAINT chk_notification_related CHECK (
+        (related_entity_type IS NULL AND related_entity_id IS NULL) OR
+        (related_entity_type IS NOT NULL AND related_entity_id IS NOT NULL)
+    )
+);
+
 
 CREATE TABLE brands (
     id SERIAL PRIMARY KEY,
     name VARCHAR(255) NOT NULL UNIQUE,
     description VARCHAR(500),
     active BOOLEAN DEFAULT TRUE NOT NULL,
-    image_url VARCHAR(255)
+    image_url VARCHAR(255),
+    deleted_at TIMESTAMP(6),
+    deleted_by INTEGER REFERENCES "User"(id)
 );
+
 
 CREATE TABLE subcategories (
     id SERIAL PRIMARY KEY,
     name VARCHAR(255) NOT NULL,
-    active BOOLEAN DEFAULT TRUE NOT NULL
+    active BOOLEAN DEFAULT TRUE NOT NULL,
+    deleted_at TIMESTAMP(6),
+    deleted_by INTEGER REFERENCES "User"(id)
 );
+
 
 CREATE TABLE categories (
     id SERIAL PRIMARY KEY,
     name VARCHAR(255) NOT NULL,
     description VARCHAR(500),
     id_subcategory INTEGER REFERENCES subcategories(id) ON DELETE NO ACTION,
-    active BOOLEAN DEFAULT TRUE NOT NULL
+    active BOOLEAN DEFAULT TRUE NOT NULL,
+    deleted_at TIMESTAMP(6),
+    deleted_by INTEGER REFERENCES "User"(id)
 );
+
 
 CREATE TABLE category_subcategory (
     category_id INTEGER NOT NULL REFERENCES categories(id) ON DELETE NO ACTION,
@@ -150,28 +183,34 @@ CREATE TABLE category_subcategory (
     PRIMARY KEY (category_id, subcategory_id)
 );
 
+
 CREATE TABLE coupons (
     id SERIAL PRIMARY KEY,
     code VARCHAR(50) NOT NULL,
     name VARCHAR(100) NOT NULL,
     discount_type VARCHAR(255) NOT NULL,
-    discount_value DECIMAL(10,2) NOT NULL,
-    min_purchase_amount DECIMAL(10,2) DEFAULT 0,
+    discount_value DECIMAL(10, 2) NOT NULL,
+    min_purchase_amount DECIMAL(10, 2) DEFAULT 0,
     usage_limit INTEGER,
     usage_count INTEGER DEFAULT 0,
     active BOOLEAN DEFAULT TRUE NOT NULL,
+    featured BOOLEAN DEFAULT FALSE NOT NULL,
     created_by INTEGER NOT NULL,
     created_at TIMESTAMP(6) DEFAULT CURRENT_TIMESTAMP NOT NULL,
     expires_at TIMESTAMP(6) NOT NULL,
-    
-    CONSTRAINT chk_coupon_discount_type CHECK (discount_type IN ('percentage', 'fixed')),
+    deleted_at TIMESTAMP(6),
+    deleted_by INTEGER REFERENCES "User"(id),
+    CONSTRAINT chk_coupon_discount_type CHECK (
+        discount_type IN ('percentage', 'fixed')
+    ),
     CONSTRAINT chk_coupon_discount_value_positive CHECK (discount_value > 0),
     CONSTRAINT chk_coupon_discount_value_valid CHECK (
-        (discount_type = 'percentage' AND discount_value > 0 AND discount_value <= 100) OR
-        (discount_type = 'fixed' AND discount_value > 0)
+        (discount_type = 'percentage' AND discount_value > 0 AND discount_value <= 100)
+        OR (discount_type = 'fixed' AND discount_value > 0)
     ),
     CONSTRAINT chk_coupon_dates CHECK (created_at < expires_at)
 );
+
 
 CREATE TABLE products (
     id SERIAL PRIMARY KEY,
@@ -181,31 +220,33 @@ CREATE TABLE products (
     stock INTEGER NOT NULL,
     weight_grams INTEGER NOT NULL,
     sizes VARCHAR(255) NOT NULL,
-    base_discount DECIMAL(8,2) DEFAULT 0 NOT NULL,
+    base_discount DECIMAL(8, 2) DEFAULT 0 NOT NULL,
     category_id INTEGER NOT NULL REFERENCES categories(id) ON DELETE NO ACTION,
     brand_id INTEGER NOT NULL REFERENCES brands(id) ON DELETE NO ACTION,
     active BOOLEAN DEFAULT TRUE NOT NULL,
     in_offer BOOLEAN DEFAULT FALSE NOT NULL,
-    offer_discount DECIMAL(10,2),
+    offer_discount DECIMAL(10, 2),
     offer_start_date TIMESTAMP(6),
     offer_end_date TIMESTAMP(6),
     created_at TIMESTAMP(6) DEFAULT CURRENT_TIMESTAMP NOT NULL,
     created_by INTEGER NOT NULL,
     updated_at TIMESTAMP(6),
     updated_by INTEGER NOT NULL,
-    
+    deleted_at TIMESTAMP(6),
+    deleted_by INTEGER REFERENCES "User"(id),
     CONSTRAINT chk_product_price CHECK (price > 0),
     CONSTRAINT chk_product_stock CHECK (stock >= 0),
     CONSTRAINT chk_product_weight CHECK (weight_grams > 0),
-    CONSTRAINT chk_product_base_discount CHECK (base_discount >= 0 AND base_discount <= 100),
+    CONSTRAINT chk_product_base_discount CHECK (
+        base_discount >= 0 AND base_discount <= 100
+    ),
     CONSTRAINT chk_product_offer_discount CHECK (offer_discount > 0),
     CONSTRAINT chk_product_offer_dates CHECK (
-        (in_offer = FALSE) OR
-        (in_offer = TRUE AND 
-         offer_start_date IS NOT NULL AND 
-         offer_end_date IS NOT NULL AND 
-         offer_start_date < offer_end_date AND
-         offer_end_date > CURRENT_TIMESTAMP)
+        (in_offer = FALSE)
+        OR (in_offer = TRUE
+            AND offer_start_date IS NOT NULL
+            AND offer_end_date IS NOT NULL
+            AND offer_start_date < offer_end_date)
     )
 );
 
@@ -216,18 +257,20 @@ CREATE TABLE product_variants (
     color VARCHAR(255) NOT NULL,
     size VARCHAR(25) NOT NULL,
     stock INTEGER NOT NULL,
-    sku VARCHAR(100), 
+    sku VARCHAR(100),
     price INTEGER,
     weight_grams INTEGER,
     active BOOLEAN DEFAULT TRUE NOT NULL,
     created_at TIMESTAMP(6) DEFAULT CURRENT_TIMESTAMP NOT NULL,
     updated_at TIMESTAMP(6),
-    
+    deleted_at TIMESTAMP(6),
+    deleted_by INTEGER REFERENCES "User"(id),
     CONSTRAINT chk_variant_stock CHECK (stock >= 0),
     CONSTRAINT chk_variant_price CHECK (price > 0),
     CONSTRAINT chk_variant_weight CHECK (weight_grams > 0),
     CONSTRAINT unq_product_variant UNIQUE(product_id, color_code, size)
 );
+
 
 CREATE TABLE cart (
     id SERIAL PRIMARY KEY,
@@ -236,57 +279,49 @@ CREATE TABLE cart (
     subtotal INTEGER NOT NULL,
     created_at TIMESTAMP(6) DEFAULT CURRENT_TIMESTAMP NOT NULL,
     expires_at TIMESTAMP(6),
-    
     CONSTRAINT chk_cart_subtotal CHECK (subtotal >= 0),
-    CONSTRAINT chk_cart_user_or_session CHECK (user_id IS NOT NULL OR session_token IS NOT NULL)
+    CONSTRAINT chk_cart_user_or_session CHECK (
+        user_id IS NOT NULL OR session_token IS NOT NULL
+    )
 );
+
 
 CREATE TABLE payments (
     id SERIAL PRIMARY KEY,
-    
-    transaction_id VARCHAR(255) UNIQUE,      -- ID de Wompi
+    transaction_id VARCHAR(255) UNIQUE, -- ID de Wompi
     reference VARCHAR(255) NOT NULL UNIQUE, -- NEOSALE_202410041234
-    
     amount_in_cents BIGINT NOT NULL,
     currency VARCHAR(3) DEFAULT 'COP' NOT NULL,
-    
     payment_status payment_status_enum DEFAULT 'PENDING' NOT NULL,
     status_message VARCHAR(500),
     processor_response_code VARCHAR(20),
-    
     payment_method payment_method_enum NOT NULL,
     payment_method_details JSONB DEFAULT '{}', -- brand, last_four, installments, etc.
-    
     card_token VARCHAR(255),
     acceptance_token TEXT,
     acceptance_token_auth TEXT,
     signature_used VARCHAR(255),
-    
     redirect_url VARCHAR(500),
     checkout_url VARCHAR(500),
-    
     customer_email VARCHAR(255) NOT NULL,
     customer_phone VARCHAR(20),
     customer_document_type VARCHAR(10),
     customer_document_number VARCHAR(20),
-    
     cart_data JSONB NOT NULL, -- Productos, cantidades, precios
     shipping_address JSONB NOT NULL, -- Dirección de envío
     user_id INTEGER NOT NULL REFERENCES "User"(id),
-    
     created_at TIMESTAMP(6) DEFAULT CURRENT_TIMESTAMP NOT NULL,
     updated_at TIMESTAMP(6) DEFAULT CURRENT_TIMESTAMP NOT NULL,
     approved_at TIMESTAMP(6),
     failed_at TIMESTAMP(6),
-    
     processor_response JSONB DEFAULT '{}',
-    
     CONSTRAINT chk_payment_amount CHECK (amount_in_cents > 0),
-    CONSTRAINT chk_payment_currency CHECK (currency IN ('COP', 'USD')),
-    CONSTRAINT chk_payment_customer_email CHECK (customer_email ~* '^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}$'),
-    CONSTRAINT chk_payment_phone CHECK (customer_phone ~ '^3\d{9}$' OR customer_phone IS NULL),
-    CONSTRAINT chk_payment_document_type CHECK (customer_document_type IN ('CC', 'CE', 'PP', 'TI', 'NIT', 'DNI', 'RG', 'OTHER') OR customer_document_type IS NULL)
+    CONSTRAINT chk_payment_currency CHECK (
+        currency IN ('COP', 'PP', 'TI', 'NIT', 'OTHER')
+        OR customer_document_type IS NULL
+    )
 );
+
 
 CREATE TABLE addresses (
     id SERIAL PRIMARY KEY,
@@ -308,34 +343,30 @@ CREATE TABLE orders (
     discount INTEGER DEFAULT 0,
     shipping_cost INTEGER NOT NULL,
     taxes INTEGER NOT NULL,
-    total INTEGER NOT NULL,
-    
-    -- Información de envío
+    total INTEGER NOT NULL, -- Información de envío
     shipping_address_id INTEGER NOT NULL REFERENCES addresses(id),
     user_note VARCHAR(500),
-    admin_notes TEXT,
-    
-    -- Cupones (opcional)
+    admin_notes TEXT, -- Cupones (opcional)
     coupon_id INTEGER REFERENCES coupons(id) ON DELETE SET NULL,
-    coupon_discount INTEGER DEFAULT 0,
-    
-    -- Logística
+    coupon_discount INTEGER DEFAULT 0, -- Logística y EnvioClick
     tracking_number VARCHAR(100),
     carrier VARCHAR(50),
     estimated_delivery_date DATE,
-    
+    envioclick_guide_number VARCHAR(100), -- Número de guía de EnvioClick
+    envioclick_shipment_id VARCHAR(100), -- ID del envío en EnvioClick
+    envioclick_status VARCHAR(50), -- Estado según EnvioClick
+    envioclick_tracking_url VARCHAR(500), -- URL de rastreo público
+    envioclick_label_url VARCHAR(500), -- URL de la etiqueta de envío
+    last_tracking_update TIMESTAMP(6), -- Última actualización de rastreo
+    tracking_history JSONB DEFAULT '[]', -- Historial de tracking events
     -- Timestamps de estados
     created_at TIMESTAMP(6) DEFAULT CURRENT_TIMESTAMP NOT NULL, -- Cuando se aprobó el pago
     updated_at TIMESTAMP(6),
     shipped_at TIMESTAMP(6),
     delivered_at TIMESTAMP(6),
-    cancelled_at TIMESTAMP(6),
-    
-    -- Usuario
+    cancelled_at TIMESTAMP(6), -- Usuario
     user_id INTEGER NOT NULL REFERENCES "User"(id) ON DELETE NO ACTION,
-    updated_by INTEGER NOT NULL REFERENCES "User"(id),
-    
-    -- Constraints
+    updated_by INTEGER NOT NULL REFERENCES "User"(id), -- Constraints
     CONSTRAINT chk_order_subtotal CHECK (subtotal > 0),
     CONSTRAINT chk_order_discount CHECK (discount >= 0),
     CONSTRAINT chk_order_shipping_cost CHECK (shipping_cost >= 0),
@@ -343,9 +374,10 @@ CREATE TABLE orders (
     CONSTRAINT chk_order_total CHECK (total > 0),
     CONSTRAINT chk_order_coupon_discount CHECK (coupon_discount >= 0)
 );
-select * from orders;
 
-CREATE TABLE "Account" (
+DROP TABLE IF EXISTS "Account" CASCADE;
+
+CREATE TABLE account (
     user_id INTEGER NOT NULL REFERENCES "User"(id) ON DELETE CASCADE,
     type VARCHAR(255) NOT NULL,
     provider VARCHAR(255) NOT NULL,
@@ -359,9 +391,9 @@ CREATE TABLE "Account" (
     session_state VARCHAR(255),
     created_at TIMESTAMP(6) DEFAULT CURRENT_TIMESTAMP NOT NULL,
     updated_at TIMESTAMP(6) DEFAULT CURRENT_TIMESTAMP NOT NULL,
-    PRIMARY KEY (provider, provider_account_id)
+    PRIMARY KEY (provider, provider_account_id),
+    CONSTRAINT provider_provider_account_id UNIQUE (provider, provider_account_id)
 );
-
 
 
 CREATE TABLE cart_items (
@@ -372,10 +404,10 @@ CREATE TABLE cart_items (
     unit_price INTEGER NOT NULL,
     color_code VARCHAR(7) NOT NULL,
     size VARCHAR(25) NOT NULL,
-    
     CONSTRAINT chk_cart_item_quantity CHECK (quantity > 0),
     CONSTRAINT chk_cart_item_price CHECK (unit_price >= 0)
 );
+
 
 CREATE TABLE images (
     id SERIAL PRIMARY KEY,
@@ -386,6 +418,7 @@ CREATE TABLE images (
     product_id INTEGER NOT NULL REFERENCES products(id) ON DELETE CASCADE,
     variant_id INTEGER REFERENCES product_variants(id) ON DELETE CASCADE
 );
+
 
 CREATE TABLE order_items (
     id SERIAL PRIMARY KEY,
@@ -398,11 +431,11 @@ CREATE TABLE order_items (
     order_id INTEGER NOT NULL REFERENCES orders(id) ON DELETE NO ACTION,
     created_at TIMESTAMP(6) DEFAULT CURRENT_TIMESTAMP NOT NULL,
     updated_at TIMESTAMP(6),
-
     CONSTRAINT chk_order_item_price CHECK (price >= 0),
     CONSTRAINT chk_order_item_quantity CHECK (quantity > 0),
     CONSTRAINT chk_order_item_subtotal CHECK (subtotal >= 0)
 );
+
 
 CREATE TABLE order_logs (
     id SERIAL PRIMARY KEY,
@@ -414,21 +447,25 @@ CREATE TABLE order_logs (
     updated_at TIMESTAMP(6),
     updated_by INTEGER NOT NULL REFERENCES "User"(id) ON DELETE NO ACTION,
     user_type VARCHAR(20) DEFAULT 'admin',
-    
     CONSTRAINT chk_order_log_user_type CHECK (user_type IN ('admin', 'system'))
 );
+
 
 CREATE TABLE reviews (
     id SERIAL PRIMARY KEY,
     user_id INTEGER NOT NULL REFERENCES "User"(id) ON DELETE CASCADE,
     product_id INTEGER NOT NULL REFERENCES products(id) ON DELETE CASCADE,
+    order_id INTEGER REFERENCES orders(id) ON DELETE SET NULL,
     rating INTEGER NOT NULL,
     comment TEXT,
+    active BOOLEAN DEFAULT FALSE NOT NULL,
     created_at TIMESTAMP(6) DEFAULT CURRENT_TIMESTAMP NOT NULL,
     updated_at TIMESTAMP(6),
-    
     CONSTRAINT chk_review_rating CHECK (rating >= 1 AND rating <= 5)
 );
+
+select * from reviews;
+
 
 CREATE TABLE review_images (
     id SERIAL PRIMARY KEY,
@@ -437,13 +474,56 @@ CREATE TABLE review_images (
     created_at TIMESTAMP(6) DEFAULT CURRENT_TIMESTAMP NOT NULL
 );
 
+
 CREATE TABLE favorites (
     id SERIAL PRIMARY KEY,
     user_id INTEGER NOT NULL REFERENCES "User"(id) ON DELETE CASCADE,
     product_id INTEGER NOT NULL REFERENCES products(id) ON DELETE CASCADE,
     created_at TIMESTAMP(6) DEFAULT CURRENT_TIMESTAMP NOT NULL,
-    
     CONSTRAINT unq_user_product_favorite UNIQUE(user_id, product_id)
+);
+
+CREATE TABLE "verificationToken" (
+    identifier VARCHAR(255) NOT NULL,
+    token VARCHAR(255) NOT NULL,
+    expires TIMESTAMP(6) NOT NULL,
+    PRIMARY KEY (identifier, token)
+);
+
+CREATE TABLE store_settings (
+    id SERIAL PRIMARY KEY,
+    store_name VARCHAR(255) DEFAULT 'NeoSale' NOT NULL,
+    store_description TEXT,
+    contact_email VARCHAR(255) DEFAULT 'info@neosale.com' NOT NULL,
+    contact_phone VARCHAR(50) DEFAULT '+57 300 123 4567' NOT NULL,
+    whatsapp_number VARCHAR(50),
+    address VARCHAR(500),
+    city VARCHAR(100) DEFAULT 'Bogotá' NOT NULL,
+    country VARCHAR(100) DEFAULT 'Colombia' NOT NULL,
+    facebook_url VARCHAR(255),
+    instagram_url VARCHAR(255),
+    twitter_url VARCHAR(255),
+    youtube_url VARCHAR(255),
+    tiktok_url VARCHAR(255),
+    logo_url VARCHAR(255),
+    favicon_url VARCHAR(255),
+    primary_color VARCHAR(20) DEFAULT '#3B82F6' NOT NULL,
+    secondary_color VARCHAR(20) DEFAULT '#6366F1' NOT NULL,
+    accent_color VARCHAR(20) DEFAULT '#D946EF' NOT NULL,
+    footer_text TEXT,
+    newsletter_enabled BOOLEAN DEFAULT TRUE NOT NULL,
+    show_whatsapp_chat BOOLEAN DEFAULT TRUE NOT NULL,
+    business_hours JSONB DEFAULT '{"monday":"8:00 AM - 6:00 PM","tuesday":"8:00 AM - 6:00 PM","wednesday":"8:00 AM - 6:00 PM","thursday":"8:00 AM - 6:00 PM","friday":"8:00 AM - 6:00 PM","saturday":"9:00 AM - 2:00 PM","sunday":"Closed"}',
+    shipping_info JSONB DEFAULT '{"free_shipping_minimum":150000,"standard_shipping_cost":10000}',
+    seo_title VARCHAR(255),
+    seo_description VARCHAR(500),
+    seo_keywords TEXT,
+    google_analytics_id VARCHAR(50),
+    facebook_pixel_id VARCHAR(50),
+    active BOOLEAN DEFAULT TRUE NOT NULL,
+    created_at TIMESTAMP(6) DEFAULT CURRENT_TIMESTAMP NOT NULL,
+    updated_at TIMESTAMP(6),
+    updated_by INTEGER REFERENCES "User"(id)
 );
 
 -- Para otra version
@@ -461,7 +541,7 @@ CREATE TABLE favorites (
     processed_at TIMESTAMP(6),
     refunded_at TIMESTAMP(6),
     processed_by INTEGER REFERENCES "User"(id) ON DELETE NO ACTION,
-    
+
     CONSTRAINT chk_return_refund_amount CHECK (refund_amount >= 0)
 );
 
@@ -471,85 +551,113 @@ CREATE TABLE return_items (
     order_item_id INTEGER NOT NULL REFERENCES order_items(id) ON DELETE NO ACTION,
     quantity INTEGER NOT NULL,
     reason VARCHAR(255),
-    
+
     CONSTRAINT chk_return_item_quantity CHECK (quantity > 0)
-); */
-
-
--- INDICES
+); */ -- INDICES
 -- Usuarios
+
 CREATE INDEX idx_user_email ON "User"(email);
 CREATE INDEX idx_user_phone ON "User"(phone_number);
 CREATE INDEX idx_user_active ON "User"(active);
 
 -- Productos
+
 CREATE INDEX idx_product_category ON products(category_id);
 CREATE INDEX idx_product_brand ON products(brand_id);
 CREATE INDEX idx_product_active ON products(active);
 CREATE INDEX idx_product_status ON products(active, in_offer);
 CREATE INDEX idx_product_price ON products(price);
+CREATE INDEX idx_product_deleted ON products(deleted_at) WHERE deleted_at IS NULL;
 
 -- Variantes de productos
+
 CREATE INDEX idx_variant_product ON product_variants(product_id);
 CREATE INDEX idx_variant_sku ON product_variants(sku) WHERE sku IS NOT NULL;
 CREATE INDEX idx_variant_stock ON product_variants(stock) WHERE stock > 0;
+CREATE INDEX idx_variant_deleted ON product_variants(deleted_at) WHERE deleted_at IS NULL;
 
 -- Categorías
+
 CREATE INDEX idx_category_active ON categories(active);
 CREATE INDEX idx_category_subcategory ON categories(id_subcategory);
+CREATE INDEX idx_category_deleted ON categories(deleted_at) WHERE deleted_at IS NULL;
 
 -- Subcategorías
+
 CREATE INDEX idx_subcategory_active ON subcategories(active);
+CREATE INDEX idx_subcategory_deleted ON subcategories(deleted_at) WHERE deleted_at IS NULL;
 
 -- Marcas
+
 CREATE INDEX idx_brand_active ON brands(active);
 CREATE INDEX idx_brand_name ON brands(name);
+CREATE INDEX idx_brand_deleted ON brands(deleted_at) WHERE deleted_at IS NULL;
 
 -- Cupones
-CREATE INDEX idx_coupon_code ON coupons(code); 
+
+CREATE INDEX idx_coupon_code ON coupons(code);
 CREATE INDEX idx_coupon_valid ON coupons(active, expires_at) WHERE active = TRUE;
 CREATE INDEX idx_coupon_usage ON coupons(usage_count, usage_limit) WHERE active = TRUE;
+CREATE INDEX idx_coupon_deleted ON coupons(deleted_at) WHERE deleted_at IS NULL;
 
 -- Carrito
+
 CREATE INDEX idx_cart_user ON cart(user_id);
 
 -- Items del carrito
+
 CREATE INDEX idx_cart_item_cart ON cart_items(cart_id);
 CREATE INDEX idx_cart_item_product ON cart_items(product_id);
 
 -- Órdenes
+
 CREATE INDEX idx_order_user ON orders(user_id);
 CREATE INDEX idx_order_status ON orders(status);
 CREATE INDEX idx_order_updated ON orders(updated_at);
 CREATE INDEX idx_order_address ON orders(shipping_address_id);
 
 -- Items de órdenes
+
 CREATE INDEX idx_order_item_order ON order_items(order_id);
 CREATE INDEX idx_order_item_product ON order_items(product_id);
 
 -- Logs de órdenes
+
 CREATE INDEX idx_order_log_order ON order_logs(order_id);
 CREATE INDEX idx_order_log_status ON order_logs(new_status);
 
 -- Direcciones
+
 CREATE INDEX idx_address_user ON addresses(user_id);
 CREATE INDEX idx_address_default ON addresses(user_id) WHERE is_default = TRUE;
 
 -- Imágenes
+
 CREATE INDEX idx_image_product ON images(product_id);
 CREATE INDEX idx_image_primary ON images(product_id) WHERE is_primary = TRUE;
 
 -- Reviews
+
 CREATE INDEX idx_review_product ON reviews(product_id);
 CREATE INDEX idx_review_user ON reviews(user_id);
 CREATE INDEX idx_review_rating ON reviews(rating);
 
 -- Review Images
+
 CREATE INDEX idx_review_image_review ON review_images(review_id);
 
 -- Favoritos
+select * from reviews;
 CREATE INDEX idx_favorite_user ON favorites(user_id);
 CREATE INDEX idx_favorite_product ON favorites(product_id);
+
+-- Notificaciones
+
+CREATE INDEX idx_notification_staff ON notifications(staff_id);
+CREATE INDEX idx_notification_unread ON notifications(staff_id, is_read) WHERE is_read = FALSE;
+CREATE INDEX idx_notification_type ON notifications(type);
+CREATE INDEX idx_notification_created ON notifications(created_at DESC);
+CREATE INDEX idx_notification_related ON notifications(related_entity_type, related_entity_id) WHERE related_entity_type IS NOT NULL;
 
 -- Devoluciones (comentado porque las tablas están comentadas)
 -- CREATE INDEX idx_return_order ON returns(order_id);
@@ -561,9 +669,10 @@ CREATE INDEX idx_favorite_product ON favorites(product_id);
 -- CREATE INDEX idx_return_item_order_item ON return_items(order_item_id);
 
 -- Variantes disponibles (con stock)
-CREATE INDEX idx_variant_available ON product_variants(product_id, active, stock) 
-WHERE active = TRUE AND stock > 0;
+
+CREATE INDEX idx_variant_available ON product_variants(product_id, active, stock)
+    WHERE active = TRUE AND stock > 0 AND deleted_at IS NULL;
 
 -- Búsqueda de productos por nombre
+
 CREATE INDEX idx_product_name_search ON products USING gin(to_tsvector('spanish', name));
-select * from orders;

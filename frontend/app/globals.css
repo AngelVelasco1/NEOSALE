@@ -2,12 +2,41 @@
 
 @layer base {
   :root {
-    --font-inter: 'Inter', sans-serif;
+    --font-inter: 'Poppins', sans-serif;
     --font-montserrat: 'Montserrat', sans-serif;
+    
+    /* Theme Colors - Dynamic */
+    --color-primary: #3b82f6;
+    --color-primary-rgb: 59, 130, 246;
+    --color-secondary: #0ea5e9;
+    --color-secondary-rgb: 14, 165, 233;
+    --color-accent: #d946ef;
+    --color-accent-rgb: 217, 70, 239;
+    
+    /* Light mode - Sidebar colors */
+    --sidebar-bg: 0 0% 100%;
+    --sidebar-foreground: 240 10% 3.9%;
+    --sidebar-primary: 217.2 91.2% 59.8%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 240 4.8% 95.9%;
+    --sidebar-accent-foreground: 240 5.9% 10%;
+    --sidebar-border: 220 13% 91%;
+    --sidebar-ring: 217.2 91.2% 59.8%;
   }
   
+  
+  html {
+    scrollbar-gutter: stable;
+  }
+
   body {
     font-family: var(--font-montserrat);
+    min-height: 100%;
+  }
+
+  html.select-viewport-lock,
+  html.select-viewport-lock body {
+    overflow: hidden;
   }
   
   .font-montserrat {
@@ -17,4 +46,12 @@
   .font-inter {
     font-family: var(--font-inter);
   }
+}
+
+input[type="search"]::-webkit-search-cancel-button {
+  display: none;
+}
+
+input[type="search"]::-moz-search-cancel-button {
+  display: none;
 }

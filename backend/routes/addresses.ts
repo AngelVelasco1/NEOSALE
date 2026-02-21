@@ -7,7 +7,7 @@ import {
   createAddress,
   updateAddress,
   deleteAddress,
-} from "../controllers/addresses";
+} from "../controllers/addresses.js";
 
 export const addressesRoutes = () =>
   Router()

@@ -199,12 +199,6 @@ export const getWompiAcceptanceTokensService = async () => {
       throw new Error("WP_PUBLIC_KEY no está configurado");
     }
 
-    console.log("Obteniendo tokens de aceptación de Wompi...", {
-      publicKey: config.publicKey.substring(0, 20) + "...",
-      environment: config.environment,
-      baseUrl: config.baseUrl,
-    });
-
     const url = `${config.baseUrl}/merchants/${config.publicKey}`;
 
     const response = await fetch(url, {
@@ -245,16 +239,6 @@ export const getWompiAcceptanceTokensService = async () => {
       presigned_acceptance: result.data.presigned_acceptance,
       presigned_personal_data_auth: result.data.presigned_personal_data_auth,
     };
-
-    console.log(" Tokens de aceptación obtenidos exitosamente:", {
-      hasPresignedAcceptance:
-        !!merchantData.presigned_acceptance.acceptance_token,
-      hasPersonalDataAuth:
-        !!merchantData.presigned_personal_data_auth.acceptance_token,
-      acceptancePermalink: merchantData.presigned_acceptance.permalink,
-      personalDataPermalink:
-        merchantData.presigned_personal_data_auth.permalink,
-    });
 
     return {
       success: true,
@@ -514,7 +498,6 @@ export const createPSETransaction = async (
 
     while (!asyncPaymentUrl && pollAttempts < maxPollAttempts) {
       pollAttempts++;
-      console.log(`Polling intento ${pollAttempts}/${maxPollAttempts}...`);
 
       // Esperar 10 segundos antes del siguiente intento
       await new Promise((resolve) => setTimeout(resolve, 10000));
@@ -537,7 +520,6 @@ export const createPSETransaction = async (
             statusResult.data?.payment_method?.extra?.async_payment_url;
 
           if (asyncPaymentUrl) {
-            console.log(" async_payment_url obtenida:", asyncPaymentUrl);
             break;
           }
         }
@@ -599,10 +581,7 @@ export const createPSETransaction = async (
         cartData: cartDataForDb || undefined,
       });
 
-      console.log(
-        "✅ Payment PSE almacenado en base de datos:",
-        paymentDbResult
-      );
+  
     } catch (dbError) {
       console.error(
         "⚠️ Error almacenando payment PSE en BD (no crítico):",
@@ -939,11 +918,7 @@ export const createPaymentService = async (
       transactionPayload.payment_method_type =
         transactionData.payment_method_type;
 
-      console.log("Método de pago incluido:", {
-        type: transactionData.payment_method.type,
-        installments: transactionData.payment_method.installments,
-        hasToken: !!transactionData.payment_method.token,
-      });
+    
     }
 
     // Realizar petición a Wompi
@@ -1077,15 +1052,9 @@ export const createPaymentService = async (
         };
       });
     } else {
-      console.log("Cart data NO válido - almacenando array vacío:", {
-        hasCartData: !!transactionData.cartData,
-        cartDataStructure: transactionData.cartData,
-        reason: !transactionData.cartData
-          ? "cartData es null/undefined"
-          : !Array.isArray(transactionData.cartData)
-          ? "cartData no es un array"
-          : "estructura desconocida",
-      });
+      console.warn(
+        "⚠️ No se proporcionó cartData o no es un array válido, se guardará sin datos de carrito"
+      );
     }
 
     try {
@@ -1113,9 +1082,8 @@ export const createPaymentService = async (
         cartData: cartDataForDb || undefined, // NUEVO: Pasar datos del carrito
       });
 
-      console.log("✅ Payment guardado exitosamente en BD:", paymentDbResult);
     } catch (dbError) {
-      console.error("❌ Error CRÍTICO almacenando payment en BD:", dbError);
+      console.error("Error almacenando payment en BD:", dbError);
       throw new Error(
         `Error guardando payment en base de datos: ${
           dbError instanceof Error ? dbError.message : "Error desconocido"
@@ -1208,14 +1176,8 @@ export const getWompiTransactionStatusService = async (
 
     const transactionData = await response.json();
 
-    console.log(" Estado de transacción obtenido:", {
-      transactionId,
-      status: transactionData.data?.status,
-      amount: transactionData.data?.amount_in_cents,
-      reference: transactionData.data?.reference,
-    });
 
-    // 🔄 Actualizar estado en nuestra base de datos si ha cambiado
+    // Actualizar estado en nuestra base de datos si ha cambiado
     if (transactionData.data?.status) {
       try {
         await updatePaymentStatusService(
@@ -1318,10 +1280,6 @@ export const updatePaymentStatusService = async (
       )
     `;
 
-    console.log(
-      "✅ Estado de payment actualizado con fn_update_payment:",
-      result
-    );
 
     return {
       success: true,
@@ -1343,13 +1301,9 @@ export const getPaymentByTransactionIdService = async (
   transactionId: string
 ) => {
   try {
-    console.log("Consultando payment desde BD:", { transactionId });
-
     const paymentResult = await prisma.$queryRaw`
       SELECT * FROM get_payment_by_transaction_id(${transactionId}::VARCHAR)
     `;
-
-    console.log(" Payment consultado desde BD:", paymentResult);
 
     return {
       success: true,
@@ -1459,10 +1413,6 @@ export const updatePaymentFromWebhook = async (webhookData: {
       )
     `;
 
-    console.log(
-      "✅ fn_update_payment ejecutada exitosamente desde webhook:",
-      result
-    );
     return { success: true, data: result };
   } catch (error) {
     console.error("Error en updatePaymentFromWebhook:", error);

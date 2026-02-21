@@ -1,0 +1,79 @@
+databases:
+  - name: neosale-db
+    databaseName: neosale
+    user: neosale
+    plan: free
+    region: oregon
+
+services:
+  # ─────────────────────────────────────────────
+  # FULL STACK - Frontend + Backend
+  # ─────────────────────────────────────────────
+  - type: web
+    name: neosale
+    region: oregon
+    plan: free
+    port: 3000
+    buildCommand: "cd frontend && bun install && bun run build && cd ../backend && bun install --production && ./node_modules/.bin/prisma generate && bun build app.ts --outdir dist --target node"
+    startCommand: "bash start-fullstack.sh"
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: BACKEND_PORT
+        value: 8000
+      - key: NEXT_TELEMETRY_DISABLED
+        value: "1"
+      - key: DATABASE_URL
+        value: "postgresql://neosale_user:VMzOh30M52JasBzgsbnkAbrBs8tjabx2@dpg-d6b3ef4r85hc73c487o0-a/neosale"
+      - key: NEXT_PUBLIC_API_URL
+        value: ""
+      - key: NEXTAUTH_URL
+        value: "https://neosale.onrender.com"
+      - key: AUTH_SECRET
+        sync: false
+      - key: AUTH_TRUST_HOST
+        value: "true"
+      - key: AUTH_GOOGLE_ID
+        sync: false
+      - key: AUTH_GOOGLE_SECRET
+        sync: false
+      - key: AUTH_FACEBOOK_ID
+        sync: false
+      - key: AUTH_FACEBOOK_SECRET
+        sync: false
+      - key: CLOUDINARY_CLOUD_NAME
+        sync: false
+      - key: CLOUDINARY_API_KEY
+        sync: false
+      - key: CLOUDINARY_API_SECRET
+        sync: false
+      - key: NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME
+        sync: false
+      - key: WP_PUBLIC_KEY
+        sync: false
+      - key: WP_PRIVATE_KEY
+        sync: false
+      - key: WP_EVENTS
+        sync: false
+      - key: WP_INTEGRITY
+        sync: false
+      - key: EMAIL_USER
+        sync: false
+      - key: EMAIL_PASSWORD
+        sync: false
+      - key: EMAIL_FROM
+        sync: false
+      - key: EMAIL_HOST
+        value: smtp.gmail.com
+      - key: EMAIL_PORT
+        value: "587"
+      - key: ENVIOCLICK_API_KEY
+        sync: false
+      - key: STORE_NAME
+        value: NeoSale
+      - key: STORE_PHONE
+        sync: false
+      - key: STORE_ADDRESS
+        sync: false
+      - key: STORE_CITY
+        sync: false

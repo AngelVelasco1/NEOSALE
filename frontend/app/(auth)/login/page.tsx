@@ -1,10 +1,11 @@
 import { LoginForm } from '../components/LoginForm';
-
-import React from 'react';
+import { Suspense } from 'react';
 
 const Login = () => {
     return (
-        <LoginForm />
+        <Suspense fallback={<div className="flex min-h-screen items-center justify-center">Cargando...</div>}>
+            <LoginForm />
+        </Suspense>
     )
 }
 export default Login;

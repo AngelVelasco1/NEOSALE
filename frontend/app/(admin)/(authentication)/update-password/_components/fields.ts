@@ -7,15 +7,15 @@ interface PasswordUpdateField extends InputField {
 export const passwordUpdateFields: PasswordUpdateField[] = [
   {
     name: "password",
-    label: "New password",
-    placeholder: "**********",
+    label: "Nueva contraseña",
+    placeholder: "Ingresa tu nueva clave",
     inputType: "password",
     autoComplete: "new-password",
   },
   {
     name: "confirmPassword",
-    label: "Confirm Password",
-    placeholder: "**********",
+    label: "Confirma tu contraseña",
+    placeholder: "Repite la nueva clave",
     inputType: "password",
     autoComplete: "new-password",
   },

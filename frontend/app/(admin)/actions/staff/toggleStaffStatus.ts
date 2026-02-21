@@ -1,29 +1,33 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
-
-import { createServerActionClient } from "@/lib/supabase/server-action";
-import { ServerActionResponse } from "@/types/server-action";
+import { apiClient } from "@/lib/api-client";
+import { requireAdmin } from "@/lib/auth-helpers";
+import { ServerActionResponse } from "@/app/(admin)/types/server-action";
 
 export async function toggleStaffPublishedStatus(
   staffId: string,
   currentPublishedStatus: boolean
 ): Promise<ServerActionResponse> {
-  const supabase = createServerActionClient();
+  try {
+    await requireAdmin();
 
-  const newPublishedStatus = !currentPublishedStatus;
+    const newPublishedStatus = !currentPublishedStatus;
 
-  const { error: dbError } = await supabase
-    .from("staff")
-    .update({ published: newPublishedStatus })
-    .eq("id", staffId);
+    // apiClient automatically injects auth token
+    const response = await apiClient.put(`/users/${staffId}`, {
+      active: newPublishedStatus,
+    });
 
-  if (dbError) {
-    console.error("Database update failed:", dbError);
-    return { dbError: "Failed to update staff status." };
+    if (!response.success) {
+      return { success: false, error: "Failed to update staff status." };
+    }
+
+    revalidatePath("/staff");
+
+    return { success: true };
+  } catch (error) {
+    console.error("[toggleStaffPublishedStatus] Error:", error);
+    return { success: false, error: "Failed to update staff status." };
   }
-
-  revalidatePath("/staff");
-
-  return { success: true };
 }

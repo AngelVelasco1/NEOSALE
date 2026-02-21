@@ -10,18 +10,16 @@ import Typography from "@/app/(admin)/components/ui/typography";
 import { Skeleton } from "@/app/(admin)/components/ui/skeleton";
 import { formatAmount } from "@/app/(admin)/helpers/formatAmount";
 
-import { TableSwitch } from "@/app/(admin)/components/shared/table/TableSwitch";
 import { ImagePlaceholder } from "@/app/(admin)/components/shared/ImagePlaceholder";
 import { SheetTooltip } from "@/app/(admin)/components/shared/table/TableActionTooltip";
 import { TableActionAlertDialog } from "@/app/(admin)/components/shared/table/TableActionAlertDialog";
+import { SortableHeader } from "./SortableHeader";
 import ProductFormSheet from "../form/ProductFormSheet";
-import { ProductBadgeVariants } from "@/app/(admin)/constants/badge";
 import { Product } from "@/app/(admin)/services/products/types";
 import { SkeletonColumn } from "@/app/(admin)/types/skeleton";
 
 import { editProduct } from "@/app/(admin)/actions/products/editProduct";
 import { deleteProduct } from "@/app/(admin)/actions/products/deleteProduct";
-import { toggleProductPublishedStatus } from "@/app/(admin)/actions/products/toggleProductStatus";
 import { HasPermission } from "@/app/(admin)/hooks/use-authorization";
 
 export const getColumns = ({
@@ -31,15 +29,16 @@ export const getColumns = ({
 }) => {
   const columns: ColumnDef<Product>[] = [
     {
-      header: "product name",
+      accessorKey: "name",
+      header: () => <SortableHeader label="Nombre" sortKey="name" />,
       cell: ({ row }) => (
         <div className="flex gap-2 items-center">
           <ImagePlaceholder
-            src={row.original.image_url}
+            src={row.original.image_url || row.original.images?.[0]?.image_url || ''}
             alt={row.original.name}
             width={32}
             height={32}
-            className="size-8 rounded-full"
+            className="h-9 w-9 rounded-xl"
           />
 
           <Typography className="capitalize block truncate">
@@ -49,7 +48,7 @@ export const getColumns = ({
       ),
     },
     {
-      header: "category",
+      header: "Categoría",
       cell: ({ row }) => (
         <Typography
           className={cn(
@@ -62,42 +61,71 @@ export const getColumns = ({
       ),
     },
     {
-      header: "price",
+      accessorKey: "price",
+      header: () => <SortableHeader label="Precio" sortKey="price" />,
       cell: ({ row }) => {
-        return formatAmount(row.original.cost_price);
+        return formatAmount(row.original.price);
       },
     },
     {
-      header: "sale price",
+      header: "Descripción",
       cell: ({ row }) => {
-        return formatAmount(row.original.selling_price);
+        const description = row.original.description?.trim();
+
+        return (
+          <span
+            className="block max-w-32 text-wrap  text-sm text-slate-300"
+            title={description || "Sin descripción"}
+          >
+            {description || "—"}
+          </span>
+        );
+      }
+      ,
+    },
+    {
+      accessorKey: "stock",
+      header: () => <SortableHeader label="Stock" sortKey="stock" />,
+      cell: ({ row }) => {
+        // Calcular stock real desde las variantes
+        const variants = row.original.product_variants || [];
+        const totalStock = variants.reduce((sum, v) => sum + (v.stock || 0), 0);
+        
+        return (
+          <div className="flex flex-col gap-1">
+            <span className="font-medium">{totalStock}</span>
+            {variants.length > 0 && (
+              <span className="text-xs text-muted-foreground">
+                {variants.length} variante{variants.length !== 1 ? 's' : ''}
+              </span>
+            )}
+          </div>
+        );
       },
     },
     {
-      header: "stock",
-      cell: ({ row }) => row.original.stock,
-    },
-    {
-      header: "status",
+      header: "Estado",
       cell: ({ row }) => {
-        const stock = row.original.stock;
-        const status = stock > 0 ? "selling" : "out-of-stock";
+        // Calcular stock real desde las variantes
+        const variants = row.original.product_variants || [];
+        const totalStock = variants.reduce((sum, v) => sum + (v.stock || 0), 0);
+        const status = totalStock > 0 ? "Disponible" : "agotado";
 
         return (
           <Badge
-            variant={ProductBadgeVariants[status]}
-            className="flex-shrink-0 text-xs"
+            variant={totalStock > 0 ? "success" : "destructive"}
+            className="shrink-0 text-xs"
           >
-            {status === "selling" ? "Selling" : "Out of stock"}
+            {status === "Disponible" ? "Disponible" : "Agotado"}
           </Badge>
         );
       },
     },
     {
-      header: "view",
+      header: "Ver",
       cell: ({ row }) => (
         <Button size="icon" asChild variant="ghost" className="text-foreground">
-          <Link href={`/products/${row.original.slug}`}>
+          <Link href={`/dashboard/products/${row.original.id}`}>
             <ZoomIn className="size-5" />
           </Link>
         </Button>
@@ -105,26 +133,7 @@ export const getColumns = ({
     },
   ];
 
-  if (hasPermission("products", "canTogglePublished")) {
-    columns.splice(7, 0, {
-      header: "published",
-      cell: ({ row }) => (
-        <div className="pl-5">
-          <TableSwitch
-            checked={row.original.published}
-            toastSuccessMessage="Product status updated successfully."
-            queryKey="products"
-            onCheckedChange={() =>
-              toggleProductPublishedStatus(
-                row.original.id,
-                row.original.published
-              )
-            }
-          />
-        </div>
-      ),
-    });
-  }
+
 
   if (
     hasPermission("products", "canDelete") ||
@@ -152,7 +161,7 @@ export const getColumns = ({
     });
 
     columns.splice(9, 0, {
-      header: "actions",
+      header: "Acciones",
       cell: ({ row }) => {
         return (
           <div className="flex items-center gap-1">
@@ -167,16 +176,18 @@ export const getColumns = ({
                   name: row.original.name,
                   description: row.original.description ?? "",
                   image: row.original.image_url,
-                  sku: row.original.sku,
-                  category: row.original.category_id,
-                  costPrice: row.original.cost_price,
-                  salesPrice: row.original.selling_price,
-                  stock: row.original.stock,
-                  minStockThreshold: row.original.min_stock_threshold,
-                  slug: row.original.slug,
+                  sku: row.original.sku || "",
+                  category: row.original.category_id?.toString() || "",
+                  brand: row.original.brand_id?.toString() || "",
+                  price: row.original.price || 0,
+                  stock: row.original.stock || 0,
+                  weight_grams: row.original.weight_grams || 0,
+                  sizes: row.original.sizes || "",
+                  color: row.original.images?.[0]?.color || "",
+                  color_code: row.original.images?.[0]?.color_code || "#000000",
                 }}
-                action={(formData) => editProduct(row.original.id, formData)}
-                previewImage={row.original.image_url}
+                action={(formData) => editProduct(String(row.original.id), formData)}
+                previewImage={row.original.image_url || '/placeholder.svg'}
               >
                 <SheetTooltip content="Edit Product">
                   <PenSquare className="size-5" />
@@ -192,7 +203,7 @@ export const getColumns = ({
                 actionButtonText="Delete Product"
                 toastSuccessMessage={`Product "${row.original.name}" deleted successfully!`}
                 queryKey="products"
-                action={() => deleteProduct(row.original.id)}
+                action={() => deleteProduct(String(row.original.id))}
               >
                 <Trash2 className="size-5" />
               </TableActionAlertDialog>
@@ -212,7 +223,7 @@ export const skeletonColumns: SkeletonColumn[] = [
     cell: <Skeleton className="size-4 rounded-sm" />,
   },
   {
-    header: "product name",
+    header: "Nombre del producto",
     cell: (
       <div className="flex gap-2 items-center">
         <Skeleton className="size-8 rounded-full" />
@@ -222,35 +233,35 @@ export const skeletonColumns: SkeletonColumn[] = [
     ),
   },
   {
-    header: "category",
+    header: "Categoría",
     cell: <Skeleton className="w-32 h-8" />,
   },
   {
-    header: "price",
+    header: "Precio",
     cell: <Skeleton className="w-20 h-8" />,
   },
   {
-    header: "sale price",
+    header: "Precio de venta",
     cell: <Skeleton className="w-20 h-8" />,
   },
   {
-    header: "stock",
+    header: "Stock",
     cell: <Skeleton className="w-20 h-8" />,
   },
   {
-    header: "status",
+    header: "Estado",
     cell: <Skeleton className="w-24 h-8" />,
   },
   {
-    header: "view",
+    header: "Ver",
     cell: <Skeleton className="w-8 h-8" />,
   },
   {
-    header: "published",
+    header: "Publicado",
     cell: <Skeleton className="w-16 h-10" />,
   },
   {
-    header: "actions",
+    header: "Acciones",
     cell: <Skeleton className="w-20 h-8" />,
   },
 ];

@@ -6,20 +6,36 @@ import {
 import {
   FetchStaffParams,
   FetchStaffResponse,
-  SBStaff,
+  StaffProfile,
 } from "./types";
 
 export async function fetchStaff(
   params: FetchStaffParams
 ): Promise<FetchStaffResponse> {
-  return getStaff(params);
+  const result = await getStaff(params);
+  const typedResult = result as unknown as FetchStaffResponse;
+  
+  // Mapear la estructura de paginación del servidor a la esperada por el frontend
+  const mappedResult: FetchStaffResponse = {
+    data: typedResult.data || [],
+    pagination: {
+      current: typedResult.pagination.current,
+      limit: typedResult.pagination.limit,
+      items: typedResult.pagination.items,
+      pages: typedResult.pagination.pages,
+      next: typedResult.pagination.next,
+      prev: typedResult.pagination.prev,
+    }
+  };
+
+  return mappedResult;
 }
 
 export async function fetchStaffRolesDropdown() {
   return getStaffRolesDropdown();
 }
 
-export async function fetchStaffDetails(userId: number): Promise<SBStaff | null> {
+export async function fetchStaffDetails(userId: number): Promise<StaffProfile | null> {
   const staff = await getStaffDetailsAction(userId);
-  return staff as SBStaff | null;
+  return staff as StaffProfile | null;
 }

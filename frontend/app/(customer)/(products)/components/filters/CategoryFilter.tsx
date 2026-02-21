@@ -3,7 +3,7 @@ import { useRouter } from "next/navigation";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Tag, ChevronDown, ChevronRight, ExternalLink } from "lucide-react";
+import { Tag, ChevronDown, ExternalLink } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 
 interface CategoryWithSubcategories {
@@ -78,7 +78,7 @@ export const CategoryFilter = ({
         <div className="flex items-center space-x-3">
           <motion.div
             whileHover={{ scale: 1.05 }}
-            className="p-2 bg-gradient-to-br from-slate-800 to-slate-900 rounded-lg ring-1 ring-slate-700 shadow-md"
+            className="p-2 bg-linear-to-br from-slate-800 to-slate-900 rounded-lg ring-1 ring-slate-700 shadow-md"
           >
             <Tag className="h-4 w-4 text-slate-300" />
           </motion.div>
@@ -111,18 +111,17 @@ export const CategoryFilter = ({
             >
               {/* Categoría principal */}
               <div
-                className={`flex items-center justify-between p-3 rounded-lg transition-all ${
-                  isSelected
+                className={`flex items-center justify-between p-3 rounded-lg transition-all ${isSelected
                     ? "bg-slate-800 ring-1 ring-slate-700"
                     : "bg-slate-900/50 hover:bg-slate-800/70"
-                }`}
+                  }`}
               >
                 <div className="flex items-center space-x-3 flex-1 min-w-0">
                   <Checkbox
                     id={`category-${category.id}`}
                     checked={isSelected}
                     onCheckedChange={() => onCategoryToggle(category.name)}
-                    className="data-[state=checked]:bg-slate-700 data-[state=checked]:border-slate-600 border-slate-600 flex-shrink-0"
+                    className="data-[state=checked]:bg-slate-700 data-[state=checked]:border-slate-600 border-slate-600 shrink-0"
                   />
                   <label
                     htmlFor={`category-${category.id}`}
@@ -130,7 +129,7 @@ export const CategoryFilter = ({
                   >
                     {category.name}
                   </label>
-                  <div className="flex items-center gap-2 flex-shrink-0">
+                  <div className="flex items-center gap-2 shrink-0">
                     <Badge
                       variant="outline"
                       className="text-xs text-slate-400 border-slate-700 font-semibold"
@@ -184,11 +183,10 @@ export const CategoryFilter = ({
                       return (
                         <motion.div
                           key={subcategory.id}
-                          className={`flex items-center justify-between p-2.5 rounded-lg transition-all ${
-                            isSubSelected
+                          className={`flex items-center justify-between p-2.5 rounded-lg transition-all ${isSubSelected
                               ? "bg-slate-800/80 ring-1 ring-slate-700/50"
                               : "bg-slate-900/30 hover:bg-slate-800/50"
-                          }`}
+                            }`}
                           initial={{ opacity: 0, x: -10 }}
                           animate={{ opacity: 1, x: 0 }}
                         >
@@ -199,7 +197,7 @@ export const CategoryFilter = ({
                               onCheckedChange={() =>
                                 onSubcategoryToggle(subcategory.name)
                               }
-                              className="data-[state=checked]:bg-slate-700 data-[state=checked]:border-slate-600 border-slate-600 h-3.5 w-3.5 flex-shrink-0"
+                              className="data-[state=checked]:bg-slate-700 data-[state=checked]:border-slate-600 border-slate-600 h-3.5 w-3.5 shrink-0"
                             />
                             <label
                               htmlFor={`subcategory-${subcategory.id}`}
@@ -207,7 +205,7 @@ export const CategoryFilter = ({
                             >
                               {subcategory.name}
                             </label>
-                            <div className="flex items-center gap-1.5 flex-shrink-0">
+                            <div className="flex items-center gap-1.5 shrink-0">
                               <Badge
                                 variant="outline"
                                 className="text-xs text-slate-500 border-slate-700 font-semibold"

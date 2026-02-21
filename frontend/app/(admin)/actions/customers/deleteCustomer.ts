@@ -1,26 +1,21 @@
 "use server";
 
-import { revalidatePath } from "next/cache";
-
-import { createServerActionClient } from "@/lib/supabase/server-action";
-import { ServerActionResponse } from "@/types/server-action";
+import { apiClient } from "@/lib/api-client";
+import { ServerActionResponse } from "@/app/(admin)/types/server-action";
 
 export async function deleteCustomer(
   customerId: string
 ): Promise<ServerActionResponse> {
-  const supabase = createServerActionClient();
+  try {
+    const response = await apiClient.delete(`/admin/customers/${customerId}`);
 
-  const { error: dbError } = await supabase
-    .from("customers")
-    .delete()
-    .eq("id", customerId);
+    if (!response.success) {
+      return { success: false, error: response.error || "Something went wrong. Could not delete the customer." };
+    }
 
-  if (dbError) {
-    console.error("Database delete failed:", dbError);
-    return { dbError: "Something went wrong. Could not delete the customer." };
+    return { success: true };
+  } catch (error) {
+    console.error("[deleteCustomer] Error:", error);
+    return { success: false, error: "Something went wrong. Could not delete the customer." };
   }
-
-  revalidatePath("/customers");
-
-  return { success: true };
 }

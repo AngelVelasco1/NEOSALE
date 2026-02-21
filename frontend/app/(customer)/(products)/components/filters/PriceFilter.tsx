@@ -68,7 +68,7 @@ export const PriceFilter = ({
                 <div className="flex items-center space-x-3">
                     <motion.div
                         whileHover={{ scale: 1.05 }}
-                        className="p-2 bg-gradient-to-br from-slate-800 to-slate-900 rounded-lg ring-1 ring-slate-700 shadow-md"
+                        className="p-2 bg-linear-to-br from-slate-800 to-slate-900 rounded-lg ring-1 ring-slate-700 shadow-md"
                     >
                         <DollarSign className="h-4 w-4 text-slate-300" />
                     </motion.div>
@@ -129,7 +129,7 @@ export const PriceFilter = ({
 
                     {/* Active Range */}
                     <motion.div
-                        className="absolute h-2 bg-gradient-to-r from-slate-600 to-slate-500 rounded-full"
+                        className="absolute h-2 bg-linear-to-r from-slate-600 to-slate-500 rounded-full"
                         style={{
                             left: `${minPercent}%`,
                             right: `${100 - maxPercent}%`,

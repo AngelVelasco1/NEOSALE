@@ -1,45 +1,20 @@
 "use server";
 
-import { createServerActionClient } from "@/lib/supabase/server-action";
-import { OrdersExport } from "@/services/orders/types";
-import { getDiscount } from "@/helpers/getDiscount";
+import { apiClient } from "@/lib/api-client";
 
-export async function exportOrders() {
-  const supabase = createServerActionClient();
+type ExportResponse = { data: any[] } | { error: string };
 
-  const selectQuery = `
-    *,
-    coupons(discount_type, discount_value),
-    customers(name, email)
-  `;
+export async function exportOrders(): Promise<ExportResponse> {
+  try {
+    const response = await apiClient.get(`/api/backend/orders/export`);
 
-  const { data, error } = await supabase.from("orders").select(selectQuery);
+    if (!response.success) {
+      return { error: response.error || "Failed to fetch data for orders." };
+    }
 
-  if (error) {
-    console.error(`Error fetching orders:`, error);
-    return { error: `Failed to fetch data for orders.` };
+    return { data: (response.data || []) as any[] };
+  } catch (error) {
+    console.error("[exportOrders] Error:", error);
+    return { error: "Failed to fetch data for orders." };
   }
-
-  return {
-    data: data.map(
-      (order): OrdersExport => ({
-        id: order.id,
-        invoice_no: order.invoice_no,
-        customer_name: order.customers?.name ?? "",
-        customer_email: order.customers?.email ?? "",
-        total_amount: order.total_amount,
-        discount: getDiscount({
-          coupon: order.coupons,
-          totalAmount: order.total_amount,
-          shippingCost: order.shipping_cost,
-        }),
-        shipping_cost: order.shipping_cost,
-        payment_method: order.payment_method,
-        order_time: order.order_time,
-        status: order.status,
-        created_at: order.created_at,
-        updated_at: order.updated_at,
-      })
-    ),
-  };
 }

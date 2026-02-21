@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, Suspense } from "react";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
 
@@ -13,7 +13,9 @@ export default function TanstackQueryProvider({
 
   return (
     <QueryClientProvider client={queryClient}>
-      {children}
+      <Suspense fallback={null}>
+        {children}
+      </Suspense>
       <ReactQueryDevtools initialIsOpen={false} />
     </QueryClientProvider>
   );

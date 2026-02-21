@@ -19,6 +19,7 @@ import {
   type WompiPublicConfig,
   type WompiTransactionResponse,
 } from "../services/paymentsApi"
+import type { Address } from "../../(addresses)/services/addressesApi";
 
 interface WompiCardFormProps {
   amount: number
@@ -31,6 +32,7 @@ interface WompiCardFormProps {
     termsAndConditions: string
     personalDataAuth: string
   }
+  selectedAddress?: Address | null
 }
 
 const cardFormSchema = z.object({
@@ -89,6 +91,7 @@ export const WompiCardForm: React.FC<WompiCardFormProps> = ({
   disabled = false,
   userId,
   acceptanceTokens,
+  selectedAddress,
 }) => {
   const [isProcessing, setIsProcessing] = useState(false)
   const [wompiConfig, setWompiConfig] = useState<WompiPublicConfig | null>(null)
@@ -131,7 +134,7 @@ export const WompiCardForm: React.FC<WompiCardFormProps> = ({
           throw new Error(result.error || "Error obteniendo configuración")
         }
       } catch (error) {
-        console.error("Error cargando configuración de Wompi:", error)
+        
         ErrorsHandler.showError("Error de configuración", "No se pudo cargar la configuración de pagos")
       } finally {
         setConfigLoading(false)
@@ -140,6 +143,17 @@ export const WompiCardForm: React.FC<WompiCardFormProps> = ({
 
     loadWompiConfig()
   }, [])
+
+  // Autocompletar dirección cuando se selecciona
+  useEffect(() => {
+    if (selectedAddress) {
+      form.setValue("shippingLine1", selectedAddress.address || "")
+      form.setValue("shippingCity", selectedAddress.city || "")
+      form.setValue("shippingState", selectedAddress.department || "")
+      form.setValue("shippingCountry", selectedAddress.country === "Colombia" ? "CO" : "CO")
+      form.setValue("shippingPostalCode", "000000") // Código postal por defecto
+    }
+  }, [selectedAddress, form])
 
   const onSubmit = async (data: CardFormData) => {
     if (!wompiConfig) {
@@ -210,11 +224,7 @@ export const WompiCardForm: React.FC<WompiCardFormProps> = ({
       )
 
       if (result.success && result.data) {
-        console.log("Transacción creada exitosamente:", {
-          transactionId: result.data.transactionId,
-          status: result.data.status,
-          reference: result.data.reference,
-        })
+        
 
         try {
           await new Promise((resolve) => setTimeout(resolve, 3000))
@@ -222,11 +232,7 @@ export const WompiCardForm: React.FC<WompiCardFormProps> = ({
           const transactionStatus = await getWompiTransactionStatusApi(result.data.transactionId)
 
           if (transactionStatus.success && transactionStatus.data) {
-            console.log("Estado real de la transacción:", {
-              transactionId: result.data.transactionId,
-              realStatus: transactionStatus.data.status,
-              amount: transactionStatus.data.amount_in_cents,
-            })
+            
 
             try {
               const updateResponse = await fetch(`/api/payments/update-status`, {
@@ -240,10 +246,10 @@ export const WompiCardForm: React.FC<WompiCardFormProps> = ({
               })
 
               if (updateResponse.ok) {
-                console.log("Estado de transacción actualizado en BD")
+                
               }
             } catch (updateError) {
-              console.warn("⚠️ Error actualizando estado en BD:", updateError)
+              
             }
 
             if (transactionStatus.data.status === "DECLINED" || transactionStatus.data.status === "ERROR") {
@@ -253,18 +259,18 @@ export const WompiCardForm: React.FC<WompiCardFormProps> = ({
               onSuccess(result.data.transactionId);
             }
           } else {
-            console.warn("⚠️ No se pudo consultar el estado real, redirigiendo con estado inicial")
+            
             window.location.href = `/checkout/success?transaction_id=${result.data.transactionId}`
           }
         } catch (statusError) {
-          console.warn("⚠️ Error consultando estado real:", statusError)
+          
           window.location.href = `/checkout/success?transaction_id=${result.data.transactionId}`
         }
       } else {
         throw new Error(result.error || "Error creando transacción")
       }
     } catch (error) {
-      console.error("❌ Error procesando pago:", error)
+      
 
       const errorMessage = error instanceof Error ? error.message : "Error desconocido procesando el pago"
 
@@ -341,7 +347,7 @@ export const WompiCardForm: React.FC<WompiCardFormProps> = ({
           {/* Información Personal */}
           <div className="bg-slate-800/40 backdrop-blur-xl rounded-2xl shadow-2xl border border-slate-700/50 p-8 space-y-6">
             <div className="flex items-center gap-3 pb-4 border-b border-slate-700/50">
-              <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-violet-600 via-violet-700 to-indigo-700 shadow-lg shadow-violet-500/30 flex items-center justify-center">
+              <div className="w-10 h-10 rounded-xl bg-linear-to-br from-violet-600 via-violet-700 to-indigo-700 shadow-lg shadow-violet-500/30 flex items-center justify-center">
                 <User className="w-5 h-5 text-white" />
               </div>
               <h2 className="text-xl font-semibold text-white">Información Personal</h2>
@@ -450,7 +456,7 @@ export const WompiCardForm: React.FC<WompiCardFormProps> = ({
           {/* Dirección de Envío */}
           <div className="bg-slate-800/40 backdrop-blur-xl rounded-2xl shadow-2xl border border-slate-700/50 p-8 space-y-6">
             <div className="flex items-center gap-3 pb-4 border-b border-slate-700/50">
-              <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-blue-600 via-violet-700 to-purple-700 shadow-lg shadow-slate-500/30 flex items-center justify-center">
+              <div className="w-10 h-10 rounded-xl bg-linear-to-br from-blue-600 via-violet-700 to-purple-700 shadow-lg shadow-slate-500/30 flex items-center justify-center">
                 <MapPin className="w-5 h-5 text-white" />
               </div>
               <h2 className="text-xl font-semibold text-white">Dirección de Envío</h2>
@@ -560,7 +566,7 @@ export const WompiCardForm: React.FC<WompiCardFormProps> = ({
           {/* Datos de Tarjeta */}
           <div className="bg-slate-800/40 backdrop-blur-xl rounded-2xl shadow-2xl border border-slate-700/50 p-8 space-y-6">
             <div className="flex items-center gap-3 pb-4 border-b border-slate-700/50">
-              <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-indigo-600 via-violet-700 to-indigo-700 shadow-lg shadow-indigo-500/30 flex items-center justify-center">
+              <div className="w-10 h-10 rounded-xl bg-linear-to-br from-indigo-600 via-violet-700 to-indigo-700 shadow-lg shadow-indigo-500/30 flex items-center justify-center">
                 <CreditCard className="w-5 h-5 text-white" />
               </div>
               <h2 className="text-xl font-semibold text-white">Datos de Tarjeta</h2>
@@ -748,7 +754,7 @@ export const WompiCardForm: React.FC<WompiCardFormProps> = ({
 
             <Button
               type="submit"
-              className="w-full h-14 text-lg font-semibold bg-gradient-to-r from-violet-600 via-violet-700 to-indigo-700 hover:from-violet-700 hover:via-violet-800 hover:to-indigo-800 text-white rounded-xl shadow-lg shadow-violet-500/30 hover:shadow-xl hover:shadow-violet-500/40 transition-all duration-300"
+              className="w-full h-14 text-lg font-semibold bg-linear-to-r from-violet-600 via-violet-700 to-indigo-700 hover:from-violet-700 hover:via-violet-800 hover:to-indigo-800 text-white rounded-xl shadow-lg shadow-violet-500/30 hover:shadow-xl hover:shadow-violet-500/40 transition-all duration-300"
               disabled={
                 disabled ||
                 isProcessing ||

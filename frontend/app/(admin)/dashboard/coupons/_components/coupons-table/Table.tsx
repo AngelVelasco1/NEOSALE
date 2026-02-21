@@ -2,11 +2,11 @@
 
 import { getCoreRowModel, useReactTable } from "@tanstack/react-table";
 
-import DataTable from "@/components/shared/table/DataTable";
-import { DataTableWithRowSelectionProps } from "@/types/data-table";
-import { Coupon } from "@/services/coupons/types";
+import DataTable from "@/app/(admin)/components/shared/table/DataTable";
+import { DataTableWithRowSelectionProps } from "@/app/(admin)/types/data-table";
+import { Coupon } from "@/app/(admin)/services/coupons/types";
 
-export default function CouponTable({
+export default function CouponsTable({
   data,
   columns,
   pagination,
@@ -17,7 +17,7 @@ export default function CouponTable({
     data,
     columns,
     getCoreRowModel: getCoreRowModel(),
-    getRowId: (row) => row.id,
+    getRowId: (row) => String(row.id),
     state: {
       rowSelection,
     },
@@ -27,6 +27,8 @@ export default function CouponTable({
 
       setRowSelection(newSelectionState);
     },
+        meta: { sectionLabel: "Cupones" },
+
   });
 
   return <DataTable table={table} pagination={pagination} />;

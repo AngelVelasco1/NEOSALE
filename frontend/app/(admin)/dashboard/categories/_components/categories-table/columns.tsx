@@ -6,9 +6,9 @@ import { Skeleton } from "../../../../components/ui/skeleton";
 import Typography from "../../../../components/ui/typography";
 
 import { TableSwitch } from "../../../../components/shared/table/TableSwitch";
-import { ImagePlaceholder } from "../../../../components/shared/ImagePlaceholder";
 import { SheetTooltip } from "../../../../components/shared/table/TableActionTooltip";
 import { TableActionAlertDialog } from "../../../../components/shared/table/TableActionAlertDialog";
+import { SortableHeader } from "./SortableHeader";
 import CategoryFormSheet from "../form/CategoryFormSheet";
 import { Category } from "../../../../services/categories/types";
 import { SkeletonColumn } from "../../../../types/skeleton";
@@ -25,25 +25,25 @@ export const getColumns = ({
 }) => {
   const columns: ColumnDef<Category>[] = [
     {
-      header: "icon",
+      accessorKey: "name",
+      header: () => <SortableHeader label="Nombre" sortKey="name" />,
       cell: ({ row }) => (
-        <ImagePlaceholder
-          src={row.original.image_url}
-          alt={row.original.name}
-          width={32}
-          height={32}
-          className="size-8 rounded-full"
-        />
+        <Typography
+          className={`font-semibold ${!row.original.active ? 'text-muted-foreground line-through' : ''
+            }`}
+        >
+          {row.original.name}
+        </Typography>
       ),
     },
     {
-      header: "name",
-      cell: ({ row }) => row.original.name,
-    },
-    {
-      header: "description",
+      accessorKey: "description",
+      header: () => <SortableHeader label="Descripción" sortKey="description" />,
       cell: ({ row }) => (
-        <Typography className="block max-w-md xl:max-w-lg truncate">
+        <Typography
+          className={`block max-w-md xl:max-w-lg truncate ${!row.original.active ? 'text-muted-foreground line-through' : ''
+            }`}
+        >
           {row.original.description}
         </Typography>
       ),
@@ -51,21 +51,27 @@ export const getColumns = ({
   ];
 
   if (hasPermission("categories", "canTogglePublished")) {
-    columns.splice(4, 0, {
-      header: "published",
+    columns.splice(3, 0, {
+      header: "Publicado",
       cell: ({ row }) => (
-        <div className="pl-5">
+        <div className="flex items-center gap-2">
           <TableSwitch
-            checked={row.original.published}
+            checked={row.original.active}
             toastSuccessMessage="Category status updated successfully."
             queryKey="categories"
             onCheckedChange={() =>
               toggleCategoryPublishedStatus(
-                row.original.id,
-                row.original.published
+                String(row.original.id),
+                row.original.active
               )
             }
           />
+          <span className={`text-xs font-medium ${row.original.active
+            ? 'text-green-400'
+            : 'text-red-400'
+            }`}>
+            {row.original.active ? 'Activa' : 'Inactiva'}
+          </span>
         </div>
       ),
     });
@@ -96,8 +102,8 @@ export const getColumns = ({
       ),
     });
 
-    columns.splice(5, 0, {
-      header: "actions",
+    columns.splice(4, 0, {
+      header: "Acciones",
       cell: ({ row }) => {
         return (
           <div className="flex items-center gap-1">
@@ -105,17 +111,13 @@ export const getColumns = ({
               <CategoryFormSheet
                 key={row.original.id}
                 title="Update Category"
-                description="Update necessary category information here"
                 submitButtonText="Update Category"
                 actionVerb="updated"
                 initialData={{
                   name: row.original.name,
                   description: row.original.description ?? "",
-                  image: row.original.image_url,
-                  slug: row.original.slug,
                 }}
-                action={(formData) => editCategory(row.original.id, formData)}
-                previewImage={row.original.image_url}
+                action={(formData) => editCategory(String(row.original.id), formData)}
               >
                 <SheetTooltip content="Edit Category">
                   <PenSquare className="size-5" />
@@ -125,13 +127,13 @@ export const getColumns = ({
 
             {hasPermission("categories", "canDelete") && (
               <TableActionAlertDialog
-                title={`Delete ${row.original.name}?`}
-                description="This action cannot be undone. This will permanently delete the category and its associated data from the database."
-                tooltipContent="Delete Category"
-                actionButtonText="Delete Category"
-                toastSuccessMessage={`Category "${row.original.name}" deleted successfully!`}
+                title={`Eliminar ${row.original.name}?`}
+                description="Esta acción no se puede deshacer. La categoría y sus datos asociados serán eliminados permanentemente."
+                tooltipContent="Eliminar Categoría"
+                actionButtonText="Eliminar Categoría"
+                toastSuccessMessage={`Categoría "${row.original.name}" eliminada correctamente!`}
                 queryKey="categories"
-                action={() => deleteCategory(row.original.id)}
+                action={() => deleteCategory(String(row.original.id))}
               >
                 <Trash2 className="size-5" />
               </TableActionAlertDialog>
@@ -151,23 +153,19 @@ export const skeletonColumns: SkeletonColumn[] = [
     cell: <Skeleton className="size-4 rounded-sm" />,
   },
   {
-    header: "icon",
-    cell: <Skeleton className="w-8 h-8 rounded-full" />,
-  },
-  {
-    header: "name",
+    header: "Nombre",
     cell: <Skeleton className="w-20 h-8" />,
   },
   {
-    header: "description",
-    cell: <Skeleton className="w-[32rem] h-8" />,
+    header: "Descripción",
+    cell: <Skeleton className="w-lg h-8" />,
   },
   {
-    header: "published",
+    header: "Publicado",
     cell: <Skeleton className="w-16 h-10" />,
   },
   {
-    header: "actions",
+    header: "Acciones",
     cell: <Skeleton className="w-20 h-8" />,
   },
 ];

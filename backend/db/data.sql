@@ -18,7 +18,6 @@ DELETE FROM categories;
 DELETE FROM subcategories;
 DELETE FROM brands;
 DELETE FROM "User";
-
 -- REINICIAR SECUENCIAS
 ALTER SEQUENCE subcategories_id_seq RESTART WITH 1;
 ALTER SEQUENCE categories_id_seq RESTART WITH 1;
@@ -38,7 +37,6 @@ ALTER SEQUENCE coupons_id_seq RESTART WITH 1;
 ALTER SEQUENCE favorites_id_seq RESTART WITH 1;
 ALTER SEQUENCE review_images_id_seq RESTART WITH 1;
 ALTER SEQUENCE reviews_id_seq RESTART WITH 1;
-
 -- HABILITAR EXTENSIÓN PARA HASH DE CONTRASEÑAS
 CREATE EXTENSION IF NOT EXISTS pgcrypto;
 
@@ -48,7 +46,6 @@ INSERT INTO subcategories (name, active) VALUES
 ('Ropa casual', TRUE), ('Electrónicos móviles', TRUE), ('Computadores', TRUE), ('Audio y Video', TRUE),
 ('Gaming', TRUE), ('Electrodomésticos', TRUE), ('Muebles Sala', TRUE), ('Muebles Dormitorio', TRUE),
 ('Decoración Hogar', TRUE), ('Smartphones', TRUE), ('Tablets', TRUE);
-
 -- CATEGORÍAS
 INSERT INTO categories (name, description, id_subcategory, active) VALUES 
 ('Ropa Deportiva', 'Prendas para actividades deportivas y ejercicio', 1, TRUE),
@@ -81,41 +78,39 @@ INSERT INTO brands (name, description, image_url, active) VALUES
 ('Sony', 'Multinacional japonesa de electrónicos y entretenimiento', 'https://example.com/sony-logo.png', TRUE),
 ('LG', 'Conglomerado surcoreano de electrodomésticos', 'https://example.com/lg-logo.png', TRUE),
 ('IKEA', 'Empresa sueca de muebles y decoración', 'https://example.com/ikea-logo.png', TRUE);
-
 -- USUARIOS
 INSERT INTO "User" (name, email, email_verified, password, phone_number, identification, identification_type, role, active, email_notifications) VALUES
 ('Angel García', 'angel.admin@neosale.com', '2023-10-01 10:00:00', crypt('Admin123!', gen_salt('bf', 12)), '3001234567', '123456789', 'CC', 'admin', TRUE, TRUE),
 ('María López', 'maria.admin@neosale.com', '2023-10-02 10:00:00', crypt('Admin123!', gen_salt('bf', 12)), '3012345678', '987654321', 'CC', 'admin', TRUE, TRUE),
 ('Carlos Rodríguez', 'carlos.rodriguez@email.com', '2023-11-15 14:30:00', crypt('User123!', gen_salt('bf', 12)), '3023456789', '1087654321', 'CC', 'user', TRUE, TRUE),
-('Ana Martínez', 'ana.martinez@email.com', '2023-11-20 09:15:00', crypt('User456!', gen_salt('bf', 12)), '3034567890', '1076543210', 'CC', 'user', TRUE, TRUE),
+('Ana Martínez', 'ana.martinez@email.com', '2023-11-20 09:15:00', crypt('   ', gen_salt('bf', 12)), '3034567890', '1076543210', 'CC', 'user', TRUE, TRUE),
 ('Luis Fernández', 'luis.fernandez@email.com', '2023-12-01 16:45:00', crypt('User789!', gen_salt('bf', 12)), '3045678901', '1065432109', 'CE', 'user', TRUE, FALSE),
 ('Sofia Herrera', 'sofia.herrera@email.com', '2023-12-05 11:20:00', crypt('User101!', gen_salt('bf', 12)), '3056789012', '1054321098', 'CC', 'user', TRUE, TRUE),
 ('Diego Morales', 'diego.morales@email.com', '2023-12-10 13:10:00', crypt('User202!', gen_salt('bf', 12)), '3067890123', '1043210987', 'CC', 'user', TRUE, TRUE);
-
+INSERT INTO "User" (name, email, email_verified, password, phone_number, identification, identification_type, role, active, email_notifications) VALUES ('Jose', 'jose@gmaiul.com', '2023-10-01 10:00:00', 'chupeta', '3115879778', '109875745', 'CC', 'user', TRUE, TRUE);
 -- CUPONES
 INSERT INTO coupons (code, name, discount_type, discount_value, min_purchase_amount, usage_limit, expires_at, created_by) VALUES
 ('WELCOME10', '10% Descuento de Bienvenida', 'percentage', 10.00, 50000, 1, '2026-12-31 23:59:59', 1),
 ('FREESHIP', 'Envío Gratis', 'fixed', 15000, 100000, 100, '2026-12-31 23:59:59', 1),
-('TECH20', '20% en Tecnología', 'percentage', 20.00, 1000000, 50, '2026-10-31 23:59:59', 1),
-('EXPIRED', 'Cupón Vencido', 'percentage', 50.00, 0, 10, '2026-01-01 00:00:00', 1);
-
+('TECH20', '20% en Tecnología', 'percentage', 20.00, 1000000, 50, '2026-12-11 23:59:59', 1),
+('EXPIRED', 'Cupón Vencido', 'percentage', 50.00, 0, 10, '2026-12-12 00:00:00', 1);
 -- PRODUCTOS
 INSERT INTO products (name, description, price, stock, weight_grams, sizes, base_discount, category_id, brand_id, active, in_offer, offer_discount, offer_start_date, offer_end_date, created_by, updated_by) VALUES
-('Camiseta Dry-Fit Pro', 'Camiseta deportiva de alto rendimiento', 89000, 0, 250, 'XS,S,M,L,XL,XXL', 0, 1, 1, TRUE, TRUE, 20.0, '2024-08-01 00:00:00', '2025-12-31 23:59:59', 1, 1),
+('Camiseta Dry-Fit Pro', 'Camiseta deportiva de alto rendimiento', 89000, 0, 250, 'XS,S,M,L,XL,XXL', 0, 1, 1, TRUE, TRUE, 20.0, '2026-01-01 00:00:00', '2026-12-31 23:59:59', 1, 1),
 ('Pantaloneta Running Elite', 'Pantaloneta liviana para running', 75000, 0, 200, 'S,M,L,XL', 0, 2, 1, TRUE, FALSE, NULL, NULL, NULL, 1, 1),
-('Camiseta Training Adidas', 'Camiseta de entrenamiento transpirable', 95000, 0, 300, 'S,M,L,XL,XXL', 0, 1, 2, TRUE, TRUE, 15.0, '2024-08-15 00:00:00', '2025-12-31 23:59:59', 1, 1),
+('Camiseta Training Adidas', 'Camiseta de entrenamiento transpirable', 95000, 0, 300, 'S,M,L,XL,XXL', 0, 1, 2, TRUE, TRUE, 15.0, '2026-01-01 00:00:00', '2026-12-31 23:59:59', 1, 1),
 ('Leggings Deportivos', 'Leggings de compresión para mujer', 120000, 0, 350, 'XS,S,M,L,XL', 0, 2, 3, TRUE, FALSE, NULL, NULL, NULL, 1, 1),
-('Chaqueta Deportiva Puma', 'Chaqueta resistente al viento', 180000, 0, 800, 'S,M,L,XL', 0, 1, 3, TRUE, TRUE, 30.0, '2024-09-01 00:00:00', '2025-12-31 23:59:59', 1, 1),
+('Chaqueta Deportiva Puma', 'Chaqueta resistente al viento', 180000, 0, 800, 'S,M,L,XL', 0, 1, 3, TRUE, TRUE, 30.0, '2026-01-01 00:00:00', '2026-12-31 23:59:59', 1, 1),
 ('Tenis Running Nike Air', 'Tenis de running con amortiguación Air Max', 320000, 0, 900, '36,37,38,39,40,41,42,43,44', 0, 3, 1, TRUE, FALSE, NULL, NULL, NULL, 1, 1),
-('Tenis Training Adidas', 'Tenis versátiles para entrenamiento', 280000, 0, 850, '37,38,39,40,41,42,43', 0, 3, 2, TRUE, TRUE, 25.0, '2024-08-20 00:00:00', '2025-12-31 23:59:59', 1, 1),
-('iPhone 15 Pro', 'Smartphone Apple con chip A17 Pro', 4200000, 0, 190, 'Único', 0, 6, 4, TRUE, TRUE, 10.0, '2024-08-01 00:00:00', '2025-12-31 23:59:59', 1, 1),
+('Tenis Training Adidas', 'Tenis versátiles para entrenamiento', 280000, 0, 850, '37,38,39,40,41,42,43', 0, 3, 2, TRUE, TRUE, 25.0, '2026-01-01 00:00:00', '2026-12-31 23:59:59', 1, 1),
+('iPhone 15 Pro', 'Smartphone Apple con chip A17 Pro', 4200000, 0, 190, 'Único', 0, 6, 4, TRUE, TRUE, 10.0, '2026-01-01 00:00:00', '2026-12-31 23:59:59', 1, 1),
 ('Samsung Galaxy S24', 'Smartphone Samsung con Dynamic AMOLED 2X', 3800000, 0, 210, 'Único', 0, 6, 5, TRUE, FALSE, NULL, NULL, NULL, 1, 1),
 ('MacBook Air M2', 'Laptop Apple con pantalla Liquid Retina', 5500000, 0, 1240, 'Único', 0, 7, 4, TRUE, FALSE, NULL, NULL, NULL, 1, 1),
-('AirPods Pro 2', 'Audífonos inalámbricos con cancelación de ruido', 850000, 0, 50, 'Único', 0, 8, 4, TRUE, TRUE, 20.0, '2024-08-10 00:00:00', '2025-12-31 23:59:59', 1, 1),
+('AirPods Pro 2', 'Audífonos inalámbricos con cancelación de ruido', 850000, 0, 50, 'Único', 0, 8, 4, TRUE, TRUE, 20.0, '2026-01-01 00:00:00', '2026-12-31 23:59:59', 1, 1),
 ('PlayStation 5', 'Consola de videojuegos con SSD ultra-rápido', 2800000, 0, 4500, 'Único', 0, 9, 6, TRUE, FALSE, NULL, NULL, NULL, 1, 1),
-('Smart TV LG 55"', 'Televisor LG 55" 4K UHD con webOS', 1800000, 0, 15000, 'Único', 0, 8, 7, TRUE, TRUE, 35.0, '2024-09-01 00:00:00', '2025-12-31 23:59:59', 1, 1),
+('Smart TV LG 55"', 'Televisor LG 55" 4K UHD con webOS', 1800000, 0, 15000, 'Único', 0, 8, 7, TRUE, TRUE, 35.0, '2026-01-01 00:00:00', '2026-12-31 23:59:59', 1, 1),
 ('Sofá Modular IKEA', 'Sofá modular de 3 puestos en tela gris', 1200000, 0, 45000, 'Único', 0, 11, 8, TRUE, FALSE, NULL, NULL, NULL, 1, 1),
-('Cama King Size', 'Cama king size en madera maciza', 950000, 0, 60000, 'Único', 0, 12, 8, TRUE, TRUE, 40.0, '2024-08-25 00:00:00', '2025-12-31 23:59:59', 1, 1),
+('Cama King Size', 'Cama king size en madera maciza', 950000, 0, 60000, 'Único', 0, 12, 8, TRUE, TRUE, 40.0, '2026-01-01 00:00:00', '2026-12-31 23:59:59', 1, 1),
 ('Producto Descontinuado', 'Este producto ya no está disponible', 50000, 0, 100, 'Único', 0, 5, 1, FALSE, FALSE, NULL, NULL, NULL, 1, 1);
 
 -- VARIANTES DE PRODUCTOS
@@ -196,7 +191,7 @@ INSERT INTO addresses (address, country, city, department, is_default, user_id) 
 INSERT INTO cart (user_id, session_token, subtotal, expires_at) VALUES
 (4, NULL, 391200, '2025-09-30 23:59:59'), -- Carlos Rodríguez
 (5, NULL, 3900000, '2025-09-30 23:59:59'); -- Ana Martínez
-
+select * from "User";
 -- ITEMS EN CARRITOS
 INSERT INTO cart_items (cart_id, product_id, quantity, unit_price, color_code, size) VALUES
 (1, 1, 1, 71200, '#000000', 'M'),
@@ -259,12 +254,19 @@ INSERT INTO orders (
 -- Orden 3 - Pendiente
 (3, 'pending', 71200, 0, 8000, 11392, 90592, 7, NULL, 0, 7, 7, '2024-08-30 16:00:00', '2024-08-30 16:00:00');
 
+INSERT INTO orders (
+    payment_id, status, subtotal, discount, shipping_cost, taxes, total,
+    shipping_address_id, coupon_id, coupon_discount,
+    user_id, updated_by, created_at, updated_at
+) VALUES
+-- Orden 1 - Entregada
+(3, 'delivered', 391200, 39120, 15000, 64252, 431332, 4, 1, 39120, 4, 1, '2025-08-25 14:30:00', '2025-08-27 10:00:00');
 -- ITEMS DE ÓRDENES
 INSERT INTO order_items (price, quantity, subtotal, color_code, size, product_id, order_id) VALUES
-(71200, 1, 71200, '#000000', 'M', 1, 1),
-(320000, 1, 320000, '#000000', '40', 6, 1),
-(120000, 1, 120000, '#4ECDC4', 'S', 4, 2),
-(71200, 1, 71200, '#000000', 'M', 1, 3);
+(71200, 1, 71200, '#000000', 'M', 1, 4),
+(320000, 1, 320000, '#000000', '40', 6, 4),
+(120000, 1, 120000, '#4ECDC4', 'S', 4, 4),
+(71200, 1, 71200, '#000000', 'M', 1, 4);
 
 -- LOGS DE ÓRDENES
 INSERT INTO order_logs (previous_status, new_status, note, order_id, updated_by, user_type) VALUES
@@ -280,10 +282,12 @@ INSERT INTO favorites (user_id, product_id) VALUES
 (4, 8), (4, 12), (5, 1), (6, 6), (7, 4);
 
 -- REVIEWS DE PRODUCTOS
-INSERT INTO reviews (user_id, product_id, rating, comment) VALUES
-(4, 1, 5, 'Excelente camiseta, muy cómoda para correr'),
-(4, 6, 4, 'Buenos tenis, aunque un poco pesados'),
-(5, 4, 5, 'Perfectos leggings, gran calidad');
+INSERT INTO reviews (user_id, product_id, rating, comment, active, order_id) VALUES
+(4, 1, 5, 'Excelente camiseta, muy cómoda para correr', TRUE, 4),
+(4, 6, 4, 'Buenos tenis, aunque un poco pesados', TRUE, 4),
+(5, 4, 4, 'Leggings cómodos pero un poco caros', TRUE, 3),
+(6, 8, 5, 'El iPhone 15 Pro es increíble, muy rápido y con gran cámara', TRUE, NULL),   
+(5, 4, 5, 'Perfectos leggings, gran calidad', FALSE, NULL);
 
 -- IMÁGENES DE REVIEWS
 INSERT INTO review_images (review_id, image_url) VALUES
@@ -297,4 +301,5 @@ UPDATE products SET stock = (
     FROM product_variants pv
     WHERE pv.product_id = products.id AND pv.active = TRUE
 );
+
 

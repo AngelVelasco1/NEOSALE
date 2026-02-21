@@ -18,6 +18,13 @@ export interface OrderItem {
     categories: {
       name: string;
     };
+    images: Array<{
+      id: number;
+      image_url: string;
+      color_code: string;
+      color: string;
+      is_primary?: boolean;
+    }>;
   };
 }
 
@@ -57,6 +64,7 @@ export interface Order {
   success?: boolean;
   message?: string;
   user_id?: number;
+  delivered_at?: string;
   addresses: {
     id: number;
     address: string;
@@ -83,7 +91,7 @@ export const createOrderApi = async (
 
     return data.data;
   } catch (error: unknown) {
-    console.error("Error creating order:", error);
+    
 
     if (error && typeof error === "object" && "response" in error) {
       const apiError = error as {
@@ -106,7 +114,10 @@ export const createOrderApi = async (
 export const getUserOrdersApi = async (): Promise<Order[]> => {
   try {
     // Obtener la sesión para extraer el user_id
-    const sessionResponse = await fetch("/api/auth/session");
+    const sessionResponse = await fetch("/api/auth/session", { 
+      credentials: 'include',
+      cache: 'no-store'
+    });
     const session = await sessionResponse.json();
 
     if (!session?.user?.id) {
@@ -115,7 +126,8 @@ export const getUserOrdersApi = async (): Promise<Order[]> => {
 
     const userId = session.user.id;
     const BACKEND_URL =
-      process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
+      process.env.NEXT_PUBLIC_API_URL || 
+      (process.env.NODE_ENV === 'production' ? '' : 'http://localhost:8000');
 
     // Llamar directamente al backend
     const response = await fetch(
@@ -136,10 +148,7 @@ export const getUserOrdersApi = async (): Promise<Order[]> => {
         errorData?.message ||
         `Error ${response.status}: ${response.statusText}`;
 
-      console.error("❌ Error obteniendo órdenes:", {
-        status: response.status,
-        message: errorMessage,
-      });
+      
 
       throw new Error(errorMessage);
     }
@@ -152,7 +161,7 @@ export const getUserOrdersApi = async (): Promise<Order[]> => {
 
     return result.data || [];
   } catch (error) {
-    console.error("❌ Error en getUserOrdersApi:", error);
+    
     throw error;
   }
 };
@@ -163,7 +172,10 @@ export const getUserOrdersApi = async (): Promise<Order[]> => {
 export const getOrderByIdApi = async (orderId: number): Promise<Order> => {
   try {
     // Obtener la sesión para extraer el user_id
-    const sessionResponse = await fetch("/api/auth/session");
+    const sessionResponse = await fetch("/api/auth/session", { 
+      credentials: 'include',
+      cache: 'no-store'
+    });
     const session = await sessionResponse.json();
 
     if (!session?.user?.id) {
@@ -172,7 +184,8 @@ export const getOrderByIdApi = async (orderId: number): Promise<Order> => {
 
     const userId = session.user.id;
     const BACKEND_URL =
-      process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
+      process.env.NEXT_PUBLIC_API_URL || 
+      (process.env.NODE_ENV === 'production' ? '' : 'http://localhost:8000');
 
     // Llamar directamente al backend
     const response = await fetch(
@@ -193,11 +206,7 @@ export const getOrderByIdApi = async (orderId: number): Promise<Order> => {
         errorData?.message ||
         `Error ${response.status}: ${response.statusText}`;
 
-      console.error("❌ Error obteniendo orden:", {
-        orderId,
-        status: response.status,
-        message: errorMessage,
-      });
+      
 
       throw new Error(errorMessage);
     }
@@ -210,7 +219,7 @@ export const getOrderByIdApi = async (orderId: number): Promise<Order> => {
 
     return result.data;
   } catch (error) {
-    console.error("❌ Error en getOrderByIdApi:", error);
+    
     throw error;
   }
 };

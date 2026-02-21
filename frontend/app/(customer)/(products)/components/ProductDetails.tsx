@@ -1,6 +1,6 @@
 "use client";
 import { useCallback, useEffect, useState } from "react";
-import Image from "next/image";
+import { ExternalImage } from "../../components/ExternalImage";
 import { Button } from "@/components/ui/button";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Badge } from "@/components/ui/badge";
@@ -29,6 +29,7 @@ import {
 } from "react-icons/ri";
 import { ErrorsHandler } from "@/app/errors/errorsHandler";
 import { getProductVariantApi } from "../services/api";
+import { ProductReviews } from "./ProductReviews";
 
 export interface ProductDetailsProps {
   data: IProductDetails;
@@ -79,7 +80,7 @@ export const ProductDetails = ({ data }: ProductDetailsProps) => {
         }
         setIsLoadingStock(false);
       } catch (error) {
-        console.error("Error fetching variant stock:", error);
+        
         setVariantStock(0);
         setIsSelectedVariant(false);
         setIsLoadingStock(false);
@@ -169,7 +170,10 @@ export const ProductDetails = ({ data }: ProductDetailsProps) => {
 
   const isVariantInStock = variantStock > 0;
   const showStockInfo = isSelectedVariant || (selectedColor && selectedSize);
-  const discountPercentage = data.base_discount;
+  // Usar offer_discount si está en oferta, sino usar base_discount
+  const discountPercentage = data.in_offer && data.offer_discount 
+    ? data.offer_discount 
+    : data.base_discount || 0;
 
   return (
     <div className="min-h-screen">
@@ -184,18 +188,16 @@ export const ProductDetails = ({ data }: ProductDetailsProps) => {
           {/* Image Gallery Section */}
           <div className="flex flex-col space-y-5 px-10">
             {/* Main Image */}
-            <div className="relative aspect-square bg-gradient-to-br from-slate-900 to-slate-800 rounded-xl shadow-2xl overflow-hidden group border border-white/5 hover:border-white/10 transition-all duration-500">
+            <div className="relative aspect-square bg-linear-to-br from-slate-900 to-slate-800 rounded-xl shadow-2xl overflow-hidden group border border-white/5 hover:border-white/10 transition-all duration-500">
               {images.length > 0 && images[selectedImage]?.image_url ? (
                 <>
-                  <Image
+                  <ExternalImage
                     src={images[selectedImage].image_url || "/placeholder.svg"}
                     alt={images[selectedImage].color || data.name}
-                    fill
-                    className="object-fit  transition-all duration-700 ease-out group-hover:scale-105 group-hover:rotate-1"
-                    priority
+                    className="w-full h-full object-cover transition-all duration-700 ease-out group-hover:scale-105 group-hover:rotate-1"
                   />
                   {/* Animated gradient overlay */}
-                  <div className="absolute inset-0 bg-gradient-to-tr from-blue-500/5 via-transparent to-purple-500/5 opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+                  <div className="absolute inset-0 bg-linear-to-tr from-blue-500/5 via-transparent to-purple-500/5 opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
                 </>
               ) : (
                 <div className="flex items-center justify-center h-full">
@@ -212,10 +214,34 @@ export const ProductDetails = ({ data }: ProductDetailsProps) => {
 
               {/* Floating action buttons */}
               <div className="absolute top-5 right-5 flex gap-2 opacity-0 group-hover:opacity-100 transition-all duration-300 translate-x-4 group-hover:translate-x-0">
-                <button className="bg-white/10 backdrop-blur-2xl hover:bg-rose-500 rounded-2xl w-11 h-11 flex items-center justify-center transition-all duration-300 hover:scale-110 border border-white/10 hover:border-rose-400 group/btn">
+                <button className="bg-white/10 backdrop-blur-2xl rounded-2xl w-11 h-11 flex items-center justify-center transition-all duration-300 hover:scale-110 border border-white/10 group/btn"
+                  style={{
+                    backgroundColor: 'rgba(255, 255, 255, 0.1)'
+                  }}
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.backgroundColor = `rgba(var(--color-accent-rgb), 0.3)`;
+                    e.currentTarget.style.borderColor = `rgba(var(--color-accent-rgb), 0.5)`;
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.backgroundColor = `rgba(255, 255, 255, 0.1)`;
+                    e.currentTarget.style.borderColor = `rgba(255, 255, 255, 0.1)`;
+                  }}
+                >
                   <Heart className="h-4.5 w-4.5 text-white group-hover/btn:fill-white transition-all" />
                 </button>
-                <button className="bg-white/10 backdrop-blur-2xl hover:bg-blue-500 rounded-2xl w-11 h-11 flex items-center justify-center transition-all duration-300 hover:scale-110 border border-white/10 hover:border-blue-400">
+                <button className="bg-white/10 backdrop-blur-2xl rounded-2xl w-11 h-11 flex items-center justify-center transition-all duration-300 hover:scale-110 border border-white/10"
+                  style={{
+                    backgroundColor: 'rgba(255, 255, 255, 0.1)'
+                  }}
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.backgroundColor = `rgba(var(--color-primary-rgb), 0.3)`;
+                    e.currentTarget.style.borderColor = `rgba(var(--color-primary-rgb), 0.5)`;
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.backgroundColor = `rgba(255, 255, 255, 0.1)`;
+                    e.currentTarget.style.borderColor = `rgba(255, 255, 255, 0.1)`;
+                  }}
+                >
                   <Share2 className="h-4.5 w-4.5 text-white" />
                 </button>
               </div>
@@ -223,9 +249,15 @@ export const ProductDetails = ({ data }: ProductDetailsProps) => {
               {/* Discount badge */}
               {discountPercentage > 0 && (
                 <div className="absolute top-5 left-5 animate-bounce-slow">
-                  <div className="bg-gradient-to-r from-rose-500 to-pink-500 text-white px-4 py-2 rounded-full text-sm font-bold shadow-2xl shadow-rose-500/50 backdrop-blur-xl border border-white/20 hover:scale-110 transition-transform duration-300">
-                    <span className="inline-block animate-pulse">🔥</span> -
+                  <div className={`${data.in_offer && data.offer_discount
+                      ? 'bg-linear-to-r from-orange-500 to-red-600 shadow-orange-500/50'
+                      : 'bg-linear-to-r from-rose-500 to-pink-500 shadow-rose-500/50'
+                    } text-white px-4 py-2 rounded-full text-sm font-bold shadow-2xl backdrop-blur-xl border border-white/20 hover:scale-110 transition-transform duration-300`}>
+                   -
                     {discountPercentage}% OFF
+                    {data.in_offer && data.offer_discount && (
+                      <span className="ml-1 text-xs font-normal">OFERTA</span>
+                    )}
                   </div>
                 </div>
               )}
@@ -239,19 +271,18 @@ export const ProductDetails = ({ data }: ProductDetailsProps) => {
                     key={index}
                     onClick={() => handleImageChange(index, image.color_code)}
                     className={`relative flex-shrink-0 aspect-square w-20 h-20 ml-2 mt-2 overflow-hidden rounded-2xl transition-all duration-300 ${selectedImage === index
-                      ? "ring-2 ring-blue-500 ring-offset-2 ring-offset-slate-950 scale-105 shadow-xl "
+                      ? "ring-offset-2 ring-offset-slate-950 scale-105 shadow-xl "
                       : "opacity-60 hover:opacity-100 border border-white/5 hover:border-white/20 hover:scale-105"
                       }`}
+                    style={selectedImage === index ? {
+                      boxShadow: `0 0 0 2px var(--color-primary)`
+                    } : {}}
                   >
-                    <Image
+                    <ExternalImage
                       src={image.image_url || "/placeholder.svg"}
                       alt={`${data.name} thumbnail ${index + 1}`}
-                      fill
-                      className="object-fit"
+                      className="w-full h-full object-cover"
                     />
-                    {selectedImage === index && (
-                      <div className="absolute inset-0 bg-blue-500/10 rounded-2xl"></div>
-                    )}
                   </button>
                 ))
               ) : (
@@ -268,7 +299,7 @@ export const ProductDetails = ({ data }: ProductDetailsProps) => {
 
             {/* Trust badges - Modern minimal style */}
             <div className="grid grid-cols-3 gap-3 mt-2">
-              <div className="bg-gradient-to-br from-slate-900/90 to-slate-800/90 backdrop-blur-xl rounded-2xl p-4 border border-white/5 text-center group hover:border-emerald-500/50 hover:shadow-lg hover:shadow-emerald-500/20 transition-all duration-300 hover:-translate-y-1">
+              <div className="bg-linear-to-br from-slate-900/90 to-slate-800/90 backdrop-blur-xl rounded-2xl p-4 border border-white/5 text-center group hover:border-emerald-500/50 hover:shadow-lg hover:shadow-emerald-500/20 transition-all duration-300 hover:-translate-y-1">
                 <div className="relative">
                   <Truck className="w-5 h-5 text-emerald-400 mx-auto mb-2 group-hover:scale-110 transition-transform relative z-10" />
                   <div className="absolute inset-0 bg-emerald-400/20 blur-xl opacity-0 group-hover:opacity-100 transition-opacity"></div>
@@ -278,7 +309,7 @@ export const ProductDetails = ({ data }: ProductDetailsProps) => {
                 </p>
                 <p className="text-[10px] text-slate-400 mt-0.5">+$100k</p>
               </div>
-              <div className="bg-gradient-to-br from-slate-900/90 to-slate-800/90 backdrop-blur-xl rounded-2xl p-4 border border-white/5 text-center group hover:border-blue-500/50 hover:shadow-lg hover:shadow-blue-500/20 transition-all duration-300 hover:-translate-y-1">
+              <div className="bg-linear-to-br from-slate-900/90 to-slate-800/90 backdrop-blur-xl rounded-2xl p-4 border border-white/5 text-center group hover:border-blue-500/50 hover:shadow-lg hover:shadow-blue-500/20 transition-all duration-300 hover:-translate-y-1">
                 <div className="relative">
                   <Shield className="w-5 h-5 text-blue-400 mx-auto mb-2 group-hover:scale-110 transition-transform relative z-10" />
                   <div className="absolute inset-0 bg-blue-400/20 blur-xl opacity-0 group-hover:opacity-100 transition-opacity"></div>
@@ -288,7 +319,7 @@ export const ProductDetails = ({ data }: ProductDetailsProps) => {
                 </p>
                 <p className="text-[10px] text-slate-400 mt-0.5">Protegida</p>
               </div>
-              <div className="bg-gradient-to-br from-slate-900/90 to-slate-800/90 backdrop-blur-xl rounded-2xl p-4 border border-white/5 text-center group hover:border-purple-500/50 hover:shadow-lg hover:shadow-purple-500/20 transition-all duration-300 hover:-translate-y-1">
+              <div className="bg-linear-to-br from-slate-900/90 to-slate-800/90 backdrop-blur-xl rounded-2xl p-4 border border-white/5 text-center group hover:border-purple-500/50 hover:shadow-lg hover:shadow-purple-500/20 transition-all duration-300 hover:-translate-y-1">
                 <div className="relative">
                   <Package className="w-5 h-5 text-purple-400 mx-auto mb-2 group-hover:scale-110 transition-transform relative z-10" />
                   <div className="absolute inset-0 bg-purple-400/20 blur-xl opacity-0 group-hover:opacity-100 transition-opacity"></div>
@@ -306,7 +337,7 @@ export const ProductDetails = ({ data }: ProductDetailsProps) => {
             {/* Header */}
             <div className="space-y-4">
               <div className="flex items-start justify-between gap-4">
-                <Badge className="bg-gradient-to-r from-blue-500/20 to-purple-500/20 text-blue-300 border border-blue-500/30 px-4 py-1.5 rounded-full font-semibold backdrop-blur-xl hover:border-blue-500/50 hover:shadow-lg hover:shadow-blue-500/30 transition-all duration-300 hover:scale-105 cursor-default">
+                <Badge className="bg-linear-to-r from-blue-500/20 to-purple-500/20 text-blue-300 border border-blue-500/30 px-4 py-1.5 rounded-full font-semibold backdrop-blur-xl hover:border-blue-500/50 hover:shadow-lg hover:shadow-blue-500/30 transition-all duration-300 hover:scale-105 cursor-default">
                   <Sparkles className="w-3.5 h-3.5 mr-1.5 animate-pulse" />
                   Nuevo
                 </Badge>
@@ -326,7 +357,7 @@ export const ProductDetails = ({ data }: ProductDetailsProps) => {
                 </div>
               </div>
 
-              <h1 className="text-4xl lg:text-5xl xl:text-6xl font-bold bg-gradient-to-r from-white via-slate-100 to-white bg-clip-text text-transparent leading-tight tracking-tight hover:from-blue-400 hover:via-purple-400 hover:to-pink-400 transition-all duration-500">
+              <h1 className="text-4xl lg:text-5xl xl:text-6xl font-bold bg-linear-to-r from-white via-slate-100 to-white bg-clip-text text-transparent leading-tight tracking-tight hover:from-blue-400 hover:via-purple-400 hover:to-pink-400 transition-all duration-500">
                 {data.name}
               </h1>
 
@@ -336,10 +367,10 @@ export const ProductDetails = ({ data }: ProductDetailsProps) => {
             </div>
 
             {/* Price Section - Prominent and clean */}
-            <div className="relative bg-gradient-to-r from-slate-900/90 to-slate-800/90 backdrop-blur-xl rounded-3xl p-6 border border-white/10 hover:border-white/20 transition-all duration-300 overflow-hidden group">
-              <div className="absolute inset-0 bg-gradient-to-r from-blue-500/5 via-purple-500/5 to-pink-500/5 opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+            <div className="relative bg-linear-to-r from-slate-900/90 to-slate-800/90 backdrop-blur-xl rounded-3xl p-6 border border-white/10 hover:border-white/20 transition-all duration-300 overflow-hidden group">
+              <div className="absolute inset-0 bg-linear-to-r from-blue-500/5 via-purple-500/5 to-pink-500/5 opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
               <div className="relative flex items-baseline gap-3">
-                <span className="text-5xl lg:text-6xl font-black bg-gradient-to-r from-white via-slate-100 to-white bg-clip-text text-transparent tracking-tight group-hover:scale-105 group-hover:from-yellow-300 group-hover:via-orange-300 group-hover:to-red-300 transition-all duration-300 inline-block">
+                <span className="text-5xl lg:text-6xl font-black bg-linear-to-r from-white via-slate-100 to-white bg-clip-text text-transparent tracking-tight group-hover:scale-105 group-hover:from-yellow-300 group-hover:via-orange-300 group-hover:to-red-300 transition-all duration-300 inline-block">
                   $
                   {Math.round(
                     data.price - data.price * (discountPercentage / 100)
@@ -499,10 +530,21 @@ export const ProductDetails = ({ data }: ProductDetailsProps) => {
                     isLoadingStock ||
                     variantStock === 0
                   }
-                  className="relative flex-1 bg-gradient-to-r from-white to-slate-50 hover:from-slate-50 hover:to-white text-slate-900 py-7 text-base font-bold rounded-2xl shadow-2xl shadow-white/25 hover:shadow-white/35 transition-all duration-300 hover:scale-[1.02] disabled:opacity-40 disabled:cursor-not-allowed disabled:scale-100 disabled:shadow-none min-h-[3.5rem] border-0 active:scale-95 overflow-hidden group"
+                  className="relative flex-1 py-7 text-base font-bold rounded-2xl transition-all duration-300 hover:scale-[1.02] disabled:opacity-40 disabled:cursor-not-allowed disabled:scale-100 disabled:shadow-none min-h-[3.5rem] border-0 active:scale-95 overflow-hidden group"
+                  style={{
+                    backgroundImage: `linear-gradient(to right, var(--color-accent), var(--color-primary))`,
+                    color: 'white',
+                    boxShadow: `0 25px 50px -12px rgba(var(--color-accent-rgb), 0.25)`
+                  }}
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.boxShadow = `0 25px 50px -12px rgba(var(--color-accent-rgb), 0.35)`;
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.boxShadow = `0 25px 50px -12px rgba(var(--color-accent-rgb), 0.25)`;
+                  }}
                   size="lg"
                 >
-                  <div className="absolute inset-0 bg-gradient-to-r from-blue-400/30 via-purple-400/30 to-pink-400/30 translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-1000"></div>
+                  <div className="absolute inset-0 translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-1000" style={{backgroundImage: `linear-gradient(to right, rgba(var(--color-accent-rgb), 0.3), rgba(var(--color-primary-rgb), 0.3), rgba(var(--color-accent-rgb), 0.3))`}}></div>
                   {isLoadingStock ? (
                     <div className="flex items-center gap-2.5 relative z-10">
                       <div className="w-4 h-4 border-2 border-slate-900/30 border-t-slate-900 rounded-full animate-spin" />
@@ -531,7 +573,7 @@ export const ProductDetails = ({ data }: ProductDetailsProps) => {
             </div>
 
             {/* Payment Methods - Sleek card */}
-            <div className="bg-gradient-to-br from-slate-900/90 to-slate-800/90 backdrop-blur-xl rounded-3xl p-6 border border-white/10 mt-auto">
+            <div className="bg-linear-to-br from-slate-900/90 to-slate-800/90 backdrop-blur-xl rounded-3xl p-6 border border-white/10 mt-auto">
               <div className="flex items-center gap-3 mb-5">
                 <Lock className="w-4.5 h-4.5 text-slate-300" />
                 <p className="font-semibold text-slate-200 text-sm">
@@ -558,6 +600,9 @@ export const ProductDetails = ({ data }: ProductDetailsProps) => {
           </div>
         </div>
       </div>
+
+      {/* Sección de Reseñas */}
+      <ProductReviews productId={data.id} />
     </div>
   );
 };

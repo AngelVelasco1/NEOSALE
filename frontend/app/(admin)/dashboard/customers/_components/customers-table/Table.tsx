@@ -2,9 +2,9 @@
 
 import { getCoreRowModel, useReactTable } from "@tanstack/react-table";
 
-import DataTable from "@/components/shared/table/DataTable";
-import { DataTableProps } from "@/types/data-table";
-import { Customer } from "@/services/customers/types";
+import DataTable from "@/app/(admin)/components/shared/table/DataTable";
+import { DataTableProps } from "@/app/(admin)/types/data-table";
+import { Customer } from "@/app/(admin)/services/customers/types";
 
 export default function CustomersTable({
   data,
@@ -15,6 +15,8 @@ export default function CustomersTable({
     data,
     columns,
     getCoreRowModel: getCoreRowModel(),
+
+    meta: { sectionLabel: "Clientes" },
   });
 
   return <DataTable table={table} pagination={pagination} />;

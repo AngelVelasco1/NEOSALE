@@ -17,7 +17,7 @@ import {
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "@/components/ui/select";
+} from "@/app/(admin)/components/ui/select";
 
 import { fetchCategoriesDropdown } from "@/app/(admin)/services/categories";
 import FetchDropdownContainer from "@/app/(admin)/components/shared/FetchDropdownContainer";
@@ -50,36 +50,35 @@ const FormCategoryInput = forwardRef(function FormCategoryInputRender<
       control={control}
       name={name}
       render={({ field }) => (
-        <FormItem className="flex flex-col md:flex-row md:gap-x-4 md:space-y-0">
-          <FormLabel className="md:flex-shrink-0 md:w-1/4 md:mt-2 leading-snug">
+        <FormItem className="space-y-4 ">
+          <FormLabel className="text-md font-medium text-foreground/90 ">
             {label}
           </FormLabel>
 
-          <div className="space-y-2 w-full">
+          <div className="space-y-2 h-12">
             <Select
+
               value={field.value}
               onValueChange={(value) => field.onChange(value)}
             >
-              <FormControl>
-                <SelectTrigger ref={ref} className="md:basis-1/5">
-                  <SelectValue placeholder="Category" />
+              <FormControl className="px-4 mt-2 rounded-xl border-2 border-slate-500/30 text-slate-200 placeholder:text-slate-400/70 focus:ring-0 focus:ring-offset-0 shadow-sm transition-all duration-200 ">
+                <SelectTrigger ref={ref} className="md:basis-1/5 h-12">
+                  <SelectValue placeholder="Categoria" />
                 </SelectTrigger>
               </FormControl>
 
-              <SelectContent portalContainer={container}>
+              <SelectContent className="max-h-56 bg-slate-900/95" portalContainer={container}>
                 <FetchDropdownContainer
                   isLoading={isLoading}
                   isError={isError}
                   errorMessage="Failed to load categories"
                 >
-                  <SelectItem key="all" value="all">
-                    All Categories
-                  </SelectItem>
+
 
                   {!isLoading &&
                     !isError &&
                     categories &&
-                    categories!.map((category) => (
+                    (categories as any[]).map((category) => (
                       <SelectItem key={category.id} value={category.id.toString()}>
                         {category.name}
                       </SelectItem>

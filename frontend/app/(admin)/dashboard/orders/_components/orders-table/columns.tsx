@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { ZoomIn } from "lucide-react";
 import { ColumnDef } from "@tanstack/react-table";
-import { format } from "date-fns";
+import { formatDate } from "@/lib/date-utils";
 
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -18,10 +18,17 @@ import { TableSelect } from "../../../../components/shared/table/TableSelect";
 import { OrderBadgeVariants } from "../../../../constants/badge";
 import { Order, OrderStatus } from "../../../../services/orders/types";
 import { SkeletonColumn } from "../../../../types/skeleton";
-
-/* import { changeOrderStatus } from "../../../../actions/orders/changeOrderStatus";
- */import { PrintInvoiceButton } from "./PrintInvoiceButton";
+import { SortableHeader } from "./SortableHeader";
+import { changeOrderStatus } from "../../../../actions/orders/changeOrderStatus";
+import { PrintInvoiceButton } from "./PrintInvoiceButton";
 import { HasPermission } from "../../../../hooks/use-authorization";
+import { TooltipProvider } from "@radix-ui/react-tooltip";
+import { translateOrderStatus } from "@/app/(admin)/lib/translations";
+import { getOrderStatuses } from "../../../../services/orders/getOrderStatuses";
+
+const removeLetters = (word: string): string => {
+  return word.replace(/[^\d]/g, '');
+};
 
 export const getColumns = ({
   hasPermission,
@@ -30,60 +37,63 @@ export const getColumns = ({
 }) => {
   const columns: ColumnDef<Order>[] = [
     {
-      header: "invoice no",
-      cell: ({ row }) => row.original.invoice_no,
+      accessorKey: "id",
+      header: () => <SortableHeader label="N.º Orden" sortKey="id" />,
+      cell: ({ row }) => { return removeLetters(row.original.payment_id.toString()) },
     },
     {
-      header: "order time",
+      accessorKey: "created_at",
+      header: () => <SortableHeader label="Fecha y Hora" sortKey="created_at" />,
       cell: ({ row }) =>
-        `${format(row.original.order_time, "PP")} ${format(
-          row.original.order_time,
-          "p"
-        )}`,
+        `${formatDate.medium(row.original.created_at)} ${formatDate.time(row.original.created_at)}`,
     },
     {
-      header: "customer name",
+      id: "customer",
+      header: "Cliente",
       cell: ({ row }) => (
         <span className="block max-w-52 truncate">
-          {row.original.customers?.name}
+          {row.original.User?.name || "Cliente sin nombre"}
         </span>
       ),
     },
     {
-      header: "method",
+      id: "method",
+      header: "Método",
       cell: ({ row }) => (
-        <span className="capitalize">{row.original.payment_method}</span>
+        <span className="capitalize">{row.original.payment?.payment_method || "N/A"}</span>
       ),
     },
     {
-      header: "amount",
-      cell: ({ row }) => formatAmount(row.original.total_amount),
+      accessorKey: "total",
+      header: () => <SortableHeader label="Monto" sortKey="total" />,
+      cell: ({ row }) => formatAmount(row.original.total),
     },
     {
-      header: "status",
+      accessorKey: "status",
+      header: () => <SortableHeader label="Estado" sortKey="status" />,
       cell: ({ row }) => {
         const status = row.original.status;
+        const translatedStatus = translateOrderStatus(status);
 
         return (
           <Badge
             variant={OrderBadgeVariants[status]}
-            className="flex-shrink-0 text-xs capitalize"
+            className="shrink-0 text-xs capitalize"
           >
-            {status}
+            {translatedStatus}
           </Badge>
         );
       },
     },
     {
-      header: "invoice",
+      header: "Factura",
       cell: ({ row }) => {
         return (
           <div className="flex items-center gap-1">
             {hasPermission("orders", "canPrint") && (
-              <PrintInvoiceButton orderId={row.original.id} />
+              <PrintInvoiceButton orderId={row.original.id.toString()} />
             )}
-
-            <Tooltip>
+            <TooltipProvider>  <Tooltip>
               <TooltipTrigger asChild>
                 <Button
                   variant="ghost"
@@ -91,40 +101,44 @@ export const getColumns = ({
                   className="text-foreground"
                   asChild
                 >
-                  <Link href={`/orders/${row.original.id}`}>
+                  <Link href={`/dashboard/orders/${row.original.id}`}>
                     <ZoomIn className="size-5" />
                   </Link>
                 </Button>
               </TooltipTrigger>
 
               <TooltipContent>
-                <p>View Invoice</p>
+                <p>Ver Factura</p>
               </TooltipContent>
-            </Tooltip>
+            </Tooltip></TooltipProvider>
+
           </div>
         );
       },
     },
   ];
 
+  // Obtener los estados disponibles del servicio
+  const orderStatuses = getOrderStatuses();
+
   if (hasPermission("orders", "canChangeStatus")) {
     columns.splice(6, 0, {
-      header: "action",
+      header: "Acción",
       cell: ({ row }) => {
         return (
           <TableSelect
             value={row.original.status}
-            toastSuccessMessage="Order status updated successfully."
+            toastSuccessMessage="Estado de la orden actualizado exitosamente."
             queryKey="orders"
             onValueChange={(value) =>
-              console.log(value)
-/*               changeOrderStatus(row.original.id, value as OrderStatus)
- */            }
+              changeOrderStatus(row.original.id, value as OrderStatus)
+            }
           >
-            <SelectItem value="pending">Pending</SelectItem>
-            <SelectItem value="processing">Processing</SelectItem>
-            <SelectItem value="delivered">Delivered</SelectItem>
-            <SelectItem value="cancelled">Cancelled</SelectItem>
+            {orderStatuses.map((status) => (
+              <SelectItem key={status.value} value={status.value}>
+                {status.label}
+              </SelectItem>
+            ))}
           </TableSelect>
         );
       },
@@ -136,35 +150,35 @@ export const getColumns = ({
 
 export const skeletonColumns: SkeletonColumn[] = [
   {
-    header: "invoice no",
+    header: "N.º Factura",
     cell: <Skeleton className="w-20 h-8" />,
   },
   {
-    header: "order time",
+    header: "Fecha y Hora",
     cell: <Skeleton className="w-32 h-8" />,
   },
   {
-    header: "customer name",
+    header: "Cliente",
     cell: <Skeleton className="w-32 h-8" />,
   },
   {
-    header: "method",
+    header: "Método",
     cell: <Skeleton className="w-14 h-8" />,
   },
   {
-    header: "amount",
+    header: "Monto",
     cell: <Skeleton className="w-16 h-8" />,
   },
   {
-    header: "status",
+    header: "Estado",
     cell: <Skeleton className="w-16 h-8" />,
   },
   {
-    header: "action",
+    header: "Acción",
     cell: <Skeleton className="w-24 h-10" />,
   },
   {
-    header: "invoice",
+    header: "Factura",
     cell: <Skeleton className="w-20 h-8" />,
   },
 ];

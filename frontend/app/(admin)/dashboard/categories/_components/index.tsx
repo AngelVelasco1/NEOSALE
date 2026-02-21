@@ -11,11 +11,11 @@ export default function Products() {
 
   return (
     <Fragment>
+      <CategoryFilters />
       <CategoryActions
         rowSelection={rowSelection}
         setRowSelection={setRowSelection}
       />
-      <CategoryFilters />
       <AllCategories
         rowSelection={rowSelection}
         setRowSelection={setRowSelection}

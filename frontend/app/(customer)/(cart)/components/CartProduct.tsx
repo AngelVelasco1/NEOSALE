@@ -1,7 +1,7 @@
 "use client"
 import React, { useCallback, useEffect, useState, useMemo } from "react"
 import { motion, AnimatePresence } from "framer-motion"
-import Image from "next/image"
+import { ExternalImage } from "../../components/ExternalImage"
 import { useRouter } from "next/navigation"
 import { Button } from "@/components/ui/button"
 import {
@@ -13,14 +13,16 @@ import {
   CheckCircle,
   ArrowRight,
   Package,
-  Clock,
   Sparkles,
-  ShoppingCart,
   Zap
 } from "lucide-react"
 import { useCart } from "../hooks/useCart"
 import type { CartProductsInfo } from "../../types"
 import { getProductVariantApi } from "../../(products)/services/api"
+import CouponInput from "./CouponInput"
+import type { AppliedCoupon } from "../types/coupon"
+
+const COUPON_STORAGE_KEY = "neosale_applied_coupon"
 
 interface VariantStock {
   stock: number
@@ -44,7 +46,6 @@ const ProductItem = React.memo<ProductItemProps>(({
   product,
   currentStock,
   isStockLoading,
-  onRefreshStock
 }) => {
   const {
     updateQuantity,
@@ -91,7 +92,7 @@ const ProductItem = React.memo<ProductItemProps>(({
     <motion.div
       variants={itemVariants}
       layout
-      className={`group relative bg-gradient-to-br from-slate-900/80 via-slate-800/60 to-slate-900/80 backdrop-blur-xl rounded-3xl p-6 border transition-all duration-500 shadow-2xl hover:shadow-indigo-500/10 ${isOutOfStock
+      className={`group relative bg-linear-to-br from-slate-900/80 via-slate-800/60 to-slate-900/80 backdrop-blur-xl rounded-3xl p-6 border transition-all duration-500 shadow-2xl hover:shadow-indigo-500/10 ${isOutOfStock
         ? "border-red-500/40 shadow-red-500/20"
         : hasLimitedStock
           ? "border-amber-500/40 shadow-amber-500/20"
@@ -99,21 +100,19 @@ const ProductItem = React.memo<ProductItemProps>(({
         } overflow-hidden`}
     >
       {/* Subtle background pattern or glow */}
-      <div className="absolute inset-0 bg-gradient-to-r from-transparent via-indigo-500/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+      <div className="absolute inset-0 bg-linear-to-r from-transparent via-indigo-500/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
 
       <div className="relative flex items-center gap-8">
         {/* Product Image */}
         <motion.div
-          className={`relative w-24 h-24 flex-shrink-0 rounded-2xl overflow-hidden bg-gradient-to-br from-slate-800/70 to-slate-900/70 border border-slate-700/60 ${isOutOfStock ? "opacity-60 grayscale" : ""
+          className={`relative w-24 h-24 flex-shrink-0 rounded-2xl overflow-hidden bg-linear-to-br from-slate-800/70 to-slate-900/70 border border-slate-700/60 ${isOutOfStock ? "opacity-60 grayscale" : ""
             } shadow-lg`}
           transition={{ duration: 0.3 }}
         >
-          <Image
+          <ExternalImage
             src={product.image_url || "/placeholder.svg"}
             alt={product.name || product.title || "Producto"}
-            fill
-            className="object-fit"
-            sizes="128px"
+            className="w-full h-full object-cover"
           />
           {isStockLoading && (
             <div className="absolute inset-0 bg-slate-900/90 backdrop-blur-md flex items-center justify-center rounded-2xl">
@@ -130,7 +129,7 @@ const ProductItem = React.memo<ProductItemProps>(({
 
         {/* Product Info */}
         <div className="flex-1 min-w-0">
-          <h3 className={`font-bold mb-3 truncate text-xl bg-gradient-to-r ${isOutOfStock ? "from-slate-500 to-slate-600" : "from-slate-100 to-indigo-200"} bg-clip-text text-transparent`}>
+          <h3 className={`font-bold mb-3 truncate text-xl bg-linear-to-r ${isOutOfStock ? "from-slate-500 to-slate-600" : "from-slate-100 to-indigo-200"} bg-clip-text text-transparent`}>
             {product.name || product.title}
           </h3>
 
@@ -161,7 +160,7 @@ const ProductItem = React.memo<ProductItemProps>(({
         <div className="flex flex-col items-end gap-6">
           {/* Total Price */}
           <div className="text-right min-w-[140px]">
-            <div className={`text-2xl font-extrabold bg-gradient-to-r ${isOutOfStock ? "from-slate-600 to-slate-700" : "from-slate-100 to-purple-200"} bg-clip-text text-transparent`}>
+            <div className={`text-2xl font-extrabold bg-linear-to-r ${isOutOfStock ? "from-slate-600 to-slate-700" : "from-slate-100 to-purple-200"} bg-clip-text text-transparent`}>
               ${totalPrice.toLocaleString()}
             </div>
             {productQuantity > 1 && (
@@ -218,7 +217,7 @@ const ProductItem = React.memo<ProductItemProps>(({
             initial={{ opacity: 0, height: 0, y: -10 }}
             animate={{ opacity: 1, height: "auto", y: 0 }}
             exit={{ opacity: 0, height: 0, y: -10 }}
-            className="mt-6 p-4 bg-gradient-to-r from-red-500/20 to-red-600/20 border border-red-500/50 rounded-2xl shadow-lg"
+            className="mt-6 p-4 bg-linear-to-r from-red-500/20 to-red-600/20 border border-red-500/50 rounded-2xl shadow-lg"
           >
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-3 text-sm text-red-300">
@@ -242,7 +241,7 @@ const ProductItem = React.memo<ProductItemProps>(({
             initial={{ opacity: 0, height: 0, y: -10 }}
             animate={{ opacity: 1, height: "auto", y: 0 }}
             exit={{ opacity: 0, height: 0, y: -10 }}
-            className="mt-6 p-4 bg-gradient-to-r from-amber-500/20 to-amber-600/20 border border-amber-500/50 rounded-2xl shadow-lg"
+            className="mt-6 p-4 bg-linear-to-r from-amber-500/20 to-amber-600/20 border border-amber-500/50 rounded-2xl shadow-lg"
           >
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-3 text-sm text-amber-300">
@@ -282,6 +281,15 @@ export default function CartProducts() {
 
   const [variantStocks, setVariantStocks] = useState<VariantStockMap>({})
   const [isUpdatingStocks, setIsUpdatingStocks] = useState(false)
+  const [appliedCoupon, setAppliedCoupon] = useState<AppliedCoupon | null>(() => {
+    if (typeof window === "undefined") return null
+    try {
+      const stored = localStorage.getItem(COUPON_STORAGE_KEY)
+      return stored ? JSON.parse(stored) : null
+    } catch {
+      return null
+    }
+  })
 
   const getVariantKey = useCallback((product: CartProductsInfo) => {
     return `${product.id}-${product.color_code}-${product.size}`
@@ -319,7 +327,7 @@ export default function CartProducts() {
 
       return currentStock
     } catch (error) {
-      console.error(`Error fetching stock for variant ${variantKey}:`, error)
+      
       setVariantStocks(prev => ({
         ...prev,
         [variantKey]: {
@@ -350,11 +358,77 @@ export default function CartProducts() {
     await fetchVariantStock(product)
   }, [fetchVariantStock])
 
+  // Definir funciones de manejo de cupón ANTES de los useEffects que las usan
+  const handleCouponApplied = useCallback((coupon: AppliedCoupon) => {
+    setAppliedCoupon(coupon)
+    try {
+      localStorage.setItem(COUPON_STORAGE_KEY, JSON.stringify(coupon))
+    } catch (error) {
+      
+    }
+  }, [])
+
+  const handleCouponRemoved = useCallback(() => {
+    setAppliedCoupon(null)
+    try {
+      localStorage.removeItem(COUPON_STORAGE_KEY)
+    } catch (error) {
+      
+    }
+  }, [])
+
   useEffect(() => {
     if (!cartLoading && cartProducts.length > 0) {
       updateAllStocks()
     }
   }, [cartLoading, cartProducts, updateAllStocks])
+
+  // Validar cupón almacenado cuando cambie el subtotal
+  useEffect(() => {
+    const validateStoredCoupon = async () => {
+      if (!appliedCoupon || cartProducts.length === 0) return
+
+      const currentSubtotal = getSubTotal()
+      const minPurchase = appliedCoupon.coupon.min_purchase_amount || 0
+
+      // Si el subtotal no cumple el mínimo, remover el cupón automáticamente
+      if (currentSubtotal < minPurchase) {
+      
+        handleCouponRemoved()
+        return
+      }
+
+      // Recalcular el descuento basado en el subtotal actual
+      const couponType = appliedCoupon.coupon.discount_type
+      const discountValue = appliedCoupon.coupon.discount_value
+      let newDiscountAmount = 0
+
+      if (couponType === 'percentage') {
+        newDiscountAmount = Math.round((currentSubtotal * discountValue) / 100)
+      } else if (couponType === 'fixed') {
+        newDiscountAmount = discountValue
+      }
+
+      // Limitar el descuento al subtotal
+      newDiscountAmount = Math.min(newDiscountAmount, currentSubtotal)
+
+      // Si el descuento cambió, actualizar
+      if (newDiscountAmount !== appliedCoupon.discount_amount) {
+        const updatedCoupon = {
+          ...appliedCoupon,
+          discount_amount: newDiscountAmount
+        }
+        setAppliedCoupon(updatedCoupon)
+        try {
+          localStorage.setItem(COUPON_STORAGE_KEY, JSON.stringify(updatedCoupon))
+        } catch (error) {
+          
+        }
+      }
+    }
+
+    validateStoredCoupon()
+  }, [appliedCoupon, cartProducts, getSubTotal, handleCouponRemoved])
 
   useEffect(() => {
     const interval = setInterval(() => {
@@ -380,6 +454,8 @@ export default function CartProducts() {
   const cartMetrics = useMemo(() => {
     const totalItems = getCartProductCount()
     const subtotal = getSubTotal()
+    const discount = appliedCoupon?.discount_amount || 0
+    const total = subtotal - discount
     const hasOutOfStockItems = cartProducts.some(product => getCurrentStock(product) === 0)
     const hasLimitedStockItems = cartProducts.some(product => {
       const stock = getCurrentStock(product)
@@ -389,11 +465,13 @@ export default function CartProducts() {
     return {
       totalItems,
       subtotal,
+      discount,
+      total,
       hasOutOfStockItems,
       hasLimitedStockItems,
       uniqueProducts: cartProducts.length
     }
-  }, [cartProducts, getCurrentStock, getCartProductCount, getSubTotal])
+  }, [cartProducts, getCurrentStock, getCartProductCount, getSubTotal, appliedCoupon])
 
   const handleContinueShopping = useCallback(() => {
     router.back()
@@ -409,6 +487,12 @@ export default function CartProducts() {
   const handleClearCart = useCallback(async () => {
     if (window.confirm('¿Estás seguro de que quieres vaciar tu carrito?')) {
       await clearCart()
+      setAppliedCoupon(null)
+      try {
+        localStorage.removeItem(COUPON_STORAGE_KEY)
+      } catch (error) {
+        
+      }
     }
   }, [clearCart])
 
@@ -424,7 +508,7 @@ export default function CartProducts() {
 
   if (cartLoading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950 flex items-center justify-center">
+      <div className="min-h-screen bg-linear-to-br from-slate-950 via-slate-900 to-slate-950 flex items-center justify-center">
         <motion.div
           className="text-center"
           initial={{ opacity: 0, scale: 0.9 }}
@@ -441,7 +525,7 @@ export default function CartProducts() {
   return (
 
     <motion.div
-      className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-900 to-slate-900"
+      className="min-h-screen bg-linear-to-br from-slate-900 via-slate-900 to-slate-900"
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       transition={{ duration: 0.6 }}
@@ -459,7 +543,7 @@ export default function CartProducts() {
           <div className="flex items-center justify-between mb-8">
             <div className="flex items-center gap-4">
 
-              <h1 className="text-5xl font-extrabold bg-gradient-to-r from-slate-100 via-indigo-200 to-purple-200 bg-clip-text text-transparent">
+              <h1 className="text-5xl font-extrabold bg-linear-to-r from-slate-100 via-indigo-200 to-purple-200 bg-clip-text text-transparent">
                 Mi Carrito
               </h1>
             </div>
@@ -521,7 +605,7 @@ export default function CartProducts() {
             animate={{ opacity: 1, scale: 1 }}
             transition={{ duration: 0.6 }}
           >
-            <div className="w-28 h-28 mx-auto mb-8 bg-gradient-to-br from-slate-800 to-slate-900 rounded-3xl flex items-center justify-center border border-slate-700/60 shadow-2xl">
+            <div className="w-28 h-28 mx-auto mb-8 bg-linear-to-br from-slate-800 to-slate-900 rounded-3xl flex items-center justify-center border border-slate-700/60 shadow-2xl">
               <ShoppingBag className="w-14 h-14 text-slate-600" />
             </div>
             <h3 className="text-2xl font-bold text-slate-200 mb-4">
@@ -531,7 +615,7 @@ export default function CartProducts() {
               Descubre nuestros productos y comienza a comprar
             </p>
             <Button
-              className="bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-500 hover:to-purple-500 text-white px-8 py-4 rounded-2xl font-semibold transition-all duration-300 shadow-lg hover:shadow-indigo-500/30"
+              className="bg-linear-to-r from-indigo-600 to-purple-600 hover:from-indigo-500 hover:to-purple-500 text-white px-8 py-4 rounded-2xl font-semibold transition-all duration-300 shadow-lg hover:shadow-indigo-500/30"
               onClick={handleContinueShopping}
             >
               Continuar Comprando
@@ -542,26 +626,62 @@ export default function CartProducts() {
         {/* Cart Summary */}
         {cartProducts.length > 0 && (
           <motion.div
-            className="mb-10 bg-gradient-to-br from-slate-900/80 via-slate-800/60 to-slate-900/80 backdrop-blur-xl rounded-3xl p-8 border border-slate-700/60 shadow-2xl"
+            className="flex flex-col mb-10 bg-linear-to-br from-slate-900/80 via-slate-800/60 to-slate-900/80 backdrop-blur-xl rounded-3xl p-8 border border-slate-700/60 shadow-2xl"
             initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6 }}
           >
-            <div className="flex flex-col lg:flex-row items-center justify-between gap-8">
-              <div>
-                <div className="text-sm text-slate-400 mb-2 uppercase tracking-wide">Subtotal</div>
-                <div className="text-4xl font-extrabold bg-gradient-to-r from-slate-100 to-indigo-200 bg-clip-text text-transparent">
-                  ${cartMetrics.subtotal.toLocaleString()}
+            <div className="flex flex-col lg:flex-row gap-8">
+              {/* Left: Summary Details */}
+              <div className="flex-1 space-y-6">
+                <div className="space-y-3">
+                  <div className="flex justify-between text-slate-400">
+                    <span>Subtotal ({cartMetrics.totalItems} items)</span>
+                    <span className="font-semibold text-slate-200">${cartMetrics.subtotal.toLocaleString()}</span>
+                  </div>
+
+                  {appliedCoupon && (
+                    <div className="flex justify-between text-green-400">
+                      <span>Descuento ({appliedCoupon.coupon.code})</span>
+                      <span className="font-semibold">-${cartMetrics.discount.toLocaleString()}</span>
+                    </div>
+                  )}
+
+                  <div className="pt-3 border-t border-slate-800/60">
+                    <div className="flex justify-between items-baseline">
+                      <div className="text-sm text-slate-400 uppercase tracking-wide">Total</div>
+                      <div className="text-3xl font-extrabold bg-linear-to-r from-slate-100 to-indigo-200 bg-clip-text text-transparent">
+                        ${cartMetrics.total.toLocaleString()}
+                      </div>
+                    </div>
+                    {appliedCoupon && (
+                      <div className="text-right text-sm text-green-400 mt-1 font-medium">
+                        ¡Ahorraste ${cartMetrics.discount.toLocaleString()}!
+                      </div>
+                    )}
+                  </div>
                 </div>
+
+                {/* Coupon Input - Compact */}
+                <div className="pt-6 border-t border-slate-800/60">
+                  <CouponInput
+                    subtotal={cartMetrics.subtotal}
+                    onCouponApplied={handleCouponApplied}
+                    onCouponRemoved={handleCouponRemoved}
+                    appliedCoupon={appliedCoupon}
+                  />
+                </div>
+
                 {isUpdatingStocks && (
-                  <div className="text-sm text-slate-500 mt-3 flex items-center gap-2">
+                  <div className="text-sm text-slate-500 flex items-center gap-2">
                     <RefreshCw className="w-4 h-4 animate-spin" />
                     Actualizando stocks...
                   </div>
                 )}
               </div>
 
-              <div className="flex flex-col sm:flex-row gap-4 w-full lg:w-auto">
+              {/* Right: Action Buttons */}
+              <div className="flex flex-col gap-4 lg:min-w-[240px]">
                 <Button
                   variant="outline"
                   className="border-slate-700/60 bg-slate-800/50 backdrop-blur-sm text-slate-300 hover:bg-slate-700 hover:border-slate-600 rounded-xl font-semibold shadow-lg hover:shadow-slate-700/30 p-5"
@@ -581,7 +701,7 @@ export default function CartProducts() {
                 <Button
                   onClick={handleProceedToCheckout}
                   disabled={cartMetrics.hasOutOfStockItems || isUpdatingStocks}
-                  className="bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-500 hover:to-purple-500 text-white rounded-xl font-semibold disabled:opacity-50 disabled:cursor-not-allowed group shadow-lg hover:shadow-indigo-500/30 p-5"
+                  className="bg-linear-to-r from-indigo-600 to-purple-600 hover:from-indigo-500 hover:to-purple-500 text-white rounded-xl font-semibold disabled:opacity-50 disabled:cursor-not-allowed group shadow-lg hover:shadow-indigo-500/30 p-5"
                 >
                   Proceder al Pago
                   <ArrowRight className="w-5 h-5 ml-3 group-hover:translate-x-2 transition-transform" />

@@ -12,6 +12,7 @@ import {
 } from "../services/paymentsApi";
 import { useCart } from "../../(cart)/hooks/useCart";
 import { CartProductsInfo } from "../../types";
+import type { Address } from "../../(addresses)/services/addressesApi";
 
 interface NequiFormProps {
     amount: number;
@@ -21,6 +22,7 @@ interface NequiFormProps {
     disabled?: boolean;
     userId: number;
     acceptanceTokens: { [key: string]: string };
+    selectedAddress?: Address | null;
 }
 
 export default function NequiForm({
@@ -31,6 +33,7 @@ export default function NequiForm({
     disabled,
     userId,
     acceptanceTokens,
+    selectedAddress,
 }: NequiFormProps) {
     const { cartProducts } = useCart();
     const [loading, setLoading] = useState(false);
@@ -137,16 +140,13 @@ export default function NequiForm({
                 throw new Error(response.error || "Error creando transacción Nequi");
             }
 
-            console.log("Transacción Nequi creada con paymentsApi:", {
-                id: response.data.transactionId,
-                status: response.data.status
-            });
+            
 
             // Nequi no redirige automáticamente, solo confirma la transacción
             onSuccess(response.data.transactionId);
 
         } catch (error) {
-            console.error("❌ Error en pago Nequi:", error);
+            
             setError(error instanceof Error ? error.message : "Error procesando pago Nequi");
             onError(error instanceof Error ? error : new Error("Error procesando pago Nequi"));
         } finally {
@@ -169,7 +169,7 @@ export default function NequiForm({
                         {/* Phone Number Section */}
                         <div className="space-y-4">
                             <div className="flex items-center gap-3 pb-3 border-b border-slate-700/50">
-                                <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-violet-600 via-purple-700 to-indigo-700 flex items-center justify-center shadow-lg shadow-violet-500/30">
+                                <div className="w-10 h-10 rounded-xl bg-linear-to-br from-violet-600 via-purple-700 to-indigo-700 flex items-center justify-center shadow-lg shadow-violet-500/30">
                                     <Smartphone className="w-5 h-5 text-white" />
                                 </div>
                                 <h3 className="text-lg font-bold text-white">
@@ -204,7 +204,7 @@ export default function NequiForm({
                         {/* Contact Information Section */}
                         <div className="space-y-4">
                             <div className="flex items-center gap-3 pb-3 border-b border-slate-700/50">
-                                <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-violet-600 via-purple-700 to-indigo-700 flex items-center justify-center shadow-lg shadow-violet-500/30">
+                                <div className="w-10 h-10 rounded-xl bg-linear-to-br from-violet-600 via-purple-700 to-indigo-700 flex items-center justify-center shadow-lg shadow-violet-500/30">
                                     <Mail className="w-5 h-5 text-white" />
                                 </div>
                                 <h3 className="text-lg font-bold text-white">
@@ -251,7 +251,7 @@ export default function NequiForm({
 
                         {/* Security Info & Submit */}
                         <div className="pt-4 space-y-5">
-                            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 p-5 bg-gradient-to-br from-violet-600/10 via-purple-600/10 to-indigo-600/10 rounded-xl border border-slate-700/50">
+                            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 p-5 bg-linear-to-br from-violet-600/10 via-purple-600/10 to-indigo-600/10 rounded-xl border border-slate-700/50">
                                 <div className="flex items-center gap-3">
                                     <div className="w-10 h-10 rounded-xl bg-slate-700/50 flex items-center justify-center shadow-md">
                                         <Shield className="w-5 h-5 text-violet-400" />
@@ -283,7 +283,7 @@ export default function NequiForm({
 
                             <Button
                                 type="submit"
-                                className="w-full h-14 text-base font-bold bg-gradient-to-r from-violet-600 via-purple-600 to-indigo-600 hover:from-violet-700 hover:via-purple-700 hover:to-indigo-700 text-white rounded-xl shadow-lg shadow-violet-500/30 hover:shadow-xl hover:shadow-violet-500/40 transition-all"
+                                className="w-full h-14 text-base font-bold bg-linear-to-r from-violet-600 via-purple-600 to-indigo-600 hover:from-violet-700 hover:via-purple-700 hover:to-indigo-700 text-white rounded-xl shadow-lg shadow-violet-500/30 hover:shadow-xl hover:shadow-violet-500/40 transition-all"
                                 disabled={loading || disabled}
                             >
                                 {loading ? (

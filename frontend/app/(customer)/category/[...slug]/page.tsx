@@ -115,9 +115,9 @@ export default function CategoriaPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-900 to-slate-900 relative">
+      <div className="min-h-screen bg-linear-to-br from-slate-900 via-slate-900 to-slate-900 relative">
         {/* Grid Background */}
-        <div className="absolute inset-0 bg-[linear-gradient(rgba(71,85,105,0.08)_1px,transparent_1px),linear-gradient(90deg,rgba(71,85,105,0.08)_1px,transparent_1px)] bg-[size:80px_80px]" />
+        <div className="absolute inset-0 bg-[linear-gradient(rgba(71,85,105,0.08)_1px,transparent_1px),linear-gradient(90deg,rgba(71,85,105,0.08)_1px,transparent_1px)] bg-position-[size:80px_80px]" />
 
         <div className="container mx-auto px-4 py-8 relative z-10">
           {/* Header Skeleton */}
@@ -152,7 +152,7 @@ export default function CategoriaPage() {
 
   if (error) {
     return (
-      <div className="min-h-screen  bg-gradient-to-br from-slate-900 via-slate-900 to-slate-900  relative">
+      <div className="min-h-screen  bg-linear-to-br from-slate-900 via-slate-900 to-slate-900  relative">
         {/* Grid Background */}
         <div className="absolute inset-0 bg-[linear-gradient(rgba(71,85,105,0.08)_1px,transparent_1px),linear-gradient(90deg,rgba(71,85,105,0.08)_1px,transparent_1px)] bg-[size:80px_80px]" />
 
@@ -183,7 +183,7 @@ export default function CategoriaPage() {
               <p className="text-slate-600 text-lg mb-8">{error}</p>
               <Button
                 onClick={() => window.location.reload()}
-                className="h-12 px-8 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 rounded-xl shadow-lg hover:shadow-xl transition-all duration-300"
+                className="h-12 px-8 bg-linear-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 rounded-xl shadow-lg hover:shadow-xl transition-all duration-300"
               >
                 Intentar de nuevo
               </Button>
@@ -195,7 +195,7 @@ export default function CategoriaPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-900 to-slate-900  relative">
+    <div className="min-h-screen bg-linear-to-br from-slate-900 via-slate-900 to-slate-900  relative">
       {/* Grid Background */}
       <div className="absolute inset-0 bg-[linear-gradient(rgba(71,85,105,0.08)_1px,transparent_1px),linear-gradient(90deg,rgba(71,85,105,0.08)_1px,transparent_1px)] bg-[size:80px_80px]" />
 
@@ -235,11 +235,10 @@ export default function CategoriaPage() {
                   damping: 15,
                   delay: 0.2,
                 }}
-                className={`w-16 h-16 rounded-2xl flex items-center justify-center shadow-lg ${
-                  isSubcategory
-                    ? "bg-gradient-to-br from-indigo-500 to-purple-600"
-                    : "bg-gradient-to-br from-blue-500 to-indigo-600"
-                }`}
+                className={`w-16 h-16 rounded-2xl flex items-center justify-center shadow-lg ${isSubcategory
+                    ? "bg-linear-to-br from-indigo-500 to-purple-600"
+                    : "bg-linear-to-br from-blue-500 to-indigo-600"
+                  }`}
               >
                 <Grid3x3 className="w-8 h-8 text-white" />
               </motion.div>
@@ -249,11 +248,10 @@ export default function CategoriaPage() {
                   initial={{ opacity: 0, y: 10 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: 0.3 }}
-                  className={`text-4xl lg:text-5xl font-bold bg-clip-text text-transparent mb-2 ${
-                    isSubcategory
-                      ? "bg-gradient-to-r from-indigo-600 to-purple-700"
-                      : "bg-gradient-to-r from-blue-600 to-indigo-700"
-                  }`}
+                  className={`text-4xl lg:text-5xl font-bold bg-clip-text text-transparent mb-2 ${isSubcategory
+                      ? "bg-linear-to-r from-indigo-600 to-purple-700"
+                      : "bg-linear-to-r from-blue-600 to-indigo-700"
+                    }`}
                 >
                   {displayName}
                 </motion.h1>
@@ -297,9 +295,8 @@ export default function CategoriaPage() {
                     <span className="text-sm font-semibold text-blue-900">
                       {products.length === 0
                         ? "No se encontraron productos"
-                        : `${products.length} producto${
-                            products.length === 1 ? "" : "s"
-                          } disponible${products.length === 1 ? "" : "s"}`}
+                        : `${products.length} producto${products.length === 1 ? "" : "s"
+                        } disponible${products.length === 1 ? "" : "s"}`}
                     </span>
                   </div>
                 </motion.div>
@@ -325,7 +322,7 @@ export default function CategoriaPage() {
                   damping: 15,
                   delay: 0.2,
                 }}
-                className="w-24 h-24 bg-gradient-to-br from-slate-100 to-blue-100 rounded-3xl flex items-center justify-center mx-auto mb-6 shadow-lg"
+                className="w-24 h-24 bg-linear-to-br from-slate-100 to-blue-100 rounded-3xl flex items-center justify-center mx-auto mb-6 shadow-lg"
               >
                 <Package className="h-12 w-12 text-slate-400" />
               </motion.div>
@@ -341,7 +338,7 @@ export default function CategoriaPage() {
 
               <Button
                 onClick={() => router.push("/")}
-                className="h-12 px-8 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 group"
+                className="h-12 px-8 bg-linear-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 group"
               >
                 <span className="flex items-center gap-2">
                   <Sparkles className="h-4 w-4" />

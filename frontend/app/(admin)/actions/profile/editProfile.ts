@@ -1,22 +1,31 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
-
-import { createServerActionClient } from "@/lib/supabase/server-action";
-import { profileFormSchema } from "@/app/(dashboard)/edit-profile/_components/schema";
-import { formatValidationErrors } from "@/helpers/formatValidationErrors";
-import { ProfileServerActionResponse } from "@/types/server-action";
+import {
+  uploadImageToCloudinary,
+  deleteImageFromCloudinary,
+} from "@/lib/cloudinary";
+import { apiClient } from "@/lib/api-client";
+import { requireAuth } from "@/lib/auth-helpers";
+import { profileFormSchema } from "@/app/(admin)/dashboard/edit-profile/_components/schema";
+import { formatValidationErrors } from "@/app/(admin)/helpers/formatValidationErrors";
+import { ProfileServerActionResponse } from "@/app/(admin)/types/server-action";
 
 export async function editProfile(
   userId: string,
   formData: FormData
 ): Promise<ProfileServerActionResponse> {
-  const supabase = createServerActionClient();
+  // Validate auth
+  await requireAuth("user", "admin");
 
+  // Validate form data
   const parsedData = profileFormSchema.safeParse({
     name: formData.get("name"),
     phone: formData.get("phone"),
     image: formData.get("image"),
+    currentPassword: formData.get("currentPassword"),
+    newPassword: formData.get("newPassword"),
+    confirmPassword: formData.get("confirmPassword"),
   });
 
   if (!parsedData.success) {
@@ -29,66 +38,56 @@ export async function editProfile(
 
   const { image, ...profileData } = parsedData.data;
 
-  let imageUrl: string | undefined;
+  try {
+    let imageUrl: string | undefined = undefined;
 
-  if (image instanceof File && image.size > 0) {
-    const { data: oldProfileData, error: fetchError } = await supabase
-      .from("staff")
-      .select("email, image_url")
-      .eq("id", userId)
-      .single();
-
-    if (fetchError) {
-      console.error("Failed to fetch profile details:", fetchError);
-      return { dbError: "Could not fetch your profile details." };
-    }
-
-    const oldImageUrl = oldProfileData.image_url;
-
-    const fileExt = image.name.split(".").pop();
-    const fileName = `staff/${oldProfileData.email}-${Date.now()}.${fileExt}`;
-
-    const { data: uploadData, error: uploadError } = await supabase.storage
-      .from("assets")
-      .upload(fileName, image);
-
-    if (uploadError) {
-      console.error("Image upload failed:", uploadError);
-      return { validationErrors: { image: "Failed to upload image" } };
-    }
-
-    const { data: publicUrlData } = supabase.storage
-      .from("assets")
-      .getPublicUrl(uploadData.path);
-
-    imageUrl = publicUrlData.publicUrl;
-
-    if (oldImageUrl) {
-      const oldImageFileName = `staff/${oldImageUrl.split("/").pop()}`;
-
-      if (oldImageFileName) {
-        await supabase.storage.from("assets").remove([oldImageFileName]);
+    // Upload image to Cloudinary if provided
+    if (image instanceof File && image.size > 0) {
+      try {
+        imageUrl = await uploadImageToCloudinary(
+          image,
+          "neosale/profiles",
+          "profile" // Preset: 400x400, quality 80, WebP
+        );
+      } catch (uploadError) {
+        console.error("[editProfile] Image upload failed:", uploadError);
+        return {
+          success: false,
+          error:
+            "Failed to upload profile picture. Please try again or use a different image.",
+        };
       }
     }
-  }
 
-  const { error: dbError } = await supabase
-    .from("staff")
-    .update({
+    // Call backend endpoint to update profile
+    const response = await apiClient.put(`/users/profile/edit`, {
       name: profileData.name,
-      phone: profileData.phone,
-      ...(imageUrl && { image_url: imageUrl }),
-    })
-    .eq("id", userId)
-    .select()
-    .single();
+      phone: profileData.phone || undefined,
+      image: imageUrl,
+      currentPassword: profileData.currentPassword || undefined,
+      newPassword: profileData.newPassword || undefined,
+    });
 
-  if (dbError) {
-    console.error("Database update failed:", dbError);
-    return { dbError: "Something went wrong. Please try again later." };
+    if (!response.success) {
+      // Handle validation errors from backend
+      if (response.data?.validationErrors) {
+        return { validationErrors: response.data.validationErrors };
+      }
+      return {
+        success: false,
+        error: response.data?.error || "Failed to update profile",
+      };
+    }
+
+    revalidatePath("/dashboard/edit-profile");
+    revalidatePath("/dashboard");
+
+    return { success: true };
+  } catch (error) {
+    console.error("[editProfile] Error:", error);
+    return {
+      success: false,
+      error: "Something went wrong. Please try again later.",
+    };
   }
-
-  revalidatePath("/edit-profile");
-
-  return { success: true };
 }

@@ -1,36 +1,26 @@
-import * as z from "zod";
-
-const MAX_FILE_SIZE_MB = 3;
-const MAX_FILE_SIZE = MAX_FILE_SIZE_MB * 1024 * 1024; // 3MB
-const ACCEPTED_IMAGE_TYPES = [
-  "image/jpeg",
-  "image/jpg",
-  "image/png",
-  "image/webp",
-];
-
-const fileSchema = z
-  .instanceof(File, { message: "Staff image is required" })
-  .refine(
-    (file) => file.size <= MAX_FILE_SIZE,
-    `File size must be less than ${MAX_FILE_SIZE_MB}MB`
-  )
-  .refine(
-    (file) => ACCEPTED_IMAGE_TYPES.includes(file.type),
-    "Only .jpg, .jpeg, .png and .webp formats are supported"
-  );
+import { z } from "zod";
 
 export const staffFormSchema = z.object({
   name: z
     .string()
-    .min(1, { message: "Staff name is required" })
-    .max(100, "Staff name must be 100 characters or less"),
+    .min(2, { message: "Name must be at least 2 characters" })
+    .max(100, { message: "Name must not exceed 100 characters" }),
   phone: z
     .string()
-    .regex(/^\+?[0-9]\d{1,14}$/, { message: "Invalid phone number format" })
+    .regex(/^[0-9\s\-\+\(\)]+$/, { message: "Invalid phone number format" })
     .optional()
     .or(z.literal("")),
-  image: z.union([fileSchema, z.string().url()]),
+  image: z
+    .instanceof(File)
+    .optional()
+    .refine(
+      (file) => !file || file.size <= 5 * 1024 * 1024,
+      { message: "File size must not exceed 5MB" }
+    )
+    .refine(
+      (file) => !file || file.type.startsWith("image/"),
+      { message: "File must be an image" }
+    ),
 });
 
 export type StaffFormData = z.infer<typeof staffFormSchema>;

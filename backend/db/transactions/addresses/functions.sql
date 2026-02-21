@@ -35,61 +35,6 @@ EXCEPTION
 END; 
 $$;
 
-CREATE OR REPLACE PROCEDURE sp_update_address(
-    p_id INT,
-    p_address TEXT, 
-    p_country TEXT, 
-    p_city TEXT, 
-    p_department TEXT,
-    p_is_default BOOLEAN DEFAULT NULL,
-    p_user_id INT DEFAULT NULL
-)
-LANGUAGE plpgsql
-AS $$
-DECLARE
-    v_current_user_id INT;
-BEGIN
-    -- Verificar que la dirección existe y obtener el user_id
-    SELECT user_id INTO v_current_user_id 
-    FROM addresses 
-    WHERE id = p_id;
-    
-    IF NOT FOUND THEN
-        RAISE EXCEPTION 'Dirección no encontrada' USING ERRCODE = 'no_data_found';
-    END IF;
-
-    -- Validar que le pertenece al usuario 
-    IF p_user_id IS NOT NULL AND v_current_user_id != p_user_id THEN
-        RAISE EXCEPTION 'No tienes permisos para modificar esta dirección' USING ERRCODE = 'insufficient_privilege';
-    END IF;
-
-    -- Si se marca como default, quitar el default de las otras direcciones del usuario
-    IF p_is_default = TRUE THEN
-        UPDATE addresses 
-        SET is_default = FALSE 
-        WHERE user_id = v_current_user_id AND is_default = TRUE AND id != p_id;
-    END IF;
-
-    UPDATE addresses SET
-        address = COALESCE(p_address, address),
-        country = COALESCE(p_country, country),
-        city = COALESCE(p_city, city),
-        department = COALESCE(p_department, department),
-        is_default = COALESCE(p_is_default, is_default)
-    WHERE id = p_id;
-
-EXCEPTION
-    WHEN not_null_violation THEN
-        RAISE EXCEPTION 'Campo obligatorio faltante al actualizar dirección: %', SQLERRM;
-    WHEN no_data_found THEN
-        RAISE EXCEPTION 'No se puede actualizar: dirección no encontrada';
-    WHEN insufficient_privilege THEN
-        RAISE EXCEPTION 'No tienes permisos para modificar esta dirección';
-    WHEN OTHERS THEN
-        RAISE EXCEPTION 'Error inesperado al actualizar dirección: %', SQLERRM;
-END;
-$$;
-
 CREATE OR REPLACE PROCEDURE sp_delete_address(
     p_id INT,
     p_user_id INT DEFAULT NULL  
@@ -148,48 +93,5 @@ EXCEPTION
         RAISE EXCEPTION 'No puedes eliminar tu única dirección';
     WHEN OTHERS THEN
         RAISE EXCEPTION 'Error inesperado al eliminar dirección: %', SQLERRM;
-END;
-$$;
-
-CREATE OR REPLACE PROCEDURE sp_set_default_address(
-    p_id INT,
-    p_user_id INT
-)
-LANGUAGE plpgsql
-AS $$
-DECLARE
-    v_current_user_id INT;
-BEGIN
-    -- Verificar que la dirección existe y obtener el user_id
-    SELECT user_id INTO v_current_user_id 
-    FROM addresses 
-    WHERE id = p_id;
-    
-    IF NOT FOUND THEN
-        RAISE EXCEPTION 'Dirección no encontrada' USING ERRCODE = 'no_data_found';
-    END IF;
-
-    -- Validar que le pertenece al usuario
-    IF v_current_user_id != p_user_id THEN
-        RAISE EXCEPTION 'No tienes permisos para modificar esta dirección' USING ERRCODE = 'insufficient_privilege';
-    END IF;
-
-    -- Quitar default de todas las direcciones del usuario
-    UPDATE addresses 
-    SET is_default = FALSE 
-    WHERE user_id = p_user_id AND is_default = TRUE;
-
-    -- Establecer la nueva dirección como default
-    UPDATE addresses 
-    SET is_default = TRUE 
-    WHERE id = p_id;
-
-EXCEPTION
-    WHEN no_data_found THEN
-        RAISE EXCEPTION 'No se puede actualizar: dirección no encontrada';
-    WHEN insufficient_privilege THEN
-        RAISE EXCEPTION 'No tienes permisos para modificar esta dirección';
-    WHEN OTHERS THEN
-        RAISE EXCEPTION 'Error inesperado al establecer dirección predeterminada: %', SQLERRM;
 END;
 $$;

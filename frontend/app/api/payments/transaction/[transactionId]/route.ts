@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 
-const BACKEND_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
+const BACKEND_URL = process.env.NEXT_PUBLIC_API_URL || 
+  (process.env.NODE_ENV === 'production' ? '' : 'http://localhost:8000');
 
 export async function GET(
   request: NextRequest,
@@ -51,12 +52,6 @@ export async function GET(
     }
 
     const result = await response.json();
-
-    console.log("Estado de transacción obtenido:", {
-      transactionId,
-      status: result.data?.status,
-      success: result.success,
-    });
 
     return NextResponse.json(result);
   } catch (error) {

@@ -1,29 +1,33 @@
 "use server";
 
-import { revalidatePath } from "next/cache";
-
-import { createServerActionClient } from "@/app/(admin)/lib/supabase/server-action";
+import { apiClient } from "@/lib/api-client";
 import { ServerActionResponse } from "@/app/(admin)/types/server-action";
-import { OrderStatus } from "@/app/(admin)/services/orders/types";
 
 export async function changeOrderStatus(
-  orderId: string,
-  newOrderStatus: OrderStatus
+  orderId: number,
+  newOrderStatus: string
 ): Promise<ServerActionResponse> {
-  const supabase = createServerActionClient();
+  try {
+    if (!orderId || orderId <= 0) {
+      return { validationError: "ID de orden inválido" };
+    }
 
-  const { error: dbError } = await supabase
-    .from("orders")
-    .update({ status: newOrderStatus })
-    .eq("id", orderId);
+    const validStatuses = ['pending', 'paid', 'processing', 'shipped', 'delivered', 'cancelled'];
+    if (!validStatuses.includes(newOrderStatus)) {
+      return { validationError: "Estado de orden inválido" };
+    }
 
-  if (dbError) {
-    console.error("Database update failed:", dbError);
-    return { dbError: "Failed to update order status." };
+    const response = await apiClient.patch(`/admin/orders/${orderId}/status`, {
+      status: newOrderStatus,
+    });
+
+    if (!response.success) {
+      return { success: false, error: response.error || "No se pudo actualizar el estado de la orden." };
+    }
+
+    return { success: true };
+  } catch (error) {
+    console.error("[changeOrderStatus] Error:", error);
+    return { success: false, error: "No se pudo actualizar el estado de la orden. Por favor, inténtalo de nuevo." };
   }
-
-  revalidatePath("/orders");
-  revalidatePath(`/orders/${orderId}`);
-
-  return { success: true };
 }

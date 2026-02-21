@@ -7,7 +7,7 @@ import {
   FormMessage,
   FormControl,
 } from "@/components/ui/form";
-import { Switch } from "@/components/ui/switch";
+import { Switch } from "@/app/(admin)/components/ui/switch";
 
 type FormSwitchProps<TFormData extends FieldValues> = {
   control: Control<TFormData>;

@@ -7,18 +7,29 @@ import React, {
   useEffect,
   ReactNode,
   useCallback,
+  useRef,
 } from "react";
 import { useSession } from "next-auth/react";
 import { getUserById } from "../services/api";
+
+interface Address {
+  id: number;
+  address: string;
+  city: string;
+  country: string;
+}
 
 interface UserProfile {
   id: number;
   name: string | null;
   email: string | null;
-  phone_number: string | null;
+  phoneNumber: string | null;
+  emailVerified: Date | null;
   identification?: string | null;
+  role: "user" | "admin";
   password: string | null;
-  addresses: string[] | null;
+  addresses: Address[];
+  image?: string | null;
 }
 
 interface UserContextType {
@@ -26,7 +37,7 @@ interface UserContextType {
   isLoading: boolean;
   setSelectedAddress: (addressIndex: string) => void;
   selectedAddress: string | undefined;
-  reFetchUserProfile: () => Promise<UserProfile | null>; 
+  reFetchUserProfile: () => Promise<UserProfile | null>;
 }
 
 const UserContext = createContext<UserContextType | undefined>(undefined);
@@ -41,8 +52,8 @@ export const UserProvider = ({ children }: UserProviderProps) => {
   const [selectedAddress, setSelectedAddress] = useState<string>();
   const [isLoading, setIsLoading] = useState(true);
   const [mounted, setMounted] = useState(false);
+  const lastFetchedId = useRef<string | null>(null);
 
-  // ✅ Manejar la hidratación
   useEffect(() => {
     setMounted(true);
   }, []);
@@ -53,23 +64,30 @@ export const UserProvider = ({ children }: UserProviderProps) => {
         setIsLoading(true);
 
         if (session?.user?.id) {
+          // Prevent redundant fetches
+          if (lastFetchedId.current === session.user.id) {
+            setIsLoading(false);
+            return userProfile;
+          }
+          
           const data = await getUserById(Number(session.user.id));
+          lastFetchedId.current = session.user.id;
           setUserProfile(data);
           return data;
         } else if (status !== 'loading') {
+          lastFetchedId.current = null;
           setUserProfile(null);
           return null;
         }
 
         return null;
       } catch (err) {
-        console.error("Error fetching user profile:", err);
         setUserProfile(null);
         return null;
       } finally {
         setIsLoading(false);
       }
-    }, [session?.user?.id, status]);
+    }, [session?.user?.id, status, userProfile]);
 
   useEffect(() => {
     if (!mounted) return;
@@ -79,13 +97,23 @@ export const UserProvider = ({ children }: UserProviderProps) => {
       return;
     }
 
-    fetchUserProfile();
-  }, [mounted, fetchUserProfile, status]);
+    // Only fetch if we haven't fetched for this user yet
+    if (session?.user?.id && lastFetchedId.current !== session.user.id) {
+      fetchUserProfile();
+    } else if (!session?.user?.id && lastFetchedId.current !== null) {
+      // User logged out
+      lastFetchedId.current = null;
+      setUserProfile(null);
+      setIsLoading(false);
+    } else {
+      setIsLoading(false);
+    }
+  }, [mounted, status, session?.user?.id, fetchUserProfile]);
 
   const defaultValue: UserContextType = {
     userProfile: null,
     isLoading: true,
-    setSelectedAddress: () => {},
+    setSelectedAddress: () => { },
     selectedAddress: undefined,
     reFetchUserProfile: async () => null,
   };

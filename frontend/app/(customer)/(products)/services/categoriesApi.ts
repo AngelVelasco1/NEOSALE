@@ -91,7 +91,7 @@ export const getCategoriesForNavbar = async (): Promise<
   try {
     return await getAllCategoriesWithSubcategories();
   } catch (error) {
-    console.error("Error al obtener categorías para el navbar:", error);
+    
     // Retornar array vacío en caso de error para no romper la UI
     return [];
   }

@@ -2,7 +2,7 @@
 import React from 'react'
 import CartProducts from '../components/CartProduct';
 
-export const ProductsCart = () => {
+function ProductsCart() {
   return (
       <CartProducts/>
   )

@@ -7,7 +7,7 @@ import { getProducts } from "../services/api";
 import { ProductCard } from "../components/ProductCard";
 import { ProductFilter } from "../components/Filters";
 
-export const ProductsPage = () => {
+function ProductsPage() {
   const [products, setProducts] = useState<IProduct[]>([]);
   const [filteredProducts, setFilteredProducts] = useState<IProduct[]>([]);
   const searchParams = useSearchParams();
@@ -43,8 +43,8 @@ export const ProductsPage = () => {
   }, [products, searchParams]);
 
   return (
-    <div className="relative min-h-screen bg-gradient-to-br from-slate-900  via-slate to-slate-900">
-      <div className="absolute inset-0 bg-[linear-gradient(rgba(71,85,105,0.12)_1px,transparent_1px),linear-gradient(90deg,rgba(71,85,105,0.12)_1px,transparent_1px)] bg-[size:80px_80px]" />
+    <div className="relative min-h-screen bg-linear-to-br from-slate-900  via-slate to-slate-900">
+      <div className="absolute inset-0 bg-[linear-gradient(rgba(71,85,105,0.12)_1px,transparent_1px),linear-gradient(90deg,rgba(71,85,105,0.12)_1px,transparent_1px)] bg-position-[80px_80px]" />
       <div className="container mx-auto px-4 py-8">
         <div className="grid lg:grid-cols-[350px_1fr] gap-8">
           {/* Filter Sidebar */}
@@ -92,6 +92,6 @@ export const ProductsPage = () => {
       </div>
     </div>
   );
-};
+}
 
 export default ProductsPage;

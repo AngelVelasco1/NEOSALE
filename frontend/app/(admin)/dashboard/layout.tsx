@@ -1,29 +1,119 @@
-import { cookies } from "next/headers";
+"use client";
 
-import Header from "@/app/(admin)/components/shared/header";
+import React, { useState, useEffect } from "react";
+import dynamic from "next/dynamic";
+
 import Container from "@/app/(admin)/components/ui/container";
-import AppSidebar from "@/app/(admin)/components/shared/sidebar/AppSidebar";
-import { SidebarProvider } from "@/app/(admin)/components/ui/sidebar";
+import { cn } from "@/lib/utils";
+import { RoleGuard } from "./components/RoleGuard";
 
-export default async function RootLayout({
+const Header = dynamic(
+  () => import("@/app/(admin)/components/shared/header"),
+  {
+    loading: () => <div className="h-16" />,
+  }
+);
+
+const AppSidebar = dynamic(
+  () => import("@/app/(admin)/components/shared/sidebar/AppSidebar"),
+  {
+    loading: () => <div className="lg:w-64" />,
+  }
+);
+
+
+interface LayoutProviderProps {
+  children: React.ReactNode;
+  defaultOpen?: boolean;
+}
+
+function LayoutProvider({ children, defaultOpen = true }: LayoutProviderProps) {
+  const [sidebarOpen, setSidebarOpen] = useState(defaultOpen);
+  const [isMobile, setIsMobile] = useState(false);
+  const [isInitialized, setIsInitialized] = useState(false);
+
+  // Auth protection removed - now handled by middleware.ts
+  // This prevents client-side redirect loops
+
+  useEffect(() => {
+    const checkMobile = () => {
+      const mobile = window.innerWidth < 1024;
+      const wasMobile = isMobile;
+      setIsMobile(mobile);
+      
+      // Solo ajustar el sidebar automáticamente en la inicialización o cuando cambia el breakpoint
+      if (!isInitialized) {
+        setSidebarOpen(!mobile);
+        setIsInitialized(true);
+      } else if (wasMobile !== mobile) {
+        // Solo cambiar si hubo un cambio real en el breakpoint
+        setSidebarOpen(!mobile);
+      }
+    };
+
+    checkMobile();
+    window.addEventListener('resize', checkMobile);
+    return () => window.removeEventListener('resize', checkMobile);
+  }, [isMobile, isInitialized]);
+
+  const toggleSidebar = () => setSidebarOpen(!sidebarOpen);
+
+  const closeSidebar = () => {
+    if (isMobile) {
+      setSidebarOpen(false);
+    }
+  };
+
+  return (
+    <div className="flex min-h-screen bg-slate-900">
+      <RoleGuard allowedRoles={["admin"]}>
+        {/* Overlay for mobile */}
+        {isMobile && sidebarOpen && (
+          <div
+            className="fixed inset-0 bg-black/60 backdrop-blur-sm z-30 lg:hidden transition-opacity duration-300"
+            onClick={closeSidebar}
+            aria-hidden="true"
+          />
+        )}
+
+        {/* Sidebar */}
+        <AppSidebar 
+          isOpen={sidebarOpen} 
+          isMobile={isMobile}
+          onClose={closeSidebar}
+        />
+
+        {/* Main Content */}
+        <div className={cn(
+          "flex-1 flex flex-col min-w-0 transition-all duration-300",
+          !isMobile && sidebarOpen && "lg:ml-64"
+        )}>
+          <Header onToggleSidebar={toggleSidebar} isSidebarOpen={sidebarOpen} />
+
+          <main className="flex-1 overflow-x-hidden">
+            <div className="py-6 print:!py-0">
+              <Container>
+                {children}
+              </Container>
+            </div>
+          </main>
+        </div>
+      </RoleGuard>
+    </div>
+  );
+}
+
+export default function RootLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
-  const cookieStore = await cookies();
-  const defaultOpen = cookieStore.get("sidebar_state")?.value === "true";
-
+  // TEMPORARILY DISABLED RoleGuard for debugging
+  // Auth: middleware.ts checks session cookie
+  // Role: Will add back after identifying loop source
   return (
-    <SidebarProvider defaultOpen={defaultOpen}>
-      <AppSidebar />
-
-      <div className="flex flex-col flex-grow min-w-0">
-        <Header />
-
-        <main className="pt-6 pb-8 flex-grow print:!py-0">
-          <Container>{children}</Container>
-        </main>
-      </div>
-    </SidebarProvider>
+    <LayoutProvider defaultOpen={true}>
+      {children}
+    </LayoutProvider>
   );
 }

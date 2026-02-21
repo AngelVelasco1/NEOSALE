@@ -1,6 +1,6 @@
 import { PenSquare, Trash2 } from "lucide-react";
 import { ColumnDef } from "@tanstack/react-table";
-import { format } from "date-fns";
+import { formatDate } from "@/lib/date-utils";
 
 import { Checkbox } from "@/components/ui/checkbox";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -8,17 +8,19 @@ import Typography from "@/app/(admin)/components/ui/typography";
 import { Badge } from "@/components/ui/badge";
 
 import { TableSwitch } from "@/app/(admin)/components/shared/table/TableSwitch";
-import { ImagePlaceholder } from "@/app/(admin)/components/shared/ImagePlaceholder";
+import { TableFeaturedButton } from "@/app/(admin)/components/shared/table/TableFeaturedButton";
 import { SheetTooltip } from "@/app/(admin)/components/shared/table/TableActionTooltip";
 import { TableActionAlertDialog } from "@/app/(admin)/components/shared/table/TableActionAlertDialog";
 import CouponFormSheet from "../form/CouponFormSheet";
 import { CouponBadgeVariants } from "@/app/(admin)/constants/badge";
 import { SkeletonColumn } from "@/app/(admin)/types/skeleton";
 import { Coupon, CouponStatus } from "@/app/(admin)/services/coupons/types";
+import SortableHeader from "./SortableHeader";
 
 import { editCoupon } from "@/app/(admin)/actions/coupons/editCoupon";
 import { deleteCoupon } from "@/app/(admin)/actions/coupons/deleteCoupon";
-import { toggleCouponPublishedStatus } from "@/app/(admin)/actions/coupons/toggleCouponStatus";
+import { toggleCouponActiveStatus } from "@/app/(admin)/actions/coupons/toggleCouponStatus";
+import { toggleCouponFeatured } from "@/app/(admin)/actions/coupons/toggleCouponFeatured";
 import { HasPermission } from "@/app/(admin)/hooks/use-authorization";
 
 export const getColumns = ({
@@ -28,90 +30,90 @@ export const getColumns = ({
 }) => {
   const columns: ColumnDef<Coupon>[] = [
     {
-      header: "campaign name",
+      accessorKey: "name",
+      header: () => <SortableHeader column="name" label="Nombre" />,
       cell: ({ row }) => (
-        <div className="flex gap-2 items-center">
-          <ImagePlaceholder
-            src={row.original.image_url}
-            alt={row.original.campaign_name}
-            width={32}
-            height={32}
-            className="size-8 rounded-full"
-          />
-
-          <Typography className="capitalize block truncate">
-            {row.original.campaign_name}
-          </Typography>
-        </div>
+        <Typography className="capitalize block truncate font-semibold max-w-[200px]">
+          {row.original.name}
+        </Typography>
       ),
     },
     {
-      header: "code",
+      accessorKey: "code",
+      header: () => <SortableHeader column="code" label="Código" />,
       cell: ({ row }) => (
-        <Typography className="uppercase">{row.original.code}</Typography>
+        <Typography className="uppercase font-mono">{row.original.code}</Typography>
       ),
     },
     {
-      header: "discount",
+      accessorKey: "discount_value",
+      header: () => <SortableHeader column="discount_value" label="Descuento" />,
       cell: ({ row }) => {
         const discountType = row.original.discount_type;
+        const value = Number(row.original.discount_value);
 
         if (discountType === "fixed") {
-          return `$${row.original.discount_value}`;
+          return <Typography className="font-medium">${value.toLocaleString()}</Typography>;
         }
 
-        return `${row.original.discount_value}%`;
+        return <Typography className="font-medium">{value}%</Typography>;
       },
     },
     {
-      header: "start date",
-      cell: ({ row }) => format(row.original.start_date, "PP"),
+      accessorKey: "usage_count",
+      header: () => <SortableHeader column="usage_count" label="Uso" />,
+      cell: ({ row }) => {
+        const used = row.original.usage_count || 0;
+        const limit = row.original.usage_limit;
+        return <Typography className="text-center">{limit ? `${used}/${limit}` : `${used}/∞`}</Typography>;
+      },
     },
     {
-      header: "end date",
-      cell: ({ row }) => format(row.original.end_date, "PP"),
+      accessorKey: "created_at",
+      header: () => <SortableHeader column="created_at" label="Fecha de Creación" />,
+      cell: ({ row }) => <Typography className="whitespace-nowrap">{formatDate.medium(row.original.created_at)}</Typography>,
     },
     {
-      header: "status",
+      accessorKey: "expires_at",
+      header: () => <SortableHeader column="expires_at" label="Expira" />,
+      cell: ({ row }) => <Typography className="whitespace-nowrap">{formatDate.medium(row.original.expires_at)}</Typography>,
+    },
+    {
+      accessorKey: "featured",
+      header: "Destacado",
+      cell: ({ row }) => {
+        return (
+          <Badge
+            variant={row.original.featured ? "success" : "outline"}
+            className="shrink-0 text-xs capitalize"
+          >
+            {row.original.featured ? "Sí" : "No"}
+          </Badge>
+        );
+      },
+    },
+    {
+      header: "Estado",
       cell: ({ row }) => {
         const currentTime = new Date();
-        const endTime = new Date(row.original.end_date);
+        const expiresAt = new Date(row.original.expires_at);
 
         const status: CouponStatus =
-          currentTime > endTime ? "expired" : "active";
+          currentTime > expiresAt ? "expired" : "active";
 
         return (
           <Badge
             variant={CouponBadgeVariants[status]}
-            className="flex-shrink-0 text-xs capitalize"
+            className="shrink-0 text-xs capitalize"
           >
-            {status}
+            {status === "active" ? "Disponible" : "Expirado"}
           </Badge>
         );
       },
     },
   ];
 
-  if (hasPermission("coupons", "canTogglePublished")) {
-    columns.splice(3, 0, {
-      header: "published",
-      cell: ({ row }) => (
-        <div className="pl-5">
-          <TableSwitch
-            checked={row.original.published}
-            toastSuccessMessage="Coupon status updated successfully."
-            queryKey="coupons"
-            onCheckedChange={() =>
-              toggleCouponPublishedStatus(
-                row.original.id,
-                row.original.published
-              )
-            }
-          />
-        </div>
-      ),
-    });
-  }
+
 
   if (
     hasPermission("coupons", "canDelete") ||
@@ -138,11 +140,38 @@ export const getColumns = ({
       ),
     });
 
-    columns.splice(8, 0, {
-      header: "actions",
+    columns.splice(9, 0, {
+      header: "Acciones",
       cell: ({ row }) => {
         return (
           <div className="flex items-center gap-1">
+            {hasPermission("coupons", "canTogglePublished") && (
+
+              <div className="pl-5">
+                <TableSwitch
+                  checked={row.original.active}
+                  toastSuccessMessage="Coupon status updated successfully."
+                  queryKey="coupons"
+                  onCheckedChange={() =>
+                    toggleCouponActiveStatus(
+                      row.original.id,
+                      row.original.active
+                    )
+                  }
+                />
+              </div>
+
+            )}
+
+            {hasPermission("coupons", "canEdit") && (
+              <TableFeaturedButton
+                couponId={row.original.id}
+                initialFeatured={row.original.featured}
+                queryKey="coupons"
+                onToggle={toggleCouponFeatured}
+              />
+            )}
+
             {hasPermission("coupons", "canEdit") && (
               <CouponFormSheet
                 key={row.original.id}
@@ -151,17 +180,18 @@ export const getColumns = ({
                 submitButtonText="Update Coupon"
                 actionVerb="updated"
                 initialData={{
-                  name: row.original.campaign_name,
+                  name: row.original.name,
                   code: row.original.code,
-                  image: row.original.image_url,
-                  startDate: new Date(row.original.start_date),
-                  endDate: new Date(row.original.end_date),
+                  expiresAt: new Date(row.original.expires_at),
                   isPercentageDiscount:
                     row.original.discount_type === "percentage",
-                  discountValue: row.original.discount_value,
+                  discountValue: Number(row.original.discount_value),
+                  minPurchaseAmount: row.original.min_purchase_amount
+                    ? Number(row.original.min_purchase_amount)
+                    : undefined,
+                  usageLimit: row.original.usage_limit || undefined,
                 }}
                 action={(formData) => editCoupon(row.original.id, formData)}
-                previewImage={row.original.image_url}
               >
                 <SheetTooltip content="Edit Coupon">
                   <PenSquare className="size-5" />
@@ -171,11 +201,11 @@ export const getColumns = ({
 
             {hasPermission("coupons", "canDelete") && (
               <TableActionAlertDialog
-                title={`Delete ${row.original.campaign_name}?`}
+                title={`Delete ${row.original.name}?`}
                 description="This action cannot be undone. This will permanently delete the coupon and its associated data from the database."
                 tooltipContent="Delete Coupon"
                 actionButtonText="Delete Coupon"
-                toastSuccessMessage={`Coupon "${row.original.campaign_name}" deleted successfully!`}
+                toastSuccessMessage={`Coupon "${row.original.name}" deleted successfully!`}
                 queryKey="coupons"
                 action={() => deleteCoupon(row.original.id)}
               >
@@ -197,41 +227,39 @@ export const skeletonColumns: SkeletonColumn[] = [
     cell: <Skeleton className="size-4 rounded-sm" />,
   },
   {
-    header: "campaign name",
-    cell: (
-      <div className="flex gap-2 items-center">
-        <Skeleton className="size-8 rounded-full" />
-
-        <Skeleton className="w-28 h-8" />
-      </div>
-    ),
+    header: "Nombre",
+    cell: <Skeleton className="w-28 h-8" />,
   },
   {
-    header: "code",
+    header: "Código",
     cell: <Skeleton className="w-20 h-8" />,
   },
   {
-    header: "discount",
+    header: "Descuento",
     cell: <Skeleton className="w-20 h-8" />,
   },
   {
-    header: "published",
-    cell: <Skeleton className="w-16 h-10" />,
-  },
-  {
-    header: "start date",
+    header: "Uso",
     cell: <Skeleton className="w-20 h-8" />,
   },
   {
-    header: "end date",
-    cell: <Skeleton className="w-20 h-8" />,
+    header: "Fecha de Creación",
+    cell: <Skeleton className="w-28 h-8" />,
   },
   {
-    header: "status",
-    cell: <Skeleton className="w-20 h-10" />,
+    header: "Expira",
+    cell: <Skeleton className="w-28 h-8" />,
   },
   {
-    header: "actions",
-    cell: <Skeleton className="w-20 h-8" />,
+    header: "Destacado",
+    cell: <Skeleton className="w-16 h-6 rounded-full" />,
+  },
+  {
+    header: "Estado",
+    cell: <Skeleton className="w-20 h-6 rounded-full" />,
+  },
+  {
+    header: "Acciones",
+    cell: <Skeleton className="w-32 h-8" />,
   },
 ];

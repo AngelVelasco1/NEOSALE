@@ -1,53 +1,21 @@
 "use server";
 
-import { revalidatePath } from "next/cache";
-
-import { createServerActionClient } from "@/lib/supabase/server-action";
-import { ServerActionResponse } from "@/types/server-action";
+import { apiClient } from "@/lib/api-client";
+import { ServerActionResponse } from "@/app/(admin)/types/server-action";
 
 export async function deleteCoupon(
-  couponId: string
+  couponId: number
 ): Promise<ServerActionResponse> {
-  const supabase = createServerActionClient();
+  try {
+    const response = await apiClient.delete(`/admin/coupons/${couponId}`);
 
-  const { data: couponData, error: fetchError } = await supabase
-    .from("coupons")
-    .select("image_url")
-    .eq("id", couponId)
-    .single();
-
-  if (fetchError) {
-    console.error("Failed to fetch coupon for deletion:", fetchError);
-    return { dbError: "Could not find the coupon to delete." };
-  }
-
-  const imageUrl = couponData?.image_url;
-
-  if (imageUrl) {
-    const imageFileName = `coupons/${imageUrl.split("/").pop()}`;
-
-    if (imageFileName) {
-      const { error: storageError } = await supabase.storage
-        .from("assets")
-        .remove([imageFileName]);
-
-      if (storageError) {
-        console.error("Failed to delete coupon image:", storageError);
-      }
+    if (!response.success) {
+      return { success: false, error: response.error || "Something went wrong. Could not delete the coupon." };
     }
+
+    return { success: true };
+  } catch (error) {
+    console.error("[deleteCoupon] Error:", error);
+    return { success: false, error: "Something went wrong. Could not delete the coupon." };
   }
-
-  const { error: dbError } = await supabase
-    .from("coupons")
-    .delete()
-    .eq("id", couponId);
-
-  if (dbError) {
-    console.error("Database delete failed:", dbError);
-    return { dbError: "Something went wrong. Could not delete the coupon." };
-  }
-
-  revalidatePath("/coupons");
-
-  return { success: true };
 }

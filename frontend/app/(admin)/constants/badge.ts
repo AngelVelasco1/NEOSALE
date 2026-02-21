@@ -1,28 +1,35 @@
-import { OrderStatus } from "@/services/orders/types";
-import { ProductStatus } from "@/services/products/types";
-import { CouponStatus } from "@/services/coupons/types";
-import { StaffStatus } from "@/services/staff/types";
+import { OrderStatus } from "@/app/(admin)/services/orders/types";
+import { ProductStatus } from "@/app/(admin)/services/products/types";
+import { CouponStatus } from "@/app/(admin)/services/coupons/types";
+import { StaffStatus } from "@/app/(admin)/services/staff/types";
 
-import { BadgeVariantProps } from "@/components/ui/badge";
+type BadgeVariant =
+  | "default"
+  | "success"
+  | "secondary"
+  | "destructive"
+  | "outline";
 
-export const OrderBadgeVariants: Record<OrderStatus, BadgeVariantProps> = {
-  pending: "warning",
-  processing: "processing",
+export const OrderBadgeVariants: Record<OrderStatus, BadgeVariant> = {
+  pending: "default",
+  paid: "success",
+  processing: "secondary",
+  shipped: "secondary",
   delivered: "success",
   cancelled: "destructive",
 };
 
-export const ProductBadgeVariants: Record<ProductStatus, BadgeVariantProps> = {
+export const ProductBadgeVariants: Record<ProductStatus, BadgeVariant> = {
   selling: "success",
   "out-of-stock": "destructive",
 };
 
-export const CouponBadgeVariants: Record<CouponStatus, BadgeVariantProps> = {
+export const CouponBadgeVariants: Record<CouponStatus, BadgeVariant> = {
   active: "success",
   expired: "destructive",
 };
 
-export const StaffBadgeVariants: Record<StaffStatus, BadgeVariantProps> = {
+export const StaffBadgeVariants: Record<StaffStatus, BadgeVariant> = {
   active: "success",
   inactive: "destructive",
 };

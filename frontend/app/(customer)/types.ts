@@ -25,6 +25,9 @@ export interface IProductDetails {
   quantity: number;
   sizes: string;
   base_discount: number;
+  offer_discount: number | null;
+  in_offer: boolean;
+  offer_end_date: Date | null;
   stock: number;
   category: string;
 }

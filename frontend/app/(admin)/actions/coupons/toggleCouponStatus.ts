@@ -1,29 +1,26 @@
 "use server";
 
-import { revalidatePath } from "next/cache";
+import { apiClient } from "@/lib/api-client";
+import { ServerActionResponse } from "@/app/(admin)/types/server-action";
 
-import { createServerActionClient } from "@/lib/supabase/server-action";
-import { ServerActionResponse } from "@/types/server-action";
-
-export async function toggleCouponPublishedStatus(
-  couponId: string,
-  currentPublishedStatus: boolean
+export async function toggleCouponActiveStatus(
+  couponId: number,
+  currentActiveStatus: boolean
 ): Promise<ServerActionResponse> {
-  const supabase = createServerActionClient();
+  try {
+    const newActiveStatus = !currentActiveStatus;
 
-  const newPublishedStatus = !currentPublishedStatus;
+    const response = await apiClient.patch(`/admin/coupons/${couponId}/status`, {
+      active: newActiveStatus,
+    });
 
-  const { error: dbError } = await supabase
-    .from("coupons")
-    .update({ published: newPublishedStatus })
-    .eq("id", couponId);
+    if (!response.success) {
+      return { success: false, error: response.error || "Failed to update coupon status." };
+    }
 
-  if (dbError) {
-    console.error("Database update failed:", dbError);
-    return { dbError: "Failed to update coupon status." };
+    return { success: true };
+  } catch (error) {
+    console.error("[toggleCouponActiveStatus] Error:", error);
+    return { success: false, error: "Failed to update coupon status." };
   }
-
-  revalidatePath("/coupons");
-
-  return { success: true };
 }

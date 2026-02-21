@@ -146,7 +146,7 @@ export const ShippingAddressForm = ({
       setIsModalOpen(false);
       form.reset();
     } catch (error) {
-      console.error('❌ Error al guardar dirección:', error);
+      
       const errorMessage = error instanceof Error ? error.message : 'Error al guardar la dirección';
       ErrorsHandler.showError('Error', errorMessage);
     } finally {
@@ -163,10 +163,10 @@ export const ShippingAddressForm = ({
     >
       <Card className="relative overflow-hidden shadow-slate-800 border border-slate-700/50 shadow-2xl bg-slate-800/40 backdrop-blur-xl">
         {/* Animated background gradient */}
-        <div className="absolute inset-0 bg-gradient-to-br from-indigo-900/20 via-slate-800/40 to-slate-800/40" />
+        <div className="absolute inset-0 bg-linear-to-br from-indigo-900/20 via-slate-800/40 to-slate-800/40" />
 
         {/* Decorative animated border */}
-        <div className="absolute top-0 left-0 right-0 h-[2px] bg-gradient-to-r from-transparent via-indigo-500 to-transparent">
+        <div className="absolute top-0 left-0 right-0 h-0.5 bg-linear-to-r from-transparent via-indigo-500 to-transparent">
           <motion.div
             animate={{
               x: ['-100%', '100%'],
@@ -176,7 +176,7 @@ export const ShippingAddressForm = ({
               repeat: Infinity,
               ease: "linear"
             }}
-            className="h-full w-1/3 bg-gradient-to-r from-transparent via-cyan-400 to-transparent blur-sm"
+            className="h-full w-1/3 bg-linear-to-r from-transparent via-cyan-400 to-transparent blur-sm"
           />
         </div>
 
@@ -197,17 +197,17 @@ export const ShippingAddressForm = ({
                   damping: 18,
                   delay: 0.15
                 }}
-                className="relative p-3 rounded-xl bg-gradient-to-br from-indigo-600 via-purple-600 to-indigo-700 shadow-lg shadow-indigo-500/40"
+                className="relative p-3 rounded-xl bg-linear-to-br from-indigo-600 via-purple-600 to-indigo-700 shadow-lg shadow-indigo-500/40"
               >
                 <motion.div
                   animate={{ scale: [1, 1.1, 1], opacity: [0.5, 0.8, 0.5] }}
                   transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
-                  className="absolute inset-0 rounded-2xl bg-gradient-to-br from-violet-500 to-violet-600 blur-xl"
+                  className="absolute inset-0 rounded-2xl bg-linear-to-br from-violet-500 to-violet-600 blur-xl"
                 />
                 <MapPin className="w-6 h-6 text-white relative z-10" />
               </motion.div>
               <div>
-                <h2 className="text-2xl font-extrabold bg-gradient-to-r from-indigo-300 via-purple-300 to-cyan-300 bg-clip-text text-transparent flex items-center gap-2">
+                <h2 className="text-2xl font-extrabold bg-linear-to-r from-indigo-300 via-purple-300 to-cyan-300 bg-clip-text text-transparent flex items-center gap-2">
                   Dirección de envío
                 </h2>
                 <p className="text-sm text-slate-400 mt-1">
@@ -240,7 +240,7 @@ export const ShippingAddressForm = ({
                   variant="outline"
                   size="sm"
                   onClick={openCreateModal}
-                  className="h-9 px-4 rounded-xl bg-gradient-to-r from-indigo-600/20 to-purple-600/20 border border-indigo-500/30 hover:from-indigo-600/30 hover:to-purple-600/30 hover:border-indigo-500/50 transition-all shadow-lg hover:shadow-indigo-500/20"
+                  className="h-9 px-4 rounded-xl bg-linear-to-r from-indigo-600/20 to-purple-600/20 border border-indigo-500/30 hover:from-indigo-600/30 hover:to-purple-600/30 hover:border-indigo-500/50 transition-all shadow-lg hover:shadow-indigo-500/20"
                 >
                   <Plus className="w-4 h-4 mr-1.5 text-indigo-300" />
                   <span className="text-indigo-300 font-semibold text-sm">Nueva</span>
@@ -264,8 +264,8 @@ export const ShippingAddressForm = ({
                         className={`
                           group relative p-5 rounded-2xl cursor-pointer transition-all duration-300
                           ${isSelected
-                            ? 'bg-gradient-to-br from-indigo-600/30 via-purple-600/30 to-indigo-700/30 border-2 border-indigo-500/50 shadow-xl shadow-indigo-500/20'
-                            : 'bg-gradient-to-br from-slate-800/50 to-slate-900/50 border border-slate-700/50 hover:border-indigo-500/40 hover:shadow-lg hover:shadow-indigo-500/10'
+                            ? 'bg-linear-to-br from-indigo-600/30 via-purple-600/30 to-indigo-700/30 border-2 border-indigo-500/50 shadow-xl shadow-indigo-500/20'
+                            : 'bg-linear-to-br from-slate-800/50 to-slate-900/50 border border-slate-700/50 hover:border-indigo-500/40 hover:shadow-lg hover:shadow-indigo-500/10'
                           }
                         `}
                       >
@@ -281,7 +281,7 @@ export const ShippingAddressForm = ({
                               repeat: Infinity,
                               ease: "easeInOut"
                             }}
-                            className="absolute inset-0 rounded-2xl bg-gradient-to-br from-indigo-500/20 to-purple-500/20 blur-xl"
+                            className="absolute inset-0 rounded-2xl bg-linear-to-br from-indigo-500/20 to-purple-500/20 blur-xl"
                           />
                         )}
 
@@ -295,7 +295,7 @@ export const ShippingAddressForm = ({
                           className={`
                             absolute top-4 right-4 w-7 h-7 rounded-full flex items-center justify-center transition-all duration-300 shadow-lg
                             ${isSelected
-                              ? 'bg-gradient-to-br from-indigo-500 to-purple-600'
+                              ? 'bg-linear-to-br from-indigo-500 to-purple-600'
                               : 'bg-slate-700/50 border-2 border-slate-600 group-hover:border-indigo-500/50'
                             }
                           `}
@@ -322,8 +322,8 @@ export const ShippingAddressForm = ({
                             className={`
                               p-3 rounded-xl shadow-lg transition-all duration-300
                               ${isSelected
-                                ? 'bg-gradient-to-br from-indigo-600 to-purple-700'
-                                : 'bg-gradient-to-br from-slate-700 to-slate-800 group-hover:from-indigo-600/30 group-hover:to-purple-600/30'
+                                ? 'bg-linear-to-br from-indigo-600 to-purple-700'
+                                : 'bg-linear-to-br from-slate-700 to-slate-800 group-hover:from-indigo-600/30 group-hover:to-purple-600/30'
                               }
                             `}
                           >
@@ -344,15 +344,15 @@ export const ShippingAddressForm = ({
                               </h4>
 
                               {address.is_default && (
-                                <Badge className="bg-gradient-to-r from-cyan-600 to-blue-600 text-white border-0 text-[10px] px-2.5 py-0.5 h-5 font-bold shadow-lg shadow-cyan-500/30">
+                                <Badge className="bg-linear-to-r from-cyan-600 to-blue-600 text-white border-0 text-[10px] px-2.5 py-0.5 h-5 font-bold shadow-lg shadow-cyan-500/30">
                                   Por defecto
                                 </Badge>
                               )}
                             </div>
 
                             <div className="flex items-center gap-2 text-sm">
-                              <div className="p-1 rounded-md bg-gradient-to-br from-indigo-500/20 to-purple-500/20">
-                                <MapPin className="w-3.5 h-3.5 text-indigo-400 flex-shrink-0" />
+                              <div className="p-1 rounded-md bg-linear-to-br from-indigo-500/20 to-purple-500/20">
+                                <MapPin className="w-3.5 h-3.5 text-indigo-400 shrink-0" />
                               </div>
                               <span className="font-semibold text-slate-300 truncate">
                                 {address.city}, {address.department}
@@ -369,7 +369,7 @@ export const ShippingAddressForm = ({
                         <Button
                           variant="ghost"
                           size="sm"
-                          className="absolute bottom-3 right-3 opacity-0 group-hover:opacity-100 transition-all duration-300 h-8 w-8 p-0 rounded-lg bg-gradient-to-br from-indigo-600/30 to-purple-600/30 hover:from-indigo-600/50 hover:to-purple-600/50 border border-indigo-500/30"
+                          className="absolute bottom-3 right-3 opacity-0 group-hover:opacity-100 transition-all duration-300 h-8 w-8 p-0 rounded-lg bg-linear-to-br from-indigo-600/30 to-purple-600/30 hover:from-indigo-600/50 hover:to-purple-600/50 border border-indigo-500/30"
                           onClick={(e) => {
                             e.stopPropagation();
                             openEditModal(address);
@@ -412,9 +412,9 @@ export const ShippingAddressForm = ({
                     repeat: Infinity,
                     ease: "easeInOut"
                   }}
-                  className="absolute inset-0 rounded-2xl bg-gradient-to-br from-indigo-500/30 to-purple-500/30 blur-2xl"
+                  className="absolute inset-0 rounded-2xl bg-linear-to-br from-indigo-500/30 to-purple-500/30 blur-2xl"
                 />
-                <div className="relative w-full h-full rounded-2xl bg-gradient-to-br from-indigo-600 via-purple-600 to-indigo-700 flex items-center justify-center shadow-2xl shadow-indigo-500/40">
+                <div className="relative w-full h-full rounded-2xl bg-linear-to-br from-indigo-600 via-purple-600 to-indigo-700 flex items-center justify-center shadow-2xl shadow-indigo-500/40">
                   <MapPin className="w-12 h-12 text-white" />
                 </div>
               </motion.div>
@@ -440,7 +440,7 @@ export const ShippingAddressForm = ({
               >
                 <Button
                   onClick={openCreateModal}
-                  className="h-12 px-8 text-sm font-bold bg-gradient-to-r from-indigo-600 via-purple-600 to-indigo-700 hover:from-indigo-500 hover:via-purple-500 hover:to-indigo-600 text-white border-0 rounded-xl shadow-2xl shadow-indigo-500/40 transition-all duration-300"
+                  className="h-12 px-8 text-sm font-bold bg-linear-to-r from-indigo-600 via-purple-600 to-indigo-700 hover:from-indigo-500 hover:via-purple-500 hover:to-indigo-600 text-white border-0 rounded-xl shadow-2xl shadow-indigo-500/40 transition-all duration-300"
                 >
                   <Plus className="w-5 h-5 mr-2" />
                   Agregar dirección
@@ -465,9 +465,9 @@ export const ShippingAddressForm = ({
                     initial={{ opacity: 0, x: -10 }}
                     animate={{ opacity: 1, x: 0 }}
                     transition={{ delay: 0.5 + i * 0.08 }}
-                    className="flex items-center gap-3 p-3 rounded-xl bg-gradient-to-br from-slate-800/50 to-slate-900/50 border border-slate-700/50 shadow-lg"
+                    className="flex items-center gap-3 p-3 rounded-xl bg-linear-to-br from-slate-800/50 to-slate-900/50 border border-slate-700/50 shadow-lg"
                   >
-                    <div className={`p-2 rounded-lg bg-gradient-to-br ${benefit.color} shadow-lg`}>
+                    <div className={`p-2 rounded-lg bg-linear-to-br ${benefit.color} shadow-lg`}>
                       <benefit.icon className="w-4 h-4 text-white" />
                     </div>
                     <span className="text-xs font-bold text-slate-300">
@@ -483,13 +483,13 @@ export const ShippingAddressForm = ({
 
       {/* Modal */}
       <Sheet open={isModalOpen} onOpenChange={setIsModalOpen}>
-        <SheetContent className="w-full sm:max-w-md overflow-y-auto bg-gradient-to-br from-slate-900 to-slate-800 border-l border-slate-700/50 p-4">
+        <SheetContent className="w-full sm:max-w-md overflow-y-auto bg-linear-to-br from-slate-900 to-slate-800 border-l border-slate-700/50 p-4">
           <SheetHeader className="space-y-4 pb-6 border-b border-slate-700/50">
             <div className="flex items-center gap-3">
-              <div className="p-3 rounded-xl bg-gradient-to-br from-indigo-600 via-purple-600 to-indigo-700 shadow-lg shadow-indigo-500/40">
+              <div className="p-3 rounded-xl bg-linear-to-br from-indigo-600 via-purple-600 to-indigo-700 shadow-lg shadow-indigo-500/40">
                 <MapPin className="w-5 h-5 text-white" />
               </div>
-              <SheetTitle className="text-2xl font-extrabold bg-gradient-to-r from-indigo-300 via-purple-300 to-cyan-300 bg-clip-text text-transparent">
+              <SheetTitle className="text-2xl font-extrabold bg-linear-to-r from-indigo-300 via-purple-300 to-cyan-300 bg-clip-text text-transparent">
                 {editingAddress ? 'Editar dirección' : 'Nueva dirección'}
               </SheetTitle>
             </div>
@@ -592,7 +592,7 @@ export const ShippingAddressForm = ({
                 control={form.control}
                 name="is_default"
                 render={({ field }) => (
-                  <FormItem className="flex items-center space-x-3 space-y-0 rounded-xl p-4 bg-gradient-to-r from-indigo-600/20 to-purple-600/20 border border-indigo-500/30">
+                  <FormItem className="flex items-center space-x-3 space-y-0 rounded-xl p-4 bg-linear-to-r from-indigo-600/20 to-purple-600/20 border border-indigo-500/30">
                     <FormControl>
                       <Checkbox
                         checked={field.value}
@@ -627,7 +627,7 @@ export const ShippingAddressForm = ({
                 <Button
                   type="submit"
                   disabled={isLoading}
-                  className="flex-1 h-11 bg-gradient-to-r from-indigo-600 via-purple-600 to-indigo-700 hover:from-indigo-500 hover:via-purple-500 hover:to-indigo-600 text-white border-0 rounded-xl shadow-2xl shadow-indigo-500/40 transition-all font-bold"
+                  className="flex-1 h-11 bg-linear-to-r from-indigo-600 via-purple-600 to-indigo-700 hover:from-indigo-500 hover:via-purple-500 hover:to-indigo-600 text-white border-0 rounded-xl shadow-2xl shadow-indigo-500/40 transition-all font-bold"
                 >
                   {isLoading ? (
                     <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin mr-2" />

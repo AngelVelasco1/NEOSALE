@@ -1,8 +1,7 @@
 "use server";
 
-import { revalidatePath } from "next/cache";
-
-import { createServerActionClient } from "@/app/(admin)/lib/supabase/server-action";
+import { apiClient } from "@/lib/api-client";
+import { requireAdmin } from "@/lib/auth-helpers";
 import { staffFormSchema } from "@/app/(admin)/dashboard/staff/_components/form/schema";
 import { formatValidationErrors } from "@/app/(admin)/helpers/formatValidationErrors";
 import { StaffServerActionResponse } from "@/app/(admin)/types/server-action";
@@ -11,7 +10,7 @@ export async function editStaff(
   staffId: string,
   formData: FormData
 ): Promise<StaffServerActionResponse> {
-  const supabase = createServerActionClient();
+  await requireAdmin();
 
   const parsedData = staffFormSchema.safeParse({
     name: formData.get("name"),
@@ -27,68 +26,22 @@ export async function editStaff(
     };
   }
 
-  const { image, ...staffData } = parsedData.data;
+  try {
+    const response = await apiClient.uploadFile(
+      `/admin/staff/${staffId}`,
+      formData
+    );
 
-  let imageUrl: string | undefined;
-
-  if (image instanceof File && image.size > 0) {
-    const { data: oldStaffData, error: fetchError } = await supabase
-      .from("staff")
-      .select("email, image_url")
-      .eq("id", staffId)
-      .single();
-
-    if (fetchError) {
-      console.error("Failed to fetch old staff data:", fetchError);
-      return { dbError: "Could not find the staff to update." };
-    }
-
-    const oldImageUrl = oldStaffData.image_url;
-
-    const fileExt = image.name.split(".").pop();
-    const fileName = `staff/${oldStaffData.email}-${Date.now()}.${fileExt}`;
-
-    const { data: uploadData, error: uploadError } = await supabase.storage
-      .from("assets")
-      .upload(fileName, image);
-
-    if (uploadError) {
-      console.error("Image upload failed:", uploadError);
-      return { validationErrors: { image: "Failed to upload image" } };
-    }
-
-    const { data: publicUrlData } = supabase.storage
-      .from("assets")
-      .getPublicUrl(uploadData.path);
-
-    imageUrl = publicUrlData.publicUrl;
-
-    if (oldImageUrl) {
-      const oldImageFileName = `staff/${oldImageUrl.split("/").pop()}`;
-
-      if (oldImageFileName) {
-        await supabase.storage.from("assets").remove([oldImageFileName]);
+    if (!response.success) {
+      if (response.validationErrors) {
+        return { validationErrors: response.validationErrors };
       }
+      return { success: false, error: response.error || "Failed to update staff" };
     }
+
+    return { success: true, staff: response.data };
+  } catch (error) {
+    console.error("[editStaff] Error:", error);
+    return { success: false, error: "Something went wrong. Please try again later." };
   }
-
-  const { data: updatedStaff, error: dbError } = await supabase
-    .from("staff")
-    .update({
-      name: staffData.name,
-      phone: staffData.phone,
-      ...(imageUrl && { image_url: imageUrl }),
-    })
-    .eq("id", staffId)
-    .select()
-    .single();
-
-  if (dbError) {
-    console.error("Database update failed:", dbError);
-    return { dbError: "Something went wrong. Please try again later." };
-  }
-
-  revalidatePath("/staff");
-
-  return { success: true, staff: updatedStaff };
 }

@@ -112,7 +112,7 @@ function NavigationMenuViewport({
       <NavigationMenuPrimitive.Viewport
         data-slot="navigation-menu-viewport"
         className={cn(
-          "origin-top-center bg-white/98 dark:bg-gray-900/98 text-popover-foreground backdrop-blur-xl data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-90 relative mt-1.5 h-[var(--radix-navigation-menu-viewport-height)] w-full overflow-hidden rounded-2xl border border-gray-200/80 dark:border-gray-700/80 shadow-2xl shadow-black/20 dark:shadow-black/40 md:w-[var(--radix-navigation-menu-viewport-width)]",
+          "origin-top-center bg-gray-900/98 text-popover-foreground backdrop-blur-xl data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-90 relative mt-1.5 h-[var(--radix-navigation-menu-viewport-height)] w-full overflow-hidden rounded-2xl border-2 border-slate-600/80 shadow-2xl shadow-black/40 md:w-[var(--radix-navigation-menu-viewport-width)]",
           className
         )}
         {...props}
@@ -129,7 +129,7 @@ function NavigationMenuLink({
     <NavigationMenuPrimitive.Link
       data-slot="navigation-menu-link"
       className={cn(
-        "hover:bg-blue-50 dark:hover:bg-blue-900/30  dark:focus:bg-blue-900/30 data-[active=true]:bg-blue-50 dark:data-[active=true]:bg-blue-900/30  data-[active=true]:text-blue-600 dark:data-[active=true]:text-blue-400 focus-visible:ring-ring/50 flex flex-col gap-1 rounded-xl p-3 text-sm transition-all duration-200 outline-none focus-visible:ring-[3px] focus-visible:outline-1 font-medium border border-transparent hover:border-blue-200 dark:hover:border-blue-800 [&_svg:not([class*='size-'])]:size-4",
+        "hover:bg-blue-900/30 focus:bg-blue-900/30 data-[active=true]:bg-blue-900/30 data-[active=true]:text-blue-400 focus-visible:ring-ring/50 flex flex-col gap-1 rounded-xl p-3 text-sm transition-all duration-200 outline-none focus-visible:ring-[3px] focus-visible:outline-1 font-medium border border-transparent hover:border-blue-800 data-[active=true]:border-blue-800 [&_svg:not([class*='size-'])]:size-4",
         className
       )}
       {...props}

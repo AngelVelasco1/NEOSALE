@@ -1,0 +1,166 @@
+/* Estilos adicionales para facturas - Dark Mode */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
+
+/* Las clases glass-* son manejadas por Tailwind en el page.tsx */
+/* Este archivo solo provee estilos de soporte para el PDF */
+
+/* Print Styles */
+@media print {
+  * {
+    backdrop-filter: none !important;
+    background: white !important;
+    color: black !important;
+    box-shadow: none !important;
+    border: 1px solid #e5e7eb !important;
+  }
+
+  body {
+    background: white !important;
+  }
+
+  .print-hidden {
+    display: none !important;
+  }
+
+  .glass-card,
+  .glass-info-card,
+  .glass-table,
+  .glass-summary-card,
+  .glass-total-card {
+    background: white !important;
+    border: 1px solid #d1d5db !important;
+  }
+
+  .text-gradient-primary,
+  .text-gradient-secondary {
+    -webkit-text-fill-color: black !important;
+    color: black !important;
+  }
+
+  button,
+  .download-pdf-button,
+  .print-invoice-button {
+    display: none !important;
+  }
+}
+
+/* PDF Compatibility */
+[id^="invoice-"] {
+  color-scheme: light !important;
+}
+
+[id^="invoice-"] * {
+  -webkit-print-color-adjust: exact !important;
+  print-color-adjust: exact !important;
+}
+
+[id^="invoice-"] .text-primary {
+  color: rgb(59, 130, 246) !important;
+}
+
+[id^="invoice-"] .text-black {
+  color: rgb(0, 0, 0) !important;
+}
+
+[id^="invoice-"] .bg-white {
+  background-color: rgb(255, 255, 255) !important;
+}
+
+[id^="invoice-"] .border-print-border {
+  border-color: rgb(229, 231, 235) !important;
+}
+
+[id^="invoice-"] .bg-print-border {
+  background-color: rgb(229, 231, 235) !important;
+}
+
+[id^="invoice-"] .bg-yellow-100 {
+  background-color: rgb(254, 249, 195) !important;
+}
+
+[id^="invoice-"] .text-yellow-800 {
+  color: rgb(133, 77, 14) !important;
+}
+
+[id^="invoice-"] .bg-green-100 {
+  background-color: rgb(220, 252, 231) !important;
+}
+
+[id^="invoice-"] .text-green-800 {
+  color: rgb(22, 101, 52) !important;
+}
+
+[id^="invoice-"] .bg-red-100 {
+  background-color: rgb(254, 226, 226) !important;
+}
+
+[id^="invoice-"] .text-red-800 {
+  color: rgb(153, 27, 27) !important;
+}
+
+[id^="invoice-"] .bg-blue-100 {
+  background-color: rgb(219, 234, 254) !important;
+}
+
+[id^="invoice-"] .text-blue-800 {
+  color: rgb(30, 64, 175) !important;
+}
+
+/* Accessibility - Reduced Motion */
+@media (prefers-reduced-motion: reduce) {
+  .glass-card-hover,
+  .glass-info-card,
+  .glass-summary-card,
+  .glass-total-card,
+  .hover-scale,
+  .hover-glow,
+  .brand-container,
+  .download-pdf-button,
+  .print-invoice-button {
+    transition: none !important;
+  }
+
+  .animate-fade-in,
+  .shimmer-effect {
+    animation: none !important;
+  }
+}
+
+/* Grid Layouts */
+.grid-container {
+  display: grid;
+  gap: 24px;
+}
+
+.grid-2-cols {
+  grid-template-columns: repeat(2, 1fr);
+}
+
+.grid-3-cols {
+  grid-template-columns: repeat(3, 1fr);
+}
+
+.grid-4-cols {
+  grid-template-columns: repeat(4, 1fr);
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .grid-2-cols,
+  .grid-3-cols,
+  .grid-4-cols {
+    grid-template-columns: 1fr;
+  }
+
+  h1 {
+    font-size: 24px;
+  }
+
+  h2 {
+    font-size: 20px;
+  }
+
+  .glass-card {
+    padding: 16px;
+  }
+}

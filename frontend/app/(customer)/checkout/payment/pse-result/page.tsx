@@ -45,8 +45,6 @@ export default function PSEResultPage() {
         // Iniciar polling para verificar el estado de la transacción
         const checkTransactionStatus = async () => {
             try {
-                console.log(`Consultando estado de transacción ${transactionId} (intento ${pollingCount + 1})`);
-
                 const response = await fetch(`/api/payments/transaction/${transactionId}`);
 
                 if (!response.ok) {
@@ -64,11 +62,11 @@ export default function PSEResultPage() {
 
                 // Si la transacción está en estado final, detener polling
                 if (["APPROVED", "DECLINED", "ERROR"].includes(transaction.status)) {
-                    console.log("Estado final alcanzado:", transaction.status);
+                    
                     setLoading(false);
                 } else if (pollingCount >= 20) {
                     // Timeout después de ~2 minutos
-                    console.log("Timeout de polling alcanzado");
+                    
                     setError("Tiempo de espera agotado. Verifica el estado en tu banco.");
                     setLoading(false);
                 } else {
@@ -78,7 +76,7 @@ export default function PSEResultPage() {
                 }
 
             } catch (error) {
-                console.error("❌ Error consultando estado de transacción:", error);
+                
                 setError(error instanceof Error ? error.message : "Error desconocido");
                 setLoading(false);
             }

@@ -1,15 +1,32 @@
-import { Database } from "@/types/supabase";
-import { Pagination } from "@/types/pagination";
-import { SBOrder } from "../orders/types";
+import { Pagination } from "@/app/(admin)/types/pagination";
 
-export type SBCustomer = Database["public"]["Tables"]["customers"]["Row"];
-
-export type Customer = SBCustomer;
+export interface Customer {
+  id: number;
+  name: string;
+  email: string;
+  phoneNumber: string | null;
+  identification: string | null;
+  identificationType: string | null;
+  role: string;
+  active: boolean;
+  createdAt: Date;
+  total_orders: number;
+  total_spent: number;
+  average_spent: number;
+  last_order_date: Date | null;
+}
 
 export interface FetchCustomersParams {
   page?: number;
   limit?: number;
   search?: string;
+  status?: string;
+  minOrders?: string;
+  maxOrders?: string;
+  minSpent?: string;
+  maxSpent?: string;
+  sortBy?: string;
+  sortOrder?: string;
 }
 
 export interface FetchCustomersResponse {
@@ -17,14 +34,53 @@ export interface FetchCustomersResponse {
   pagination: Pagination;
 }
 
-export type CustomerOrder = Pick<
-  SBOrder,
-  | "id"
-  | "invoice_no"
-  | "order_time"
-  | "payment_method"
-  | "total_amount"
-  | "status"
-> & {
-  customers: Pick<SBCustomer, "name" | "address" | "phone">;
-};
+export interface CustomerOrder {
+  id: number;
+  status: string;
+  total: number;
+  subtotal: number;
+  shipping_cost: number;
+  taxes: number;
+  discount: number;
+  coupon_discount: number;
+  tracking_number: string | null;
+  carrier: string | null;
+  estimated_delivery_date: Date | null;
+  created_at: Date;
+  updated_at: Date | null;
+  shipped_at: Date | null;
+  delivered_at: Date | null;
+  cancelled_at: Date | null;
+  user_note: string | null;
+  admin_notes: string | null;
+  payment_method: string | null;
+  payment_status: string | null;
+  payment_reference: string | null;
+  transaction_id: string | null;
+  shipping_address: {
+    address: string;
+    city: string;
+    department: string;
+    country: string;
+  };
+  customer: {
+    id: number;
+    name: string;
+    email: string;
+    phoneNumber: string | null;
+  };
+  items: Array<{
+    id: number;
+    quantity: number;
+    price: number;
+    subtotal: number;
+    color_code: string;
+    size: string;
+    product: {
+      id: number;
+      name: string;
+      description: string;
+      image_url: string | null;
+    };
+  }>;
+}

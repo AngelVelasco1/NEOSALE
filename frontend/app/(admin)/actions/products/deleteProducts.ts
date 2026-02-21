@@ -1,58 +1,22 @@
 "use server";
 
-import { revalidatePath } from "next/cache";
-
-// TODO: Migrar a Prisma
-// import { createServerActionClient } from "@/lib/supabase/server-action";
+import { apiClient } from "@/lib/api-client";
 import { ServerActionResponse } from "@/app/(admin)/types/server-action";
 
 export async function deleteProducts(
   productIds: string[]
 ): Promise<ServerActionResponse> {
-  // TODO: Implementar con Prisma
-  return { dbError: "Bulk delete not implemented yet. Migration to Prisma pending." };
-  
-  /* CÓDIGO ORIGINAL CON SUPABASE - PENDIENTE DE MIGRACIÓN
-  const supabase = createServerActionClient();
+  try {
+    const response = await apiClient.post(`/admin/products/delete`, {
+      productIds: productIds.map(id => parseInt(id)),
+    });
 
-  const { data: productsData, error: fetchError } = await supabase
-    .from("products")
-    .select("image_url")
-    .in("id", productIds);
-
-  if (fetchError) {
-    console.error("Failed to fetch products for deletion:", fetchError);
-    return { dbError: "Could not find the products to delete." };
-  }
-
-  const imageFileNames =
-    productsData
-      ?.map((product) => product.image_url)
-      .filter(Boolean)
-      .map((url) => `products/${url.split("/").pop()}`) ?? [];
-
-  if (imageFileNames.length > 0) {
-    const { error: storageError } = await supabase.storage
-      .from("assets")
-      .remove(imageFileNames);
-
-    if (storageError) {
-      console.error("Failed to delete product images:", storageError);
+    if (!response.success) {
+      return { success: false, error: response.error || "Could not delete the products." };
     }
+
+    return { success: true };
+  } catch (error) {
+    return { success: false, error: "Could not delete the products." };
   }
-
-  const { error: dbError } = await supabase
-    .from("products")
-    .delete()
-    .in("id", productIds);
-
-  if (dbError) {
-    console.error("Database bulk delete failed:", dbError);
-    return { dbError: "Something went wrong. Could not delete the products." };
-  }
-
-  revalidatePath("/products");
-
-  return { success: true };
-  */
 }

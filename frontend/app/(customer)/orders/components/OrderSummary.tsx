@@ -36,11 +36,12 @@ export const OrderSummary = ({
     >
       <Card className="relative overflow-hidden border border-slate-700/50 shadow-2xl bg-slate-800/40 backdrop-blur-xl">
         {/* Subtle animated gradient */}
-        <div className="absolute inset-0 bg-gradient-to-br from-slate-800/50 via-slate-900/50 to-slate-800/50" />
+        <div className="absolute inset-0 bg-linear-to-br from-slate-800/50 via-slate-900/50 to-slate-800/50" />
 
 
         {/* Decorative animated border */}
-        <div className="absolute top-0 left-0 right-0 h-[2px] bg-gradient-to-r from-transparent via-indigo-500 to-transparent">
+        <div className="absolute top-0 left-0 right-0 h-0
+        5 bg-linear-to-r from-transparent via-indigo-500 to-transparent">
           <motion.div
             animate={{
               x: ['-100%', '100%'],
@@ -50,7 +51,7 @@ export const OrderSummary = ({
               repeat: Infinity,
               ease: "linear"
             }}
-            className="h-full w-1/3 bg-gradient-to-r from-transparent via-cyan-400 to-transparent blur-sm"
+            className="h-full w-1/3 bg-linear-to-r from-transparent via-cyan-400 to-transparent blur-sm"
           />
         </div>
 
@@ -62,12 +63,12 @@ export const OrderSummary = ({
                 initial={{ scale: 0, rotate: -180 }}
                 animate={{ scale: 1, rotate: 0 }}
                 transition={{ type: "spring", stiffness: 200, damping: 20, delay: 0.1 }}
-                className="relative p-3 rounded-2xl bg-gradient-to-br from-violet-600 via-violet-700 to-violet-800 shadow-lg shadow-violet-500/30"
+                className="relative p-3 rounded-2xl bg-linear-to-br from-violet-600 via-violet-700 to-violet-800 shadow-lg shadow-violet-500/30"
               >
                 <motion.div
                   animate={{ scale: [1, 1.2, 1], opacity: [0.5, 0.8, 0.5] }}
                   transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
-                  className="absolute inset-0 rounded-2xl bg-gradient-to-br from-violet-500 to-violet-600 blur-xl"
+                  className="absolute inset-0 rounded-2xl bg-linear-to-br from-violet-500 to-violet-600 blur-xl"
                 />
                 <ShoppingBag className="w-5 h-5 text-white relative z-10" />
               </motion.div>
@@ -136,7 +137,7 @@ export const OrderSummary = ({
                       </div>
                     </div>
 
-                    <div className="text-right space-y-1 flex-shrink-0">
+                    <div className="text-right space-y-1 shrink-0">
                       <p className="text-base font-extrabold text-white">
                         ${(item.price * item.quantity).toLocaleString('es-CO')}
                       </p>
@@ -174,7 +175,7 @@ export const OrderSummary = ({
               <div className="flex items-center gap-2">
                 {shipping === 0 ? (
                   <>
-                    <Badge className="bg-gradient-to-r from-emerald-500 to-teal-500 text-white border-0 text-[10px] px-3 py-0.5 font-bold shadow-lg shadow-emerald-500/30">
+                    <Badge className="bg-linear-to-r from-emerald-500 to-teal-500 text-white border-0 text-[10px] px-3 py-0.5 font-bold shadow-lg shadow-emerald-500/30">
                       GRATIS
                     </Badge>
                     <span className="font-semibold line-through text-slate-500 text-xs">
@@ -214,12 +215,12 @@ export const OrderSummary = ({
             initial={{ opacity: 0, scale: 0.95 }}
             animate={{ opacity: 1, scale: 1 }}
             transition={{ delay: 0.4 }}
-            className="relative p-6 rounded-2xl bg-gradient-to-br from-violet-600/20 via-violet-700/20 to-slate-950/60 backdrop-blur-sm border border-violet-500/30 shadow-2xl shadow-violet-500/20"
+            className="relative p-6 rounded-2xl bg-linear-to-br from-violet-600/20 via-violet-700/20 to-slate-950/60 backdrop-blur-sm border border-violet-500/30 shadow-2xl shadow-violet-500/20"
           >
             <motion.div
               animate={{ scale: [1, 1.02, 1], opacity: [0.3, 0.5, 0.3] }}
               transition={{ duration: 3, repeat: Infinity, ease: "easeInOut" }}
-              className="absolute inset-0 rounded-2xl bg-gradient-to-br from-violet-600/20 to-slate-800/20 blur-xl"
+              className="absolute inset-0 rounded-2xl bg-linear-to-br from-violet-600/20 to-slate-800/20 blur-xl"
             />
 
             <div className="relative flex justify-between items-center">
@@ -309,7 +310,7 @@ export const OrderSummary = ({
                   initial={{ width: 0 }}
                   animate={{ width: `${(total / 100000) * 100}%` }}
                   transition={{ duration: 1, delay: 0.7 }}
-                  className="h-full bg-gradient-to-r from-violet-500 via-violet-600 to-violet-700 rounded-full shadow-lg shadow-violet-500/50"
+                  className="h-full bg-linear-to-r from-violet-500 via-violet-600 to-violet-700 rounded-full shadow-lg shadow-violet-500/50"
                 />
               </div>
             </motion.div>

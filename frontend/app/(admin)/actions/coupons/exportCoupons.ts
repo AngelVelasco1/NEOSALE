@@ -1,16 +1,20 @@
 "use server";
 
-import { createServerActionClient } from "@/lib/supabase/server-action";
+import { apiClient } from "@/lib/api-client";
 
-export async function exportCoupons() {
-  const supabase = createServerActionClient();
+type ExportResponse = { data: any[] } | { error: string };
 
-  const { data, error } = await supabase.from("coupons").select("*");
+export async function exportCoupons(): Promise<ExportResponse> {
+  try {
+    const response = await apiClient.get(`/admin/coupons/export`);
 
-  if (error) {
-    console.error(`Error fetching coupons:`, error);
-    return { error: `Failed to fetch data for coupons.` };
+    if (!response.success) {
+      return { error: response.error || "Failed to fetch data for coupons." };
+    }
+
+    return { data: (response.data || []) as any[] };
+  } catch (error) {
+    console.error("[exportCoupons] Error:", error);
+    return { error: "Failed to fetch data for coupons." };
   }
-
-  return { data };
 }

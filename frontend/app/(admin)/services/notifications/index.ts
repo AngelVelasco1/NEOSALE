@@ -1,85 +1,73 @@
 import { Notification } from "./types";
+import { api } from "@/config/api";
 
-// TODO: Implementar backend de notificaciones
 export async function fetchNotifications({
   staffId,
 }: {
   staffId: string;
 }): Promise<Notification[]> {
-  // Mock: Retornar array vacío mientras no existe el backend
-  console.log("[MOCK] fetchNotifications called with staffId:", staffId);
-  return [];
-  
-  /* // Implementación real cuando el backend esté listo:
-  const queryParams = new URLSearchParams({
-    staffId,
-    published: "true",
-  });
-
-  const response = await fetch(`/api/notifications?${queryParams.toString()}`);
-
-  if (!response.ok) {
-    const errorMessage = await response.text();
-    console.error("Error fetching notifications:", errorMessage);
-    throw new Error("Failed to fetch notifications");
+  try {
+    const response = await api.get("/api/notifications/", {
+      params: { staffId },
+    });
+    return response.data;
+  } catch (error) {
+    
+    return [];
   }
-
-  return response.json();
-  */
 }
 
-// TODO: Implementar backend de notificaciones
 export async function deleteNotification({
   notificationId,
 }: {
   notificationId: string;
 }) {
-  // Mock: Simular eliminación exitosa
-  console.log("[MOCK] deleteNotification called with id:", notificationId);
-  return;
-  
-  /* // Implementación real cuando el backend esté listo:
-  const response = await fetch(`/api/notifications/${notificationId}`, {
-    method: "DELETE",
-  });
-
-  if (!response.ok) {
-    const errorMessage = await response.text();
-    console.error("Error deleting notification:", errorMessage);
-    throw new Error("Could not dismiss the notification.");
+  try {
+    await api.delete(`/api/notifications/${notificationId}`);
+  } catch (error) {
+    
+    throw new Error("No se pudo eliminar la notificación");
   }
-
-  return;
-  */
 }
 
-// TODO: Implementar backend de notificaciones
 export async function fetchNotificationsCount({
   staffId,
 }: {
   staffId: string;
 }): Promise<number> {
-  // Mock: Retornar 0 notificaciones mientras no existe el backend
-  console.log("[MOCK] fetchNotificationsCount called with staffId:", staffId);
-  return 0;
-  
-  /* // Implementación real cuando el backend esté listo:
-  const queryParams = new URLSearchParams({
-    staffId,
-    isRead: "false",
-    published: "true",
-    count: "true",
-  });
-
-  const response = await fetch(`/api/notifications?${queryParams.toString()}`);
-
-  if (!response.ok) {
-    const errorMessage = await response.text();
-    console.error("Error fetching notification count:", errorMessage);
-    throw new Error("Could not fetch notification count.");
+  try {
+    const response = await api.get("/api/notifications/", {
+      params: { staffId, count: true },
+    });
+    return response.data.count ?? 0;
+  } catch (error) {
+    
+    return 0;
   }
+}
 
-  const data = await response.json();
-  return data.count ?? 0;
-  */
+export async function markNotificationAsRead({
+  notificationId,
+}: {
+  notificationId: string;
+}) {
+  try {
+    await api.patch(`/api/notifications/${notificationId}/read`);
+  } catch (error) {
+    
+    throw new Error("No se pudo marcar la notificación como leída");
+  }
+}
+
+export async function markAllNotificationsAsRead({
+  staffId,
+}: {
+  staffId: string;
+}) {
+  try {
+    await api.patch("/api/notifications/read-all", { staffId });
+  } catch (error) {
+    
+    throw new Error("No se pudieron marcar todas las notificaciones como leídas");
+  }
 }

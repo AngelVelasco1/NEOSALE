@@ -1,16 +1,20 @@
 "use server";
 
-import { createServerActionClient } from "@/lib/supabase/server-action";
+import { apiClient } from "@/lib/api-client";
 
-export async function exportCategories() {
-  const supabase = createServerActionClient();
+type ExportResponse = { data: any[] } | { error: string };
 
-  const { data, error } = await supabase.from("categories").select("*");
+export async function exportCategories(): Promise<ExportResponse> {
+  try {
+    const response = await apiClient.get(`/admin/categories/export`);
 
-  if (error) {
-    console.error(`Error fetching categories:`, error);
-    return { error: `Failed to fetch data for categories.` };
+    if (!response.success) {
+      return { error: response.error || "Failed to fetch data for categories." };
+    }
+
+    return { data: (response.data || []) as any[] };
+  } catch (error) {
+    console.error("[exportCategories] Error:", error);
+    return { error: "Failed to fetch data for categories." };
   }
-
-  return { data };
 }

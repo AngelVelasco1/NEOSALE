@@ -2,18 +2,18 @@ import React from "react";
 import type { Metadata } from "next";
 import "./globals.css";
 import { Montserrat, Poppins } from "next/font/google";
-import { RootProviders } from "./providers/RootProviders"; // Asegúrate de que la ruta sea correcta
-import { ThemeProvider } from "@/components/ThemeProvider"; // Asegúrate de que la ruta sea correcta
+import { RootProviders } from "./providers/RootProviders";
+import Script from "next/script";
 
 export const userFont = Montserrat({
-  weight: ["300", "400", "500", "700", "800"],
+  weight: ["400", "600", "700"],
   subsets: ["latin"],
   variable: "--font-montserrat",
   display: "swap",
 });
 
 export const adminFont = Poppins({
-  weight: ["300", "400", "500", "600", "700", "800"],
+  weight: ["400", "600"],
   subsets: ["latin"],
   variable: "--font-inter",
   display: "swap",
@@ -36,21 +36,27 @@ export default function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  // REMOVED: await auth() - This blocks the entire app and causes Suspense warnings
+  // Auth checks should be done in individual protected pages/layouts, not root layout
+  
   return (
     <html lang="es" suppressHydrationWarning>
+      <head>
+        <link
+          rel="stylesheet"
+          href="/non-critical.css"
+          media="print"
+          data-non-critical="true"
+        />
+      </head>
       <body
-        className={`${userFont.variable} ${adminFont.variable} font-montserrat antialiased`}
+        className={`${userFont.variable} ${adminFont.variable} font-montserrat antialiased @container min-h-screen`}
+        suppressHydrationWarning
       >
-        <ThemeProvider
-          attribute="class"
-          defaultTheme="system"
-          enableSystem
-          disableTransitionOnChange
-        >
-          <RootProviders>
-            {children}
-          </RootProviders>
-        </ThemeProvider>
+       
+        <RootProviders>
+          {children}
+        </RootProviders>
       </body>
     </html>
   );

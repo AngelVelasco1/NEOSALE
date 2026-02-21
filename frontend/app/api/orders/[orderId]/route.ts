@@ -1,11 +1,12 @@
 import { NextRequest, NextResponse } from "next/server";
 import { auth } from "@/app/(auth)/auth";
 
-const BACKEND_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
+const BACKEND_URL = process.env.NEXT_PUBLIC_API_URL || 
+  (process.env.NODE_ENV === 'production' ? '' : 'http://localhost:8000');
 
 export async function GET(
   request: NextRequest,
-  { params }: { params: { orderId: string } }
+  { params }: { params: Promise<{ orderId: string }> }
 ) {
   try {
     // Obtener la sesión del usuario
@@ -21,7 +22,7 @@ export async function GET(
       );
     }
 
-    const { orderId } = params;
+    const { orderId } = await params;
 
     if (!orderId || isNaN(parseInt(orderId))) {
       return NextResponse.json(
@@ -67,13 +68,6 @@ export async function GET(
     }
 
     const result = await response.json();
-
-    console.log("Orden obtenida:", {
-      orderId: parseInt(orderId),
-      userId: session.user.id,
-      orderStatus: result.data?.status,
-      success: result.success,
-    });
 
     return NextResponse.json(result);
   } catch (error) {

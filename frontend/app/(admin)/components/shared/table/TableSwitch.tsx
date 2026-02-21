@@ -35,10 +35,13 @@ export function TableSwitch({
   };
 
   return (
-    <Switch
-      checked={checked}
-      disabled={isPending}
-      onCheckedChange={handleSwitchToggle}
-    />
+    <div className="flex items-center justify-center">
+      <Switch
+        checked={checked}
+        disabled={isPending}
+        onCheckedChange={handleSwitchToggle}
+        className={isPending ? "opacity-50 cursor-not-allowed" : ""}
+      />
+    </div>
   );
 }

@@ -1,7 +1,7 @@
 "use client"
 
 import { Button } from "@/components/ui/button"
-import type { FilterState } from "../../types"
+import type { FilterState } from "../../../types"
 
 interface FilterSortProps {
   sortBy: FilterState["sortBy"]
@@ -20,7 +20,7 @@ export const SortFilter = ({ sortBy, onSortChange }: FilterSortProps) => {
     <div className="space-y-4">
       <div className="flex items-center space-x-3">
         <div className="p-1.5 bg-slate-700/50 rounded-lg">
-          <div className="w-2 h-2 bg-gradient-to-r from-slate-400 to-slate-500 rounded-full"></div>
+          <div className="w-2 h-2 bg-linear-to-r from-slate-400 to-slate-500 rounded-full"></div>
         </div>
         <div>
           <h4 className="font-semibold text-white text-sm">Ordenar Resultados</h4>
@@ -36,7 +36,7 @@ export const SortFilter = ({ sortBy, onSortChange }: FilterSortProps) => {
             onClick={() => onSortChange(option.value)}
             className={`h-10 rounded-xl transition-all duration-200 ${
               sortBy === option.value
-                ? "bg-gradient-to-r from-slate-500 to-slate-600 text-white border-0 shadow-lg shadow-slate-500/20 scale-105"
+                ? "bg-linear-to-r from-slate-500 to-slate-600 text-white border-0 shadow-lg shadow-slate-500/20 scale-105"
                 : "border-slate-600 text-slate-300 hover:bg-slate-700/70 hover:text-white hover:border-slate-500 hover:scale-102"
             }`}
           >

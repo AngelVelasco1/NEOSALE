@@ -23,7 +23,7 @@ export const ColorFilter = ({ colors, selectedColors, onColorToggle, getColorCou
         <div className="flex items-center space-x-3">
           <motion.div
             whileHover={{ scale: 1.05 }}
-            className="p-2 bg-gradient-to-br from-slate-800 to-slate-900 rounded-lg ring-1 ring-slate-700 shadow-md"
+            className="p-2 bg-linear-to-br from-slate-800 to-slate-900 rounded-lg ring-1 ring-slate-700 shadow-md"
           >
             <Palette className="h-4 w-4 text-slate-300" />
           </motion.div>
@@ -64,7 +64,7 @@ export const ColorFilter = ({ colors, selectedColors, onColorToggle, getColorCou
                   aria-label={`Filter by color ${name}`}
                 >
                   {/* Shine effect */}
-                  <div className="absolute inset-0 bg-gradient-to-br from-white/30 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                  <div className="absolute inset-0 bg-linear-to-br from-white/30 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
 
                   {/* Check mark for selected */}
                   {isSelected && (

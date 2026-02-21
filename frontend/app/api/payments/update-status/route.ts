@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 
-const BACKEND_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
+const BACKEND_URL = process.env.NEXT_PUBLIC_API_URL || 
+  (process.env.NODE_ENV === 'production' ? '' : 'http://localhost:8000');
 
 export async function POST(request: NextRequest) {
   try {
@@ -32,11 +33,7 @@ export async function POST(request: NextRequest) {
 
     if (!response.ok) {
       const errorData = await response.json().catch(() => null);
-      console.error("❌ Error del backend actualizando estado:", {
-        status: response.status,
-        statusText: response.statusText,
-        errorData,
-      });
+      
 
       return NextResponse.json(
         {
@@ -54,7 +51,7 @@ export async function POST(request: NextRequest) {
 
     return NextResponse.json(result);
   } catch (error) {
-    console.error("❌ Error en API route de actualización de estado:", error);
+    
 
     return NextResponse.json(
       {

@@ -1,6 +1,8 @@
 "use server";
 
-import { prisma } from "@/lib/prisma";
+import { apiClient } from "@/lib/api-client";
+import { requireAdmin } from "@/lib/auth-helpers";
+import { auth } from "@/app/(auth)/auth";
 
 export type GetStaffParams = {
   page?: number;
@@ -16,63 +18,35 @@ export async function getStaff({
   role,
 }: GetStaffParams = {}) {
   try {
-    const where: any = {};
+    // Verify admin access (optional since apiClient will also validate via auth middleware)
+    await requireAdmin();
 
-    if (search) {
-      where.OR = [
-        { name: { contains: search, mode: "insensitive" } },
-        { email: { contains: search, mode: "insensitive" } },
-        { phone_number: { contains: search, mode: "insensitive" } },
-      ];
+    const queryParams = new URLSearchParams();
+    queryParams.append("page", page.toString());
+    queryParams.append("limit", limit.toString());
+    if (search) queryParams.append("search", search);
+    if (role && role !== "all") queryParams.append("role", role);
+
+    // apiClient automatically injects auth token via getAuthToken()
+    const response = await apiClient.get(
+      `/users/admin/staff?${queryParams}`,
+      {}
+    );
+
+    if (!response.success) {
+      throw new Error("Error al obtener staff");
     }
 
-    if (role && role !== "all") {
-      where.role = role;
-    }
-
-    const [data, total] = await Promise.all([
-      prisma.user.findMany({
-        where: {
-          ...where,
-          role: role || { in: ["admin"] }, // Solo usuarios con rol admin o específico
-        },
-        skip: (page - 1) * limit,
-        take: limit,
-        orderBy: {
-          created_at: "desc",
-        },
-        select: {
-          id: true,
-          name: true,
-          email: true,
-          phone_number: true,
-          role: true,
-          active: true,
-          created_at: true,
-          updated_at: true,
-        },
-      }),
-      prisma.user.count({ where }),
-    ]);
-
-    return {
-      data,
-      pagination: {
-        page,
-        limit,
-        total,
-        totalPages: Math.ceil(total / limit),
-      },
-    };
+    return response.data;
   } catch (error) {
-    console.error("Error fetching staff:", error);
+    console.error("Failed to fetch staff:", error);
     throw new Error("Failed to fetch staff");
   }
 }
 
 export async function getStaffRolesDropdown() {
   try {
-    // Como usas un enum, retornamos los roles disponibles
+    // Roles disponibles
     const roles = [
       { name: "admin", display_name: "Administrator" },
       { name: "user", display_name: "User" },
@@ -80,35 +54,38 @@ export async function getStaffRolesDropdown() {
 
     return roles;
   } catch (error) {
-    console.error("Error fetching staff roles:", error);
+    
     throw new Error("Failed to fetch staff roles");
   }
 }
 
 export async function getStaffDetails(userId: number) {
   try {
-    const staff = await prisma.user.findUnique({
-      where: {
-        id: userId,
-      },
-      select: {
-        id: true,
-        name: true,
-        email: true,
-        phone_number: true,
-        identification: true,
-        identification_type: true,
-        role: true,
-        active: true,
-        email_notifications: true,
-        created_at: true,
-        updated_at: true,
-      },
-    });
+    const session = await auth();
 
-    return staff;
+    if (!session?.user || session.user.role !== "admin") {
+      throw new Error("No autorizado");
+    }
+
+    const BACKEND_URL = process.env.NEXT_PUBLIC_API_URL || 
+      (process.env.NODE_ENV === 'production' ? '' : 'http://localhost:8000');
+
+    const response = await fetch(
+      `${BACKEND_URL}/api/users/${userId}`,
+      {
+        headers: {
+          Authorization: `Bearer ${session?.user?.id}`,
+        },
+      }
+    );
+
+    if (!response.ok) {
+      throw new Error("Error al obtener detalles del staff");
+    }
+
+    return await response.json();
   } catch (error) {
-    console.error("Error fetching staff details:", error);
+    
     throw new Error("Failed to fetch staff details");
   }
 }

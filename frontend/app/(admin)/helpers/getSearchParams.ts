@@ -13,6 +13,8 @@ type ParamsResponse = {
   method?: string;
   role?: string;
   published?: boolean;
+  sortBy?: string;
+  sortOrder?: string;
 };
 
 export const getSearchParams = (
@@ -48,6 +50,9 @@ export const getSearchParams = (
   const role = getDropdownParam("role");
   const published = getBooleanParam("published");
 
+  const sortBy = searchParams.get("sortBy") || undefined;
+  const sortOrder = searchParams.get("sortOrder") || undefined;
+
   return {
     page,
     limit,
@@ -61,5 +66,7 @@ export const getSearchParams = (
     method,
     role,
     published,
+    sortBy,
+    sortOrder,
   };
 };

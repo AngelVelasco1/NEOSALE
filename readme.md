@@ -35,7 +35,7 @@ cd NEOCOMMERCE
 Instala las dependencias raíz:
 
 ```bash
-npm install
+bun install
 ```
 
 ---
@@ -46,14 +46,14 @@ npm install
 
 ```bash
 cd backend
-npm install
+bun install
 ```
 
 ### Frontend:
 
 ```bash
 cd ../frontend
-npm install
+bun install
 ```
 
 ---
@@ -78,19 +78,13 @@ AUTH_SECRET=""
 ### Inicializar cliente:
 
 ```bash
-npm run prisma:generate
-```
-
-### Ejecutar migraciones:
-
-```bash
-npm run prisma:migrate
+bunx prisma generate
 ```
 
 ### Ver base de datos (modo visual):
 
 ```bash
-npm run prisma:studio
+bun run prisma:studio
 ```
 
 Estos scripts ya están definidos en `backend/package.json`:
@@ -103,14 +97,26 @@ Estos scripts ya están definidos en `backend/package.json`:
 }
 ```
 
+## 🔧 5. Crear Pull db (ejecutar desde `/backend`)
+
+### Inicializar cliente:
+
+```bash
+bunx prisma db pull
+```
+### Generar cliente:
+
+```bash
+bunx prisma generate
+```
 ---
 
-## 🧪 5. Levantar el proyecto en desarrollo
+## 🧪 6. Levantar el proyecto en desarrollo
 
 Desde la **raíz del proyecto**:
 
 ```bash
-npm run dev
+bun run dev
 ```
 
 Esto lanza simultáneamente:
@@ -124,11 +130,11 @@ Esto lanza simultáneamente:
 ### Compilar proyecto (solo frontend):
 
 ```bash
-npm run build --prefix frontend
+bun run build --prefix frontend
 ```
 
 ### Iniciar en modo producción (solo frontend):
 
 ```bash
-npm run start --prefix frontend
+bun run start --prefix frontend
 ```

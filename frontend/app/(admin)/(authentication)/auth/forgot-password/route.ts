@@ -1,44 +1,47 @@
-import { cookies } from "next/headers";
 import { NextResponse } from "next/server";
-import { createRouteHandlerClient } from "@supabase/auth-helpers-nextjs";
 
-import { passwordResetFormSchema } from "@/app/(authentication)/forgot-password/_components/schema";
-import validateFormData from "@/helpers/validateFormData";
-import { siteUrl } from "@/constants/siteUrl";
+import { prisma } from "@/lib/prisma";
+import { passwordResetFormSchema } from "@/app/(admin)/(authentication)/forgot-password/_components/schema";
+import validateFormData from "@/app/(admin)/helpers/validateFormData";
+import { sendPasswordResetEmail } from "@/lib/passwordResetEmail";
+import { createResetToken, RESET_TOKEN_EXPIRATION_MINUTES } from "@/lib/resetToken";
 
 export async function POST(request: Request) {
-  const supabase = createRouteHandlerClient({ cookies });
+  try {
+    const { email } = await request.json();
 
-  // Get form fields
-  const { email } = await request.json();
+    const { errors } = validateFormData(passwordResetFormSchema, { email });
 
-  // Server side form validation
-  const { errors } = validateFormData(passwordResetFormSchema, {
-    email,
-  });
+    if (errors) {
+      return NextResponse.json({ errors }, { status: 401 });
+    }
 
-  // If there are validation errors, return a JSON response with the errors and a 401 status.
-  if (errors) {
-    return NextResponse.json({ errors }, { status: 401 });
-  }
+    const user = await prisma.user.findUnique({ where: { email } });
 
-  // Attempt to reset the password for the provided email using Supabase's resetPasswordForEmail method.
-  const { error } = await supabase.auth.resetPasswordForEmail(email, {
-    redirectTo: `${siteUrl}/update-password`, // Redirect URL when the "reset password" link is clicked on the email
-  });
+    if (!user || !user.password) {
+      await new Promise((resolve) => setTimeout(resolve, 600));
+      return NextResponse.json({ success: true });
+    }
 
-  // If there is an error during the password reset, return a JSON response with the error message and a 401 status.
-  if (error) {
+    const { token } = createResetToken(user.id, user.email);
+
+    await sendPasswordResetEmail({
+      email: user.email,
+      name: user.name ?? "Cliente NEOSALE",
+      token,
+      expiresInMinutes: RESET_TOKEN_EXPIRATION_MINUTES,
+    });
+
+    return NextResponse.json({ success: true });
+  } catch (error) {
+    
     return NextResponse.json(
       {
         errors: {
-          email: error.message,
+          email: "No pudimos procesar la solicitud. Inténtalo nuevamente en unos minutos.",
         },
       },
-      { status: 401 }
+      { status: 500 }
     );
   }
-
-  // If the password reset is successful, return a JSON response indicating success.
-  return NextResponse.json({ success: true });
 }

@@ -1,73 +1,79 @@
-import {
-  HiOutlineShoppingCart,
-  HiOutlineRefresh,
-  HiOutlineCheck,
-} from "react-icons/hi";
-import { BsTruck } from "react-icons/bs";
+import { getOrderStatusStats, DateRangeParams } from "@/app/(admin)/actions/dashboard/getDashboardStats";
+import StatusOverviewClient, {
+  OrderStatusCardDescriptor,
+} from "./StatusOverviewClient";
 
-import { cn } from "@/lib/utils";
-import { Card, CardContent } from "@/components/ui/card";
-import Typography from "@/app/(admin)/components/ui/typography";
-import { DashboardCard } from "@/app/(admin)/types/card";
+interface StatusOverviewProps {
+  dateRange?: DateRangeParams;
+}
 
-export default function StatusOverview() {
-  const cards: DashboardCard[] = [
+export default async function StatusOverview({ dateRange }: StatusOverviewProps) {
+  const statusStats = await getOrderStatusStats(dateRange);
+  const totalOrders = statusStats.total || 1;
+
+  const statuses: OrderStatusCardDescriptor[] = [
     {
-      icon: <HiOutlineShoppingCart />,
-      title: "Total Orders",
-      value: "815",
-      className:
-        "text-orange-600 dark:text-orange-100 bg-orange-100 dark:bg-orange-500",
+      id: "pending",
+      icon: "pending",
+      title: "Pendiente",
+      count: statusStats.pending,
+      percentage: Math.round((statusStats.pending / totalOrders) * 100),
+      gradient: "from-amber-500/25 via-amber-500/10 to-transparent",
+      border: "border-amber-500/20",
+      iconTint: "bg-amber-500/15 text-amber-100",
+      badgeBg: "bg-amber-500/20",
+      badgeText: "text-amber-50",
+      progress: "bg-amber-300",
     },
     {
-      icon: <HiOutlineRefresh />,
-      title: "Orders Pending",
-      value: "263",
-      className:
-        "text-teal-600 dark:text-teal-100 bg-teal-100 dark:bg-teal-500",
+      id: "processing",
+      icon: "processing",
+      title: "Procesando",
+      count: statusStats.processing,
+      percentage: Math.round((statusStats.processing / totalOrders) * 100),
+      gradient: "from-sky-500/25 via-blue-500/10 to-transparent",
+      border: "border-sky-500/20",
+      iconTint: "bg-sky-500/15 text-sky-100",
+      badgeBg: "bg-sky-500/20",
+      badgeText: "text-sky-50",
+      progress: "bg-sky-300",
     },
     {
-      icon: <BsTruck />,
-      title: "Orders Processing",
-      value: "97",
-      className:
-        "text-blue-600 dark:text-blue-100 bg-blue-100 dark:bg-blue-500",
+      id: "shipped",
+      icon: "shipped",
+      title: "En ruta",
+      count: statusStats.shipped,
+      percentage: Math.round((statusStats.shipped / totalOrders) * 100),
+      gradient: "from-violet-500/25 via-purple-500/10 to-transparent",
+      border: "border-violet-500/20",
+      iconTint: "bg-violet-500/15 text-violet-100",
+      badgeBg: "bg-violet-500/20",
+      badgeText: "text-violet-50",
+      progress: "bg-violet-300",
     },
     {
-      icon: <HiOutlineCheck />,
-      title: "Orders Delivered",
-      value: "418",
-      className:
-        "text-emerald-600 dark:text-emerald-100 bg-emerald-100 dark:bg-emerald-500",
+      id: "delivered",
+      icon: "delivered",
+      title: "Entregado",
+      count: statusStats.delivered,
+      percentage: Math.round((statusStats.delivered / totalOrders) * 100),
+      gradient: "from-emerald-500/25 via-teal-500/10 to-transparent",
+      border: "border-emerald-500/20",
+      iconTint: "bg-emerald-500/15 text-emerald-100",
+      badgeBg: "bg-emerald-500/20",
+      badgeText: "text-emerald-50",
+      progress: "bg-emerald-300",
     },
   ];
 
   return (
-    <div className="grid md:grid-cols-2 xl:grid-cols-4 gap-4">
-      {cards.map((card) => (
-        <Card key={card.title}>
-          <CardContent className="flex items-center gap-3 p-0">
-            <div
-              className={cn(
-                "size-12 rounded-full grid place-items-center [&>svg]:size-5",
-                card.className
-              )}
-            >
-              {card.icon}
-            </div>
-
-            <div className="flex flex-col gap-y-1">
-              <Typography className="text-sm text-muted-foreground">
-                {card.title}
-              </Typography>
-
-              <Typography className="text-2xl font-semibold text-popover-foreground">
-                {card.value}
-              </Typography>
-            </div>
-          </CardContent>
-        </Card>
-      ))}
-    </div>
+    <StatusOverviewClient
+      title="Estado de pedidos"
+      subtitle="Flujo logístico"
+      description={`Seguimiento en tiempo real de ${totalOrders} pedidos activos`}
+      ctaLabel="Ver todos los pedidos"
+      ctaHref="/dashboard/orders"
+      statuses={statuses}
+    />
   );
 }

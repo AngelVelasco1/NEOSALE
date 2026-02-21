@@ -7,29 +7,31 @@ export function usePagePrint() {
 
   const printPage = useCallback((pageUrl: string) => {
     setIsLoading(true);
+    
+    // DEBUG: Log la URL
+    console.log("🖨️ Abriendo URL de impresión:", pageUrl);
+    console.log("✅ URL completa:", `${window.location.origin}${pageUrl}`);
 
-    const iframe = document.createElement("iframe");
-    iframe.style.display = "none";
-    iframe.src = pageUrl;
+    // Abrir en nueva pestaña del MISMO ORIGEN (sin CORS)
+    const printWindow = window.open(pageUrl, "print", "width=800,height=600");
 
-    document.body.appendChild(iframe);
-
-    iframe.onload = () => {
-      if (iframe.contentWindow) {
+    if (printWindow) {
+      // DEBUG: Verificar si se abrió
+      console.log("✅ Ventana abierta:", printWindow.name);
+      
+      printWindow.addEventListener("load", () => {
+        console.log("✅ Página de impresión cargada");
         setIsLoading(false);
-        iframe.contentWindow.focus();
-        iframe.contentWindow.print();
-      }
-    };
+      });
 
-    const handleAfterPrint = () => {
-      if (iframe.parentNode) {
-        iframe.parentNode.removeChild(iframe);
-      }
-    };
-
-    if (iframe.contentWindow) {
-      iframe.contentWindow.onafterprint = handleAfterPrint;
+      printWindow.addEventListener("error", () => {
+        console.error("❌ Error al cargar la página de impresión");
+        setIsLoading(false);
+        printWindow.close();
+      });
+    } else {
+      console.error("❌ No se pudo abrir la ventana de impresión");
+      setIsLoading(false);
     }
   }, []);
 

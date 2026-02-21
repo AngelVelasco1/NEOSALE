@@ -15,7 +15,7 @@ export default function Favorites() {
   const [favorites, setFavorites] = useState<Favorite[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const { data: session, status } = useSession();
-  const userId = parseInt(session?.user?.id);
+  const userId = session?.user?.id ? parseInt(session.user.id) : null;
   const { refreshFavoritesCount } = useFavorites();
 
   const fetchFavorites = async () => {
@@ -32,7 +32,7 @@ export default function Favorites() {
       // ✅ Actualizar contador cuando se cargan los favoritos
       await refreshFavoritesCount();
     } catch (error) {
-      console.error("Error fetching favorites:", error);
+      
       toast.error("Error al cargar favoritos");
     } finally {
       setIsLoading(false);
@@ -47,8 +47,13 @@ export default function Favorites() {
 
   if (status === "loading" || isLoading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100">
-        <div className="container mx-auto px-4 py-8">
+      <div className="min-h-screen  bg-linear-to-br from-slate-950 via-slate-900/50 to-slate-950 relative overflow-hidden">
+        {/* Background Effects */}
+        <div className="fixed inset-0 overflow-hidden pointer-events-none">
+          <div className="absolute top-0 left-1/4 w-96 h-96 bg-linear-to-br from-red-500/15 to-pink-500/10 rounded-full blur-3xl animate-pulse" />
+          <div className="absolute bottom-0 right-1/4 w-96 h-96 bg-linear-to-br from-purple-500/15 to-indigo-500/10 rounded-full blur-3xl animate-pulse delay-1000" />
+        </div>
+        <div className="relative z-10 container mx-auto py-12">
           <div className="mb-8">
             <Skeleton className="h-12 w-64 mb-4" />
             <Skeleton className="h-6 w-96" />
@@ -65,24 +70,29 @@ export default function Favorites() {
 
   if (!session) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100 flex items-center justify-center">
+      <div className="min-h-screen bg-linear-to-br from-slate-950 via-slate-900/50 to-slate-950 relative overflow-hidden flex items-center justify-center">
+        {/* Background Effects */}
+        <div className="fixed inset-0 overflow-hidden pointer-events-none">
+          <div className="absolute top-0 left-1/4 w-96 h-96 bg-linear-to-br from-red-500/15 to-pink-500/10 rounded-full blur-3xl animate-pulse" />
+          <div className="absolute bottom-0 right-1/4 w-96 h-96 bg-linear-to-br from-purple-500/15 to-indigo-500/10 rounded-full blur-3xl animate-pulse delay-1000" />
+        </div>
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          className="text-center p-8 bg-white rounded-2xl shadow-xl max-w-md mx-4"
+          className="relative z-10 text-center p-8 bg-linear-to-br from-slate-900/80 via-slate-800/60 to-slate-900/40 rounded-3xl shadow-2xl backdrop-blur-xl max-w-md mx-4 border border-slate-700/50"
         >
-          <div className="w-20 h-20 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full flex items-center justify-center mx-auto mb-6">
-            <FaHeart className="w-10 h-10 text-white" />
+          <div className="w-20 h-20 bg-linear-to-br from-red-500/30 to-pink-500/20 rounded-full flex items-center justify-center mx-auto mb-6 border border-red-400/30">
+            <FaHeart className="w-10 h-10 text-red-300" />
           </div>
-          <h2 className="text-2xl font-bold text-slate-800 mb-4">
+          <h2 className="text-2xl font-bold bg-linear-to-r from-slate-100 to-slate-300 bg-clip-text text-transparent mb-4">
             Inicia Sesión
           </h2>
-          <p className="text-slate-600 mb-6">
-            Necesitas iniciar sesión para ver tus productos favoritos
+          <p className="text-slate-400 mb-6 leading-relaxed">
+            Necesitas iniciar sesión para guardar y ver tus productos favoritos
           </p>
           <Link
             href="/login"
-            className="inline-block px-6 py-3 bg-gradient-to-r from-blue-500 to-purple-600 text-white rounded-lg font-semibold hover:from-blue-600 hover:to-purple-700 transition-all duration-300"
+            className="inline-block px-8 py-3 bg-linear-to-r from-red-600/80 to-pink-600/70 hover:from-red-600 hover:to-pink-600 text-white rounded-xl font-semibold transition-all duration-300 shadow-lg hover:shadow-red-500/25 border border-red-500/30"
           >
             Iniciar Sesión
           </Link>
@@ -92,116 +102,154 @@ export default function Favorites() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900">
-      <div className="container mx-auto px-4 py-8">
+    <div className="min-h-screen px-26 bg-linear-to-br from-slate-950 via-slate-900/50 to-slate-950 relative overflow-hidden">
+      {/* Enhanced Background Effects */}
+      <div className="fixed inset-0 overflow-hidden pointer-events-none">
+        <div className="absolute top-0 left-1/4 w-96 h-96 bg-linear-to-br from-red-500/15 to-pink-500/10 rounded-full blur-3xl animate-pulse" />
+        <div className="absolute bottom-0 right-1/4 w-96 h-96 bg-linear-to-br from-purple-500/15 to-indigo-500/10 rounded-full blur-3xl animate-pulse delay-1000" />
+        <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-96 h-96 bg-linear-to-br from-fuchsia-500/10 to-purple-500/8 rounded-full blur-3xl animate-pulse delay-500" />
+      </div>
+
+      {/* Floating Particles */}
+      <div className="fixed inset-0 overflow-hidden pointer-events-none">
+        {[...Array(15)].map((_, i) => (
+          <div
+            key={i}
+            className="absolute w-1 h-1 bg-white/10 rounded-full animate-ping"
+            style={{
+              left: `${Math.random() * 100}%`,
+              top: `${Math.random() * 100}%`,
+              animationDelay: `${Math.random() * 3}s`,
+              animationDuration: `${2 + Math.random() * 2}s`,
+            }}
+          />
+        ))}
+      </div>
+
+      {/* Content */}
+      <div className="relative z-10 container mx-auto px-4 sm:px-6 lg:px-8 py-10">
         <motion.div
           initial={{ opacity: 0, y: -20 }}
           animate={{ opacity: 1, y: 0 }}
-          className="mb-8"
+          className="mb-12"
         >
-          <div className="flex items-center gap-4 mb-4">
-            <div className="w-12 h-12 bg-gradient-to-br from-red-600 to-pink-600 rounded-full flex items-center justify-center">
-              <FaHeart className="w-6 h-6 text-white" />
+          <div className="flex items-center gap-4 mb-6">
+            <div className="w-14 h-14 bg-linear-to-br from-red-500/40 via-pink-500/30 to-rose-600/20 rounded-2xl flex items-center justify-center border border-red-400/40 shadow-lg shadow-red-500/20">
+              <FaHeart className="w-7 h-7 text-red-300" />
             </div>
             <div>
-              <h1 className="text-4xl font-bold bg-gradient-to-r from-slate-200 via-slate-200 to-slate-300 bg-clip-text text-transparent">
+              <h1 className="text-5xl font-bold bg-linear-to-r from-slate-100 via-slate-200 to-slate-300 bg-clip-text text-transparent leading-tight">
                 Mis Favoritos
               </h1>
-              <p className="text-slate-300 text-lg">
+              <p className="text-slate-400 text-lg mt-2">
                 {favorites.length > 0
-                  ? `${favorites.length} producto${favorites.length !== 1 ? "s" : ""
-                  } favorito${favorites.length !== 1 ? "s" : ""}`
-                  : "No tienes productos favoritos aún"}
+                  ? `${favorites.length} producto${favorites.length !== 1 ? "s" : ""} en tu colección`
+                  : "Tu colección está vacía"}
               </p>
             </div>
           </div>
+          
+          {/* Decorative line */}
+          <div className="h-1 w-32 bg-linear-to-r from-red-500/60 to-pink-500/40 rounded-full" />
         </motion.div>
 
         {favorites.length === 0 ? (
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            className="flex flex-col items-center justify-center py-20"
+            className="flex flex-col items-center justify-center py-24"
           >
-            <div className="w-32 h-32 bg-gradient-to-br from-slate-200 to-slate-300 rounded-full flex items-center justify-center mb-8">
-              <FaHeart className="w-16 h-16 text-slate-400" />
+            <div className="w-40 h-40 bg-linear-to-br from-slate-800/60 to-slate-900/40 rounded-3xl flex items-center justify-center mb-8 border border-slate-700/40 backdrop-blur-sm">
+              <FaHeart className="w-20 h-20 text-slate-500" />
             </div>
-            <h2 className="text-2xl font-bold text-slate-700 mb-4">
-              No tienes favoritos aún
+            <h2 className="text-3xl font-bold text-slate-200 mb-4">
+              Aún no tienes favoritos
             </h2>
-            <p className="text-slate-500 text-center max-w-md mb-8">
-              Explora nuestros productos y marca tus favoritos tocando el icono
-              del corazón
+            <p className="text-slate-400 text-center max-w-md mb-10 leading-relaxed">
+              Explora nuestro catálogo de moda y guarda tus productos favoritos para acceder a ellos rápidamente
             </p>
             <Link href="/products">
               <motion.button
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
-                className="flex items-center gap-3 px-8 py-4 bg-gradient-to-r from-blue-500 to-purple-600 text-white rounded-xl font-semibold hover:from-blue-600 hover:to-purple-700 transition-all duration-300 shadow-lg hover:shadow-xl"
+                className="flex items-center gap-3 px-8 py-4 bg-linear-to-r from-red-600/80 to-pink-600/70 hover:from-red-600 hover:to-pink-600 text-white rounded-2xl font-semibold transition-all duration-300 shadow-lg hover:shadow-red-500/30 border border-red-500/30"
               >
                 <FaShoppingBag className="w-5 h-5" />
-                Explorar Productos
+                Explorar Moda
               </motion.button>
             </Link>
           </motion.div>
         ) : (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ delay: 0.2 }}
-            className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6"
-          >
-            {favorites
-              .map((favorite, index) => {
-                if (!favorite.products) {
-                  console.warn("Favorite without product:", favorite);
-                  return null;
-                }
+          <>
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ delay: 0.2 }}
+              className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 mb-12"
+            >
+              {favorites
+                .map((favorite, index) => {
+                  if (!favorite.products) {
+                    
+                    return null;
+                  }
 
-                return (
-                  <motion.div
-                    key={favorite.id}
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: index * 0.1 }}
-                  >
-                    <ProductCard
-                      data={{
-                        id: favorite.products.id.toString(),
-                        name: favorite.products.name,
-                        price: Number(favorite.products.price),
-                        stock: favorite.products.stock,
-                        color: favorite.products.color,
-                        color_code: favorite.products.color_code,
-                        image_url: favorite.products.image_url,
-                      }}
-                      initialIsFavorite={true}
-                    // ✅ Ya no necesitas onToggleFavorite - el ProductCard se encarga
-                    />
-                  </motion.div>
-                );
-              })
-              .filter(Boolean)}
-          </motion.div>
-        )}
+                  return (
+                    <motion.div
+                      key={favorite.id}
+                      initial={{ opacity: 0, y: 20 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ delay: index * 0.08 }}
+                    >
+                      <ProductCard
+                        data={{
+                          id: favorite.products.id.toString(),
+                          name: favorite.products.name,
+                          price: Number(favorite.products.price),
+                          stock: favorite.products.stock,
+                          color: favorite.products.color,
+                          color_code: favorite.products.color_code,
+                          image_url: favorite.products.image_url ?? undefined,
+                        }}
+                        initialIsFavorite={true}
+                      />
+                    </motion.div>
+                  );
+                })
+                .filter(Boolean)}
+            </motion.div>
 
-        {favorites.length > 0 && (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ delay: 0.5 }}
-            className="text-center mt-16"
-          >
-            <Link href="/products">
-              <motion.button
-                whileHover={{ scale: 1.02 }}
-                whileTap={{ scale: 0.98 }}
-                className="px-8 py-4 bg-white/80 backdrop-blur-sm border-2 border-slate-200 text-slate-700 rounded-xl font-semibold hover:border-blue-300 hover:shadow-lg transition-all duration-300"
-              >
-                Descubrir Más Productos
-              </motion.button>
-            </Link>
-          </motion.div>
+            {/* Stats Section */}
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.5 }}
+              className="mb-12"
+            >
+              <div className="relative p-8 rounded-3xl bg-linear-to-br from-slate-900/80 via-slate-800/60 to-slate-900/40 border border-slate-700/50 backdrop-blur-xl">
+                <div className="absolute inset-0 rounded-3xl bg-linear-to-br from-red-500/5 via-pink-500/4 to-purple-500/3" />
+                <div className="relative z-10 flex flex-col sm:flex-row items-center justify-between gap-8">
+                  <div>
+                    <h3 className="text-2xl font-bold bg-linear-to-r from-slate-100 to-slate-300 bg-clip-text text-transparent mb-2">
+                      Continúa explorando
+                    </h3>
+                    <p className="text-slate-400">
+                      Descubre más productos
+                    </p>
+                  </div>
+                  <Link href="/products" className="flex-shrink-0">
+                    <motion.button
+                      whileHover={{ scale: 1.05 }}
+                      whileTap={{ scale: 0.95 }}
+                      className="px-8 py-4 bg-linear-to-r from-purple-600/80 to-indigo-600/70 hover:from-purple-600 hover:to-indigo-600 text-white rounded-xl font-semibold transition-all duration-300 shadow-lg hover:shadow-purple-500/30 border border-purple-500/30 whitespace-nowrap"
+                    >
+                      Más Productos
+                    </motion.button>
+                  </Link>
+                </div>
+              </div>
+            </motion.div>
+          </>
         )}
       </div>
     </div>

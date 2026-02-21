@@ -9,7 +9,7 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { generateSlugField } from "@/helpers/generateSlugField";
+import { generateSlugField } from "@/app/(admin)/helpers/generateSlugField";
 
 type FormSlugInputProps<TFormData extends FieldValues> = {
   control: Control<TFormData>;

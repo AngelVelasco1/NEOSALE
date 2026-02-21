@@ -1,10 +1,26 @@
-import { prisma } from "../lib/prisma";
+import { prisma } from "../lib/prisma.js";
+import { notifyNewOrder, notifyOrderStatusChange, notifyLowStock } from "./notifications.js";
+import { ValidationError, NotFoundError, ForbiddenError, handlePrismaError } from "../errors/errorsClass.js";
 
 interface CreateOrderFromPaymentRequest {
   paymentId: number;
   shippingAddressId: number;
   couponId?: number;
   userNote?: string;
+}
+
+interface GetOrdersParams {
+  page: number;
+  limit: number;
+  search?: string;
+  status?: string;
+  method?: string;
+  startDate?: string;
+  endDate?: string;
+  minAmount?: number;
+  maxAmount?: number;
+  sortBy?: string;
+  sortOrder?: string;
 }
 
 interface CreateOrderFromPaymentResponse {
@@ -57,6 +73,17 @@ export const createOrderService = async ({
   shippingAddressId,
   couponId,
 }: CreateOrderFromPaymentRequest): Promise<CreateOrderFromPaymentResponse> => {
+  // VALIDATION BEFORE TRY-CATCH
+  if (!paymentId || paymentId <= 0) {
+    throw new ValidationError("paymentId es requerido y debe ser mayor a 0");
+  }
+  if (!shippingAddressId || shippingAddressId <= 0) {
+    throw new ValidationError("shippingAddressId es requerido y debe ser mayor a 0");
+  }
+  if (couponId !== undefined && couponId !== null && couponId <= 0) {
+    throw new ValidationError("couponId debe ser mayor a 0 si se proporciona");
+  }
+
   try {
     const result = (await prisma.$queryRaw`
       SELECT * FROM fn_create_order(
@@ -76,6 +103,40 @@ export const createOrderService = async ({
       throw new Error(orderResult.message || "Error creando orden");
     }
 
+    // 🔔 Notificar a todos los admins sobre el nuevo pedido
+    try {
+      const orderDetails = await prisma.orders.findUnique({
+        where: { id: orderResult.order_id },
+        include: {
+          User: { select: { name: true, email: true } },
+        },
+      });
+
+      if (orderDetails) {
+        await notifyNewOrder(
+          orderDetails.id,
+          orderDetails.User?.name || orderDetails.User?.email || "Cliente",
+          orderDetails.total / 100 // Convertir de centavos a unidades
+        );
+
+        // 🔔 Verificar stock bajo en productos de la orden
+        const orderItems = await prisma.order_items.findMany({
+          where: { order_id: orderDetails.id },
+          include: { products: true },
+        });
+
+        for (const item of orderItems) {
+          const product = item.products;
+          if (product && product.stock <= 10) {
+            await notifyLowStock(product.id, product.name, product.stock, 10);
+          }
+        }
+      }
+    } catch (notifyError) {
+      console.error("[createOrderService] Error al crear notificación de nuevo pedido:", notifyError);
+      // No lanzar error, la notificación es opcional
+    }
+
     return {
       order_id: orderResult.order_id,
       payment_id: orderResult.payment_id,
@@ -83,13 +144,12 @@ export const createOrderService = async ({
       success: orderResult.success,
       message: orderResult.message,
     };
-  } catch (error) {
-    console.error("Error en createOrderFromPaymentService:", error);
-    throw new Error(
-      error instanceof Error
-        ? error.message
-        : "Error creando orden desde payment"
-    );
+  } catch (error: any) {
+    if (error instanceof ValidationError) {
+      throw error;
+    }
+    console.error("[createOrderService] Error creando orden con paymentId:", paymentId, error);
+    throw handlePrismaError(error);
   }
 };
 
@@ -97,6 +157,14 @@ export const createOrderItemsService = async (
   orderId: number,
   cartData: object
 ) => {
+  // VALIDATION BEFORE TRY-CATCH
+  if (!orderId || orderId <= 0) {
+    throw new ValidationError("orderId es requerido y debe ser mayor a 0");
+  }
+  if (!cartData || typeof cartData !== "object") {
+    throw new ValidationError("cartData es requerido y debe ser un objeto");
+  }
+
   try {
     const result = (await prisma.$queryRaw`
       SELECT * FROM fn_create_order_items(
@@ -116,15 +184,21 @@ export const createOrderItemsService = async (
       success: itemsResult.success,
       message: itemsResult.message,
     };
-  } catch (error) {
-    console.error("❌ Error en createOrderItemsService:", error);
-    throw new Error(
-      error instanceof Error ? error.message : "Error creando order items"
-    );
+  } catch (error: any) {
+    if (error instanceof ValidationError) {
+      throw error;
+    }
+    console.error("[createOrderItemsService] Error creando order items para orderId:", orderId, error);
+    throw handlePrismaError(error);
   }
 };
 
 export const getOrderWithPaymentService = async (orderId: number) => {
+  // VALIDATION BEFORE TRY-CATCH
+  if (!orderId || orderId <= 0) {
+    throw new ValidationError("orderId es requerido y debe ser mayor a 0");
+  }
+
   try {
     const order = await prisma.orders.findUnique({
       where: { id: orderId },
@@ -139,7 +213,7 @@ export const getOrderWithPaymentService = async (orderId: number) => {
             },
           },
         },
-        users: {
+        User: {
           select: { id: true, name: true, email: true },
         },
         coupons: true,
@@ -147,7 +221,7 @@ export const getOrderWithPaymentService = async (orderId: number) => {
     });
 
     if (!order) {
-      throw new Error("Orden no encontrada");
+      throw new NotFoundError("Orden no encontrada");
     }
 
     // Obtener la dirección completa usando shipping_address_id
@@ -181,19 +255,38 @@ export const getOrderWithPaymentService = async (orderId: number) => {
       payment = paymentResult[0];
     }
 
+    // Asegurar que User tiene nombre válido
+    const userExists = order.User && typeof order.User === 'object';
+    const rawName = userExists ? (order.User.name || '').toString().trim() : '';
+    const userName = rawName && rawName.length > 0
+      ? rawName 
+      : `Cliente #${order.user_id}`;
+
     return {
       ...order,
+      User: {
+        id: userExists ? order.User.id : order.user_id,
+        name: userName,
+        email: userExists ? (order.User.email || '') : '',
+      },
+      addresses: address,
       payment,
     };
-  } catch (error) {
-    console.error("Error en getOrderWithPaymentService:", error);
-    throw new Error(
-      error instanceof Error ? error.message : "Error al obtener la orden"
-    );
+  } catch (error: any) {
+    if (error instanceof NotFoundError) {
+      throw error;
+    }
+    console.error("[getOrderWithPaymentService] Error obteniendo orden con orderId:", orderId, error);
+    throw handlePrismaError(error);
   }
 };
 
 export const getUserOrdersWithPaymentsService = async (userId: number) => {
+  // VALIDATION BEFORE TRY-CATCH
+  if (!userId || userId <= 0) {
+    throw new ValidationError("userId es requerido y debe ser mayor a 0");
+  }
+
   try {
     const orders = await prisma.orders.findMany({
       where: { user_id: userId },
@@ -204,11 +297,18 @@ export const getUserOrdersWithPaymentsService = async (userId: number) => {
               include: {
                 brands: true,
                 categories: true,
+                images: {
+                  where: {
+                    is_primary: true,
+                  },
+                },
               },
             },
           },
         },
-
+        User: {
+          select: { id: true, name: true, email: true },
+        },
         coupons: true,
       },
       orderBy: {
@@ -217,21 +317,7 @@ export const getUserOrdersWithPaymentsService = async (userId: number) => {
     });
 
     const ordersWithPayments = await Promise.all(
-      orders.map(async (order) => {
-        let payment: PaymentInfo | null = null;
-        const paymentResult = await prisma.$queryRaw<PaymentInfo[]>`
-          SELECT
-            id, transaction_id, payment_status, payment_method,
-            (amount_in_cents / 100)::INTEGER as amount_in_cents, currency, customer_email,
-            created_at, approved_at
-          FROM payments
-          WHERE id = (SELECT payment_id FROM orders WHERE id = ${order.id}::INTEGER)
-        `;
-
-        if (paymentResult && paymentResult.length > 0) {
-          payment = paymentResult[0];
-        }
-
+      orders.map(async (order: any) => {
         // Obtener la dirección completa usando shipping_address_id
         let address = null;
         if (order.shipping_address_id) {
@@ -249,8 +335,34 @@ export const getUserOrdersWithPaymentsService = async (userId: number) => {
           });
         }
 
+        let payment: PaymentInfo | null = null;
+        const paymentResult = await prisma.$queryRaw<PaymentInfo[]>`
+          SELECT
+            id, transaction_id, payment_status, payment_method,
+            (amount_in_cents / 100)::INTEGER as amount_in_cents, currency, customer_email,
+            created_at, approved_at
+          FROM payments
+          WHERE id = (SELECT payment_id FROM orders WHERE id = ${order.id}::INTEGER)
+        `;
+
+        if (paymentResult && paymentResult.length > 0) {
+          payment = paymentResult[0];
+        }
+
+        // Asegurar que User tiene nombre válido
+        const userExists = order.User && typeof order.User === 'object';
+        const rawName = userExists ? (order.User.name || '').toString().trim() : '';
+        const userName = rawName && rawName.length > 0
+          ? rawName 
+          : `Cliente #${order.user_id}`;
+
         return {
           ...order,
+          User: {
+            id: userExists ? order.User.id : order.user_id,
+            name: userName,
+            email: userExists ? (order.User.email || '') : '',
+          },
           addresses: address,
           payment,
         };
@@ -258,15 +370,21 @@ export const getUserOrdersWithPaymentsService = async (userId: number) => {
     );
 
     return ordersWithPayments;
-  } catch (error) {
-    console.error("Error en getUserOrdersWithPaymentsService:", error);
-    throw new Error(
-      error instanceof Error ? error.message : "Error al obtener las órdenes"
-    );
+  } catch (error: any) {
+    if (error instanceof ValidationError) {
+      throw error;
+    }
+    console.error("[getUserOrdersWithPaymentsService] Error obteniendo órdenes para userId:", userId, error);
+    throw handlePrismaError(error);
   }
 };
 
 export const getProductWithVariantsService = async (productId: number) => {
+  // VALIDATION BEFORE TRY-CATCH
+  if (!productId || productId <= 0) {
+    throw new ValidationError("productId es requerido y debe ser mayor a 0");
+  }
+
   try {
     const product = await prisma.products.findUnique({
       where: { id: productId },
@@ -285,7 +403,7 @@ export const getProductWithVariantsService = async (productId: number) => {
     });
 
     if (!product) {
-      throw new Error("Producto no encontrado");
+      throw new NotFoundError("Producto no encontrado");
     }
 
     // Calcular precio final con ofertas
@@ -309,19 +427,20 @@ export const getProductWithVariantsService = async (productId: number) => {
         product.offer_end_date &&
         new Date() < product.offer_end_date,
       availableColors: [
-        ...new Set(product.product_variants.map((v) => v.color_code)),
+        ...new Set(product.product_variants.map((v: any) => v.color_code)),
       ],
-      availableSizes: [...new Set(product.product_variants.map((v) => v.size))],
+      availableSizes: [...new Set(product.product_variants.map((v: any) => v.size))],
       totalStock: product.product_variants.reduce(
-        (sum, variant) => sum + variant.stock,
+        (sum: any, variant: any) => sum + variant.stock,
         0
       ),
     };
-  } catch (error) {
-    console.error("Error in getProductWithVariantsService:", error);
-    throw new Error(
-      error instanceof Error ? error.message : "Error al obtener el producto"
-    );
+  } catch (error: any) {
+    if (error instanceof NotFoundError) {
+      throw error;
+    }
+    console.error("[getProductWithVariantsService] Error obteniendo producto con productId:", productId, error);
+    throw handlePrismaError(error);
   }
 };
 
@@ -330,6 +449,17 @@ export const checkVariantAvailabilityService = async (
   colorCode: string,
   size: string
 ) => {
+  // VALIDATION BEFORE TRY-CATCH
+  if (!productId || productId <= 0) {
+    throw new ValidationError("productId es requerido y debe ser mayor a 0");
+  }
+  if (!colorCode || colorCode.trim() === "") {
+    throw new ValidationError("colorCode es requerido y no puede estar vacío");
+  }
+  if (!size || size.trim() === "") {
+    throw new ValidationError("size es requerido y no puede estar vacío");
+  }
+
   try {
     const variant = await prisma.product_variants.findFirst({
       where: {
@@ -378,17 +508,21 @@ export const checkVariantAvailabilityService = async (
         new Date() < product.offer_end_date,
       message: variant.stock > 0 ? "Disponible" : "Sin stock",
     };
-  } catch (error) {
-    console.error("Error in checkVariantAvailabilityService:", error);
-    throw new Error(
-      error instanceof Error
-        ? error.message
-        : "Error al verificar disponibilidad"
-    );
+  } catch (error: any) {
+    if (error instanceof ValidationError) {
+      throw error;
+    }
+    console.error("[checkVariantAvailabilityService] Error verificando disponibilidad de variante con productId:", productId, "colorCode:", colorCode, "size:", size, error);
+    throw handlePrismaError(error);
   }
 };
 
 export const getOrderByIdService = async (orderId: number) => {
+  // VALIDATION BEFORE TRY-CATCH
+  if (!orderId || orderId <= 0) {
+    throw new ValidationError("orderId es requerido y debe ser mayor a 0");
+  }
+
   try {
     const order = await prisma.orders.findUnique({
       where: { id: orderId },
@@ -403,7 +537,7 @@ export const getOrderByIdService = async (orderId: number) => {
             },
           },
         },
-        users: {
+        User: {
           select: { id: true, name: true, email: true },
         },
         coupons: true,
@@ -411,10 +545,9 @@ export const getOrderByIdService = async (orderId: number) => {
     });
 
     if (!order) {
-      throw new Error("Orden no encontrada");
+      throw new NotFoundError("Orden no encontrada");
     }
 
-    // Obtener la dirección completa usando shipping_address_id
     let address = null;
     if (order.shipping_address_id) {
       address = await prisma.addresses.findUnique({
@@ -431,33 +564,49 @@ export const getOrderByIdService = async (orderId: number) => {
       });
     }
 
+    // Asegurar que User tiene nombre válido
+    const userExists = order.User && typeof order.User === 'object';
+    const rawName = userExists ? (order.User.name || '').toString().trim() : '';
+    const userName = rawName && rawName.length > 0
+      ? rawName 
+      : `Cliente #${order.user_id}`;
+
     return {
       ...order,
+      User: {
+        id: userExists ? order.User.id : order.user_id,
+        name: userName,
+        email: userExists ? (order.User.email || '') : '',
+      },
       addresses: address,
     };
-  } catch (error) {
-    console.error("Error in getOrderByIdService:", error);
-    throw new Error(
-      error instanceof Error ? error.message : "Error al obtener la orden"
-    );
+  } catch (error: any) {
+    if (error instanceof NotFoundError) {
+      throw error;
+    }
+    console.error("[getOrderByIdService] Error obteniendo orden con orderId:", orderId, error);
+    throw handlePrismaError(error);
   }
 };
 
 export const updateOrderStatusService = async (
   orderId: number,
-  status:
-    | "pending"
-    | "paid"
-    | "confirmed"
-    | "shipped"
-    | "delivered"
-    | "cancelled"
+  status: "pending" | "paid" | "processing" | "shipped" | "delivered"
 ) => {
+  // VALIDATION BEFORE TRY-CATCH
+  if (!orderId || orderId <= 0) {
+    throw new ValidationError("orderId es requerido y debe ser mayor a 0");
+  }
+  const validStatuses = ["pending", "paid", "processing", "shipped", "delivered"];
+  if (!status || !validStatuses.includes(status)) {
+    throw new ValidationError(`status debe ser uno de: ${validStatuses.join(", ")}`);
+  }
+
   try {
     const order = await prisma.orders.update({
       where: { id: orderId },
       data: {
-        status: status as any, // Type assertion para evitar errores de TypeScript
+        status: status as any, // Cast to the correct enum type for Prisma
         updated_at: new Date(),
       },
       include: {
@@ -470,23 +619,26 @@ export const updateOrderStatusService = async (
             },
           },
         },
-        users: {
+        User: {
           select: { id: true, name: true, email: true },
         },
       },
     });
 
-    console.log("Estado de orden actualizado:", {
-      orderId: order.id,
-      newStatus: order.status,
-    });
+    // Notificar a todos los admins sobre el cambio de estado
+    try {
+      await notifyOrderStatusChange(order.id, status);
+    } catch (notifyError) {
+      console.error("[updateOrderStatusService] Advertencia: Error notificando cambio de estado:", notifyError);
+    }
 
     return order;
-  } catch (error) {
-    console.error("❌ Error en updateOrderStatusService:", error);
-    throw new Error(
-      error instanceof Error ? error.message : "Error al actualizar la orden"
-    );
+  } catch (error: any) {
+    if (error instanceof ValidationError) {
+      throw error;
+    }
+    console.error("[updateOrderStatusService] Error actualizando orden con orderId:", orderId, "status:", status, error);
+    throw handlePrismaError(error);
   }
 };
 
@@ -495,6 +647,225 @@ export const getUserOrdersService = async (userId: number) => {
     return await getUserOrdersWithPaymentsService(userId);
   } catch (error) {
     console.error("Error en getUserOrdersService:", error);
+    throw new Error(
+      error instanceof Error ? error.message : "Error al obtener las órdenes"
+    );
+  }
+};
+
+export const getOrdersService = async ({
+  page,
+  limit,
+  search,
+  status,
+  method,
+  startDate,
+  endDate,
+  minAmount,
+  maxAmount,
+  sortBy,
+  sortOrder,
+}: GetOrdersParams) => {
+  try {
+    const skip = (page - 1) * limit;
+
+    const PAYMENT_METHOD_MAP: Record<string, string> = {
+      PSE: "PSE",
+      CARD: "CARD",
+      NEQUI: "NEQUI",
+      "TRANSFERENCIA BANCARIA": "PSE",
+      TARJETA: "CARD",
+      BANCOLOMBIA: "BANCOLOMBIA",
+      BANCOLOMBIA_TRANSFER: "BANCOLOMBIA_TRANSFER",
+    };
+
+    const methodFilter = method
+      ? PAYMENT_METHOD_MAP[method.toUpperCase()] || null
+      : null;
+
+    // Construir filtro base
+    const where: Record<string, any> = {};
+
+    // Filtro por búsqueda (nombre de usuario o email)
+    if (search) {
+      where.User = {
+        OR: [
+          { name: { contains: search, mode: "insensitive" as const } },
+          { email: { contains: search, mode: "insensitive" as const } },
+        ],
+      };
+    }
+
+    // Filtro por estado
+    if (status) {
+      where.status = status;
+    }
+
+    // Filtro por rango de fechas
+    if (startDate || endDate) {
+      where.created_at = {};
+      if (startDate) {
+        where.created_at.gte = new Date(startDate);
+      }
+      if (endDate) {
+        where.created_at.lte = new Date(endDate);
+      }
+    }
+
+    // Filtro por rango de montos
+    if (minAmount !== undefined || maxAmount !== undefined) {
+      where.total = {};
+      if (minAmount !== undefined) {
+        where.total.gte = minAmount;
+      }
+      if (maxAmount !== undefined) {
+        where.total.lte = maxAmount;
+      }
+    }
+
+    // Construir orderBy dinámico
+    let orderBy: Record<string, any> = { created_at: "desc" }; // default
+    if (sortBy && sortOrder) {
+      if (sortBy === "customer") {
+        // Ordenar por nombre de usuario
+        orderBy = { User: { name: sortOrder } };
+      } else {
+        // Ordenar por campos directos (created_at, total, status, id)
+        orderBy = { [sortBy]: sortOrder };
+      }
+    }
+
+    // Obtener órdenes con paginación
+    const [orders, total] = await Promise.all([
+      prisma.orders.findMany({
+        where,
+        skip,
+        take: limit,
+        include: {
+          User: {
+            select: {
+              id: true,
+              name: true,
+              email: true,
+            },
+          },
+          coupons: {
+            select: {
+              id: true,
+              code: true,
+              discount_value: true,
+              discount_type: true,
+            },
+          },
+          payments: {
+            select: {
+              id: true,
+              payment_method: true,
+              payment_status: true,
+              transaction_id: true,
+              amount_in_cents: true,
+              currency: true,
+              customer_email: true,
+              created_at: true,
+              approved_at: true,
+            },
+          },
+          addresses: true, // ✅ Agregar direcciones
+          order_items: {
+            include: {
+              products: {
+                select: {
+                  id: true,
+                  name: true,
+                  price: true,
+                },
+              },
+            },
+          },
+        },
+        orderBy,
+      }),
+      prisma.orders.count({ where }),
+    ]);
+
+    // Filtrar por método de pago si aplica
+    let filteredOrders = orders;
+    if (method || methodFilter) {
+      filteredOrders = orders.filter((order: any) => {
+        if (!methodFilter || !order.payments) return true;
+        return order.payments.payment_method === methodFilter;
+      });
+    }
+
+    // Asegurar que siempre hay un nombre de cliente y mapear correctamente la respuesta
+    const ordersFormatted = filteredOrders.map((order: any) => {
+      // Manejar casos donde User sea null o undefined
+      const userExists = order.User && typeof order.User === 'object';
+      const rawName = userExists ? (order.User.name || '').toString().trim() : '';
+      const userName = rawName && rawName.length > 0
+        ? rawName 
+        : `Cliente #${order.user_id}`;
+
+      // Mapear payment correctamente (singular)  
+      const payment = order.payments ? {
+        id: order.payments.id,
+        transaction_id: order.payments.transaction_id,
+        payment_status: order.payments.payment_status,
+        payment_method: order.payments.payment_method,
+        amount_in_cents: Math.floor(Number(order.payments.amount_in_cents || 0) / 100),
+        currency: order.payments.currency,
+        customer_email: order.payments.customer_email,
+        created_at: order.payments.created_at,
+        approved_at: order.payments.approved_at,
+      } : null;
+
+      return {
+        id: order.id,
+        payment_id: Number(order.payment_id),
+        status: order.status,
+        subtotal: Number(order.subtotal),
+        discount: order.discount ? Number(order.discount) : null,
+        shipping_cost: Number(order.shipping_cost),
+        taxes: Number(order.taxes),
+        total: Number(order.total),
+        shipping_address_id: Number(order.shipping_address_id),
+        user_note: order.user_note,
+        admin_notes: order.admin_notes,
+        coupon_id: order.coupon_id ? Number(order.coupon_id) : null,
+        coupon_discount: order.coupon_discount ? Number(order.coupon_discount) : null,
+        tracking_number: order.tracking_number,
+        carrier: order.carrier,
+        estimated_delivery_date: order.estimated_delivery_date,
+        created_at: order.created_at,
+        updated_at: order.updated_at,
+        shipped_at: order.shipped_at,
+        delivered_at: order.delivered_at,
+        cancelled_at: order.cancelled_at,
+        user_id: Number(order.user_id),
+        updated_by: Number(order.updated_by),
+        User: {
+          id: userExists ? order.User.id : order.user_id,
+          name: userName,
+          email: userExists ? (order.User.email || '') : '',
+        },
+        payment,
+        addresses: order.addresses,
+        coupons: order.coupons,
+        order_items: order.order_items,
+      };
+    });
+
+    return {
+      data: ordersFormatted,
+      pagination: {
+        total: method ? filteredOrders.length : total,
+        page,
+        limit,
+        totalPages: Math.ceil((method ? filteredOrders.length : total) / limit),
+      },
+    };
+  } catch (error) {
+    console.error("Error en getOrdersService:", error);
     throw new Error(
       error instanceof Error ? error.message : "Error al obtener las órdenes"
     );
@@ -573,7 +944,7 @@ export const processWompiOrderWebhook = async (
         case "DECLINED":
         case "ERROR":
         case "VOIDED":
-          newOrderStatus = "cancelled";
+          newOrderStatus = "pending"; // No usar "cancelled" que no existe en el enum
           break;
         default:
           newOrderStatus = "pending";
@@ -637,4 +1008,79 @@ export type {
   ProcessOrderResult,
   PaymentInfo,
   PaymentWithOrder,
+};
+
+// ============================================
+// ADMIN FUNCTIONS - Orders
+// ============================================
+
+// PUT - Change order status
+export const changeOrderStatusService = async (
+  orderId: number,
+  newStatus: string
+): Promise<void> => {
+  // Validación ANTES del try-catch
+  if (!orderId || orderId <= 0) {
+    throw new ValidationError("ID de orden inválido");
+  }
+  if (!newStatus) {
+    throw new ValidationError("Estado de orden requerido");
+  }
+
+  try {
+    const existing = await prisma.orders.findUnique({
+      where: { id: orderId },
+    });
+
+    if (!existing) {
+      throw new NotFoundError("Orden no encontrada");
+    }
+
+    await prisma.orders.update({
+      where: { id: orderId },
+      data: {
+        status: newStatus as any,
+        updated_at: new Date(),
+      },
+    });
+  } catch (error: any) {
+    if (error instanceof ValidationError || error instanceof NotFoundError) throw error;
+    console.error(`[changeOrderStatusService] Error al cambiar estado de orden ${orderId}:`, error);
+    throw handlePrismaError(error);
+  }
+};
+
+// GET - Export all orders for CSV/Excel
+export const exportOrdersService = async (): Promise<any[]> => {
+  try {
+    const orders = await prisma.orders.findMany({
+      select: {
+        id: true,
+        status: true,
+        subtotal: true,
+        taxes: true,
+        discount: true,
+        total: true,
+        created_at: true,
+        updated_at: true,
+      },
+      orderBy: { created_at: "desc" },
+    });
+
+    // Format for export
+    return orders.map((o: any) => ({
+      id: o.id,
+      orderNumber: o.order_number,
+      status: o.status,
+      subtotal: Number(o.subtotal),
+      tax: Number(o.tax),
+      discount: Number(o.discount),
+      total: Number(o.total),
+      createdAt: o.created_at,
+      updatedAt: o.updated_at,
+    }));
+  } catch (error: any) {
+    console.error("[exportOrdersService] Error al exportar órdenes:", error);
+    throw handlePrismaError(error);
+  }
 };

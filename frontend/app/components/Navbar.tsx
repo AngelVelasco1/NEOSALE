@@ -15,13 +15,7 @@ import Link from "next/link";
 import React, { useState, useEffect, useRef } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
+
 import {
   NavigationMenu,
   NavigationMenuContent,
@@ -39,12 +33,198 @@ import { useRouter } from "next/navigation";
 import { useUserSafe } from "../(auth)/hooks/useUserSafe";
 import { useMounted } from "../(auth)/hooks/useMounted";
 import { useCart } from "../(customer)/(cart)/hooks/useCart";
-import { ThemeToggle } from "./ThemeToggle";
 import { useFavorites } from "../(customer)/favorites/context/useFavorites";
 import { useCategories } from "../(customer)/(products)/hooks/useCategories";
 import { getProducts } from "../(customer)/(products)/services/api";
 import { IProduct } from "../(customer)/types";
 
+const UserMenu = () => {
+  const [isOpen, setIsOpen] = useState(false);
+  const { userProfile } = useUserSafe();
+  const router = useRouter();
+  const menuRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (menuRef.current && !menuRef.current.contains(event.target as Node)) {
+        setIsOpen(false);
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
+
+  return (
+    <div className="relative" ref={menuRef}>
+      <Button
+        variant="ghost"
+        onClick={() => setIsOpen(!isOpen)}
+        className="flex items-center gap-2 h-10 px-3 rounded-xl hover:bg-white/10 transition-all duration-300 group"
+      >
+        <div className="relative">
+          {/* Avatar with gradient and glow effect */}
+          <div 
+            className="relative w-8 h-8 rounded-full flex items-center justify-center text-white text-sm font-bold shadow-lg transition-all duration-300 group-hover:shadow-lg"
+            style={{
+              backgroundImage: `linear-gradient(to bottom right, var(--color-primary), var(--color-secondary))`,
+              boxShadow: `0 0 16px rgba(var(--color-primary-rgb), 0.3)`,
+            }}
+          >
+            <div 
+              className="absolute inset-0 rounded-full blur-md opacity-50 group-hover:opacity-70 transition-opacity"
+              style={{
+                backgroundImage: `linear-gradient(to bottom right, rgba(0, 0, 0, 0.9), rgba(var(--color-secondary-rgb), 0.5))`
+              }}
+            ></div>
+            <span className="relative z-10">{userProfile?.name?.charAt(0).toUpperCase() || "U"}</span>
+          </div>
+          {/* Online status indicator */}
+          <div className="absolute -bottom-0.5 -right-0.5 w-3 h-3 bg-gradient-to-br from-green-400 to-emerald-500 rounded-full border-2 border-slate-900 shadow-lg">
+            <div className="absolute inset-0 rounded-full bg-green-400 animate-ping opacity-75"></div>
+          </div>
+        </div>
+        <ChevronDown className={`h-4 w-4 text-white transition-all duration-300 ${isOpen ? 'rotate-180' : ''}`} style={{color: 'var(--color-primary)'}} />
+      </Button>
+
+      {isOpen && (
+        <div 
+          className="absolute right-0 top-full mt-2 w-72 backdrop-blur-xl border shadow-2xl rounded-2xl p-0 overflow-hidden z-50"
+          style={{
+            backgroundColor: 'rgba(15, 23, 42, 0.95)',
+            borderColor: 'rgba(255, 255, 255, 0.1)',
+          }}
+        >
+          {/* Header with user info */}
+          <div 
+            className="relative p-6 border-b rounded-t-2xl"
+            style={{
+              backgroundImage: `linear-gradient(to bottom right, rgba(var(--color-primary-rgb), 0.2), rgba(var(--color-secondary-rgb), 0.2))`,
+              borderColor: 'rgba(255, 255, 255, 0.1)',
+            }}
+          >
+            {/* Decorative gradient overlay */}
+            <div 
+              className="absolute inset-0"
+              style={{
+                backgroundImage: `linear-gradient(to bottom right, rgba(var(--color-primary-rgb), 0.1), rgba(0, 0, 0, 0.7))`,
+              }}
+            ></div>
+
+            <div className="relative flex items-center gap-4">
+              {/* Larger avatar for header */}
+              <div className="relative">
+                <div 
+                  className="w-12 h-12 rounded-full flex items-center justify-center text-white text-lg font-bold"
+                  style={{
+                    backgroundImage: `linear-gradient(to bottom right, var(--color-primary), var(--color-secondary))`,
+                  }}
+                >
+                  <div 
+                    className="absolute inset-0 rounded-full blur-lg opacity-50"
+                    style={{
+                      backgroundImage: `linear-gradient(to bottom right, var(--color-primary), var(--color-accent))`,
+                    }}
+                  ></div>
+                  <span className="relative z-10">{userProfile?.name?.charAt(0).toUpperCase() || "U"}</span>
+                </div>
+                <div 
+                  className="absolute -bottom-1 -right-1 w-4 h-4 rounded-full border-2 border-slate-900 shadow-lg"
+                  style={{
+                    backgroundImage: `linear-gradient(to bottom right, rgb(74, 222, 128), rgb(16, 185, 129))`,
+                  }}
+                ></div>
+              </div>
+
+              {/* User info */}
+              <div className="flex-1 min-w-0">
+                <p className="font-bold text-white text-base truncate">
+                  {userProfile?.name}
+                </p>
+                <p className="text-xs text-slate-400 truncate mt-0.5">
+                  {userProfile?.email || "usuario@neosale.com"}
+                </p>
+              </div>
+            </div>
+          </div>
+
+          {/* Menu items */}
+          <div className="p-2">
+            <div
+              onClick={() => {
+                router.push("/profile");
+                setIsOpen(false);
+              }}
+              className="group cursor-pointer rounded-xl p-3 transition-all duration-300 border border-transparent"
+              style={{
+                backgroundColor: 'transparent',
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.backgroundColor = `rgba(var(--color-primary-rgb), 0.1)`;
+                e.currentTarget.style.borderColor = `rgba(var(--color-primary-rgb), 0.3)`;
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.backgroundColor = 'transparent';
+                e.currentTarget.style.borderColor = 'transparent';
+              }}
+            >
+              <div className="flex items-center gap-3">
+                <div 
+                  className="w-9 h-9 rounded-lg flex items-center justify-center transition-all duration-300"
+                  style={{
+                    backgroundColor: 'rgba(71, 85, 105, 0.5)',
+                  }}
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.backgroundColor = `rgba(var(--color-primary-rgb), 0.2)`;
+                    e.currentTarget.style.boxShadow = `0 0 12px rgba(var(--color-primary-rgb), 0.2)`;
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.backgroundColor = 'rgba(71, 85, 105, 0.5)';
+                    e.currentTarget.style.boxShadow = 'none';
+                  }}
+                >
+                  <User className="h-4 w-4" style={{color: 'rgb(148, 163, 184)'}} />
+                </div>
+                <div className="flex-1">
+                  <p className="font-semibold text-white text-sm">Mi Perfil</p>
+                  <p className="text-xs text-slate-400 group-hover:text-slate-300">Ver y editar información</p>
+                </div>
+              </div>
+            </div>
+
+            <div
+              onClick={() => {
+                router.push("/orders");
+                setIsOpen(false);
+              }}
+              className="group cursor-pointer rounded-xl p-3 mb-1 hover:bg-violet-600/10 transition-all duration-300 border border-transparent hover:border-violet-500/30"
+            >
+              <div className="flex items-center gap-3">
+                <div className="w-9 h-9 rounded-lg bg-slate-800/50 group-hover:bg-violet-600/20 flex items-center justify-center transition-all duration-300 group-hover:shadow-lg group-hover:shadow-violet-500/20">
+                  <ShoppingCart className="h-4 w-4 text-slate-400 group-hover:text-violet-400 transition-colors" />
+                </div>
+                <div className="flex-1">
+                  <p className="font-semibold text-white text-sm">Mis Pedidos</p>
+                  <p className="text-xs text-slate-400 group-hover:text-slate-300">Historial de compras</p>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Logout button */}
+          <div className="px-2 pb-2">
+            <div
+              onClick={() => setIsOpen(false)}
+              className="group cursor-pointer rounded-xl p-3 hover:bg-red-500/10 transition-all duration-300 border border-transparent hover:border-red-500/30"
+            >
+              <SignOut />
+            </div>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+};
 
 interface NavLinkProps extends React.ComponentProps<typeof Link> {
   href: string;
@@ -60,7 +240,7 @@ const NavLink: React.FC<NavLinkProps> = ({
 }) => (
   <Link
     href={href}
-    className={`inline-flex h-11 items-center justify-center rounded-xl px-6 text-sm font-medium transition-all duration-300  dark:hover:bg-slate-800 hover:text-slate-900 dark:hover:text-white font-medium ${className}`}
+    className={`inline-flex h-11 items-center justify-center rounded-xl px-6 text-sm font-medium transition-all duration-300 hover:bg-slate-800 hover:text-white font-medium ${className}`}
     {...props}
   >
     {children}
@@ -81,9 +261,9 @@ const IconButton: React.FC<IconButtonProps> = ({
   ...props
 }) => {
   const variants = {
-    default: `h-11 w-11 hover:bg-slate-100 dark:hover:bg-slate-800 transition-all duration-300 rounded-xl hover:scale-110`,
-    heart: `h-11 w-11 hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-pink-500 transition-all duration-300 rounded-xl hover:scale-110`,
-    cart: `h-11 w-11 hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-blue-500 transition-all duration-300 rounded-xl hover:scale-110`,
+    default: `h-11 w-11 hover:bg-slate-800 transition-all duration-300 rounded-xl hover:scale-110`,
+    heart: `h-11 w-11 hover:bg-slate-800 hover:text-pink-500 transition-all duration-300 rounded-xl hover:scale-110`,
+    cart: `h-11 w-11 hover:bg-slate-800 hover:text-blue-500 transition-all duration-300 rounded-xl hover:scale-110`,
   };
 
   return (
@@ -136,7 +316,7 @@ export const Navbar = () => {
         );
       setSearchResults(filtered);
     } catch (error) {
-      console.error("Error searching products:", error);
+      
       setSearchResults([]);
     } finally {
       setIsSearching(false);
@@ -165,7 +345,7 @@ export const Navbar = () => {
   };
 
   const handleProductClick = (product: IProduct) => {
-    router.push(`/${product.id}`);
+    router.push(`/product/${product.id}`);
     setIsSearchFocused(false);
     setSearchResults([]);
     setSearchQuery("");
@@ -210,7 +390,7 @@ export const Navbar = () => {
 
   return (
     <nav
-      className={`w-full py-2 bg-gradient-to-r from-slate-900 via-slate-900 to-slate-900 sticky top-0 z-50 transition-all duration-500  shadow-2xl shadow-slate-900/50`}
+      className={`w-full py-2 bg-linear-to-r from-slate-900 via-slate-900 to-slate-900 sticky top-0 z-50 transition-all duration-500  shadow-2xl shadow-slate-900/50`}
     >
       <div className="container mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16">
@@ -233,7 +413,7 @@ export const Navbar = () => {
               </SheetTrigger>
               <SheetContent
                 side="left"
-                className="w-80 bg-gradient-to-b from-slate-800 to-slate-900 border-r border-slate-700 p-0"
+                className="w-80 bg-linear-to-b from-slate-800 to-slate-900 border-r border-slate-700 p-0"
               >
                 <div className="flex flex-col h-full">
                   {/* Header del menú móvil */}
@@ -277,12 +457,12 @@ export const Navbar = () => {
                         </Link>
 
                         <Link
-                          href="/ofertas"
-                          className="flex items-center gap-3 p-3 rounded-lg border-none  transition-colors group"
+                          href="/offers"
+                          className="flex items-center gap-3 py-3 px-4 rounded-lg hover:bg-gradient-to-r hover:from-orange-500/20 hover:to-red-500/20 transition-colors group border border-transparent hover:border-orange-500/30"
                           onClick={() => setIsMobileMenuOpen(false)}
                         >
-                          <Zap className="h-5 w-5 " />
-                          <span className="font-medium text-white ">
+                          <Zap className="h-5 w-5 text-orange-400 group-hover:animate-pulse" />
+                          <span className="font-medium text-white group-hover:text-orange-300">
                             Ofertas
                           </span>
                         </Link>
@@ -293,77 +473,95 @@ export const Navbar = () => {
 
                       {/* Categorías */}
                       <div className="space-y-4">
-                        <h3 className="font-semibold text-white text-sm uppercase tracking-wide">
-                          Categorías
-                        </h3>
+                        <div className="flex items-center gap-2 mb-6">
+                          <div className="h-px bg-gradient-to-r from-blue-500/40 to-transparent flex-1"></div>
+                          <h3 className="font-semibold text-white text-sm uppercase tracking-wider whitespace-nowrap">
+                            Categorías
+                          </h3>
+                          <div className="h-px bg-gradient-to-l from-blue-500/40 to-transparent flex-1"></div>
+                        </div>
 
                         {categoriesLoading ? (
                           <div className="space-y-3">
                             {[1, 2, 3].map((i) => (
-                              <div key={i} className="animate-pulse space-y-2">
+                              <div
+                                key={i}
+                                className="animate-pulse space-y-2 p-4 rounded-xl bg-gradient-to-r from-slate-700/30 to-slate-800/30 border border-slate-700/30"
+                              >
                                 <div className="flex items-center gap-3">
-                                  <div className="w-8 h-8 bg-slate-700 rounded-lg"></div>
-                                  <div className="h-4 bg-slate-700 rounded w-24"></div>
+                                  <div className="w-9 h-9 bg-gradient-to-br from-slate-600 to-slate-700 rounded-lg"></div>
+                                  <div className="h-4 bg-gradient-to-r from-slate-600 to-slate-700 rounded-lg w-32"></div>
                                 </div>
-                                <div className="pl-11 space-y-2">
-                                  <div className="h-3 bg-slate-800 rounded w-20"></div>
-                                  <div className="h-3 bg-slate-800 rounded w-16"></div>
+                                <div className="pl-12 space-y-2">
+                                  <div className="h-3 bg-slate-700/50 rounded-lg w-24"></div>
+                                  <div className="h-3 bg-slate-700/50 rounded-lg w-20"></div>
                                 </div>
                               </div>
                             ))}
                           </div>
                         ) : (
-                          categories.map((category) => (
-                            <div key={category.id} className="space-y-2">
-                              <Link
-                                href={createCategoryUrl(category.name)}
-                                className="flex items-center gap-3 py-3 px-4 rounded-lg hover:bg-white/10 transition-colors group"
-                                onClick={() => setIsMobileMenuOpen(false)}
-                              >
-                                <div className="w-8 h-8 bg-blue-500/20 rounded-lg flex items-center justify-center group-hover:bg-blue-500/30 transition-colors">
-                                  <category.icon className="h-4 w-4 text-blue-400" />
-                                </div>
-                                <div className="flex items-center gap-2 flex-1">
-                                  <span className="font-medium text-white group-hover:text-blue-300">
-                                    {category.name}
-                                  </span>
-                                  {category.featured && (
-                                    <span className="text-xs px-2 py-0.5 bg-amber-500/20 text-amber-300 rounded font-medium">
-                                      Popular
+                          <div className="space-y-3">
+                            {categories.map((category) => (
+                              <div key={category.id} className="group">
+                                <Link
+                                  href={createCategoryUrl(category.name)}
+                                  className="flex items-center gap-3 py-3 px-4 rounded-xl hover:bg-gradient-to-r hover:from-blue-500/15 hover:to-cyan-500/10 transition-all duration-300 group/link border border-transparent hover:border-blue-500/30 hover:shadow-lg hover:shadow-blue-500/10"
+                                  onClick={() => setIsMobileMenuOpen(false)}
+                                >
+                                  <div className="w-9 h-9 bg-gradient-to-br from-blue-500/25 to-cyan-500/15 rounded-lg flex items-center justify-center group-hover/link:from-blue-500/35 group-hover/link:to-cyan-500/25 transition-all duration-300 group-hover/link:shadow-lg group-hover/link:shadow-blue-500/20 border border-blue-500/20 group-hover/link:border-blue-400/40">
+                                    <category.icon className="h-5 w-5 text-blue-300 group-hover/link:text-blue-200 transition-colors" />
+                                  </div>
+                                  <div className="flex items-center gap-2 flex-1">
+                                    <span className="font-semibold text-white group-hover/link:text-blue-200 transition-colors">
+                                      {category.name}
                                     </span>
-                                  )}
-                                </div>
-                              </Link>
+                                    {category.featured && (
+                                      <span className="text-xs px-2.5 py-1 bg-gradient-to-r from-amber-500/30 to-orange-500/20 text-amber-200 rounded-full font-semibold border border-amber-500/30 group-hover/link:from-amber-500/40 group-hover/link:to-orange-500/30 transition-all">
+                                        Destacada
+                                      </span>
+                                    )}
+                                  </div>
+                                  <div className="text-slate-400 group-hover/link:text-blue-300 transition-colors opacity-0 group-hover/link:opacity-100">
+                                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                                    </svg>
+                                  </div>
+                                </Link>
 
-                              <div className="pl-11 space-y-1">
-                                {category.subcategories
-                                  .slice(0, 3)
-                                  .map((sub) => (
+                                <div className="pl-4 space-y-1.5 mt-2">
+                                  {category.subcategories.slice(0, 3).map((sub) => (
                                     <Link
                                       key={sub.id}
-                                      href={createCategoryUrl(
-                                        category.name,
-                                        sub.name
-                                      )}
-                                      className="block text-sm text-slate-300 hover:text-white py-2 px-3 rounded hover:bg-white/5 transition-colors"
+                                      href={createCategoryUrl(category.name, sub.name)}
+                                      className="block text-sm text-slate-300 hover:text-white py-2 px-3 rounded-lg hover:bg-white/8 transition-all duration-300 border border-transparent hover:border-slate-600/50 font-medium group/sub"
                                       onClick={() => setIsMobileMenuOpen(false)}
                                     >
-                                      {sub.name}
+                                      <div className="flex items-center gap-2">
+                                        <div className="w-1.5 h-1.5 rounded-full bg-blue-400/50 group-hover/sub:bg-blue-300 transition-colors"></div>
+                                        {sub.name}
+                                      </div>
                                     </Link>
                                   ))}
-                                {category.subcategories.length > 3 && (
-                                  <Link
-                                    href={createCategoryUrl(category.name)}
-                                    className="block text-sm text-blue-400 hover:text-blue-300 py-2 px-3 rounded hover:bg-blue-500/10 transition-colors font-medium"
-                                    onClick={() => setIsMobileMenuOpen(false)}
-                                  >
-                                    Ver todas +
-                                    {category.subcategories.length - 3}
-                                  </Link>
-                                )}
+                                  {category.subcategories.length > 3 && (
+                                    <Link
+                                      href={createCategoryUrl(category.name)}
+                                      className="block text-sm text-blue-400 hover:text-blue-300 py-2.5 px-3 rounded-lg hover:bg-blue-500/15 transition-all duration-300 font-semibold border border-transparent hover:border-blue-500/30 mt-2 group/more"
+                                      onClick={() => setIsMobileMenuOpen(false)}
+                                    >
+                                      <div className="flex items-center justify-between">
+                                        <span>Ver todas las subcategorías</span>
+                                        <span className="text-xs px-2 py-1 bg-blue-500/25 rounded-full text-blue-300 group-hover/more:bg-blue-500/35 transition-all">
+                                          +{category.subcategories.length - 3}
+                                        </span>
+                                      </div>
+                                    </Link>
+                                  )}
+                                </div>
+
+                                <div className="h-px bg-gradient-to-r from-slate-700/0 via-slate-700/30 to-slate-700/0 my-2"></div>
                               </div>
-                            </div>
-                          ))
+                            ))}
+                          </div>
                         )}
                       </div>
                     </div>
@@ -388,7 +586,7 @@ export const Navbar = () => {
 
           {/* Desktop Navigation - Centrado */}
           <NavigationMenu className="hidden lg:flex flex-1 justify-center max-w-4xl mx-4 ">
-            <NavigationMenuList className="gap-2 [&>li]:!bg-transparent [&>li]:!border-none [&>li]:!shadow-none">
+            <NavigationMenuList className="gap-2 [&>li]:bg-transparent! [&>li]:border-none! [&>li]:shadow-none!">
               <NavigationMenuItem>
                 <NavigationMenuLink asChild>
                   <NavLink
@@ -411,87 +609,107 @@ export const Navbar = () => {
                 </NavigationMenuLink>
               </NavigationMenuItem>
 
+            
+
               <NavigationMenuItem>
-                <NavigationMenuTrigger className="h-11 border-none bg-transparent hover:bg-white/10 rounded-xl font-medium transition-all duration-300  text-white data-[state=open]:bg-white/10 focus:outline-none focus:ring-0 [&>svg]:!text-white ">
+                <NavigationMenuTrigger className="h-11 border-none bg-transparent hover:bg-white/10 rounded-xl font-medium transition-all duration-300 text-white data-[state=open]:bg-white/10 focus:outline-none focus:ring-0 [&>svg]:!text-white">
                   Categorías
                 </NavigationMenuTrigger>
-                <NavigationMenuContent className="min-w-0 p-0 [&>div]:!bg-transparent [&>div]:!border-none [&>div]:!shadow-none [&>div]:!p-0">
-                  <div className="w-[800px] h-[640px] bg-gradient-to-br from-slate-800 to-slate-900 rounded-xl shadow-2xl overflow-y-scroll border-2 border-slate-600/50 scrollbar-thin scrollbar-thumb-slate-500 scrollbar-track-blue-700 hover:scrollbar-thumb-slate-400 transition-colors">
+                <NavigationMenuContent className="min-w-0 p-0 [&>div]:bg-transparent [&>div]:!border-none [&>div]:!shadow-none [&>div]:!p-0 border-none">
+                  <div className="w-[900px] h-[680px] bg-gradient-to-br from-slate-950 via-slate-900/90 to-slate-950 rounded-2xl shadow-2xl shadow-blue-600/20 overflow-y-auto border border-slate-700/50 scrollbar-thin scrollbar-thumb-slate-700/60 scrollbar-track-slate-900/50 hover:scrollbar-thumb-slate-600/80 transition-colors">
+             
+
                     {categoriesLoading ? (
-                      <div className="grid grid-cols-3 gap-8 p-10">
+                      <div className="grid grid-cols-3 gap-6 p-8">
                         {[1, 2, 3].map((i) => (
-                          <div key={i} className="animate-pulse space-y-4 p-10">
-                            <div className="h-20 bg-slate-700 rounded-lg p-10">
+                          <div key={i} className="animate-pulse space-y-4">
+                            <div className="h-24 bg-gradient-to-br from-blue-900/30 to-purple-900/20 rounded-xl p-4 border border-slate-700/40">
                               <div className="flex items-center gap-3">
-                                <div className="w-10 h-10 bg-slate-600 rounded-lg flex-shrink-0"></div>
-                                <div className="flex-1 min-w-0">
-                                  <div className="h-4 bg-slate-600 rounded w-24 mb-2"></div>
-                                  <div className="h-3 bg-slate-700 rounded w-16"></div>
+                                <div className="w-12 h-12 bg-gradient-to-br from-blue-500/30 to-purple-500/20 rounded-lg flex-shrink-0"></div>
+                                <div className="flex-1 min-w-0 space-y-2">
+                                  <div className="h-4 bg-gradient-to-r from-blue-500/30 to-purple-500/20 rounded-lg w-28"></div>
+                                  <div className="h-3 bg-blue-700/20 rounded-lg w-20"></div>
                                 </div>
                               </div>
                             </div>
                             <div className="space-y-2">
-                              <div className="h-10 bg-slate-700 rounded"></div>
-                              <div className="h-10 bg-slate-700 rounded"></div>
-                              <div className="h-10 bg-slate-700 rounded"></div>
+                              <div className="h-10 bg-gradient-to-r from-blue-500/25 to-purple-500/15 rounded-lg"></div>
+                              <div className="h-10 bg-gradient-to-r from-purple-500/25 to-indigo-500/15 rounded-lg"></div>
+                              <div className="h-10 bg-gradient-to-r from-indigo-500/25 to-fuchsia-500/15 rounded-lg"></div>
                             </div>
                           </div>
                         ))}
                       </div>
                     ) : categories.length === 0 ? (
-                      <div className="flex items-center justify-center py-16">
+                      <div className="flex items-center justify-center py-20">
                         <div className="text-center">
-                          <Package className="h-12 w-12 text-slate-400 mx-auto mb-4" />
-                          <p className="text-slate-300 font-medium">
+                          <div className="w-16 h-16 bg-gradient-to-br from-blue-600/30 to-purple-600/20 rounded-2xl flex items-center justify-center mx-auto mb-4 border border-slate-700/40 shadow-lg shadow-blue-600/20">
+                            <Package className="h-8 w-8 text-blue-300" />
+                          </div>
+                          <p className="text-slate-300 font-medium text-lg">
                             No hay categorías disponibles
                           </p>
                         </div>
                       </div>
                     ) : (
-                      <div className="grid grid-cols-3 gap-8 p-8">
+                      <div className="grid grid-cols-3 gap-6 p-8">
                         {categories.map((category) => (
-                          <div key={category.id} className="relative">
+                          <div key={category.id} className="group">
+                            {/* Category Header */}
                             <Link
                               href={createCategoryUrl(category.name)}
-                              className="flex items-center gap-3 mb-4 p-4 rounded-lg bg-white/5 hover:bg-white/10 transition-all duration-300 group h-20 border border-slate-600 hover:border-blue-400/50 hover:shadow-lg hover:shadow-blue-500/20"
+                              className="flex items-center gap-4 mb-5 p-4 rounded-xl bg-gradient-to-br from-blue-400/30 via-purple-400/30 to-indigo-300/30 hover:from-blue-400/50 hover:via-purple-400/40 hover:to-indigo-400/40 transition-all duration-300 group/link h-24 border border-slate-700/40 hover:border-slate-600/60 hover:shadow-lg hover:shadow-blue-600/20 relative overflow-hidden"
                             >
-                              <div className="w-10 h-10 bg-blue-500/20 rounded-lg flex items-center justify-center group-hover:bg-blue-500/30 transition-colors">
-                                <category.icon className="h-5 w-5 text-blue-400" />
+                              {/* Background glow effect */}
+                              <div className="absolute inset-0 bg-gradient-to-r from-blue-600/5 via-purple-500/4 to-indigo-600/3 group-hover/link:from-blue-600/15 group-hover/link:via-purple-500/12 group-hover/link:to-indigo-600/10 transition-all duration-300"></div>
+
+                              <div className="w-12 h-12 bg-gradient-to-br from-blue-600/70 via-purple-600/70 to-indigo-700/25 rounded-xl flex items-center justify-center group-hover/link:from-blue-500/60 group-hover/link:via-purple-500/50 group-hover/link:to-indigo-600/40 transition-all duration-300  border border-slate-700/50 group-hover/link:border-slate-600/70 flex-shrink-0 relative z-10">
+                                <category.icon className="h-6 w-6 text-slate-200 group-hover/link:text-slate-100 transition-colors drop-shadow-lg" />
                               </div>
-                              <div className="flex-1 min-w-0 flex flex-col justify-center">
-                                <h3 className="font-semibold text-white text-sm leading-tight line-clamp-2 group-hover:text-blue-300 transition-colors mb-1">
+                              <div className="flex-1 min-w-0 flex flex-col justify-center relative z-10">
+                                <h3 className="font-bold text-slate-200 text-base leading-tight group-hover/link:text-slate-100 transition-colors mb-1.5 drop-shadow-lg">
                                   {category.name}
                                 </h3>
                                 {category.featured && (
-                                  <span className="text-xs px-2 py-0.5 bg-amber-500/20 text-amber-300 rounded w-fit font-medium">
-                                    Popular
+                                  <span className="text-xs px-2.5 py-1 bg-gradient-to-r from-fuchsia-400/50 to-purple-400/70 text-purple-200 rounded-full w-fit font-bold border border-slate-700/40 group-hover/link:from-fuchsia-500/50 group-hover/link:to-purple-500/40 transition-all shadow-lg shadow-purple-500/20">
+                                    ⭐ Destacada
                                   </span>
                                 )}
                               </div>
+                              <div className="text-slate-300 group-hover/link:text-slate-200 transition-colors opacity-0 group-hover/link:opacity-100 relative z-10 drop-shadow-lg">
+                                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                                </svg>
+                              </div>
                             </Link>
 
-                            <div className="space-y-1">
+                            {/* Subcategories */}
+                            <div className="space-y-1.5">
                               {category.subcategories.slice(0, 5).map((sub) => (
                                 <Link
                                   key={sub.id}
-                                  href={createCategoryUrl(
-                                    category.name,
-                                    sub.name
-                                  )}
-                                  className="block text-sm text-slate-300 hover:text-white py-2.5 px-3 rounded-lg hover:bg-white/5 transition-colors font-medium"
+                                  href={createCategoryUrl(category.name, sub.name)}
+                                  className="flex items-center gap-2.5 text-sm text-slate-200 hover:text-slate-200 py-3 px-3 rounded-lg bg-transparent hover:bg-gradient-to-r hover:from-blue-400/40 hover:via-purple-400/40 hover:to-indigo-400/25 transition-all duration-300 font-medium border border-transparent hover:border-slate-700/40 group/sub"
                                 >
-                                  {sub.name}
+                                  <div className="w-2 h-2 rounded-full bg-gradient-to-r from-purple-400/80 to-indigo-400/70 group-hover/sub:shadow-lg group-hover/sub:shadow-purple-400/40 transition-all flex-shrink-0"></div>
+                                  <span className="truncate">{sub.name}</span>
                                 </Link>
                               ))}
                               {category.subcategories.length > 5 && (
                                 <Link
                                   href={createCategoryUrl(category.name)}
-                                  className="block text-sm text-blue-400 hover:text-blue-300 py-2.5 px-3 rounded-lg hover:bg-blue-500/10 transition-colors font-semibold"
+                                  className="flex items-center justify-between text-sm text-slate-200 hover:text-slate-200 py-3 px-3 rounded-lg bg-gradient-to-r from-fuchsia-500/20 to-purple-500/15 hover:from-fuchsia-500/30 hover:to-purple-500/25 transition-all duration-300 font-bold border border-slate-700/40 hover:border-slate-600/60 mt-2 group/more shadow-lg shadow-purple-500/15"
                                 >
-                                  Ver todas +{category.subcategories.length - 5}
+                                  <span>Ver todas</span>
+                                  <span className="text-xs px-2.5 py-1 bg-gradient-to-r from-indigo-500/30 to-fuchsia-500/25 rounded-full text-purple-200 group-hover/more:from-indigo-500/50 group-hover/more:to-fuchsia-500/40 transition-all font-bold shadow-lg shadow-indigo-500/20">
+                                    +{category.subcategories.length - 5}
+                                  </span>
                                 </Link>
                               )}
                             </div>
+
+                            {/* Divider */}
+                            <div className="h-px bg-gradient-to-r from-slate-700/0 via-purple-500/30 to-slate-700/0 mt-4"></div>
                           </div>
                         ))}
                       </div>
@@ -503,8 +721,8 @@ export const Navbar = () => {
               <NavigationMenuItem>
                 <NavigationMenuLink asChild className="flex flex-row">
                   <Link
-                    href="/ofertas"
-                    className="flex h-11 w-fit items-center justify-center rounded-xl bg-gradient-to-r from-indigo-500 to-purple-500 px-6 py-2 text-sm font-medium text-white transition-all duration-300 hover:from-indigo-600 hover:to-purple-600 hover:shadow-lg hover:shadow-indigo-500/25 hover:scale-105  gap-2"
+                    href="/offers"
+                    className="flex h-11 w-fit items-center justify-center rounded-xl bg-linear-to-r from-orange-400/90 to-orange-600 px-6 py-2 text-sm font-medium text-white transition-all duration-300 hover:from-orange-600 hover:to-red-700 hover:shadow-lg hover:shadow-orange-500/25 hover:scale-105  gap-2"
                   >
                     <Zap className="h-4 w-4 flex-shrink-0" />
                     <span>Ofertas</span>
@@ -517,7 +735,7 @@ export const Navbar = () => {
           {/* Actions Section */}
           <div className="flex items-center gap-3">
             {/* Search Bar - Desktop */}
-            <div className="hidden md:flex flex-1 max-w-sm mx-4">
+            <div className="hidden md:flex flex-1 max-w-md mx-4">
               <form onSubmit={handleSearchSubmit} className="relative w-full">
                 <SearchIcon className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-slate-300 z-10" />
                 <Input
@@ -632,71 +850,27 @@ export const Navbar = () => {
                   </Badge>
                 )}
               </div>
-
-              {/* Theme Toggle */}
-              <div className=" rounded-lg p-1">
-                <ThemeToggle />
-              </div>
-
               {/* User Menu */}
               {userProfile ? (
-                <DropdownMenu>
-                  <DropdownMenuTrigger asChild>
-                    <Button
-                      variant="ghost"
-                      className="flex items-center gap-2 h-10 px-3 rounded-xl hover:bg-white/10 transition-colors"
-                    >
-                      <div className="relative">
-                        <div className="w-8 h-8 bg-gradient-to-r from-blue-500 to-cyan-500 rounded-full flex items-center justify-center text-white text-sm font-bold">
-                          {userProfile?.name?.charAt(0).toUpperCase() || "U"}
-                        </div>
-                        <div className="absolute -bottom-0.5 -right-0.5 w-3 h-3 bg-green-400 rounded-full border-2 border-slate-800"></div>
-                      </div>
-                      <ChevronDown className="h-4 w-4 text-white" />
-                    </Button>
-                  </DropdownMenuTrigger>
-                  <DropdownMenuContent
-                    align="end"
-                    className="w-64 bg-slate-800 border border-slate-600 shadow-2xl rounded-xl p-2"
-                  >
-                    <div className="p-4 border-b border-slate-600">
-                      <div className="flex items-center gap-3">
-                        <div className="w-10 h-10 bg-gradient-to-r from-blue-500 to-cyan-500 rounded-full flex items-center justify-center text-white text-sm font-bold">
-                          {userProfile?.name?.charAt(0).toUpperCase() || "U"}
-                        </div>
-                        <div className="font-medium text-white">
-                          {userProfile?.name}
-                        </div>
-                      </div>
-                    </div>
-                    <DropdownMenuItem
-                      onClick={() => router.push("/profile")}
-                      className="hover:bg-white/10 cursor-pointer rounded-lg p-3 font-medium text-white"
-                    >
-                      <User className="h-4 w-4 mr-3" />
-                      Mi Perfil
-                    </DropdownMenuItem>
-                    <DropdownMenuItem
-                      onClick={() => router.push("/orders")}
-                      className="hover:bg-white/10 cursor-pointer rounded-lg p-3 font-medium text-white"
-                    >
-                      <ShoppingCart className="h-4 w-4 mr-3" />
-                      Mis Pedidos
-                    </DropdownMenuItem>
-                    <DropdownMenuSeparator className="my-2" />
-                    <DropdownMenuItem className="text-red-400 hover:bg-red-500/10 rounded-lg p-3 font-medium">
-                      <SignOut />
-                    </DropdownMenuItem>
-                  </DropdownMenuContent>
-                </DropdownMenu>
+                <UserMenu />
               ) : (
                 <Button
                   onClick={() => router.push("/login")}
-                  className="h-10 px-4 ml-4 rounded-xl bg-blue-600 hover:bg-blue-700 text-white transition-colors font-medium"
+                  className="cursor-pointer h-10 px-4 ml-4 rounded-xl text-white transition-colors font-medium"
+                  style={{
+                    backgroundColor: `var(--color-primary)`
+                  }}
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.opacity = '0.9';
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.opacity = '1';
+                  }}
                 >
                   Iniciar Sesión
                 </Button>
               )}
+               
             </div>
           </div>
         </div>

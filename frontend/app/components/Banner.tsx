@@ -1,10 +1,14 @@
 "use client";
 
+
 import { Button } from "@/components/ui/button";
 import { useEffect, useState } from "react";
+import { useStoreSettings } from "@/app/hooks/useStoreSettings";
+
 
 export const Banner = () => {
   const [isLoaded, setIsLoaded] = useState(false);
+  const storeSettings = useStoreSettings();
 
   useEffect(() => {
     setIsLoaded(true);
@@ -13,25 +17,26 @@ export const Banner = () => {
   return (
     <section className="relative min-h-screen w-full overflow-hidden">
       <div className="absolute inset-0">
-        {/* Gradiente principal */}
-        <div className="absolute inset-0 bg-gradient-to-br from-slate-900 via-slate-900 to-slate-900" />
+        {/* lineare principal */}
+        <div className="absolute inset-0 bg-linear-to-br from-slate-900 via-slate-900 to-slate-900" />
 
         <div className="absolute inset-0 opacity-60">
-          <div className="absolute top-1/4 right-1/4 w-[500px] h-[500px] bg-gradient-to-br from-blue-600/25 to-purple-600/25 rounded-full blur-3xl animate-float-smooth" />
-          <div className="absolute bottom-1/4 left-1/4 w-[450px] h-[450px] bg-gradient-to-tr from-purple-600/20 to-cyan-600/20 rounded-full blur-3xl animate-float-smooth-delayed" />
-          <div className="absolute top-1/2 left-1/2 w-[350px] h-[350px] bg-gradient-to-r from-indigo-600/18 to-blue-600/18 rounded-full blur-2xl animate-pulse-smooth" />
+          <div className="absolute top-1/4 right-1/4 w-[500px] h-[500px] rounded-full blur-3xl animate-float-smooth" style={{backgroundImage: `linear-gradient(to bottom right, rgba(var(--color-primary-rgb), 0.25), rgba(var(--color-accent-rgb), 0.25))`}} />
+          <div className="absolute bottom-1/4 left-1/4 w-[450px] h-[450px] rounded-full blur-3xl animate-float-smooth-delayed" style={{backgroundImage: `linear-gradient(to top right, rgba(var(--color-secondary-rgb), 0.2), rgba(var(--color-primary-rgb), 0.2))`}} />
+          <div className="absolute top-1/2 left-1/2 w-[350px] h-[350px] rounded-full blur-2xl animate-pulse-smooth" style={{backgroundImage: `linear-gradient(to right, rgba(var(--color-primary-rgb), 0.18), rgba(var(--color-secondary-rgb), 0.18))`}} />
         </div>
 
         <div className="absolute inset-0">
           {[...Array(12)].map((_, i) => (
             <div
               key={i}
-              className="absolute w-2.5 h-2.5 bg-gradient-to-r from-blue-400/40 to-purple-400/40 rounded-full animate-particle-float"
+              className="absolute w-2.5 h-2.5 rounded-full animate-particle-float"
               style={{
                 left: `${Math.random() * 100}%`,
                 top: `${Math.random() * 100}%`,
                 animationDelay: `${Math.random() * 5}s`,
                 animationDuration: `${4 + Math.random() * 4}s`,
+                backgroundImage: `linear-gradient(to right, rgba(var(--color-primary-rgb), 0.4), rgba(var(--color-secondary-rgb), 0.4))`,
               }}
             />
           ))}
@@ -46,28 +51,39 @@ export const Banner = () => {
               }`}
           >
             <h1 className="text-7xl sm:text-8xl md:text-8xl lg:text-9xl xl:text-[9rem] font-black tracking-tight leading-none">
-              <span className="relative inline-block">
-                <span className="bg-gradient-to-r from-blue-500 via-purple-500 to-indigo-600 bg-clip-text text-transparent bg-[length:200%_auto] animate-gradient-flow">
-                  NEO
+              {storeSettings?.store_name ? (
+                <span className="relative inline-block">
+                  <span className="bg-clip-text text-transparent bg-size-[200%_auto] animate-linear-flow" style={{backgroundImage: `linear-gradient(to right, var(--color-primary), var(--color-secondary), var(--color-primary))`}}>
+                    {storeSettings.store_name}
+                  </span>
+                  <div className="absolute -inset-4 blur-2xl -z-10 animate-glow-smooth" style={{backgroundImage: `linear-gradient(to right, rgba(var(--color-primary-rgb), 0.5), rgba(var(--color-secondary-rgb), 0.5))`}} />
                 </span>
-                <div className="absolute -inset-4 bg-gradient-to-r from-blue-600/50 via-purple-600/50 to-indigo-600/50 blur-2xl -z-10 animate-glow-smooth" />
-              </span>
-              <span className="relative inline-block ml-4">
-                <span className="bg-gradient-to-r from-purple-500  via-indigo-500 to-blue-500 bg-clip-text text-transparent bg-[length:200%_auto] animate-gradient-flow-reverse">
-                  $ALE
-                </span>
-                <div className="absolute -inset-4 bg-gradient-to-r from-purple-600/50  to-blue-600/50 blur-2xl -z-10 animate-glow-smooth-delayed" />
-              </span>
+              ) : (
+                <>
+                  <span className="relative inline-block">
+                    <span className="bg-clip-text text-transparent bg-size-[200%_auto] animate-linear-flow" style={{backgroundImage: `linear-gradient(to right, var(--color-primary), var(--color-secondary))`}}>
+                      NEO
+                    </span>
+                    <div className="absolute -inset-4 blur-2xl -z-10 animate-glow-smooth" style={{backgroundImage: `linear-gradient(to right, rgba(var(--color-primary-rgb), 0.5), rgba(var(--color-secondary-rgb), 0.5))`}} />
+                  </span>
+                  <span className="relative inline-block ml-4">
+                    <span className="bg-clip-text text-transparent bg-size-[200%_auto] animate-linear-flow-reverse" style={{backgroundImage: `linear-gradient(to right, var(--color-secondary), var(--color-accent), var(--color-primary))`}}>
+                      $ALE
+                    </span>
+                    <div className="absolute -inset-4 blur-2xl -z-10 animate-glow-smooth-delayed" style={{backgroundImage: `linear-gradient(to right, rgba(var(--color-secondary-rgb), 0.5), rgba(var(--color-accent-rgb), 0.5))`}} />
+                  </span>
+                </>
+              )}
             </h1>
 
             {/* Decoración elegante */}
             <div className="flex items-center justify-center gap-6 animate-fade-in">
-              <div className="h-px bg-gradient-to-r from-transparent via-slate-400/50 to-transparent w-32 animate-expand-smooth" />
+              <div className="h-px w-32 animate-expand-smooth" style={{backgroundImage: `linear-gradient(to right, transparent, rgba(148, 163, 184, 0.5), transparent)`}} />
               <div className="relative">
-                <div className="w-4 h-4 bg-gradient-to-r from-blue-500 to-purple-500 rounded-full animate-spin-smooth" />
-                <div className="absolute inset-0 w-4 h-4 bg-gradient-to-r from-blue-500 to-purple-500 rounded-full blur-md animate-pulse-smooth" />
+                <div className="w-4 h-4 rounded-full animate-spin-smooth" style={{backgroundImage: `linear-gradient(to right, var(--color-primary), var(--color-secondary))`}} />
+                <div className="absolute inset-0 w-4 h-4 rounded-full blur-md animate-pulse-smooth" style={{backgroundImage: `linear-gradient(to right, var(--color-primary), var(--color-secondary))`}} />
               </div>
-              <div className="h-px bg-gradient-to-r from-transparent via-slate-400/50 to-transparent w-32 animate-expand-smooth" />
+              <div className="h-px w-32 animate-expand-smooth" style={{backgroundImage: `linear-gradient(to right, transparent, rgba(148, 163, 184, 0.5), transparent)`}} />
             </div>
           </div>
 
@@ -81,13 +97,23 @@ export const Banner = () => {
             <div className="flex flex-col sm:flex-row items-center justify-center gap-6">
               <Button
                 size="lg"
-                className="group relative bg-gradient-to-r from-slate-600 via-slate-700 to-slate-600 hover:from-slate-500 hover:via-slate-600 hover:to-slate-500 text-white border-0 px-12 py-7 text-lg font-bold rounded-2xl shadow-2xl hover:shadow-slate-500/30 transition-all duration-300 hover:scale-105 overflow-hidden animate-button-pulse"
+                className="group relative text-white border-0 px-12 py-7 text-lg font-bold rounded-2xl shadow-2xl transition-all duration-300 hover:scale-105 overflow-hidden animate-button-pulse"
+                style={{
+                  backgroundImage: `linear-gradient(to right, var(--color-primary), var(--color-secondary))`,
+                  boxShadow: `0 25px 50px -12px rgba(var(--color-primary-rgb), 0.3)`
+                }}
+                onMouseEnter={(e: React.MouseEvent<HTMLButtonElement>) => {
+                  e.currentTarget.style.boxShadow = `0 25px 50px -12px rgba(var(--color-primary-rgb), 0.5)`;
+                }}
+                onMouseLeave={(e: React.MouseEvent<HTMLButtonElement>) => {
+                  e.currentTarget.style.boxShadow = `0 25px 50px -12px rgba(var(--color-primary-rgb), 0.3)`;
+                }}
               >
                 <span className="relative z-10 animate-text-shine">
                   COMENZAR AHORA
                 </span>
-                <div className="absolute inset-0 bg-gradient-to-r from-white/0 via-white/10 to-white/0 translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-700" />
-                <div className="absolute -inset-1 bg-gradient-to-r from-slate-500/20 to-slate-600/20 rounded-2xl blur opacity-0 group-hover:opacity-100 transition-opacity duration-500 animate-glow-pulse" />
+                <div className="absolute inset-0 translate-x-full group-hover:translate-x-full transition-transform duration-700" style={{backgroundImage: `linear-gradient(to right, rgba(255, 255, 255, 0), rgba(255, 255, 255, 0.1), rgba(255, 255, 255, 0))`}} />
+                <div className="absolute -inset-1 rounded-2xl blur opacity-0 group-hover:opacity-100 transition-opacity duration-500 animate-glow-pulse" style={{backgroundImage: `linear-gradient(to right, rgba(var(--color-primary-rgb), 0.2), rgba(var(--color-secondary-rgb), 0.2))`}} />
               </Button>
 
               <Button
@@ -104,31 +130,31 @@ export const Banner = () => {
 
             <div className="flex flex-col items-center md:flex-row justify-center gap-4 md:gap-16 pt-10">
               <div className="text-center animate-fade-in-up animate-stat-bounce">
-                <div className="text-4xl font-bold bg-gradient-to-r from-blue-400 to-cyan-400 bg-clip-text text-transparent">
+                <div className="text-4xl font-bold bg-clip-text text-transparent" style={{backgroundImage: `linear-gradient(to right, var(--color-primary), var(--color-secondary))`}}>
                   10K+
                 </div>
                 <div className="text-slate-400 text-sm font-medium mt-1">
                   Usuarios activos
                 </div>
               </div>
-              <div className="w-px h-10 bg-gradient-to-b from-transparent via-slate-400/50 to-transparent" />
+              <div className="w-px h-10" style={{backgroundImage: `linear-gradient(to bottom, transparent, rgba(148, 163, 184, 0.5), transparent)`}} />
               <div
                 className="text-center animate-fade-in-up animate-stat-bounce"
                 style={{ animationDelay: "0.1s" }}
               >
-                <div className="text-4xl font-bold bg-gradient-to-r from-purple-400 to-pink-400 bg-clip-text text-transparent">
+                <div className="text-4xl font-bold bg-clip-text text-transparent" style={{backgroundImage: `linear-gradient(to right, var(--color-secondary), var(--color-accent))`}}>
                   99.9%
                 </div>
                 <div className="text-slate-400 text-sm font-medium mt-1">
                   Uptime
                 </div>
               </div>
-              <div className="w-px h-10 bg-gradient-to-b from-transparent via-slate-400/50 to-transparent" />
+              <div className="w-px h-10" style={{backgroundImage: `linear-gradient(to bottom, transparent, rgba(148, 163, 184, 0.5), transparent)`}} />
               <div
                 className="text-center animate-fade-in-up animate-stat-bounce"
                 style={{ animationDelay: "0.2s" }}
               >
-                <div className="text-4xl font-bold bg-gradient-to-r from-cyan-400 to-blue-400 bg-clip-text text-transparent">
+                <div className="text-4xl font-bold bg-clip-text text-transparent" style={{backgroundImage: `linear-gradient(to right, var(--color-accent), var(--color-primary))`}}>
                   24/7
                 </div>
                 <div className="text-slate-400 text-sm font-medium mt-1">
@@ -147,16 +173,16 @@ export const Banner = () => {
               <div className="text-slate-400 text-sm font-medium">
                 Descubre más
               </div>
-              <div className="w-6 h-10 border-2 border-slate-400/50 rounded-full flex justify-center">
-                <div className="w-1 h-3 bg-gradient-to-b from-blue-400 to-purple-400 rounded-full mt-2 animate-scroll-bounce" />
+              <div className="w-6 h-10 border-2 rounded-full flex justify-center" style={{borderColor: `rgba(148, 163, 184, 0.5)`}}>
+                <div className="w-1 h-3 rounded-full mt-2 animate-scroll-bounce" style={{backgroundImage: `linear-gradient(to bottom, var(--color-primary), var(--color-secondary))`}} />
               </div>
             </div>
           </div>
         </div>
       </div>
 
-      <style jsx>{`
-        @keyframes gradient-flow {
+      <style>{`
+        @keyframes linear-flow {
           0% {
             background-position: 0% 50%;
           }
@@ -167,7 +193,7 @@ export const Banner = () => {
             background-position: 0% 50%;
           }
         }
-        @keyframes gradient-flow-reverse {
+        @keyframes linear-flow-reverse {
           0% {
             background-position: 100% 50%;
           }
@@ -381,11 +407,11 @@ export const Banner = () => {
           }
         }
 
-        .animate-gradient-flow {
-          animation: gradient-flow 4s ease infinite;
+        .animate-linear-flow {
+          animation: linear-flow 4s ease infinite;
         }
-        .animate-gradient-flow-reverse {
-          animation: gradient-flow-reverse 4s ease infinite;
+        .animate-linear-flow-reverse {
+          animation: linear-flow-reverse 4s ease infinite;
         }
         .animate-float-smooth {
           animation: float-smooth 15s ease-in-out infinite;
