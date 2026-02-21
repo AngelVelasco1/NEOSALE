@@ -4,7 +4,7 @@ import { apiClient } from "@/lib/api-client";
 
 export async function deleteReview(reviewId: number) {
   try {
-    const response = await apiClient.delete(`/admin/reviews/${reviewId}`);
+    const response = await apiClient.delete(`/api/admin/reviews/${reviewId}`);
 
     if (!response.success) {
       return { success: false, error: response.error || "Error al eliminar reseña" };

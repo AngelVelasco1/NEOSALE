@@ -24,7 +24,7 @@ export async function editCategories(
   const { published } = parsedData.data;
 
   try {
-    const response = await apiClient.put(`/admin/categories`, {
+    const response = await apiClient.put(`/api/admin/categories`, {
       categoryIds: categoryIds.map((id) => parseInt(id)),
       active: published,
     });

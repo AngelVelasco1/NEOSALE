@@ -7,7 +7,7 @@ export async function deleteProducts(
   productIds: string[]
 ): Promise<ServerActionResponse> {
   try {
-    const response = await apiClient.post(`/admin/products/delete`, {
+    const response = await apiClient.post(`/api/admin/products/delete`, {
       productIds: productIds.map(id => parseInt(id)),
     });
 

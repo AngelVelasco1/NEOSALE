@@ -24,7 +24,7 @@ export async function editCoupons(
   const { active } = parsedData.data;
 
   try {
-    const response = await apiClient.put(`/admin/coupons`, {
+    const response = await apiClient.put(`/api/admin/coupons`, {
       couponIds,
       active,
     });

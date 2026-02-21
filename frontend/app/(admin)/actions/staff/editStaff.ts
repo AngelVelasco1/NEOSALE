@@ -28,7 +28,7 @@ export async function editStaff(
 
   try {
     const response = await apiClient.uploadFile(
-      `/admin/staff/${staffId}`,
+      `/api/admin/staff/${staffId}`,
       formData
     );
 

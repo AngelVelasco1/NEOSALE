@@ -38,7 +38,7 @@ export async function getAllReviews(filters: ReviewFilters = {}): Promise<{ succ
     if (filters.page) params.append("page", filters.page.toString());
     if (filters.limit) params.append("limit", filters.limit.toString());
 
-    const response = await apiClient.get(`/admin/reviews?${params.toString()}`);
+    const response = await apiClient.get(`/api/admin/reviews?${params.toString()}`);
 
     if (!response.success) {
       throw new Error(response.error || "Error al obtener las reseñas");

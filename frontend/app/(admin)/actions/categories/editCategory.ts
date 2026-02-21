@@ -25,7 +25,7 @@ export async function editCategory(
   const categoryData = parsedData.data;
 
   try {
-    const response = await apiClient.put(`/admin/categories/${categoryId}`, categoryData);
+    const response = await apiClient.put(`/api/admin/categories/${categoryId}`, categoryData);
 
     if (!response.success) {
       if (response.validationErrors) {

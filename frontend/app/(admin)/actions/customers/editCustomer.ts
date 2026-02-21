@@ -26,7 +26,7 @@ export async function editCustomer(
   const customerData = parsedData.data;
 
   try {
-    const response = await apiClient.put(`/admin/customers/${customerId}`, customerData);
+    const response = await apiClient.put(`/api/admin/customers/${customerId}`, customerData);
 
     if (!response.success) {
       if (response.validationErrors) {

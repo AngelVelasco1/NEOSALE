@@ -8,7 +8,7 @@ import {
 import { prisma } from "@/lib/prisma";
 
 const BACKEND_URL =
-  process.env.NEXT_PUBLIC_API_URL || 
+  process.env.NEXT_PUBLIC_API_URL ||
   (process.env.NODE_ENV === 'production' ? '' : 'http://localhost:8000');
 
 export async function fetchCustomers({
@@ -37,7 +37,7 @@ export async function fetchCustomers({
   });
 
   const response = await fetch(
-    `${BACKEND_URL}/api/users/getUsers?${queryParams.toString()}`
+    `/api/customers?${queryParams.toString()}`
   );
 
   if (!response.ok) {
@@ -228,7 +228,7 @@ export async function fetchCustomerOrders({ id }: { id: string }): Promise<{
       orders: formattedOrders,
     };
   } catch (error) {
-    
+
     throw error;
   }
 }

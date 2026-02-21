@@ -28,7 +28,7 @@ export async function editCoupon(
   }
 
   try {
-    const response = await apiClient.put(`/admin/coupons/${couponId}`, {
+    const response = await apiClient.put(`/api/admin/coupons/${couponId}`, {
       code: parsedData.data.code,
       name: parsedData.data.name,
       discount_type: parsedData.data.isPercentageDiscount ? "percentage" : "fixed",

@@ -10,7 +10,7 @@ export async function toggleCouponFeatured(
   try {
     const newFeaturedStatus = !currentFeaturedStatus;
 
-    const response = await apiClient.patch(`/admin/coupons/${couponId}/featured`, {
+    const response = await apiClient.patch(`/api/admin/coupons/${couponId}/featured`, {
       featured: newFeaturedStatus,
     });
 

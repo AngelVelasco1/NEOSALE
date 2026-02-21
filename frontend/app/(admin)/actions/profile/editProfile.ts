@@ -60,7 +60,7 @@ export async function editProfile(
     }
 
     // Call backend endpoint to update profile
-    const response = await apiClient.put(`/users/profile/edit`, {
+    const response = await apiClient.put(`/api/users/profile/edit`, {
       name: profileData.name,
       phone: profileData.phone || undefined,
       image: imageUrl,

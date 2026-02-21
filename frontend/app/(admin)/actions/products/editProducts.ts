@@ -38,7 +38,7 @@ export async function editProducts(
     }
 
     const response = await apiClient.put(
-      `/admin/products`,
+      `/api/admin/products`,
       { productIds: productIds.map(id => parseInt(id)), ...updateData }
     );
 

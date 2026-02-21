@@ -39,7 +39,7 @@ export async function getCategories({
     if (sortBy) params.append("sortBy", sortBy);
     if (sortOrder) params.append("sortOrder", sortOrder);
 
-    const response = await apiClient.get(`/admin/categories?${params.toString()}`);
+    const response = await apiClient.get(`/api/admin/categories?${params.toString()}`);
 
     if (!response.success) {
       throw new Error(response.error || "Failed to fetch categories");
@@ -54,7 +54,7 @@ export async function getCategories({
 
 export async function getCategoriesDropdown() {
   try {
-    const response = await apiClient.get(`/admin/categories/dropdown`);
+    const response = await apiClient.get(`/api/admin/categories/dropdown`);
 
     if (!response.success) {
       throw new Error(response.error || "Failed to fetch categories dropdown");
@@ -69,7 +69,7 @@ export async function getCategoriesDropdown() {
 
 export async function getSubcategoriesByCategory(categoryId: number) {
   try {
-    const response = await apiClient.get(`/admin/categories/${categoryId}/subcategories`);
+    const response = await apiClient.get(`/api/admin/categories/${categoryId}/subcategories`);
 
     if (!response.success) {
       throw new Error(response.error || "Failed to fetch subcategories");
@@ -84,7 +84,7 @@ export async function getSubcategoriesByCategory(categoryId: number) {
 
 export async function getCategoryById(categoryId: number) {
   try {
-    const response = await apiClient.get(`/admin/categories/${categoryId}`);
+    const response = await apiClient.get(`/api/admin/categories/${categoryId}`);
 
     if (!response.success) {
       throw new Error(response.error || "Failed to fetch category");
@@ -99,7 +99,7 @@ export async function getCategoryById(categoryId: number) {
 
 export async function getSubcategoriesDropdown() {
   try {
-    const response = await apiClient.get(`/admin/subcategories/dropdown`);
+    const response = await apiClient.get(`/api/admin/subcategories/dropdown`);
 
     if (!response.success) {
       throw new Error(response.error || "Failed to fetch subcategories dropdown");
@@ -118,7 +118,7 @@ export async function getSubcategoriesByCategoryDropdown(categoryId?: number) {
       return getSubcategoriesDropdown();
     }
 
-    const response = await apiClient.get(`/admin/categories/${categoryId}/subcategories/dropdown`);
+    const response = await apiClient.get(`/api/admin/categories/${categoryId}/subcategories/dropdown`);
 
     if (!response.success) {
       throw new Error(response.error || "Failed to fetch subcategories");
@@ -133,7 +133,7 @@ export async function getSubcategoriesByCategoryDropdown(categoryId?: number) {
 
 export async function getCategoriesWithSubcategories() {
   try {
-    const response = await apiClient.get(`/admin/categories/with-subcategories`);
+    const response = await apiClient.get(`/api/admin/categories/with-subcategories`);
 
     if (!response.success) {
       throw new Error(response.error || "Failed to fetch categories with subcategories");

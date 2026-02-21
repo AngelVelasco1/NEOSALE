@@ -9,7 +9,7 @@ export async function editProduct(
 ): Promise<ProductServerActionResponse> {
   try {
     const response = await apiClient.uploadFile(
-      `/admin/products/${productId}`,
+      `/api/admin/products/${productId}`,
       formData
     );
 

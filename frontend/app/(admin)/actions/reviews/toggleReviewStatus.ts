@@ -4,7 +4,7 @@ import { apiClient } from "@/lib/api-client";
 
 export async function toggleReviewStatus(reviewId: number, active: boolean) {
   try {
-    const response = await apiClient.patch(`/admin/reviews/${reviewId}/status`, {
+    const response = await apiClient.patch(`/api/admin/reviews/${reviewId}/status`, {
       active,
     });
 

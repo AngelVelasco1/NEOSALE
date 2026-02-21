@@ -22,7 +22,7 @@ export async function createBrand(
       formData.append("description", description || "");
       formData.append("image", imageFile);
 
-      const response = await apiClient.uploadFile(`/admin/brands`, formData);
+      const response = await apiClient.uploadFile(`/api/admin/brands`, formData);
 
       if (!response.success) {
         return { success: false, error: response.error || "Failed to create brand" };
@@ -30,7 +30,7 @@ export async function createBrand(
 
       return { success: true, brand: response.data as any };
     } else {
-      const response = await apiClient.post(`/admin/brands`, {
+      const response = await apiClient.post(`/api/admin/brands`, {
         name: name.trim(),
         description: description || "",
       });

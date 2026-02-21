@@ -7,7 +7,7 @@ export async function deleteCustomer(
   customerId: string
 ): Promise<ServerActionResponse> {
   try {
-    const response = await apiClient.delete(`/admin/customers/${customerId}`);
+    const response = await apiClient.delete(`/api/admin/customers/${customerId}`);
 
     if (!response.success) {
       return { success: false, error: response.error || "Something went wrong. Could not delete the customer." };

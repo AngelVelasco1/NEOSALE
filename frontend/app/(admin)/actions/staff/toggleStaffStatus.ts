@@ -15,7 +15,7 @@ export async function toggleStaffPublishedStatus(
     const newPublishedStatus = !currentPublishedStatus;
 
     // apiClient automatically injects auth token
-    const response = await apiClient.put(`/users/${staffId}`, {
+    const response = await apiClient.put(`/api/users/${staffId}`, {
       active: newPublishedStatus,
     });
 

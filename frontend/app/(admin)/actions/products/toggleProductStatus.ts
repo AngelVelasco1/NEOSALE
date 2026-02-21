@@ -10,7 +10,7 @@ export async function toggleProductPublishedStatus(
   try {
     const newPublishedStatus = !currentPublishedStatus;
     const response = await apiClient.patch(
-      `/admin/products/${productId}/status`,
+      `/api/admin/products/${productId}/status`,
       { active: newPublishedStatus }
     );
 

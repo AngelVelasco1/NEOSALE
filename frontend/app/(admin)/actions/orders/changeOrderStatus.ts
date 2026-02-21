@@ -17,7 +17,7 @@ export async function changeOrderStatus(
       return { validationError: "Estado de orden inválido" };
     }
 
-    const response = await apiClient.patch(`/admin/orders/${orderId}/status`, {
+    const response = await apiClient.patch(`/api/admin/orders/${orderId}/status`, {
       status: newOrderStatus,
     });
 

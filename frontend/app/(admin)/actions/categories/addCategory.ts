@@ -28,7 +28,7 @@ export async function addCategory(
       };
     }
 
-    const response = await apiClient.post(`/admin/categories`, {
+    const response = await apiClient.post(`/api/admin/categories`, {
       name: parsedData.data.name,
       description: parsedData.data.description,
     });

@@ -10,7 +10,7 @@ export async function toggleCouponActiveStatus(
   try {
     const newActiveStatus = !currentActiveStatus;
 
-    const response = await apiClient.patch(`/admin/coupons/${couponId}/status`, {
+    const response = await apiClient.patch(`/api/admin/coupons/${couponId}/status`, {
       active: newActiveStatus,
     });
 

@@ -7,7 +7,7 @@ export async function deleteCoupon(
   couponId: number
 ): Promise<ServerActionResponse> {
   try {
-    const response = await apiClient.delete(`/admin/coupons/${couponId}`);
+    const response = await apiClient.delete(`/api/admin/coupons/${couponId}`);
 
     if (!response.success) {
       return { success: false, error: response.error || "Something went wrong. Could not delete the coupon." };

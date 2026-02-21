@@ -12,7 +12,7 @@ interface ReviewStats {
 
 export async function getReviewStats(): Promise<{ success: boolean; stats?: ReviewStats }> {
   try {
-    const response = await apiClient.get(`/admin/reviews/stats`);
+    const response = await apiClient.get(`/api/admin/reviews/stats`);
 
     if (!response.success) {
       throw new Error(response.error || "Error al obtener estadísticas");

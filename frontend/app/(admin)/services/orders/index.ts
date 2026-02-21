@@ -4,10 +4,10 @@ import type {
   OrderDetails,
 } from "./types";
 
-// Usa la ruta proxy de Next.js /api/backend/* 
+// Usa la ruta proxy de Next.js /api/* 
 // que redirige a http://localhost:8000/api/*
 // Esto evita completamente problemas de CORS
-const API_URL = "/api/backend";
+const API_URL = "/api";
 
 // Migrado a Prisma - Usa API routes
 export async function fetchOrders(
@@ -106,29 +106,29 @@ export async function fetchOrderDetails(params: {
     },
     addresses: data.addresses
       ? {
-          street: data.addresses.address || "",
-          city: data.addresses.city || "",
-          state: data.addresses.department || "",
-          zip_code: data.addresses.postal_code || "",
-        }
+        street: data.addresses.address || "",
+        city: data.addresses.city || "",
+        state: data.addresses.department || "",
+        zip_code: data.addresses.postal_code || "",
+      }
       : null,
     order_items: Array.isArray(data.order_items)
       ? data.order_items.map((item: any) => ({
-          id: item.id,
-          quantity: item.quantity || 1,
-          price: item.price ?? item.unit_price ?? 0,
-          products: {
-            name: item.products?.name || item.product?.name || "Sin nombre",
-            description: item.products?.description || item.product?.description || "",
-          },
-        }))
+        id: item.id,
+        quantity: item.quantity || 1,
+        price: item.price ?? item.unit_price ?? 0,
+        products: {
+          name: item.products?.name || item.product?.name || "Sin nombre",
+          description: item.products?.description || item.product?.description || "",
+        },
+      }))
       : [],
     coupons: data.coupons
       ? {
-          code: data.coupons.code,
-          discount_type: data.coupons.discount_type,
-          discount_value: Number(data.coupons.discount_value),
-        }
+        code: data.coupons.code,
+        discount_type: data.coupons.discount_type,
+        discount_value: Number(data.coupons.discount_value),
+      }
       : null,
     payments: {
       payment_method: data.payments?.payment_method ?? "CARD",

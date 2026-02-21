@@ -12,7 +12,7 @@ export async function deleteStaff(
     await requireAdmin();
 
     // apiClient automatically injects auth token
-    const response = await apiClient.delete(`/users/${staffId}`);
+    const response = await apiClient.delete(`/api/users/${staffId}`);
 
     if (!response.success) {
       return { success: false, error: "Something went wrong. Could not delete the staff." };

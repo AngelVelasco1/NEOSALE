@@ -7,7 +7,7 @@ export async function deleteCategory(
   categoryId: string
 ): Promise<ServerActionResponse> {
   try {
-    const response = await apiClient.delete(`/admin/categories/${categoryId}`);
+    const response = await apiClient.delete(`/api/admin/categories/${categoryId}`);
 
     if (!response.success) {
       return { success: false, error: response.error || "Could not delete the category." };

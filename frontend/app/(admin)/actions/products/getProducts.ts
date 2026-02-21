@@ -56,8 +56,8 @@ export async function getProducts({
     params.append("sortOrder", sortOrder);
 
     const queryString = params.toString();
-    const response = await apiClient.get(`/admin/products${queryString ? `?${queryString}` : ""}`);
-    
+    const response = await apiClient.get(`/api/admin/products${queryString ? `?${queryString}` : ""}`);
+
     if (!response.success) {
       throw new Error(response.error || "Failed to fetch products");
     }
@@ -71,7 +71,7 @@ export async function getProducts({
 
 export async function getProductById(productId: number) {
   try {
-    const response = await apiClient.get(`/admin/products/${productId}`);
+    const response = await apiClient.get(`/api/admin/products/${productId}`);
 
     if (!response.success) {
       throw new Error(response.error || "Failed to fetch product");

@@ -36,7 +36,7 @@ export async function addProduct(
 
   try {
     const response = await apiClient.uploadFile(
-      `/admin/products`,
+      `/api/admin/products`,
       formData
     );
 

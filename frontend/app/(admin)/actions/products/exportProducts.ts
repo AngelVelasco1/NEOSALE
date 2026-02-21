@@ -6,7 +6,7 @@ type ExportResponse = { data: any[] } | { error: string };
 
 export async function exportProducts(): Promise<ExportResponse> {
   try {
-    const response = await apiClient.get(`/admin/products/export`);
+    const response = await apiClient.get(`/api/admin/products/export`);
 
     if (!response.success) {
       return { error: response.error || "Failed to fetch data for products." };

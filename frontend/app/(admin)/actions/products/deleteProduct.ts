@@ -7,7 +7,7 @@ export async function deleteProduct(
   productId: string
 ): Promise<ServerActionResponse> {
   try {
-    const response = await apiClient.delete(`/admin/products/${productId}`);
+    const response = await apiClient.delete(`/api/admin/products/${productId}`);
 
     if (!response.success) {
       return { success: false, error: response.error || "Could not delete the product." };

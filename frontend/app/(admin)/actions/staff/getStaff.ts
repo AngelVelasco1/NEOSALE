@@ -29,7 +29,7 @@ export async function getStaff({
 
     // apiClient automatically injects auth token via getAuthToken()
     const response = await apiClient.get(
-      `/users/admin/staff?${queryParams}`,
+      `/api/users/admin/staff?${queryParams}`,
       {}
     );
 
@@ -54,7 +54,7 @@ export async function getStaffRolesDropdown() {
 
     return roles;
   } catch (error) {
-    
+
     throw new Error("Failed to fetch staff roles");
   }
 }
@@ -67,7 +67,7 @@ export async function getStaffDetails(userId: number) {
       throw new Error("No autorizado");
     }
 
-    const BACKEND_URL = process.env.NEXT_PUBLIC_API_URL || 
+    const BACKEND_URL = process.env.NEXT_PUBLIC_API_URL ||
       (process.env.NODE_ENV === 'production' ? '' : 'http://localhost:8000');
 
     const response = await fetch(
@@ -85,7 +85,7 @@ export async function getStaffDetails(userId: number) {
 
     return await response.json();
   } catch (error) {
-    
+
     throw new Error("Failed to fetch staff details");
   }
 }
