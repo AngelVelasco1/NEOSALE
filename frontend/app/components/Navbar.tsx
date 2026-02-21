@@ -30,7 +30,7 @@ import {
   NavigationMenuList,
   NavigationMenuTrigger,
 } from "@/components/ui/navigation-menu";
-import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
+import { Sheet, SheetContent, SheetTrigger, SheetTitle } from "@/components/ui/sheet";
 import { Badge } from "@/components/ui/badge";
 import Image from "next/image";
 import { SignOut } from "../(auth)/components/SingOut";
@@ -238,7 +238,7 @@ export const Navbar = () => {
                 <div className="flex flex-col h-full">
                   {/* Header del menú móvil */}
                   <div className="flex items-center justify-between p-6 border-b border-slate-700">
-                    <h2 className="text-lg font-semibold text-white">Menú</h2>
+                    <SheetTitle className="text-lg font-semibold text-white">Menú</SheetTitle>
                     <Button
                       variant="ghost"
                       size="icon"

@@ -261,7 +261,7 @@ export const ProductCard = ({
         <div className="p-4 pt-4 space-y-4">
           {/* Product name */}
           <motion.h3
-            className="text-xl font-bold text-white group-hover:text-transparent group-hover:bg-gradient-to-r group-hover:from-blue-300 group-hover:via-purple-300 group-hover:to-cyan-300 group-hover:bg-clip-text transition-all duration-300 line-clamp-2 leading-relaxed"
+            className="text-xl font-bold text-white group-hover:text-cyan-300 transition-all duration-300 line-clamp-2 leading-relaxed"
             whileHover={{ scale: 1.02 }}
             transition={{ type: "spring", stiffness: 400, damping: 25 }}
           >
