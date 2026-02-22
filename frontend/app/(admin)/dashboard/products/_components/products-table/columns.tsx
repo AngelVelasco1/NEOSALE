@@ -87,18 +87,13 @@ export const getColumns = ({
       accessorKey: "stock",
       header: () => <SortableHeader label="Stock" sortKey="stock" />,
       cell: ({ row }) => {
-        // Calcular stock real desde las variantes
-        const variants = row.original.product_variants || [];
-        const totalStock = variants.reduce((sum, v) => sum + (v.stock || 0), 0);
-        
+        // Use the aggregate stock field from the product directly.
+        // product_variants are not included in the admin list query for performance.
+        const stock = row.original.stock ?? 0;
+
         return (
           <div className="flex flex-col gap-1">
-            <span className="font-medium">{totalStock}</span>
-            {variants.length > 0 && (
-              <span className="text-xs text-muted-foreground">
-                {variants.length} variante{variants.length !== 1 ? 's' : ''}
-              </span>
-            )}
+            <span className="font-medium">{stock}</span>
           </div>
         );
       },
@@ -106,14 +101,12 @@ export const getColumns = ({
     {
       header: "Estado",
       cell: ({ row }) => {
-        // Calcular stock real desde las variantes
-        const variants = row.original.product_variants || [];
-        const totalStock = variants.reduce((sum, v) => sum + (v.stock || 0), 0);
-        const status = totalStock > 0 ? "Disponible" : "agotado";
+        const stock = row.original.stock ?? 0;
+        const status = stock > 0 ? "Disponible" : "agotado";
 
         return (
           <Badge
-            variant={totalStock > 0 ? "success" : "destructive"}
+            variant={stock > 0 ? "success" : "destructive"}
             className="shrink-0 text-xs"
           >
             {status === "Disponible" ? "Disponible" : "Agotado"}

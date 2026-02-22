@@ -68,7 +68,7 @@ const productDetailSelect = {
 };
 
 const formatProductForList = (p: any) => {
- 
+
   // Sacar imágenes únicas por color_code
   const uniqueImages = p.images || [];
 
@@ -574,6 +574,9 @@ export const getProductsAdminService = async (params: AdminProductsQueryParams) 
           created_at: true,
           categories: { select: { name: true } },
           images: { select: { image_url: true }, take: 1 },
+          product_variants: {
+            select: { stock: true },
+          },
         },
         skip,
         take,
