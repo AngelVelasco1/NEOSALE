@@ -30,6 +30,12 @@ export interface UpdateCategoryData {
   active?: boolean;
 }
 
+export interface SubcategoryData {
+  id: number;
+  name: string;
+  active: boolean;
+}
+
 // ✅ GET - Obtener todas las categorías con subcategorías
 export const getAllCategoriesWithSubcategoriesService = async (): Promise<
   CategoryWithSubcategories[]
@@ -166,7 +172,7 @@ export const createCategoryService = async (
       // Crear relaciones con subcategorías si se proporcionan
       if (data.subcategories && data.subcategories.length > 0) {
         const subcategoryIds = [...new Set(data.subcategories)]; // Remover duplicados
-        
+
         // Validar que todas las subcategorías existan
         const subcategories = await tx.subcategories.findMany({
           where: { id: { in: subcategoryIds } },
@@ -481,7 +487,7 @@ export const getCategoriesAdminService = async (params: AdminCategoriesQueryPara
     }
 
     // Determine sort order
-    let orderBy: any = { created_at: sortOrder };
+    let orderBy: any = { id: sortOrder };
     if (params.sortBy) {
       orderBy = { [params.sortBy]: sortOrder };
     }
@@ -495,8 +501,6 @@ export const getCategoriesAdminService = async (params: AdminCategoriesQueryPara
           name: true,
           description: true,
           active: true,
-          created_at: true,
-          updated_at: true,
           _count: {
             select: { products: true },
           },
