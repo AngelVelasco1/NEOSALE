@@ -15,19 +15,52 @@ import { FetchCategoriesParams, FetchCategoriesResponse, Category } from "./type
 export async function fetchCategories(
   params: FetchCategoriesParams
 ): Promise<FetchCategoriesResponse> {
-  const result = await getCategories(params);
-  const typedResult = result as unknown as FetchCategoriesResponse;
-  
+  const {
+    page = 1,
+    limit = 10,
+    search,
+    sortBy,
+    sortOrder,
+    status,
+  } = params;
+
+  const queryParams = new URLSearchParams();
+  queryParams.append("page", page.toString());
+  queryParams.append("limit", limit.toString());
+  if (search) queryParams.append("search", search);
+  if (status && status !== "all") queryParams.append("status", status);
+  if (sortBy) queryParams.append("sortBy", sortBy);
+  if (sortOrder) queryParams.append("sortOrder", sortOrder);
+
+  const response = await fetch(`/api/categories?${queryParams.toString()}`, {
+    method: "GET",
+    headers: { "Content-Type": "application/json" },
+  });
+
+  if (!response.ok) {
+    const errorData = await response.json().catch(() => null);
+    throw new Error(errorData?.message || `Error ${response.status}: Failed to fetch categories`);
+  }
+
+  const result = await response.json();
+
+  if (!result.success) {
+    throw new Error(result.message || "Failed to fetch categories");
+  }
+
   // Mapear la estructura de paginación del servidor a la esperada por el frontend
+  const data = result.data || [];
+  const pagination = result.pagination || {};
+
   const mappedResult: FetchCategoriesResponse = {
-    data: typedResult.data || [],
+    data: data,
     pagination: {
-      current: typedResult.pagination.current,
-      limit: typedResult.pagination.limit,
-      items: typedResult.pagination.items,
-      pages: typedResult.pagination.pages,
-      next: typedResult.pagination.next,
-      prev: typedResult.pagination.prev,
+      current: pagination.page || page,
+      limit: pagination.limit || limit,
+      items: pagination.total || 0,
+      pages: pagination.totalPages || 0,
+      next: pagination.page < pagination.totalPages ? pagination.page + 1 : null,
+      prev: pagination.page > 1 ? pagination.page - 1 : null,
     }
   };
 

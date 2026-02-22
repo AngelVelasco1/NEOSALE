@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { auth } from "@/app/(auth)/auth";
+import { getAuthToken } from "@/lib/auth-helpers";
 
 const BACKEND_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
 
@@ -14,22 +15,32 @@ export async function GET(request: NextRequest) {
             );
         }
 
+        // Build auth token in the format the backend expects: "userId:role"
+        const token = await getAuthToken();
+
+        if (!token) {
+            return NextResponse.json(
+                { success: false, message: "No se pudo obtener el token de autenticación" },
+                { status: 401 }
+            );
+        }
+
         const { searchParams } = request.nextUrl;
 
         const response = await fetch(
-            `${BACKEND_URL}/api/getUsers?${searchParams.toString()}`,
+            `${BACKEND_URL}/api/admin/categories?${searchParams.toString()}`,
             {
                 method: "GET",
                 headers: {
                     "Content-Type": "application/json",
-                    "X-User-ID": session.user.id.toString(),
+                    "Authorization": `Bearer ${token}`,
                 },
             }
         );
 
         if (!response.ok) {
             const errorData = await response.json().catch(() => null);
-            console.error("❌ Error del backend:", {
+            console.error("❌ Error del backend (categories):", {
                 status: response.status,
                 statusText: response.statusText,
                 errorData,
@@ -38,7 +49,7 @@ export async function GET(request: NextRequest) {
             return NextResponse.json(
                 {
                     success: false,
-                    message: "Error obteniendo clientes",
+                    message: "Error obteniendo categorías",
                     error: errorData?.error || `Error ${response.status}: ${response.statusText}`,
                 },
                 { status: response.status }
@@ -48,7 +59,7 @@ export async function GET(request: NextRequest) {
         const result = await response.json();
         return NextResponse.json(result);
     } catch (error) {
-        console.error("❌ Error en API route de clientes:", error);
+        console.error("❌ Error en API route de categorías:", error);
 
         return NextResponse.json(
             {
