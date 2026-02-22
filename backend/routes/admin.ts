@@ -33,6 +33,7 @@ import {
   deleteReview,
   getReviewStats,
 } from "../controllers/admin.js";
+import { getOrders } from "../controllers/orders.js";
 
 export const adminRoutes = () =>
   Router()
@@ -54,6 +55,7 @@ export const adminRoutes = () =>
     .get("/products/export", exportProducts)
 
     // ============ ORDERS ADMIN ============
+    .get("/orders", getOrders)
     .patch("/orders/:id/status", changeOrderStatus)
     .get("/orders/export", exportOrders)
 

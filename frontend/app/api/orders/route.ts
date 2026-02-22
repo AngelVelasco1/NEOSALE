@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { auth } from "@/app/(auth)/auth";
+import { getAuthToken } from "@/lib/auth-helpers";
 
 const BACKEND_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
 
@@ -7,9 +8,19 @@ export async function GET(request: NextRequest) {
     try {
         const session = await auth();
 
-        if (!session?.user?.id) {
+        if (!session?.user) {
             return NextResponse.json(
                 { success: false, message: "Usuario no autenticado" },
+                { status: 401 }
+            );
+        }
+
+        // Build auth token in the format the backend expects: "userId:role"
+        const token = await getAuthToken();
+
+        if (!token) {
+            return NextResponse.json(
+                { success: false, message: "No se pudo obtener el token de autenticación" },
                 { status: 401 }
             );
         }
@@ -17,12 +28,12 @@ export async function GET(request: NextRequest) {
         const { searchParams } = request.nextUrl;
 
         const response = await fetch(
-            `${BACKEND_URL}/api/orders?${searchParams.toString()}&user_id=${session.user.id}`,
+            `${BACKEND_URL}/api/admin/orders?${searchParams.toString()}`,
             {
                 method: "GET",
                 headers: {
                     "Content-Type": "application/json",
-                    "X-User-ID": session.user.id.toString(),
+                    "Authorization": `Bearer ${token}`,
                 },
             }
         );
