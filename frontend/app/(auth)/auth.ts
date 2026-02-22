@@ -74,15 +74,15 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
     },
 
     async jwt({ token, user, trigger }) {
-      // On sign in, get user data with role
+      // On sign in, get user data with role — only runs once
       if (user) {
         token.role = user.role;
         return token;
       }
 
-      // On token refresh or subsequent calls, look up fresh role from DB
-      // This ensures role changes are reflected immediately
-      if (token.sub) {
+      // Only fetch role from DB if it's missing in the token
+      // (handles existing sessions that predate this optimization)
+      if (token.sub && !token.role) {
         try {
           const dbUser = await prisma.user.findUnique({
             where: { id: Number(token.sub) },
@@ -92,13 +92,14 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
             token.role = dbUser.role;
           }
         } catch (error) {
-          // If lookup fails, keep existing token role
+          // If lookup fails, keep as user
+          token.role = "user";
         }
       }
-      
+
       return token;
     },
-    
+
     async session({ session, token }) {
       // Minimal session callback to reduce processing
       if (session.user) {
@@ -108,5 +109,5 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
       return session;
     },
   },
- 
+
 })
