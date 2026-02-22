@@ -21,8 +21,8 @@ import {
   NavigationMenuContent,
   NavigationMenuItem,
   NavigationMenuLink,
-  NavigationMenuList,
   NavigationMenuTrigger,
+  NavigationMenuList,
 } from "@/components/ui/navigation-menu";
 import { Sheet, SheetContent, SheetTrigger, SheetTitle } from "@/components/ui/sheet";
 import { Badge } from "@/components/ui/badge";
@@ -64,14 +64,14 @@ const UserMenu = () => {
       >
         <div className="relative">
           {/* Avatar with gradient and glow effect */}
-          <div 
+          <div
             className="relative w-8 h-8 rounded-full flex items-center justify-center text-white text-sm font-bold shadow-lg transition-all duration-300 group-hover:shadow-lg"
             style={{
               backgroundImage: `linear-gradient(to bottom right, var(--color-primary), var(--color-secondary))`,
               boxShadow: `0 0 16px rgba(var(--color-primary-rgb), 0.3)`,
             }}
           >
-            <div 
+            <div
               className="absolute inset-0 rounded-full blur-md opacity-50 group-hover:opacity-70 transition-opacity"
               style={{
                 backgroundImage: `linear-gradient(to bottom right, rgba(0, 0, 0, 0.9), rgba(var(--color-secondary-rgb), 0.5))`
@@ -84,11 +84,11 @@ const UserMenu = () => {
             <div className="absolute inset-0 rounded-full bg-green-400 animate-ping opacity-75"></div>
           </div>
         </div>
-        <ChevronDown className={`h-4 w-4 text-white transition-all duration-300 ${isOpen ? 'rotate-180' : ''}`} style={{color: 'var(--color-primary)'}} />
+        <ChevronDown className={`h-4 w-4 text-white transition-all duration-300 ${isOpen ? 'rotate-180' : ''}`} style={{ color: 'var(--color-primary)' }} />
       </Button>
 
       {isOpen && (
-        <div 
+        <div
           className="absolute right-0 top-full mt-2 w-72 backdrop-blur-xl border shadow-2xl rounded-2xl p-0 overflow-hidden z-50"
           style={{
             backgroundColor: 'rgba(15, 23, 42, 0.95)',
@@ -96,7 +96,7 @@ const UserMenu = () => {
           }}
         >
           {/* Header with user info */}
-          <div 
+          <div
             className="relative p-6 border-b rounded-t-2xl"
             style={{
               backgroundImage: `linear-gradient(to bottom right, rgba(var(--color-primary-rgb), 0.2), rgba(var(--color-secondary-rgb), 0.2))`,
@@ -104,7 +104,7 @@ const UserMenu = () => {
             }}
           >
             {/* Decorative gradient overlay */}
-            <div 
+            <div
               className="absolute inset-0"
               style={{
                 backgroundImage: `linear-gradient(to bottom right, rgba(var(--color-primary-rgb), 0.1), rgba(0, 0, 0, 0.7))`,
@@ -114,13 +114,13 @@ const UserMenu = () => {
             <div className="relative flex items-center gap-4">
               {/* Larger avatar for header */}
               <div className="relative">
-                <div 
+                <div
                   className="w-12 h-12 rounded-full flex items-center justify-center text-white text-lg font-bold"
                   style={{
                     backgroundImage: `linear-gradient(to bottom right, var(--color-primary), var(--color-secondary))`,
                   }}
                 >
-                  <div 
+                  <div
                     className="absolute inset-0 rounded-full blur-lg opacity-50"
                     style={{
                       backgroundImage: `linear-gradient(to bottom right, var(--color-primary), var(--color-accent))`,
@@ -128,7 +128,7 @@ const UserMenu = () => {
                   ></div>
                   <span className="relative z-10">{userProfile?.name?.charAt(0).toUpperCase() || "U"}</span>
                 </div>
-                <div 
+                <div
                   className="absolute -bottom-1 -right-1 w-4 h-4 rounded-full border-2 border-slate-900 shadow-lg"
                   style={{
                     backgroundImage: `linear-gradient(to bottom right, rgb(74, 222, 128), rgb(16, 185, 129))`,
@@ -169,7 +169,7 @@ const UserMenu = () => {
               }}
             >
               <div className="flex items-center gap-3">
-                <div 
+                <div
                   className="w-9 h-9 rounded-lg flex items-center justify-center transition-all duration-300"
                   style={{
                     backgroundColor: 'rgba(71, 85, 105, 0.5)',
@@ -183,7 +183,7 @@ const UserMenu = () => {
                     e.currentTarget.style.boxShadow = 'none';
                   }}
                 >
-                  <User className="h-4 w-4" style={{color: 'rgb(148, 163, 184)'}} />
+                  <User className="h-4 w-4" style={{ color: 'rgb(148, 163, 184)' }} />
                 </div>
                 <div className="flex-1">
                   <p className="font-semibold text-white text-sm">Mi Perfil</p>
@@ -316,7 +316,7 @@ export const Navbar = () => {
         );
       setSearchResults(filtered);
     } catch (error) {
-      
+
       setSearchResults([]);
     } finally {
       setIsSearching(false);
@@ -529,7 +529,7 @@ export const Navbar = () => {
                                 </Link>
 
                                 <div className="pl-4 space-y-1.5 mt-2">
-                                  {category.subcategories.slice(0, 3).map((sub) => (
+                                  {category.subcategories?.slice(0, 3).map((sub) => (
                                     <Link
                                       key={sub.id}
                                       href={createCategoryUrl(category.name, sub.name)}
@@ -542,14 +542,14 @@ export const Navbar = () => {
                                       </div>
                                     </Link>
                                   ))}
-                                  {category.subcategories.length > 3 && (
+                                  {category.subcategories?.length > 3 && (
                                     <Link
                                       href={createCategoryUrl(category.name)}
                                       className="block text-sm text-blue-400 hover:text-blue-300 py-2.5 px-3 rounded-lg hover:bg-blue-500/15 transition-all duration-300 font-semibold border border-transparent hover:border-blue-500/30 mt-2 group/more"
                                       onClick={() => setIsMobileMenuOpen(false)}
                                     >
                                       <div className="flex items-center justify-between">
-                                        <span>Ver todas las subcategorías</span>
+                                        <span>Ver todas</span>
                                         <span className="text-xs px-2 py-1 bg-blue-500/25 rounded-full text-blue-300 group-hover/more:bg-blue-500/35 transition-all">
                                           +{category.subcategories.length - 3}
                                         </span>
@@ -609,16 +609,12 @@ export const Navbar = () => {
                 </NavigationMenuLink>
               </NavigationMenuItem>
 
-            
-
               <NavigationMenuItem>
                 <NavigationMenuTrigger className="h-11 border-none bg-transparent hover:bg-white/10 rounded-xl font-medium transition-all duration-300 text-white data-[state=open]:bg-white/10 focus:outline-none focus:ring-0 [&>svg]:!text-white">
                   Categorías
                 </NavigationMenuTrigger>
                 <NavigationMenuContent className="min-w-0 p-0 [&>div]:bg-transparent [&>div]:!border-none [&>div]:!shadow-none [&>div]:!p-0 border-none">
                   <div className="w-[900px] h-[680px] bg-gradient-to-br from-slate-950 via-slate-900/90 to-slate-950 rounded-2xl shadow-2xl shadow-blue-600/20 overflow-y-auto border border-slate-700/50 scrollbar-thin scrollbar-thumb-slate-700/60 scrollbar-track-slate-900/50 hover:scrollbar-thumb-slate-600/80 transition-colors">
-             
-
                     {categoriesLoading ? (
                       <div className="grid grid-cols-3 gap-6 p-8">
                         {[1, 2, 3].map((i) => (
@@ -655,12 +651,10 @@ export const Navbar = () => {
                       <div className="grid grid-cols-3 gap-6 p-8">
                         {categories.map((category) => (
                           <div key={category.id} className="group">
-                            {/* Category Header */}
                             <Link
                               href={createCategoryUrl(category.name)}
                               className="flex items-center gap-4 mb-5 p-4 rounded-xl bg-gradient-to-br from-blue-400/30 via-purple-400/30 to-indigo-300/30 hover:from-blue-400/50 hover:via-purple-400/40 hover:to-indigo-400/40 transition-all duration-300 group/link h-24 border border-slate-700/40 hover:border-slate-600/60 hover:shadow-lg hover:shadow-blue-600/20 relative overflow-hidden"
                             >
-                              {/* Background glow effect */}
                               <div className="absolute inset-0 bg-gradient-to-r from-blue-600/5 via-purple-500/4 to-indigo-600/3 group-hover/link:from-blue-600/15 group-hover/link:via-purple-500/12 group-hover/link:to-indigo-600/10 transition-all duration-300"></div>
 
                               <div className="w-12 h-12 bg-gradient-to-br from-blue-600/70 via-purple-600/70 to-indigo-700/25 rounded-xl flex items-center justify-center group-hover/link:from-blue-500/60 group-hover/link:via-purple-500/50 group-hover/link:to-indigo-600/40 transition-all duration-300  border border-slate-700/50 group-hover/link:border-slate-600/70 flex-shrink-0 relative z-10">
@@ -683,9 +677,8 @@ export const Navbar = () => {
                               </div>
                             </Link>
 
-                            {/* Subcategories */}
                             <div className="space-y-1.5">
-                              {category.subcategories.slice(0, 5).map((sub) => (
+                              {category.subcategories?.slice(0, 5).map((sub) => (
                                 <Link
                                   key={sub.id}
                                   href={createCategoryUrl(category.name, sub.name)}
@@ -695,7 +688,7 @@ export const Navbar = () => {
                                   <span className="truncate">{sub.name}</span>
                                 </Link>
                               ))}
-                              {category.subcategories.length > 5 && (
+                              {category.subcategories?.length > 5 && (
                                 <Link
                                   href={createCategoryUrl(category.name)}
                                   className="flex items-center justify-between text-sm text-slate-200 hover:text-slate-200 py-3 px-3 rounded-lg bg-gradient-to-r from-fuchsia-500/20 to-purple-500/15 hover:from-fuchsia-500/30 hover:to-purple-500/25 transition-all duration-300 font-bold border border-slate-700/40 hover:border-slate-600/60 mt-2 group/more shadow-lg shadow-purple-500/15"
@@ -708,7 +701,6 @@ export const Navbar = () => {
                               )}
                             </div>
 
-                            {/* Divider */}
                             <div className="h-px bg-gradient-to-r from-slate-700/0 via-purple-500/30 to-slate-700/0 mt-4"></div>
                           </div>
                         ))}
@@ -810,8 +802,6 @@ export const Navbar = () => {
                     ) : null}
                   </div>
                 )}
-
-
               </form>
             </div>
 
@@ -870,7 +860,6 @@ export const Navbar = () => {
                   Iniciar Sesión
                 </Button>
               )}
-               
             </div>
           </div>
         </div>
@@ -951,8 +940,6 @@ export const Navbar = () => {
               ) : null}
             </div>
           )}
-
-
         </form>
       </div>
     </nav>

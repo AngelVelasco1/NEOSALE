@@ -12,6 +12,14 @@ export type Category = {
     id: number;
     name: string;
   } | null;
+  subcategories?: {
+    id: number;
+    name: string;
+    active: boolean;
+  }[];
+  _count?: {
+    products: number;
+  };
 };
 
 export interface FetchCategoriesParams {

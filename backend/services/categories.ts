@@ -501,6 +501,18 @@ export const getCategoriesAdminService = async (params: AdminCategoriesQueryPara
           name: true,
           description: true,
           active: true,
+          category_subcategory: {
+            where: { active: true },
+            select: {
+              subcategories: {
+                select: {
+                  id: true,
+                  name: true,
+                  active: true,
+                },
+              },
+            },
+          },
           _count: {
             select: { products: true },
           },
@@ -514,7 +526,10 @@ export const getCategoriesAdminService = async (params: AdminCategoriesQueryPara
 
     return {
       success: true,
-      data: categories,
+      data: categories.map((c) => ({
+        ...c,
+        subcategories: c.category_subcategory.map((cs) => cs.subcategories),
+      })),
       pagination: {
         total,
         page: params.page || 1,
